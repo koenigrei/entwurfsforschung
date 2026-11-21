@@ -1,0 +1,78 @@
+{
+ "P1": [
+  "facs",
+  "schwarm-einfach",
+  "schwarmverhalten",
+  "diffusion-connect",
+  "nl-repel-attract",
+  "vba-node-garden",
+  "wachstumssimulation"
+ ],
+ "P2": [
+  "wachstum-skalenertraege",
+  "wachstum-moore",
+  "spatial-averaging",
+  "vicsek-szalay",
+  "entropie",
+  "einfaches-wachstum",
+  "wachstum-umorganisation",
+  "potentialfeld-wachstum"
+ ],
+ "P3": [
+  "diffusionsfeld-wachstum",
+  "schneeflocke",
+  "kristallwachstum",
+  "nl-zellulaerer-automat",
+  "nl-reakt-diffuse-1",
+  "nl-reakt-diffuse-2",
+  "nl-gebaeudestruktur"
+ ],
+ "P7": [
+  "erreichbarkeit",
+  "gravitation",
+  "a-stern",
+  "graph-pfad",
+  "wegenutzung",
+  "verkehrsaufkommen",
+  "wegesystem-selbstorganisation",
+  "schleimpilz"
+ ],
+ "P8": [
+  "quellen-ziele",
+  "optimiertes-wegesystem",
+  "active-walker",
+  "multi-walker",
+  "interaktionsmodell",
+  "nl-wegesystem-a",
+  "nl-flusssystem"
+ ],
+ "P4": [
+  "thuenen-verhandlung",
+  "alonso",
+  "skalenertraege",
+  "krugman",
+  "zentrale-orte",
+  "separation",
+  "flaechenverteilung"
+ ],
+ "P6": [
+  "segregation-eigenschaft",
+  "zentrale-orte-konkurrenz",
+  "standort-skalenertraege",
+  "mietpreisdynamik",
+  "strassen-segregation",
+  "circle-city",
+  "nl-voting",
+  "nl-territorien",
+  "nl-kulturen"
+ ],
+ "P5": [
+  "ueberlagerungsflaechen",
+  "dichte-packungen-1",
+  "dichte-packungen-2",
+  "vba-2dwachstum-1",
+  "vba-2dwachstum-2",
+  "vba-wanderwuerfel",
+  "vba-konvexe-huelle"
+ ]
+}

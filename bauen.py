@@ -125,15 +125,42 @@ def seite(vorlage, pfad, main, base, titel, seite_, alt):
     open(pfad, "w", encoding="utf-8").write(h)
 
 
-def artikel(e, inhalt, base, unterseiten=None, eltern=None, zu_unter="", eltern_href="../"):
+LINKS_EN = {"Video auf Vimeo ansehen": "Watch video on Vimeo", "Auf SoundCloud anhören": "Listen on SoundCloud",
+            "Dokument auf Yumpu ansehen": "View document on Yumpu", "Sammlung auf issuu (eingebettetes Regal nicht mehr verfügbar)":
+            "Collection on issuu (embedded shelf no longer available)", "Externen Inhalt öffnen": "Open external content"}
+
+
+def englisch_links(h):
+    """Beschriftungen der Link-Knöpfe aus konvertiere.py in der englischen Fassung übersetzen."""
+    for de, en in LINKS_EN.items():
+        h = h.replace(de, en)
+    return h
+
+
+def zwei(de, en, tag="span"):
+    """Zweisprachiger Text: beide Fassungen, sichtbar ist die gewählte Sprache (CSS html[lang] .nur-de/.nur-en)."""
+    if not en or en == de:
+        return html.escape(de)
+    return f'<{tag} class="nur-de">{html.escape(de)}</{tag}><{tag} class="nur-en">{html.escape(en)}</{tag}>'
+
+
+def artikel(e, inhalt, base, unterseiten=None, eltern=None, zu_unter="", eltern_href="../", inhalt_en=None):
     """unterseiten: Liste, die in der Seitenleiste steht; zu_unter: Weg von dieser Seite zu den Unterseiten-Ordnern ("" oder "../");
-    eltern/eltern_href: Rückweg zur übergeordneten Seite (Eintrag oder Unterseite)."""
-    meta = f'<div class="meta mono"><span data-t="kategorie">Kategorie</span><b>{html.escape(e["kategorie"]["de"])}</b><span>Jahr</span><b>{e["jahr"]}</b><span>Autor</span><b>{html.escape(e["autoren"])}</b></div>'
+    eltern/eltern_href: Rückweg zur übergeordneten Seite (Eintrag oder Unterseite). inhalt_en: englische Fassung (archiv_uebersetzung/)."""
+    t = e["titel"]; k = e["kategorie"]
+    meta = (f'<div class="meta mono"><span data-t="kategorie">Kategorie</span><b>{zwei(k["de"], k.get("en"))}</b>'
+            f'<span>{zwei("Jahr", "Year")}</span><b>{e["jahr"]}</b><span>{zwei("Autor", "Author")}</span><b>{html.escape(e["autoren"])}</b></div>')
     liste = ""
     if unterseiten:
-        liste = '<div class="unterseiten"><span class="mono" data-t="unterseiten">Seiten</span>' + "".join(f'<a href="{zu_unter}{u["id"]}/">{html.escape(u["titel"])}</a>' for u in unterseiten) + "</div>"
-    zurueck = (f'<a class="zurueck mono" href="{eltern_href}">← {html.escape(eltern)}</a>' if eltern else f'<a class="zurueck mono" href="{base}archiv/" data-t="zurueck">Zurück zum Archiv</a>')
-    return f'<main class="artikel"><aside><h1>{html.escape(e["titel"]["de"])}</h1>{meta}{liste}{zurueck}</aside><div class="text">{KRUEMEL.sub("", inhalt)}</div></main>'
+        liste = ('<div class="unterseiten"><span class="mono" data-t="unterseiten">Seiten</span>'
+                 + "".join(f'<a href="{zu_unter}{u["id"]}/">{zwei(u["titel"], u.get("titel_en"))}</a>' for u in unterseiten) + "</div>")
+    zurueck = (f'<a class="zurueck mono" href="{eltern_href}">← {zwei(eltern[0], eltern[1]) if isinstance(eltern, tuple) else html.escape(eltern)}</a>' if eltern
+               else f'<a class="zurueck mono" href="{base}archiv/" data-t="zurueck">Zurück zum Archiv</a>')
+    text = KRUEMEL.sub("", inhalt)
+    if inhalt_en:
+        text = f'<div class="nur-de" lang="de">{text}</div><div class="nur-en" lang="en">{englisch_links(KRUEMEL.sub("", inhalt_en))}</div>'
+    return f'<main class="artikel"><aside><h1>{zwei(t["de"], t.get("en"))}</h1>{meta}{liste}{zurueck}</aside><div class="text">{text}</div></main>'
+
 
 
 def bauen(alt="/"):
@@ -146,6 +173,8 @@ def bauen(alt="/"):
     for s in SCHRIFTEN:
         shutil.copy(schrift(s), os.path.join(SITE, "schrift", s))
     open(os.path.join(SITE, "schrift", "geist.css"), "w", encoding="utf-8").write(GEIST_CSS)
+    for f in ("favicon.svg", "favicon.ico", "apple-touch-icon.png"):   # Logo/Favicon (marke/, 21.11.2026)
+        shutil.copy(os.path.join(HIER, "marke", f), os.path.join(SITE, f))
     os.makedirs(os.path.join(SITE, "vendor")); shutil.copy(os.path.join(HIER, "vendor", "three.r128.min.js"), os.path.join(SITE, "vendor", "three.r128.min.js"))
     open(os.path.join(SITE, "schrift", "LIZENZ.txt"), "w", encoding="utf-8").write(
         "Geist und Geist Mono: Copyright Vercel, SIL Open Font License 1.1 – https://openfontlicense.org\n")
@@ -176,6 +205,18 @@ def bauen(alt="/"):
     karten = []
     for e0 in arch["eintraege"]:
         e = json.load(open(os.path.join(HIER, "archiv_inhalte", e0["id"] + ".json"), encoding="utf-8"))
+        up = os.path.join(HIER, "archiv_uebersetzung", e0["id"] + ".json")   # Übersetzung (Agenten 21.11.2026): andere Sprache als das Original
+        U = json.load(open(up, encoding="utf-8")) if os.path.exists(up) else {}
+        def fassungen(original, ue, orig_sprache):
+            """→ (deutsch, englisch) aus Original und Übersetzung; ohne Übersetzung (original, None)."""
+            if not ue:
+                return original, None
+            return (original, ue) if orig_sprache == "de" else (ue, original)
+        if U:
+            e["titel"] = U.get("titel", e["titel"]); e["vorschau"] = U.get("vorschau", {}).get("de") or e["vorschau"]
+            vorschau_en = U.get("vorschau", {}).get("en")
+        else:
+            vorschau_en = None
         d = os.path.join(SITE, "archiv", e["id"])
         shutil.copytree(os.path.join(HIER, "archiv_medien", e["id"]), os.path.join(d, "medien"))
         bild = e.get("bild")
@@ -183,22 +224,30 @@ def bauen(alt="/"):
             w, h = kachelbild(os.path.join(d, bild), os.path.join(SITE, "bilder", f"archiv_{e['id']}.webp"))
         else:
             w, h = titelbild(e["titel"]["de"], os.path.join(SITE, "bilder", f"archiv_{e['id']}.webp"))
-        inhalt = e["inhalt"]
-        if bild and bild not in inhalt:                                # Beitragsbild oben, wenn es nicht schon im Text steht
-            inhalt = f'<img class="titelbild" src="{bild}" alt="">' + inhalt
+        inhalt_de, inhalt_en = fassungen(e["inhalt"], U.get("inhalt"), U.get("original", "de"))
+        if bild and bild not in e["inhalt"]:                           # Beitragsbild oben, wenn es nicht schon im Text steht
+            inhalt_de = f'<img class="titelbild" src="{bild}" alt="">' + inhalt_de
+            inhalt_en = inhalt_en and f'<img class="titelbild" src="{bild}" alt="">' + inhalt_en
         alle = e.get("unterseiten", [])                                # Unterseiten liegen flach unter archiv/<id>/<sid>/, „eltern“ ordnet sie
         nach_id = {u["id"]: u for u in alle}                           # in der Seitenleiste unter einer anderen Unterseite ein (konvertiere.py)
         kinder = lambda sid: [u for u in alle if u.get("eltern") == sid]
-        seite(vorlage, os.path.join(d, "index.html"), artikel(e, inhalt, "../../", kinder(None)), "../../", f"{e['titel']['de']} · Entwurfsforschung", "archiv", alt)
+        UU = U.get("unterseiten", {})
+        for u in alle:                                                  # Titel beider Sprachen an die Unterseiten hängen
+            uu = UU.get(u["id"], {})
+            if uu.get("titel"):
+                u["titel"], u["titel_en"] = uu["titel"].get("de", u["titel"]), uu["titel"].get("en")
+        seite(vorlage, os.path.join(d, "index.html"), artikel(e, inhalt_de, "../../", kinder(None), inhalt_en=inhalt_en), "../../", f"{e['titel']['de']} · Entwurfsforschung", "archiv", alt)
         for u in alle:
-            ue = dict(e, titel={"de": u["titel"], "en": u["titel"]})
+            uu = UU.get(u["id"], {})
+            ude, uen = fassungen(u["inhalt"], uu.get("inhalt"), uu.get("original", U.get("original", "de")))
+            ue = dict(e, titel={"de": u["titel"], "en": u.get("titel_en") or u["titel"]})
             el = nach_id.get(u.get("eltern"))
             seite(vorlage, os.path.join(d, u["id"], "index.html"),
-                  artikel(ue, u["inhalt"], "../../../", kinder(u["id"]), eltern=el["titel"] if el else e["titel"]["de"], zu_unter="../",
-                          eltern_href=f"../{el['id']}/" if el else "../"), "../../../",
+                  artikel(ue, ude, "../../../", kinder(u["id"]), eltern=(el["titel"], el.get("titel_en")) if el else (e["titel"]["de"], e["titel"].get("en")), zu_unter="../",
+                          eltern_href=f"../{el['id']}/" if el else "../", inhalt_en=uen), "../../../",
                   f"{u['titel']} · Entwurfsforschung", "archiv", alt)
         karten.append({"id": e["id"], "titel": e["titel"], "autoren": e["autoren"], "kategorie": e["kategorie"], "jahr": e["jahr"], "datum": e["datum"],
-                       "vorschau": {"de": e["vorschau"], "en": e["vorschau"]}, "href": f"{e['id']}/",
+                       "vorschau": {"de": e["vorschau"], "en": vorschau_en or e["vorschau"]}, "href": f"{e['id']}/",
                        "bild": f"../bilder/archiv_{e['id']}.webp" + vq(os.path.join(SITE, "bilder", f"archiv_{e['id']}.webp")), "w": w, "h": h})
     seite(vorlage, os.path.join(SITE, "archiv", "index.html"),
           FILTER.format(id="archiv", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": karten}, ensure_ascii=False)),
@@ -218,9 +267,9 @@ def bauen(alt="/"):
 SIM = os.path.join(HIER, "simulationen")
 SIM_NICHT = shutil.ignore_patterns("node_modules", ".git", "__pycache__", "_pruefung", "*.local.*", "quellcode.zip")
 SIM_TEXT = {"de": ("Frühe Simulationen", "Die Simulationsprogramme der alten Website – Delphi, NetLogo, AutoCAD-VBA, entstanden 2005 bis 2008 – neu umgesetzt als Web-Apps. Die Regeln und Parameter folgen den Originalen; jede App verweist auf ihre Archivseite und lässt sich als Quellcode herunterladen und weiterentwickeln.",
-                   "Die Reihenfolge folgt der Bestandsliste; weitere Modelle kommen nach und nach hinzu."),
+                   "Sortiert nach Entstehungsdatum, neueste zuerst; weitere Modelle kommen nach und nach hinzu."),
             "en": ("Early Simulations", "The simulation programs of the old website – Delphi, NetLogo, AutoCAD VBA, written between 2005 and 2008 – re-implemented as web apps. Rules and parameters follow the originals; every app links to its archive page and can be downloaded as source code to develop further.",
-                   "The order follows the inventory; more models will be added step by step.")}
+                   "Sorted by date of origin, newest first; more models will be added step by step.")}
 
 
 def simulationen(vorlage, alt):
@@ -256,7 +305,7 @@ def simulationen(vorlage, alt):
         g = gruppen.get(e.get("gruppe"), {})
         karten.append({"id": aid, "titel": meta["titel"], "autoren": f"{e['herkunft']} · R. König",
                        "kategorie": g.get("titel", {"de": e["herkunft"], "en": e["herkunft"]}), "jahr": meta.get("jahr", e.get("jahr")),
-                       "datum": f"{meta.get('jahr', e.get('jahr'))}-01-01", "vorschau": meta.get("vorschau"), "href": f"{aid}/",
+                       "datum": meta.get("datum") or f"{meta.get('jahr', e.get('jahr'))}-01-01", "vorschau": meta.get("vorschau"), "href": f"{aid}/",
                        "bild": f"bilder/{aid}.webp" + vq(os.path.join(ziel, "bilder", aid + ".webp")), "w": w, "h": h})
     de, en = SIM_TEXT["de"], SIM_TEXT["en"]
     n_alle = len(bestand["programme"])
@@ -267,7 +316,7 @@ def simulationen(vorlage, alt):
                   f'<p class="nur-en">{len(karten)} of {n_alle} programs are done. {html.escape(en[2])}</p>'
                   f'<p><a href="../../archiv/raumprozesse/simulationsprogramme/"><span class="nur-de">Originale im Archiv</span><span class="nur-en">Originals in the archive</span></a></p></div></section>')
     seite(vorlage, os.path.join(ziel, "index.html"),
-          FILTER.format(id="simulationen", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
+          FILTER.format(id="simulationen", folge="", daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
           "../../", "Frühe Simulationen · Entwurfsforschung", "lab", alt)
     return len(karten)
 

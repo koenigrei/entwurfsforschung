@@ -1,0 +1,151 @@
+{
+ "id": "design-generation",
+ "original": "en",
+ "titel": {
+  "de": "Entwurfsgenerierung",
+  "en": "Design Generation"
+ },
+ "vorschau": {
+  "de": "Meine persönliche Geschichte des Generierens von Entwürfen begann 2002 mit einem Projekt namens „Entwurfsgenerator“. Es war ein physikbasiertes System, umgesetzt mit einer Physik-Engine von 3D Studio …",
+  "en": "My personal history of generating designs started in 2002 with a project that was called “Design Generator”. It was a physically based system implemented with a physics engine of 3D Studio …"
+ },
+ "inhalt": "<p>Meine persönliche Geschichte des Generierens von Entwürfen begann 2002 mit einem Projekt namens „Entwurfsgenerator“. Es war ein physikbasiertes System, umgesetzt mit einer Physik-Engine von 3D Studio Max. Die Beziehungen zwischen räumlichen Einheiten wurden als Federn dargestellt, die Räume selbst als physikalische Körper. Die Verteilung der farbig markierten Funktionen wird durch anziehende und abstoßende Kräfte zwischen ihnen gesteuert.<br>\nDieses erste Experiment ergab schöne Animationen, wie das Video unten zeigt. Das Modell wurde für den Entwurf eines Areals für Medienkünstler und Unternehmer in München umgesetzt.</p>\n<p><p class=\"extern\"><a href=\"https://vimeo.com/74158315\" rel=\"noopener\">Video auf Vimeo ansehen ↗</a></p></p>\n<p>Eine ausführlichere Dokumentation auf Deutsch gibt es auf dieser <a href=\"../design-generation/entwurfsgenerator/\">älteren Website</a>. Der Prozess ist in dieser Broschüre dokumentiert:</p>\n",
+ "unterseiten": {
+  "entwurfsgenerator": {
+   "original": "de",
+   "titel": {
+    "de": "Entwurfsgenerator (ältere Dokumentation)",
+    "en": "Design Generator (older documentation)"
+   },
+   "inhalt": "<div>\n<div>a parametric design\n<p>\"...neither a thing nor a concept, but a continual flux or process\"<br>\nWilliam Morton Wheeler</p>\n<p>Using the example of the Medien-Werk-Stadt, a center for new media that the City of Munich had planned for the former Beutler site at the corner of Ganghoferstraße and Ridlerstraße, a computer-generated design process was developed. The aim was to support the architect in designing by using the computing machine. The architect was to be freed from constraining mathematical tasks in order to expand his creative scope. In this context, the design process is dominated above all by functional considerations. A machine can solve these far faster and with far greater complexity than humans can. </p></div>\n<div>\n<p><a href=\"../../design-generation/prozessbeschreibung/\">Process description</a></p>\n<p><a href=\"../../design-generation/entwurf/\">Design</a></p>\n<p><a href=\"../../design-generation/ausstellung/\">Exhibition</a></p>\n<p><a href=\"../../design-generation/ausblick/\">Outlook</a></p>\n\n<p><a><img src=\"../medien/varianten_enter.gif\" alt=\"\" loading=\"lazy\"></a></p>\n</div>\n<div>\n\n<p><a href=\"../medien/Entwurfsgenerator.pdf\">Documentation\nas a PDF file</a> (1 MB)</p>\n<p>Design Generator<br>\nReinhard\nKönig and Christian\nBauriedel</p>\n<p>The work was published\nin: <br>\n<a href=\"http://www.archplus.net/\" rel=\"noopener\">archpluspreis\n3, zweifelsohne, Konzepte und Kritik der jungen Generation. </a> [archplus prize 3, undoubtedly: concepts and critique of the young generation]</p>\n</div>\n</div>\n"
+  },
+  "prozessbeschreibung": {
+   "original": "de",
+   "titel": {
+    "de": "Prozessbeschreibung",
+    "en": "Process Description"
+   },
+   "inhalt": "<div>\n\n<div> <p>Process description<br>\nThe presentation is available as an interactive\nFlash movie and in HTML format.</p>\n</div>\n<div><a href=\"../../design-generation/praesentation/\">interactive\nFlash presentation</a></div>\n<div>\n<p>HTML pages</p>\n</div>\n\n<div><a href=\"../medien/praesentationsFilm.avi\">Presentation film</a>\n(avi, 13.8 MB)</div>\n<div><p><a href=\"../../design-generation/prozess-1/\">first\nstep</a></p>\n<p><a href=\"../../design-generation/prozess-2/\">second step</a></p>\n<p><a href=\"../../design-generation/prozess-3/\">third step</a></p>\n<p><a href=\"../../design-generation/prozess-4/\">fourth step</a></p>\n<p><a href=\"../../design-generation/prozess-5/\">fifth\nstep</a></p>\n<p><a href=\"../../design-generation/prozess-6/\">sixth step</a></p>\n<p><a href=\"../../design-generation/prozess-7/\">seventh step</a></p></div>\n<div><p>- primary\nrelations</p>\n<p>- secondary relations</p>\n<p>- open space affinity</p>\n<p>- shape stability</p>\n<p>- implementation</p>\n<p>- Gaussian normal distribution</p>\n<p>- evolutionary development strategy</p></div>\n</div>\n\n\n<div> <br>\n\\ <a href=\"../../design-generation/entwurfsgenerator/\">Design Generator</a></div>\n"
+  },
+  "praesentation": {
+   "original": "de",
+   "titel": {
+    "de": "Interaktive Präsentation (Flash)",
+    "en": "Interactive Presentation (Flash)"
+   },
+   "inhalt": "<p class=\"hinweis\"><em>The interactive version of this page (Adobe Flash) no longer runs in current browsers. The text and still images have been retained.</em></p>\n"
+  },
+  "prozess-1": {
+   "original": "de",
+   "titel": {
+    "de": "1 – Primäre Beziehungen",
+    "en": "1 – Primary Relations"
+   },
+   "inhalt": "<div>\n<div><p><img src=\"../medien/01diagramm.gif\" alt=\"\" loading=\"lazy\"></p>\n</div>\n\n<div> <p><br>\nfirst step<br>\nprimary relations </p></div>\n<div> <p>Using values from 0 to 100, the primary relations define how strongly the individual\nbuilding parts of the space allocation program are related to one another.\nHigh values mean that the parts will move closer to each other; low values result in a more neutral relationship. The\neffect of these relations can be imagined as that of a spring or\nrubber band, which is the stronger, the higher\nthe defined value. The entire system strives for a stable\nequilibrium in which the sum of the spring tensions reaches its lowest\nvalue. If one value is changed, the entire\nstructure is set in motion until it settles into a new equilibrium.\n</p>\n<p>For example, the congress–lecture relation has a high value of 80,\nwhich will lead to spatial proximity.\nCongress–museum is defined as 20; here spatial\nproximity is considered less important.</p></div>\n\n<div>\n<p><img src=\"../medien/01tabelle.gif\" alt=\"\" loading=\"lazy\"></p>\n</div>\n\n\n\n</div>\n\n\n<div><p>\n__<a href=\"../../design-generation/prozess-1/\">first\nstep</a>___<a href=\"../../design-generation/prozess-2/\">second\nstep</a>___<a href=\"../../design-generation/prozess-3/\">third\nstep</a>___<a href=\"../../design-generation/prozess-4/\">fourth\nstep</a>___<a href=\"../../design-generation/prozess-5/\">fifth\nstep</a>___<a href=\"../../design-generation/prozess-6/\">sixth\nstep</a>___<a href=\"../../design-generation/prozess-7/\">seventh\nstep</a>____<a href=\"../../design-generation/prozess-2/\">next</a>\n&gt;<br>\n<br>\n\\ <a href=\"../../design-generation/prozessbeschreibung/\">Process description</a>\n</p></div>"
+  },
+  "prozess-2": {
+   "original": "de",
+   "titel": {
+    "de": "2 – Sekundäre Beziehungen",
+    "en": "2 – Secondary Relations"
+   },
+   "inhalt": "<div>\n<div>\n<p><br>\nsecond step<br>\nsecondary relations</p>\n</div>\n<div> <div><img src=\"../medien/02diagramm.gif\" alt=\"\" loading=\"lazy\"></div></div>\n<div> <p>The secondary\nrelations define the behavior of the rooms within the\nbuilding parts. Individual rooms, such as\nancillary rooms, are assigned the behavior of merging with the\nancillary rooms within other higher-level parts as soon as they approach one another,\nbut of abandoning this behavior again beyond a certain distance. These relational fields\nare comparable to magnetic fields, by which\nthe areas strongly attract each other as soon as they come close.\nThe magnitude of the value indicates the spatial extent of this\nfield. The system of these dependencies is illustrated on the opposite\npage.</p>\n<p>For example, the foyer areas have high values and thus a large\nsurrounding force field. A merging of these areas is therefore\nstrongly favored. Cleaning and sanitary storage rooms have low values;\nmerging them was considered less important.</p></div>\n\n<div>\n<p><img src=\"../medien/02tabelle.gif\" alt=\"\" loading=\"lazy\"></p>\n</div>\n\n\n\n\n</div>\n\n\n<div><p>__<a href=\"../../design-generation/prozess-1/\">first\nstep</a>___<a href=\"../../design-generation/prozess-2/\">second\nstep</a>___<a href=\"../../design-generation/prozess-3/\">third\nstep</a>___<a href=\"../../design-generation/prozess-4/\">fourth\nstep</a>___<a href=\"../../design-generation/prozess-5/\">fifth\nstep</a>___<a href=\"../../design-generation/prozess-6/\">sixth\nstep</a>___<a href=\"../../design-generation/prozess-7/\">seventh\nstep</a>____<a href=\"../../design-generation/prozess-3/\">next</a>\n&gt;<br>\n<br>\n\\ <a href=\"../../design-generation/prozessbeschreibung/\">Process description</a>\n</p></div>"
+  },
+  "prozess-3": {
+   "original": "de",
+   "titel": {
+    "de": "3 – Freiraumbindungen",
+    "en": "3 – Open Space Affinity"
+   },
+   "inhalt": "<div>\n<div><p><img src=\"../medien/03diagramm.gif\" alt=\"\" loading=\"lazy\"></p>\n\n</div>\n<div>\n<div>\n<p><br>\nthird step<br>\nopen space affinity</p>\n\n</div></div>\n\n<div> <p>The open space affinity value\nindicates how intensely open spaces attach themselves to the\nindividual parts of the space allocation program. Open spaces are\nimplemented as invisible bodies that displace the building parts\nand thus create voids.</p>\n<p>For example, the museum needs only little open space around\nit and therefore has the value 20. For the apartments,\nopen spaces were considered important, which is why they have the value 85.\n</p>\n</div>\n\n<div>\n<p><img src=\"../medien/03tabelle.gif\" alt=\"\" loading=\"lazy\"></p>\n\n</div>\n\n\n\n</div>\n\n\n<div><p>__<a href=\"../../design-generation/prozess-1/\">first\nstep</a>___<a href=\"../../design-generation/prozess-2/\">second\nstep</a>___<a href=\"../../design-generation/prozess-3/\">third\nstep</a>___<a href=\"../../design-generation/prozess-4/\">fourth\nstep</a>___<a href=\"../../design-generation/prozess-5/\">fifth\nstep</a>___<a href=\"../../design-generation/prozess-6/\">sixth\nstep</a>___<a href=\"../../design-generation/prozess-7/\">seventh\nstep</a>____<a href=\"../../design-generation/prozess-4/\">next</a>\n&gt;<br>\n<br>\n\\ <a href=\"../../design-generation/prozessbeschreibung/\">Process description</a>\n</p></div>"
+  },
+  "prozess-4": {
+   "original": "de",
+   "titel": {
+    "de": "4 – Formstabilität",
+    "en": "4 – Shape Stability"
+   },
+   "inhalt": "<div>\n\n<div><p><img src=\"../medien/04diagramm.gif\" alt=\"\" loading=\"lazy\"></p>\n</div>\n<div>\n<p>The shape stability values indicate the need for the\nbuilding parts to occupy a small surface area relative to their\nextent. A high value means a rather rigid, spherical\nbody; a low value a fluid body without a stable\nshape.</p>\n<p>For example, the congress building must have a coherent\nvolume in order to function. It therefore has a high\nvalue of 95. The internet café or the museum could\nbe distributed linearly or in a network throughout the complex; they therefore have\nlow values of 20–30.</p>\n</div>\n<div> <p><br>\nfourth step<br>\nshape stability</p></div>\n<div>\n<p><img src=\"../medien/04tabelle.gif\" alt=\"\" loading=\"lazy\"></p>\n</div>\n\n\n\n\n</div>\n\n\n<div><p>__<a href=\"../../design-generation/prozess-1/\">first\nstep</a>___<a href=\"../../design-generation/prozess-2/\">second\nstep</a>___<a href=\"../../design-generation/prozess-3/\">third\nstep</a>___<a href=\"../../design-generation/prozess-4/\">fourth\nstep</a>___<a href=\"../../design-generation/prozess-5/\">fifth\nstep</a>___<a href=\"../../design-generation/prozess-6/\">sixth\nstep</a>___<a href=\"../../design-generation/prozess-7/\">seventh\nstep</a>____<a href=\"../../design-generation/prozess-5/\">next</a>\n&gt;<br>\n<br>\n\\ <a href=\"../../design-generation/prozessbeschreibung/\">Process description</a>\n</p></div>"
+  },
+  "prozess-5": {
+   "original": "de",
+   "titel": {
+    "de": "5 – Implementierung",
+    "en": "5 – Implementation"
+   },
+   "inhalt": "<div>\n<div>\n<p><br>\nfifth step<br>\nimplementation</p></div>\n<div>\n<p><img src=\"../medien/05diagramm2.gif\" alt=\"\" loading=\"lazy\"></p></div>\n<div>\n\n<p>The system was implemented in 3D Studio MAX,\nan animation program with the capability of simulating\nphysical systems. The scripting language integrated into the program\nwas used.</p>\n<p>The process described is about finding the state\nin which the sum of all occurring tensions is lowest.\nExperiments showed that the final state of the process\ndepends on the initial position of the building parts.\nIf the initial position of the building parts is changed, different final states\nresult from the same values. However, this\nshould not be interpreted as a flaw in the process; rather,\nit is a genuine many-body problem, as known from\nphysics.<br>\nThe illustrations below show the relationship in two dimensions,\nwhereas in reality the problem is three-dimensional.\nAs in physics, the unique state of lowest energy can be reached\nwith high probability by introducing chaotic motion (temperature)\nand gradually reducing this motion (cooling).\nThis was not done in our process because, as shown below,\na functionally unambiguous correct solution cannot be determined\nin architecture. Moreover, aesthetic, urban design,\ncultural and other criteria have not yet been taken into account\nand will be incorporated later.</p>\n</div>\n\n<div>\n<p><img src=\"../medien/05diagramm1.gif\" alt=\"\" loading=\"lazy\"></p></div>\n<div>\n<div>Particles (\"atoms\") are implemented\nand enclosed by a flexible envelope for each building part.</div></div>\n<div>\n<div>The particles are connected to each other by spring tensions\n(the magnitude of the tensions determines the shape stability\nof the building part)</div></div>\n<div><div>All\nparticles of a building part are connected to the particles of the other\nbuilding parts by spring tensions (the magnitude\nof the tensions determines the primary relations)</div></div>\n<div><div>\n<p>Some particles of a building part are\nsurrounded by a force field that reacts to the force fields of particles\nof the same type (the field radius determines the secondary\nrelations) </p>\n</div></div>\n\n\n\n</div>\n\n\n<div><p>_ <a href=\"../../design-generation/prozess-1/\">first\nstep</a>___<a href=\"../../design-generation/prozess-2/\">second\nstep</a>___<a href=\"../../design-generation/prozess-3/\">third\nstep</a>___<a href=\"../../design-generation/prozess-4/\">fourth\nstep</a>___<a href=\"../../design-generation/prozess-5/\">fifth\nstep</a>___<a href=\"../../design-generation/prozess-6/\">sixth\nstep</a>___<a href=\"../../design-generation/prozess-7/\">seventh\nstep</a>____<a href=\"../../design-generation/prozess-6/\">next</a>\n&gt;<br><br>\\ <a href=\"../../design-generation/prozessbeschreibung/\">Process description</a>\n</p></div>"
+  },
+  "prozess-6": {
+   "original": "de",
+   "titel": {
+    "de": "6 – Gaußsche Normalverteilung",
+    "en": "6 – Gaussian Normal Distribution"
+   },
+   "inhalt": "<div>\n<div><p><img src=\"../medien/06diagramm1.gif\" alt=\"\" loading=\"lazy\"></p>\n</div>\n\n<div>\n<p>sixth step<br>\nGaussian normal distribution\n</p>\n</div>\n\n<div>The defined values are\nsoft, i.e., chosen subjectively. The state of the system is\ndiscrete, i.e., small changes in value lead to very different\nresults. The base values are therefore varied by means of a Gaussian\nnormal distribution in order to objectify them. The values change\npredominantly within the range of +10 to -10.<br>\nOutlier values such as 0 or 100 are set only rarely, as the frequency\ndistribution shows. </div>\n<div>\n<p><img src=\"../medien/06diagramm2.gif\" alt=\"\" loading=\"lazy\"></p>\n</div>\n\n\n\n</div>\n\n\n<div><p>__<a href=\"../../design-generation/perspektiven/\">first\nstep</a>___<a href=\"../../design-generation/prozess-2/\">second\nstep</a>___<a href=\"../../design-generation/prozess-3/\">third\nstep</a>___<a href=\"../../design-generation/prozess-4/\">fourth\nstep</a>___<a href=\"../../design-generation/prozess-5/\">fifth\nstep</a>___<a href=\"../../design-generation/prozess-6/\">sixth\nstep</a>___<a href=\"../../design-generation/prozess-7/\">seventh\nstep</a>____<a href=\"../../design-generation/prozess-7/\">next</a>\n&gt;<br>\n<br>\n\\ <a href=\"../../design-generation/prozessbeschreibung/\">Process description</a>\n</p></div>"
+  },
+  "prozess-7": {
+   "original": "de",
+   "titel": {
+    "de": "7 – Ausgewählte Variante",
+    "en": "7 – Selected Variant"
+   },
+   "inhalt": "<div>\n\n\n\n<div> <p>seventh\nstep<br>\nevolutionary development strategy</p>\n<p>Through the fluctuation of the values, the computer becomes a tool\nfor generating diverse variations of functional relationships.\nOnce the structures begin to repeat, the process\nis interrupted and broken down into individual snapshots. Now\nthe work of the interdisciplinary design team begins: they examine\nand differentiate the variants according to the usual criteria\nsuch as urban context, functionality, aesthetic\npower, construction and economic efficiency. Variants that show little\npotential for a high-quality design\nare sorted out; for others that have weaknesses in certain areas,\nthe data set is crossed with those that are strong\nthere. Scattering (mutation), which again varies the parameters\nby means of the Gaussian normal distribution, often produces\nconfigurations with new, positive properties. In this way,\nover several runs, variants are deliberately bred that\nhave maximally positive characteristics.</p>\n</div>\n<div><div><img src=\"../medien/07musikdiagramm.gif\" alt=\"\" loading=\"lazy\"><br>\nFig. from: das schriftbild der neuen musik [Notation in New Music],<br>\nerhard karkoschka<br>\nDrawing: Cage: Cartridge Music. Sheet 7</div></div>\n<div><p><img src=\"../medien/07bilderreihe.jpg\" alt=\"\" loading=\"lazy\"></p>\n</div>\n<div>\n<div><img src=\"../medien/07kreuzdiagramm.gif\" alt=\"\" loading=\"lazy\"></div></div>\n<div><p>In a conventional\ndesign process, the architect first has to spend days working through the space allocation program\nbefore arriving at a first design that draws on the\nknowledge and experience of the designer and discards options that seem\nnonsensical. The drawback of\nthis approach can be seen precisely in the pragmatic, unconscious preselection\nby the designer, who may thereby miss important\npossible solutions. Because of the high complexity, one easily tends\nto keep elaborating the concept, which is usually based on initial priorities,\ninstead of questioning it again and forming new\nvariants. The Design Generator is fed with\nthe space allocation program and functional relationships in a short time and immediately computes\nany number of variants that sensibly lay out the spatial zones.\nThe designer, in this case the design team, can devote itself entirely to\ndiscussion and selection. The evolutionary program\nis not determined by the imprints and preconceived, supposedly\nfactual opinions of an individual designer. This gives rise to\ncreative solutions that a human designer could not have\nproduced.<br>\n</p>\n</div>\n<div><p>The evolutionary\nprocess amounts to a search in a space of possible variants.\nIn mathematics, 'space' is generally understood as a set\nof elements, for example points, vectors, functions, etc., between\nwhich certain relations exist. Genetic crossover searches\nthis space and combines different good properties, which\nleads to new regions of the space in which better variants\ncan be found. Mutation, on the other hand, can find the best variants\nin the immediate neighborhood. </p>\n</div>\n\n<div>\n<p><img src=\"../medien/07kreuzungen.gif\" alt=\"\" loading=\"lazy\"></p>\n</div>\n<div> <div>\n<p>The site marks a difficult location in urban design\nterms. Continuing the existing building volumes\ncreates new constraints; forming a joint likewise creates\nproblems. The selected variant, by contrast, fits\nmeaningfully into the surrounding urban fabric. It\nis convincing because of an open area in the northeast as a counterpart\nto an open area opposite and as an entrance area\nto the entire complex with a central internet café. The open area\nalong the railway lines was also assessed positively. Future\ngreening seemed sensible here. The museum\nand training wing marks the intersection of Ganghoferstraße\nwith the railway lines and creates a counterweight to the buildings\nopposite. The interlocking of research and living areas should\nfoster a productive working climate.<br>\nThe selected variant can serve as the basis for an overall design,\nsensibly predetermine a spatial arrangement of zones,\nor merely serve as inspiration. One goal is further development\nthat allows orthogonal structures to be generated. </p>\n</div></div>\n\n\n</div>\n\n\n<div><p>__<a href=\"../../design-generation/prozess-1/\">first\nstep</a>___<a href=\"../../design-generation/prozess-2/\">second\nstep</a>___<a href=\"../../design-generation/prozess-3/\">third\nstep</a>___<a href=\"../../design-generation/prozess-4/\">fourth\nstep</a>___<a href=\"../../design-generation/prozess-5/\">fifth\nstep</a>___<a href=\"../../design-generation/prozess-6/\">sixth\nstep</a>___<a href=\"../../design-generation/prozess-7/\">seventh\nstep</a>____&lt; <a href=\"../../design-generation/prozess-1/\">start</a><br>\n<br>\n\\ <a href=\"../../design-generation/prozessbeschreibung/\">Process description</a>\n</p></div>"
+  },
+  "entwurf": {
+   "original": "de",
+   "titel": {
+    "de": "Entwurf: Systemschnitt",
+    "en": "Design: System Section"
+   },
+   "inhalt": "<div>\n\n<div><p>Design\nsystem section </p>\n<p>To investigate the potential of the new design tool with regard\nto formal languages, the following design was developed as an\narchitectural vision.</p></div>\n<div><a><img src=\"../medien/Schnitt.jpg\" alt=\"\" loading=\"lazy\"></a></div>\n<div><br>\n<a href=\"../../design-generation/entwurf-perspektiven/\">next</a>\n&gt;&gt;</div></div>\n\n\n<div>&gt; <a href=\"../../design-generation/entwurf-perspektiven/\">Design perspectives</a>______&gt;\n<a href=\"../../design-generation/entwurf-bereiche/\">Design areas</a>______&gt;\n<a href=\"../../design-generation/entwurf-konstruktion/\">Design_structure</a><br>\n<br>\n\\ <a href=\"../../design-generation/entwurfsgenerator/\">Design Generator</a></div>\n"
+  },
+  "entwurf-perspektiven": {
+   "original": "de",
+   "titel": {
+    "de": "Entwurf: Perspektiven",
+    "en": "Design: Perspectives"
+   },
+   "inhalt": "<div>\n<div>\n<div>\n<p>Design perspectives</p>\n</div></div>\n\n<div><a><img src=\"../medien/ausschnitt.jpg\" alt=\"\" loading=\"lazy\"></a></div>\n<div><br>\n<a href=\"../../design-generation/entwurf-bereiche/\">next</a>\n&gt;&gt; </div></div>\n\n\n<div>&gt; <a href=\"../../design-generation/entwurf/\">Design system section</a>\n______&gt; <a href=\"../../design-generation/entwurf-bereiche/\">Design\nareas</a>______&gt; <a href=\"../../design-generation/entwurf-konstruktion/\">Design_structure</a><br>\n<br>\n\\ <a href=\"../../design-generation/entwurfsgenerator/\">Design Generator</a></div>\n"
+  },
+  "perspektiven": {
+   "original": "de",
+   "titel": {
+    "de": "Perspektiven",
+    "en": "Perspectives"
+   },
+   "inhalt": "<img src=\"../medien/Perspektiven.jpg\" alt=\"\" loading=\"lazy\">"
+  },
+  "entwurf-bereiche": {
+   "original": "de",
+   "titel": {
+    "de": "Entwurf: Bereiche",
+    "en": "Design: Areas"
+   },
+   "inhalt": "<div>\n<div> <div>\n<p><a><img src=\"../medien/Bereiche.jpg\" alt=\"\" loading=\"lazy\"></a></p>\n</div></div>\n<div> <div>Design\nareas</div></div>\n<div><img src=\"../medien/erschliessung_Kopie.jpg\" alt=\"\" loading=\"lazy\"></div>\n<div><br>\n<a href=\"../../design-generation/entwurf-konstruktion/\">next</a>&gt;&gt;\n</div></div>\n\n\n<div>&gt; <a href=\"../../design-generation/entwurf/\">Design system section</a>\n______&gt; <a href=\"../../design-generation/entwurf-perspektiven/\">Design\nperspectives</a> ______&gt;\n<a href=\"../../design-generation/entwurf-konstruktion/\">Design_structure</a><br>\n<br>\n\\ <a href=\"../../design-generation/entwurfsgenerator/\">Design Generator</a></div>\n"
+  },
+  "entwurf-konstruktion": {
+   "original": "de",
+   "titel": {
+    "de": "Entwurf: Konstruktion",
+    "en": "Design: Structure"
+   },
+   "inhalt": "<div>\n<div> <div>\n<p><img src=\"../medien/konstrPhotos.jpg\" alt=\"\" loading=\"lazy\"></p>\n</div></div>\n<div><div>\n<p>The structure of the congress hall\nis conceived as a semi-monocoque skin. <br>\nThe girder depth can be adapted to the bending moment distribution using the finite element method\nand the girders can be CNC-cut.</p>\n\n<p>Design structure</p>\n</div></div>\n<div> <div>\n<p><img src=\"../medien/KonstrRender.jpg\" alt=\"\" loading=\"lazy\"></p>\n</div></div>\n<div><br>\n<a href=\"../../design-generation/entwurf/\">start</a>\n&gt;&gt; </div></div>\n\n\n<div>&gt; <a href=\"../../design-generation/entwurf/\">Design system section</a>\n______&gt; <a href=\"../../design-generation/entwurf-perspektiven/\">Design\nperspectives</a>  ______&gt;\n<a href=\"../../design-generation/entwurf-bereiche/\">Design areas</a><br>\n<br>\n\\ <a href=\"../../design-generation/entwurfsgenerator/\">Design Generator</a></div>\n"
+  },
+  "ausstellung": {
+   "original": "de",
+   "titel": {
+    "de": "Ausstellung",
+    "en": "Exhibition"
+   },
+   "inhalt": "<div>\n<div>\n<div>\n\n<p>Exhibition</p>\n</div></div>\n<div><p>In the summer of 2002, through\nthe mediation of Prof. Dr. Ulrich Winko and <a href=\"http://www.s-h-bucher.de/\" rel=\"noopener\">Prof.\nSigi Bucher</a>, the communications agency <a href=\"http://www.kochan.de/index.html\" rel=\"noopener\">Kochan\n&amp; Partner</a> from Munich approached us to realize a pavilion and\nan exhibition on the topic of “parametric design”.\nOne of the largest advertising agencies in Munich\nwas looking for a new corporate vision and considered it\nworthwhile to present the potential of the new design method to its employees\nand clients. The intention was to explore shared possibilities\nof new developments in architecture and in the fields of graphics\nand advertising.<br>\nThe project was realized in close collaboration with Ulrich Winko\nand Sigi Bucher in the conceptual phase, as well as with the composer\nand sound artist Ulrich Müller. He developed an interactive\nsound installation that reacts to the movements of visitors in the space\nand thus controls the flow of information. This made it possible to create an intense\nconnection between the newly created and the existing spaces\nand the communication of content and its sonic design.\nOwing to the visitors' positive response to the spatial effect\nof the pavilion, the company <a href=\"http://www.kochan.de/index.html\" rel=\"noopener\">Kochan\n&amp; Partner</a> decided to keep it after the exhibition and to use it\nas a contemplative retreat for employees and as a\nstimulating meeting room. Following this successful outcome,\nall participants are continuing their collaboration in a loose\nassociation. </p>\n</div>\n<div><img src=\"../medien/MorphAe_04k.jpg\" alt=\"\" loading=\"lazy\"></div>\n</div>\n\n\n<div> <br>\n\\ <a href=\"../../design-generation/entwurfsgenerator/\">Design Generator</a></div>\n"
+  },
+  "ausblick": {
+   "original": "de",
+   "titel": {
+    "de": "Ausblick",
+    "en": "Outlook"
+   },
+   "inhalt": "<div>\n<div>\n<div>\n<p><img src=\"../medien/ausblick.jpg\" alt=\"\" loading=\"lazy\"><br>\nFig. from: das schriftbild der neuen musik [Notation in New Music], erhard karkoschka<br>\nScore: Hashagen: Cymbalon. Opening</p>\n</div></div>\n<div>\n<div>Outlook<br>\n</div></div>\n\n\n<div>\n<div>The question of the new role of the architect can be\ntaken up at this point. If one considers extending the\ndefining parameters in the course of the design, insights\nthat have emerged during the design process can\nbe incorporated. In design, the architect combines art\nand science and attempts to formalize results from these fields and\nfeed them into computer-aided design.\nHe defines, so to speak, the intersection between the pragmatic\nneeds given by the building process and the\nfar-reaching relationships that he constructs abstractly from the context (environment).\nThis is where the architect's individual influence\nis shifted: he is no longer an artist who invents forms,\nbut a thinker who defines and translates influences:\nhe no longer constructs load-bearing structures from steel, wood or\nconcrete, but from the intellectual potential of his time.<br>\n</div></div>\n\n<div> <p>Against\nthis background, we are working on the further development\nof the concept of computer-aided design and are looking\nfor parallel developments in other fields. One example\nhinted at in the illustration above would be to explore the possible influence\nof New Music on architectural design,\nin the hope of mutual enrichment. Modern composers\nhave long used new media technologies for\ncomposition. An exemplary case of a connection\nof music, architecture and modern natural science is Iannis\nXenakis, who achieved this in a visionary way in his designs\nand compositions. The Design Generator follows similar\nprinciples to the musical composition programs of Xenakis,\nwhich are likewise based on statistical probability fields.\n</p></div>\n</div>\n\n\n<div> <br>\n\\ <a href=\"../../design-generation/entwurfsgenerator/\">Design Generator</a></div>\n"
+  }
+ }
+}

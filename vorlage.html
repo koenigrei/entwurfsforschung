@@ -6,6 +6,7 @@
 <meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
 <meta name="description" content="KI Lab Entwurfsforschung – Experimente mit KI in Architektur und Städtebau.">
 <title>{{TITEL}}</title>
+<link rel="icon" href="{{BASE}}favicon.svg" type="image/svg+xml"><link rel="icon" href="{{BASE}}favicon.ico" sizes="any"><link rel="apple-touch-icon" href="{{BASE}}apple-touch-icon.png">
 <script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <style>
 @font-face { font-family: "Geist"; font-weight: 300; font-style: normal; font-display: swap; src: url("{{BASE}}schrift/Geist-Light.ttf") format("truetype"); }
@@ -36,6 +37,7 @@ button, select, input { font: inherit; color: inherit; }
 /* Kopfzeile */
 header { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: stretch; height: var(--row); }
 .marke { display: flex; align-items: center; gap: 12px; padding: 0 var(--g); border-right: 1px solid var(--line); flex: 0 0 auto; }
+.marke .logo { width: 30px; height: 30px; display: block; }
 .marke b { font-weight: 300; font-size: 26px; letter-spacing: .01em; text-transform: uppercase; }
 .pill { border: 1px solid var(--accent-text); color: var(--accent-text); border-radius: 999px; padding: 2px 12px; font-weight: 300; font-size: 18px; text-transform: uppercase; line-height: 1.25; }
 nav { display: flex; flex: 1; justify-content: flex-end; align-items: center; }
@@ -113,12 +115,22 @@ footer a:hover { color: var(--ink); }
 .quelle-alt a { color: var(--muted); text-decoration: underline; }
 .leerseite { padding: 48px var(--g); max-width: 72ch; color: var(--ink-2); }
 
+/* Zweisprachig: beide Fassungen im HTML, sichtbar ist die gewählte Sprache */
+html[lang="en"] .nur-de, html[lang="de"] .nur-en { display: none !important; }
+/* Linke Spalte der Einzelseiten verstellbar wie im KI Lernlabor (Nutzer 21.11.2026) */
+.artikel { grid-template-columns: var(--links-w, minmax(0, 1fr)) minmax(0, 2fr); position: relative; }
+.spalt-griff { position: absolute; top: 0; bottom: 0; left: calc(var(--links-px, 33.333%) - 5px); width: 10px; z-index: 4; cursor: col-resize; touch-action: none; }
+.spalt-griff::after { content: ""; position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: transparent; transition: background .15s; }
+.spalt-griff:hover::after, .spalt-griff:focus-visible::after, .spalt-griff.drag::after { background: var(--accent-text); }
+.spalt-griff:focus-visible { outline: 0; }
+body.spalt-ziehen { cursor: col-resize; user-select: none; }
+
 @media (max-width: 900px) {
   nav a, .sprache, .sprache-trenn { font-size: 18px; } nav a { padding: 0 10px; }
   .marke b { font-size: 18px; } .pill { font-size: 13px; }
   .filter { grid-template-columns: 1fr 1fr; } .filter > *:nth-child(2) { border-right: 0; }
   .filter > *:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
-  .artikel { grid-template-columns: 1fr; } .artikel > aside { border-right: 0; border-bottom: 1px solid var(--line); }
+  .artikel { grid-template-columns: 1fr !important; } .artikel > aside { border-right: 0; border-bottom: 1px solid var(--line); } .spalt-griff { display: none; }
   .ueber { grid-template-columns: 1fr; } .ueber > div:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
 }
 @media (max-width: 600px) {
@@ -135,7 +147,7 @@ footer a:hover { color: var(--ink); }
 </head>
 <body class="mit-vorschau" data-seite="{{SEITE}}">
 <header>
-  <a class="marke" href="{{BASE}}" aria-label="Entwurfsforschung – KI Lab, Startseite"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="marke" href="{{BASE}}" aria-label="Entwurfsforschung – KI Lab, Startseite"><img class="logo" src="{{BASE}}favicon.svg" alt="" width="30" height="30"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
   <nav aria-label="Hauptnavigation">
     <a href="{{BASE}}" data-nav="lab" data-t="nav_lab">Lab</a>
     <a href="{{BASE}}archiv/" data-nav="archiv" data-t="nav_archiv">Archiv</a>
@@ -219,6 +231,26 @@ if (RASTER) {
 function vorschau(an) { document.body.classList.toggle("mit-vorschau", an); $("#vorschau").setAttribute("aria-pressed", an); merke("entwurfsforschung-vorschau", an ? "1" : "0"); }
 document.querySelectorAll(".email").forEach(e => { const m = e.dataset.n + "@" + e.dataset.d + "." + e.dataset.tld; e.innerHTML = `<a href="mailto:${m}">${m}</a>`; });   /* Spamschutz: Adresse erst im Browser */
 document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === document.body.dataset.seite) a.setAttribute("aria-current", "page"); });
+/* Spaltengriff: Breite der linken Spalte ziehen, Pfeiltasten, Doppelklick setzt zurück; gemerkt im Browser */
+(function () {
+  const A = document.querySelector(".artikel"); if (!A) return;
+  const g = document.createElement("div"); g.className = "spalt-griff"; g.tabIndex = 0; g.setAttribute("role", "separator"); g.setAttribute("aria-orientation", "vertical");
+  g.title = "Ziehen: Breite der Spalte ändern · Doppelklick: zurücksetzen"; A.appendChild(g);
+  const KEY = "entwurfsforschung-spalte", MIN = 200;
+  const max = () => Math.max(MIN + 40, A.getBoundingClientRect().width * 0.6);
+  const setze = w => { if (w == null) { A.style.removeProperty("--links-w"); A.style.removeProperty("--links-px"); return null; }
+    w = Math.round(Math.min(max(), Math.max(MIN, w))); A.style.setProperty("--links-w", w + "px"); A.style.setProperty("--links-px", w + "px"); return w; };
+  const breite = () => A.querySelector("aside").getBoundingClientRect().width;
+  const neu = lies(KEY, ""); if (neu) setze(+neu); else A.style.setProperty("--links-px", breite() + "px");
+  g.addEventListener("pointerdown", e => { if (e.button) return; e.preventDefault(); g.setPointerCapture(e.pointerId); g.classList.add("drag"); document.body.classList.add("spalt-ziehen");
+    const links = A.getBoundingClientRect().left; let w = breite();
+    const zieh = ev => { w = setze(ev.clientX - links); };
+    const los = () => { g.removeEventListener("pointermove", zieh); g.classList.remove("drag"); document.body.classList.remove("spalt-ziehen"); merke(KEY, String(w)); };
+    g.addEventListener("pointermove", zieh); g.addEventListener("pointerup", los, { once: true }); g.addEventListener("pointercancel", los, { once: true }); });
+  g.addEventListener("dblclick", () => { setze(null); try { localStorage.removeItem(KEY); } catch (e) {} A.style.setProperty("--links-px", breite() + "px"); });
+  g.addEventListener("keydown", e => { const d = { ArrowLeft: -20, ArrowRight: 20 }[e.key]; if (d) { e.preventDefault(); merke(KEY, String(setze(breite() + (e.shiftKey ? d * 3 : d)))); } });
+  addEventListener("resize", () => { if (!lies(KEY, "")) A.style.setProperty("--links-px", breite() + "px"); });
+})();
 sprache(LANG === "en" ? "en" : "de");
 </script>
 </body>

@@ -16,7 +16,7 @@ HOST = os.environ.get("ENTWURFSFORSCHUNG_SSH", _C.get("host", ""))
 SCHLUESSEL = os.path.expanduser(_C.get("schluessel", "~/.ssh/entwurfsforschung_ed25519"))
 DOCROOT = _C.get("docroot", "public_html")
 ZIELE = {"neu": "neu", "start": "."}
-VERWALTET = ["index.html", "lab", "archiv", "impressum", "bilder", "schrift", "vendor"]
+VERWALTET = ["index.html", "favicon.svg", "favicon.ico", "apple-touch-icon.png", "lab", "archiv", "impressum", "bilder", "schrift", "vendor"]
 BEHALTEN = ["lab/design-explorer"]
 
 

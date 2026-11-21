@@ -1,0 +1,14 @@
+{
+ "id": "electronic-music",
+ "original": "en",
+ "titel": {
+  "de": "Elektronische Musik",
+  "en": "Electronic Music"
+ },
+ "vorschau": {
+  "de": "Ich habe begonnen, die Synthese von Musik und die zugehörigen Werkzeuge für die Produktion elektronischer Musik zu erkunden. Es gibt viele faszinierende Konzepte, die sich in Werkzeugen wie Max/MSP, …",
+  "en": "I started exploring the synthesis of music and the corresponding tools for the production of electronic music. There are many fascinating concepts that can be found in tools like Max/MSP, …"
+ },
+ "inhalt": "<p>Ich habe begonnen, die Synthese von Musik und die zugehörigen Werkzeuge für die Produktion elektronischer Musik zu erkunden. Es gibt viele faszinierende Konzepte, die sich in Werkzeugen wie <a href=\"https://cycling74.com/products/max-features\" rel=\"noopener\">Max/MSP</a>, <a href=\"https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/\" rel=\"noopener\">Reaktor</a> oder <a href=\"https://www.bitwig.com/en/bitwig-studio/bitwig-studio-3.html\" rel=\"noopener\">Bitwig Grid</a> finden. Sie können als Inspiration für die Entwicklung parametrischer Entwurfswerkzeuge wie <a href=\"https://www.rhino3d.com/6/new/grasshopper\" rel=\"noopener\">Grasshopper</a> oder <a href=\"https://dynamobim.org/\" rel=\"noopener\">Dynamo</a> dienen. Über diese Analogie werde ich bald mehr schreiben; hier möchte ich zunächst einige experimentelle Ergebnisse meiner Untersuchungen zur elektronischen Musik vorstellen:</p>\n<p><p class=\"extern\"><a href=\"https://soundcloud.com/\" rel=\"noopener\">Auf SoundCloud anhören ↗</a></p></p>",
+ "unterseiten": {}
+}
