@@ -1,0 +1,17 @@
+{
+  "id": "diffusion-connect",
+  "titel": {"de": "Diffusion Connect Model", "en": "Diffusion connect model"},
+  "vorschau": {"de": "Zufällig wandernde Agenten entwickeln eine Zelle, sobald genug von ihnen in der Moore-Nachbarschaft sind; an den Clustern lagern sich weitere an – es wachsen verzweigte Siedlungen (nach Batty).",
+               "en": "Randomly wandering agents develop a cell as soon as enough of them are in its Moore neighbourhood; more agents attach to the clusters – branching settlements grow (after Batty)."},
+  "original": "23_diffusion-contract",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-12-17",
+  "datum_quelle": "23_diffusion-contract.zip: CellForm.pas vom 17.12.2005 19:16 (neueste Quelltextdatei), Kopf „Last Update: Dec-17, 2005“, alte Seite „Source - 051217“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 2400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.anzahlFrei === 0 && SIM.zustand.fertig > 300 && Modell.cluster(SIM.zustand)[0] >= 5 && Modell.cluster(SIM.zustand)[0] <= 30 && SIM.zustand.verlauf[0] === 2000"
+}

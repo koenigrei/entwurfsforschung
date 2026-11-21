@@ -1,0 +1,17 @@
+{
+  "id": "potentialfeld-wachstum",
+  "titel": {"de": "Growth in a Potential-Field", "en": "Growth in a potential field"},
+  "vorschau": {"de": "Zellen entwickeln sich, wenn ihr Potential eine Schwelle übersteigt; das Potential mittelt sich um entwickelte Zellen, dazu kommt Rauschen. Es wächst eine Struktur, die den Verästelungen einer Koralle ähnelt.",
+               "en": "Cells develop when their potential exceeds a threshold; the potential averages around developed cells, plus noise. The growing structure resembles the branches of a coral."},
+  "original": "30_potDevProb",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-01-24",
+  "datum_quelle": "neueste Quelltextdatei im ZIP (CellForm.pas/.dfm, 24.01.2006); alte Seite „Source - 060304“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 50,
+  "vorschau_param": {"verlauf": false},
+  "pruef_ausdruck": "SIM.zustand.t === 50 && !SIM.laeuft && (d => d.radius > 30 && d.dichte < 0.45 && d.zellen > 500)(Modell.dichte(SIM.zustand))"
+}

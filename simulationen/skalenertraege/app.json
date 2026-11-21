@@ -1,0 +1,24 @@
+{
+ "id": "skalenertraege",
+ "titel": {
+  "de": "Skalenerträge",
+  "en": "Increasing returns to scale"
+ },
+ "vorschau": {
+  "de": "Zehn Märkte werden billiger, je mehr Kunden sie haben; Kunden kaufen, wo Preis plus Fahrtkosten am niedrigsten sind – einige Anbieter setzen sich durch und bilden lokale Monopole.",
+  "en": "Ten markets get cheaper the more customers they have; customers buy where price plus travel cost is lowest – a few suppliers prevail and form local monopolies."
+ },
+ "original": "415_Skalenertraege",
+ "herkunft": "Delphi",
+ "jahr": 2005,
+ "datum": "2005-07-09",
+ "datum_quelle": "Programmkopf 2005-07-09 (Dateizeit 2005-11-17 ist ein gemeinsamer Neubau-Stand). neueste Quelltextdatei im ZIP: facsSteer.dfm vom 17.11.2005 (Kopf „Last Update: July-09, 2005“; gleicher Quellcode 12_skalenertraege „Source - 050709“)",
+ "archiv": "raumprozesse/simulationsprogramme/",
+ "repo": null,
+ "vorschau_saat": 1,
+ "vorschau_schritte": 200,
+ "vorschau_param": {
+  "skalenertrag": 1.006
+ },
+ "pruef_ausdruck": "SIM.zustand.ruhig && Modell.anteile(SIM.zustand).filter(v => v > 0).length <= 5 && Modell.anteile(SIM.zustand)[0] > 40"
+}

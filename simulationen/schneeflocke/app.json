@@ -1,0 +1,17 @@
+{
+  "id": "schneeflocke",
+  "titel": {"de": "Schneeflocken-Wachstum", "en": "Snowflake Growth"},
+  "vorschau": {"de": "Gewichteter zellulärer Automat nach Reiter: Rezeptive Zellen erhalten konstanten Zuwachs, die übrigen mitteln ihr Potential; ab Potential 1 wächst ein symmetrischer Schneekristall.",
+               "en": "Weighted cellular automaton after Reiter: receptive cells get a constant addition, the others average their potential; from potential 1 on a symmetric snow crystal grows."},
+  "original": "32_snowFlake",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-03-07",
+  "datum_quelle": "neueste Quelltextdatei im ZIP: CellForm.pas/.dfm vom 07.03.2006; Download auf der alten Seite „Source - 060310“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 500,
+  "vorschau_param": {"verlauf": false},
+  "pruef_ausdruck": "(a => SIM.zustand.t === 500 && a.symmetrie === 1 && a.diagonale > 40 && a.achse < 5 && SIM.zustand.anzahl > 1000)(Modell.auswertung(SIM.zustand))"
+}

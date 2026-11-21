@@ -1,0 +1,8 @@
+{
+  "name": "wegesystem-selbstorganisation",
+  "private": true,
+  "type": "commonjs",
+  "description": "Selbstorganisation bei Wegesystemen (Path System 01) – Neuumsetzung von 331_SelbstorgaWegeSys (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

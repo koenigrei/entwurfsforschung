@@ -1,0 +1,22 @@
+{
+ "id": "separation",
+ "titel": {
+  "de": "Separation durch Standortpräferenzen",
+  "en": "Separation through location preferences"
+ },
+ "vorschau": {
+  "de": "Gewerbe (blau) und Wohnen (gelb) markieren ihre Umgebung und meiden die Flächen der anderen – getrennte Cluster entstehen um die roten Knoten eines Erschließungsgraphen.",
+  "en": "Industry (blue) and housing (yellow) mark their surroundings and avoid each other's areas – separate clusters emerge around the red nodes of an access network."
+ },
+ "original": "421_Separation",
+ "herkunft": "Delphi",
+ "jahr": 2005,
+ "datum": "2005-06-10",
+ "datum_quelle": "Programmkopf 2005-06-10 (Dateizeit 2005-11-17 ist ein gemeinsamer Neubau-Stand). neueste Quelltextdatei im ZIP: facsSteer.pas vom 17.11.2005 (agenten.pas 10.06.2005; gleicher Quellcode 08_fraktErschl „Source - 050610“)",
+ "archiv": "raumprozesse/simulationsprogramme/",
+ "repo": null,
+ "vorschau_saat": 1,
+ "vorschau_schritte": 1500,
+ "vorschau_param": {},
+ "pruef_ausdruck": "(a => SIM.zustand.t === 1500 && a.gleich > 75 && a.an[1] + a.an[2] > 300)(Modell.auswertung(SIM.zustand))"
+}

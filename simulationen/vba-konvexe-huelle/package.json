@@ -1,0 +1,8 @@
+{
+  "name": "vba-konvexe-huelle",
+  "private": true,
+  "type": "commonjs",
+  "description": "convexHull – Hülle um beliebig verteilte Punkte – Neuumsetzung von 04convexHull.htm (AutoCAD-VBA) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "zentrale-orte",
+  "private": true,
+  "type": "commonjs",
+  "description": "Zentralität und zentrale Orte – Neuumsetzung von 09_christaller (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

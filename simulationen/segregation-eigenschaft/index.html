@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Segregation durch Eigenschaftsanpassung · Frühe Simulationen · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Jede Zelle übernimmt die Eigenschaft der Mehrheit ihrer Moore-Nachbarschaft – Bier- oder Weintrinker; es entstehen stabile Gebiete (nach Batty). Neuumsetzung des Delphi-Programms 522_SegregationEigenschaft (2005) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← <span lang="de">Frühe Simulationen</span><span lang="en">Early Simulations</span></a>
+  <h1><span lang="de">Segregation durch Eigenschaftsanpassung</span><span lang="en">Segregation through adaptation</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Start: Zellen passen sich an, bis keine mehr wechselt · Störung: Zellen neu würfeln · Klick/Ziehen: weiß malen, Rechtsklick: schwarz</span><span lang="en">Start: cells adapt until none changes · Disturb: re-roll cells · click/drag: paint white, right click: black</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>522_SegregationEigenschaft · Delphi · 2005</div>
+    <div class="hinweis">„Segregation Model“ 1.0, 18.12.2005</div>
+    <a href="../../../archiv/raumprozesse/simulationsprogramme/"><span lang="de">Archivseite des Originals</span><span lang="en">Archive page of the original</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Statt umzuziehen ändern die Bewohner hier ihre Meinung. Auf einem Feld von 101 × 101 Zellen hat jede Zelle zu Beginn zufällig eine von zwei Eigenschaften – nach Michael Batty die <em>Biertrinker</em> (weiß) und die <em>Weintrinker</em> (schwarz). In jedem Schritt zählt jede Zelle die weißen Zellen unter ihren acht Nachbarn und vergleicht sie mit dem <em>Schwellenwert</em>:</p>
+      <p><code>weiße Nachbarn &gt; Schwellenwert → weiß · &lt; Schwellenwert → schwarz · gleich → bleibt</code></p>
+      <p>Alle Zellen zählen zuerst, dann ändern alle gleichzeitig; das Feld ist an den Rändern geschlossen (Torus). Mit der Voreinstellung 4 – also der einfachen Mehrheit – wird aus dem Rauschen nach 20 bis 30 Schritten ein ruhiges Muster aus Gebieten beider Eigenschaften: Der Anteil gleicher Nachbarn steigt von der Hälfte auf fast neun Zehntel, während beide Eigenschaften etwa gleich häufig bleiben. Schon ein Schwellenwert von 3 oder 5 kippt das Gleichgewicht, und eine Eigenschaft übernimmt das ganze Feld.</p>
+      <p>Das Muster ist unempfindlich gegen Störungen: „Störung“ würfelt jede Zelle mit der Wahrscheinlichkeit <em>Störwert</em> neu (Voreinstellung 0,45), danach stellt sich in wenigen Schritten wieder eine ähnlich klare Ordnung ein. „Mit leeren Zellen“ lässt ein Drittel des Feldes leer; dann entscheidet die Mehrheit der weißen und schwarzen Zellen im 3 × 3-Block, die Zelle selbst eingeschlossen. Die App setzt das Delphi-Programm aus Reinhard Königs Dissertation <em>Dynamische Simulation und Visualisierung räumlicher Prozesse</em> (Kapitel 5.2.2) mit denselben Regeln und Voreinstellungen um; was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>Instead of moving, the residents change their minds here. On a field of 101 × 101 cells each cell starts with one of two properties at random – after Michael Batty, the <em>beer drinkers</em> (white) and the <em>wine drinkers</em> (black). In each step every cell counts the white cells among its eight neighbours and compares them with the <em>threshold</em>:</p>
+      <p><code>white neighbours &gt; threshold → white · &lt; threshold → black · equal → unchanged</code></p>
+      <p>All cells count first, then all change at the same time; the field wraps around at its edges (torus). With the default of 4 – a simple majority – the noise settles after 20 to 30 steps into a calm pattern of areas of both properties: the share of like neighbours rises from one half to almost nine tenths, while both properties stay about equally frequent. A threshold of 3 or 5 already tips the balance, and one property takes over the whole field.</p>
+      <p>The pattern is robust against disturbances: “Disturb” re-rolls every cell with the probability <em>disturbance</em> (default 0.45), after which an equally clear order returns within a few steps. “With empty cells” leaves a third of the field empty; then the majority of white and black cells in the 3 × 3 block, including the cell itself, decides. The app re-implements the Delphi program from Reinhard König's dissertation <em>Dynamic Simulation and Visualisation of Spatial Processes</em> (chapter 5.2.2) with the same rules and defaults; changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../_gemeinsam/zufall.js"></script>
+<script src="../_gemeinsam/sim.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "wachstum-umorganisation",
+  "private": true,
+  "type": "commonjs",
+  "description": "Wachstum mit räumlicher Umorganisation – Neuumsetzung von 29_groupGrow (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

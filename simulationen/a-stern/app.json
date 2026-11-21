@@ -1,0 +1,17 @@
+{
+  "id": "a-stern",
+  "titel": {"de": "Shortest Path with A*", "en": "Shortest path with A*"},
+  "vorschau": {"de": "Der A*-Algorithmus sucht den kürzesten Weg vom Start zum Ziel und umgeht dabei die Hindernisse, ohne sie diagonal zu schneiden. Offene und geschlossene Liste breiten sich sichtbar aus.",
+               "en": "The A* algorithm searches for the shortest path from start to target, going around obstacles without cutting them diagonally. The open and closed lists spread visibly."},
+  "original": "13_Pathfinding",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-07-16",
+  "datum_quelle": "Programmkopf facsSteer.pas („Version 1.0 … July-16, 2005“) und alte Seite („Source - 050716“); im ZIP zuletzt geändert facsSteer.pas 19.07.2005, facsSteer.dfm 17.11.2005",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 600,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.status === 'gefunden' && SIM.zustand.iter === 569 && SIM.zustand.kosten === 538 && SIM.zustand.optimum === 538"
+}

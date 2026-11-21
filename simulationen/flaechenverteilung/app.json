@@ -1,0 +1,24 @@
+{
+ "id": "flaechenverteilung",
+ "titel": {
+  "de": "Verteilung verschiedener Flächennutzungen",
+  "en": "Distribution of land uses"
+ },
+ "vorschau": {
+  "de": "Wohnen, Dienstleistung und Industrie siedeln sich über gekoppelte Potentialfelder an, Agenten pendeln zu den Ressourcen und hinterlassen Wege – mit Rang-Größen-Analyse der Siedlungscluster.",
+  "en": "Housing, services and industry settle through coupled potential fields, agents commute to the resources and leave tracks behind – with a rank-size analysis of the settlement clusters."
+ },
+ "original": "422_Flaechenverteilung",
+ "herkunft": "Delphi",
+ "jahr": 2007,
+ "datum": "2007-02-25",
+ "datum_quelle": "neueste Quelltextdatei im ZIP: CellForm.pas und CellForm.dfm vom 25.02.2007 (Kopf „Settlement Patterns Version 5.0, Last Update: Okt-02, 2006“; Vorstufe 44_SettlementLandUse „- 060811“)",
+ "archiv": "raumprozesse/simulationsprogramme/",
+ "repo": null,
+ "vorschau_saat": 1,
+ "vorschau_schritte": 800,
+ "vorschau_param": {
+  "anzeige": "heimwege"
+ },
+ "pruef_ausdruck": "SIM.zustand.t === 800 && SIM.zustand.ag.length === 2400 && SIM.zustand.anzahl[4] === 800 && SIM.zustand.rangGroesse.steigung < -0.7 && SIM.zustand.rangGroesse.steigung > -1.5 && SIM.zustand.verlauf[799][0] > 30"
+}

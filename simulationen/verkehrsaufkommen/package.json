@@ -1,0 +1,8 @@
+{
+  "name": "verkehrsaufkommen",
+  "private": true,
+  "type": "commonjs",
+  "description": "Verkehrsaufkommen – Neuumsetzung von 343_Verkehrsaufkommen (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

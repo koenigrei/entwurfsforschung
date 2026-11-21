@@ -1,0 +1,17 @@
+{
+  "id": "nl-kulturen",
+  "titel": {"de": "11 Krieg der Kulturen", "en": "11 War of cultures"},
+  "vorschau": {"de": "Sechs Kulturen mit 8-Bit-Gencodes breiten sich aus, wo das Muster der Nachbarn zu ihren Codes passt, mutieren und verdrängen schwächere; ausgestorbene werden mit geerbten Codes neu gegründet.",
+               "en": "Six cultures with 8-bit gene codes spread wherever the neighbour pattern matches their codes, mutate and displace weaker ones; extinct cultures are refounded with inherited codes."},
+  "original": "08_culturesFight09.nlogo",
+  "herkunft": "NetLogo",
+  "jahr": 2005,
+  "datum": "2005-04-06",
+  "datum_quelle": "Liste der NetLogo-Experimente auf der alten Seite (Strukturfor/netlogo/netLogo.htm): „11_Krieg der Kulturen - 050406“; die .nlogo-Datei (NetLogo 2.1.0) trägt kein Datum",
+  "archiv": "strukturexperimente/netlogo/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 600,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.t === 600 && Math.max(...SIM.zustand.verlauf.map(v => Math.max(...v))) > 150"
+}

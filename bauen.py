@@ -17,7 +17,7 @@ GEIST_CSS = "".join(f'@font-face{{font-family:"{f}";font-weight:{w};font-style:n
 THREE = ["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js", "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"]
 SCHRIFT_QUELLEN = [os.path.join(os.environ.get("WINDIR", "C:/Windows"), "Fonts"),
                    os.path.join(os.environ.get("LOCALAPPDATA", ""), "Microsoft", "Windows", "Fonts")]
-WEITER = '<!doctype html><meta charset="utf-8"><title>{t}</title><meta http-equiv="refresh" content="0; url={z}"><link rel="canonical" href="{z}"><a href="{z}">{t}</a>\n'
+WEITER = '<!doctype html><meta charset="utf-8"><title>{t}</title><meta http-equiv="refresh" content="0; url={z}"><link rel="canonical" href="{z}">{q}<a href="{z}">{t}</a>\n'
 KRUEMEL = re.compile(r"\\{1,2}\s*<a[^>]*>\s*(?:Entwurfsforschung|Räumliche\s+Prozesse|Zelluläre\s+Automaten)\s*</a>")
 
 FILTER = '''<main id="{id}">
@@ -102,7 +102,7 @@ def versionieren(t, ordner):
         if not os.path.isfile(f):
             return m.group(0)
         return f'{attr}="{url}?v={hashlib.sha1(open(f, "rb").read()).hexdigest()[:10]}"'
-    return re.sub(r'(src|href)="([^"]+\.(?:js|css|webp|png|jpg|jpeg|gif|svg|ttf|woff2?))"', ersetze, t)
+    return re.sub(r'(src|href)="([^"]+\.(?:js|css|webp|png|jpg|jpeg|gif|svg|ttf|woff2?|zip))"', ersetze, t)
 
 
 def lokal(pfad, zur_wurzel):
@@ -190,12 +190,13 @@ def bauen(alt="/"):
         z = os.path.join(SITE, p["ziel"]); os.makedirs(z, exist_ok=True)
         for ziel, quelle in p.get("dateien", {}).items():
             shutil.copy(os.path.join(Q, quelle), os.path.join(z, ziel))
-            if ziel.endswith(".html"):
-                lokal(os.path.join(z, ziel), "../" * p["ziel"].strip("/").count("/") + "../")
         for ziel, quelle in p.get("ordner", {}).items():
             shutil.copytree(os.path.join(Q, quelle), os.path.join(z, ziel))
+        for ziel in p.get("dateien", {}):                              # erst alles kopieren, dann versionieren (?v= braucht die Zieldateien)
+            if ziel.endswith(".html"):
+                lokal(os.path.join(z, ziel), "../" * p["ziel"].strip("/").count("/") + "../")
         if p["start"] != "index.html":
-            open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"]))
+            open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"], q=(f'<link rel="code-repository" href="{p["quellcode"]}"><link rel="license" href="https://creativecommons.org/licenses/by/4.0/">' if p.get("quellcode") else "")))
         lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
     seite(vorlage, os.path.join(SITE, "index.html"), FILTER.format(id="lab", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": lab}, ensure_ascii=False)) + "\n" + UEBER,
           "", "Entwurfsforschung · KI Lab", "lab", alt)

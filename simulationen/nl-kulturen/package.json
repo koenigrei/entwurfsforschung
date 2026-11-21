@@ -1,0 +1,8 @@
+{
+  "name": "nl-kulturen",
+  "private": true,
+  "type": "commonjs",
+  "description": "11 Krieg der Kulturen – Neuumsetzung von 08_culturesFight09.nlogo (NetLogo) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

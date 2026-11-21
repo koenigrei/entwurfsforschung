@@ -1,0 +1,18 @@
+{
+  "id": "mietpreisdynamik",
+  "titel": {"de": "Mietpreisdynamik und Straßen", "en": "Rent dynamics and streets"},
+  "vorschau": {"de": "12000 Agenten aus sechs Einkommensgruppen ziehen um, bis Nachbarschaft und Miete passen; die Mietlandschaft entsteht durch Einzug und sortiert die Gruppen. Als Fassung: Straßen, die Nachbarschaften verbinden oder trennen.",
+               "en": "12000 agents from six income groups move until neighbourhood and rent suit them; the rent landscape emerges from moving in and sorts the groups. As a version: streets that connect or separate neighbourhoods."},
+  "original": "550_Mietpreisdynamik",
+  "fassungen": ["580_Wirkung_StrassenSegregat"],
+  "herkunft": "Delphi",
+  "jahr": 2007,
+  "datum": "2007-06-20",
+  "datum_quelle": "neueste Quelldateien im ZIP 550_Mietpreisdynamik (CellForm.pas 19.06.2007, CellForm.dfm 20.06.2007); Fassung 580_Wirkung_StrassenSegregat: neueste Quelldatei CellForm.dfm 16.11.2006",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 150,
+  "vorschau_param": {},
+  "pruef_ausdruck": "Modell.segregationsindex(SIM.zustand) > 25 && Modell.mieteJeGruppe(SIM.zustand)[5] > Modell.mieteJeGruppe(SIM.zustand)[0]"
+}

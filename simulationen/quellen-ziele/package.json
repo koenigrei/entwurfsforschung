@@ -1,0 +1,8 @@
+{
+  "name": "quellen-ziele",
+  "private": true,
+  "type": "commonjs",
+  "description": "Quellen und Ziele der Bewegungen (Path System 02) – Neuumsetzung von 332_Quellen_Ziele (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,6 +1,7 @@
 /* 07 wegesystem B · Modelllogik (ohne DOM, in Node testbar)
    Neuumsetzung von wegesystem02direction.nlogo (NetLogo 2.1, Reinhard König, 18.02.2005),
-   mit den Erweiterungen aus wegesystem04.nlogo („09 wegesystem B update 1“, 09.03.2005) als Option.
+   mit den Erweiterungen aus wegesystem04.nlogo („09 wegesystem B update 1“, 09.03.2005) und dem Vorgänger
+   wegesystem01.nlogo („06 wegesystem A“, 10.02.2005: acht Nachbarn, absolute Richtungen) als Fassungen.
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0
 
    Regeln (aus „to go“):
@@ -32,6 +33,8 @@
   };
   /** Voreinstellungen von „B update 1“ (wegesystem04.nlogo) */
   const UPDATE1 = { "path-attract": 20, "mark-strenght": 5, "max-mark": 100, "decrease-per-tick": 0.11, "show-mark-over": 20 };
+  /** Voreinstellungen von „06 wegesystem A“ (SLIDER-Blöcke in wegesystem01.nlogo) */
+  const FASSUNG_A = { "path-attract": 1, "mark-strenght": 5, "max-mark": 50, "decrease-per-tick": 0.05, "show-mark-over": 0 };
 
   // sin/cos je ganzzahligem heading (NetLogo: 0° = Norden, im Uhrzeigersinn; dx = sin, dy = cos)
   const SIN = new Float64Array(360), COS = new Float64Array(360);
@@ -73,13 +76,31 @@
     return 0;
   }
 
+  /** Fassung A, Regel 1–2: kumulierte Bereiche aus den acht Nachbarn in den absoluten Richtungen 0°, 45°, …, 315°
+      (patch-at-heading-and-distance (i · 45) 1): mV[i] = Σ_{j ≤ i} (12,5 + m_j · path-attract), skaliert mit 100 / (markEnt + 100). */
+  function bereicheA(m, pathAttract) {
+    const mV = new Array(8); let summe = 0, ent = 0;
+    for (let i = 0; i < 8; i++) { const t = m[i] * pathAttract; summe += 12.5 + t; ent += t; mV[i] = summe; }
+    const f = 100 / (ent + 100);
+    for (let i = 0; i < 8; i++) mV[i] *= f;
+    return mV;
+  }
+  /** Fassung A, Richtungswahl wie die ifelse-Kette in wegesystem01.nlogo: neues heading i · 45, oder −1 = unverändert
+      (nur wenn randV genau auf einer Grenze liegt oder 0 ist) */
+  function wahlA(mV, randV) {
+    if (randV > 0 && randV < mV[0]) return 0;
+    for (let i = 1; i < 8; i++) if (randV > mV[i - 1] && randV < mV[i]) return 45 * i;
+    return -1;
+  }
+
   function neueTurtles(z, p) {
     const n = Math.max(0, Math.round(p["num-turtles"]));
     z.n = n; z.x = new Float64Array(n); z.y = new Float64Array(n); z.h = new Int16Array(n); z.ordnung = new Int32Array(n);
     for (let k = 0; k < n; k++) {
       z.ordnung[k] = k;
       if (p.fassung === "update1") { z.h[k] = 0; continue; }          // wegesystem04: set heading 0, kein fd
-      const h = z.zufall.ganz(360), d = z.zufall.ganz(10) + 20;          // set heading random 360 · fd random 10 + 20
+      const h = z.zufall.ganz(360);                                      // set heading random 360
+      const d = p.fassung === "a" ? z.zufall.ganz(30) + 10 : z.zufall.ganz(10) + 20;   // A: fd random 30 + 10 · B: fd random 10 + 20
       z.h[k] = h; z.x[k] = wickle(SIN[h] * d); z.y[k] = wickle(COS[h] * d);
     }
   }
@@ -92,11 +113,19 @@
     return z;
   }
 
+  const _m8 = new Float64Array(8);
   /** Ein Durchlauf von „go“ für eine turtle k */
   function bewegeTurtle(z, p, k) {
     const x = z.x[k], y = z.y[k], h = z.h[k], mk = z.mark;
-    const mV = bereiche(mk[patchVorne(x, y, h, 45)], mk[patchVorne(x, y, h, 0)], mk[patchVorne(x, y, h, -45)], p["path-attract"]);
-    const nh = grad(h + wahl(mV, z.zufall() * 100));                    // randV = random-float 100
+    let nh;
+    if (p.fassung === "a") {                                             // wegesystem01.nlogo: acht Nachbarn, absolute Richtungen
+      for (let i = 0; i < 8; i++) _m8[i] = mk[patchVorne(x, y, 45 * i, 0)];
+      const w = wahlA(bereicheA(_m8, p["path-attract"]), z.zufall() * 100);
+      nh = w < 0 ? h : w;
+    } else {
+      const mV = bereiche(mk[patchVorne(x, y, h, 45)], mk[patchVorne(x, y, h, 0)], mk[patchVorne(x, y, h, -45)], p["path-attract"]);
+      nh = grad(h + wahl(mV, z.zufall() * 100));                         // randV = random-float 100
+    }
     const hier = index(patchKoord(x), patchKoord(y));
     if (mk[hier] < p["max-mark"]) mk[hier] += p["mark-strenght"];        // Markierung auf patch-here, vor dem Schritt
     z.h[k] = nh; z.x[k] = wickle(x + SIN[nh]); z.y[k] = wickle(y + COS[nh]);   // fd 1
@@ -166,6 +195,6 @@
   /** Parameter ohne Neustart: alle außer num-turtles und fassung wirken im nächsten tick */
   function aendere() {}
 
-  return { STANDARD, UPDATE1, N, RAND, ZEICHNEN, SIN, COS, wickle, patchKoord, index, patchVorne, bereiche, wahl,
+  return { STANDARD, UPDATE1, FASSUNG_A, bereicheA, wahlA, N, RAND, ZEICHNEN, SIN, COS, wickle, patchKoord, index, patchVorne, bereiche, wahl,
            erzeuge, schritt, bewegeTurtle, verfall, grau, zeichneWeg, auswertung, aendere };
 });

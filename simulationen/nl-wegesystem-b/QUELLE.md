@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| Originalprogramm | `wegesystem02direction.nlogo` („07_wegesystem B“, 18.02.2005); Option aus `wegesystem04.nlogo` („09_wegesystem B update 1“, 09.03.2005) |
+| Originalprogramm | `wegesystem02direction.nlogo` („07_wegesystem B“, 18.02.2005); Optionen aus `wegesystem04.nlogo` („09_wegesystem B update 1“, 09.03.2005) und `wegesystem01.nlogo` („06_wegesystem A“, 10.02.2005) |
 | Sprache | NetLogo 2.1 (Applet auf der alten Website) |
 | Autor | Reinhard König |
 | Jahr | 2005 |
-| Seite der alten Website | Strukturexperimente › Experimente mit NetLogo – https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/wegesystem2.html (update 1: …/wegesystem3.html) |
+| Seite der alten Website | Strukturexperimente › Experimente mit NetLogo – https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/wegesystem2.html (update 1: …/wegesystem3.html, A: …/wegesystem1.html) |
 | Archivseite | [Strukturexperimente › Experimente mit NetLogo](../../../archiv/strukturexperimente/netlogo/) |
-| Quelle im Repo | `alt_inhalte/cache/alt/Strukturfor/netlogo/wegesystem02direction.nlogo`, `wegesystem04.nlogo`, zum Vergleich `wegesystem01.nlogo` (nur gelesen) |
+| Quelle im Repo | `alt_inhalte/cache/alt/Strukturfor/netlogo/wegesystem02direction.nlogo`, `wegesystem04.nlogo`, `wegesystem01.nlogo` (nur gelesen) |
 
 ## Übernommen
 
@@ -27,6 +27,10 @@
   - Voreinstellungen `path-attract` 20 (Regler dort 0–20), `mark-strenght` 5, `decrease-per-tick` 0,11, `show-mark-over` 20,
   - Regler `show-mark-over` 0–100: `ifelse mark > show-mark-over [Grauwert] [weiß]` (in Fassung B steht er auf 0 – dann gleich wie das Original B),
   - Wege einzeichnen: `if mouse-down? [set mark-of patch-at mouse-xcor mouse-ycor 100]`.
+- **Aus „06 wegesystem A“ (`wegesystem01.nlogo`)**, wählbar über „Fassung“ (Paket P8, 21.11.2026):
+  - Regel „to go“ (`bereicheA`, `wahlA`): `mV` beginnt mit achtmal 12,5; für i = 0…7 kommt `mark-of patch-at-heading-and-distance (i · 45) 1 · path-attract` hinzu, kumuliert (`item (i − 1) mV`), skaliert mit `100 / (markEnt + 100)`. Die ifelse-Kette setzt `heading` auf die absolute Richtung `i · 45`; trifft nichts (randV genau auf einer Grenze oder 0), bleibt das heading. Markieren und `fd 1` wie in B.
+  - setup: `set heading random 360`, `fd random 30 + 10` (Ring mit Radius 10–39).
+  - Voreinstellungen: `path-attract` 1 (Regler dort 0–5), `mark-strenght` 5 (0–10), `max-mark` 50, `decrease-per-tick` 0,05, `num-turtles` 100; Welt ebenfalls 101 × 101.
 
 ## NetLogo-Eigenheiten und ihre Übersetzung
 
@@ -39,7 +43,7 @@
 ## Bewusst geändert
 
 - **Start/Pause/Schritt/Zurücksetzen und feste Saat**: wiederholbare Läufe statt NetLogos Zufall ohne Saat. „Zurück“ = `setup`.
-- **Fassung B update 1 als Option** statt eigener App (siehe `bestand.json`, `nl-wegesystem-b-update`). Die Auswahl startet neu und setzt die Voreinstellungen der Fassung; die Regler behalten die Bereiche von B (path-attract bis 50).
+- **Fassungen B update 1 und A als Option** statt eigener Apps (siehe `bestand.json`, `nl-wegesystem-b-update`, `nl-wegesystem-a`). Die Auswahl startet neu und setzt die Voreinstellungen der Fassung; die Regler behalten die Bereiche von B (path-attract bis 50, mark-strenght bis 50), die die engeren Bereiche von A einschließen.
 - **Wege einzeichnen** geht in beiden Fassungen und auch im angehaltenen Zustand. Das Original setzte nur einmal je tick den Patch unter der Maus; hier wird die Linie seit dem letzten Mauspunkt lückenlos auf mark 100 gesetzt (bei schneller Maus entstünden sonst Lücken).
 - **Dunkle Darstellung**: Grauwerte umgekehrt (Wege hell auf dunkel); hell wie im Original (weiß → schwarz, Fläche in `--surface`).
 - **turtles** als kleine rote Pfeile (Form „default“), abschaltbar („turtles zeigen“).

@@ -1,0 +1,17 @@
+{
+  "id": "circle-city",
+  "titel": {"de": "Modell „Circle City“", "en": "“Circle City” model"},
+  "vorschau": {"de": "Segregation in einem hierarchischen Netz aus Straßen, Häusern und Wohnungen: Die Nachbarschaft folgt den Wegen im Straßennetz, und die Gruppen sortieren sich nach Straßen.",
+               "en": "Segregation in a hierarchical network of streets, houses and flats: the neighbourhood follows the paths in the street network, and the groups sort themselves by street."},
+  "original": "590_Circle_City",
+  "herkunft": "Delphi",
+  "jahr": 2008,
+  "datum": "2008-02-08",
+  "datum_quelle": "neueste Quelldateien im ZIP (basicAnalysis.pas/.dfm und HieNet_5.dpr vom 08.02.2008; Main.pas 19.06.2007, Main.dfm 21.06.2007)",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 30,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig !== null && SIM.zustand.verlauf[0][2] < 20 && Modell.segregationsindex(SIM.zustand) > 50"
+}

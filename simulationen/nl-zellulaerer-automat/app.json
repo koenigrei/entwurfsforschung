@@ -1,0 +1,18 @@
+{
+  "id": "nl-zellulaerer-automat",
+  "titel": {"de": "02 Zellulärer Automat", "en": "02 Cellular Automata"},
+  "vorschau": {"de": "Vier Regler bestimmen, bei wie vielen Nachbarn eine Zelle stirbt oder geboren wird: Aus verstreuten Keimen wächst ein Labyrinth; die Fassung „12 Buildings Structure“ füllt eine Fläche mit Gebäuden.",
+               "en": "Four sliders set how many neighbours make a cell die or be born: scattered seeds grow into a maze; the version “12 Buildings Structure” fills an area with buildings."},
+  "original": "celluAutomata03.nlogo",
+  "herkunft": "NetLogo",
+  "jahr": 2005,
+  "datum": "2005-01-02",
+  "datum_quelle": "alte NetLogo-Seite: „02_cellular Automata - 050102“ (Modell im Format NetLogo 2.1.0); Fassung 12 Buildings Structure: „- 070206“ (NetLogo 3.0.2)",
+  "fassungen": ["CA_buildingStructure.nlogo (12 Buildings Structure, 2007-02-06)"],
+  "archiv": "strukturexperimente/netlogo/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 120,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(a => SIM.zustand.t === 120 && SIM.zustand.N === 81 && a.ratioBlue > 0.45 && a.ratioBlue < 0.55 && SIM.zustand.geaendert > 0)(Modell.auswertung(SIM.zustand))"
+}

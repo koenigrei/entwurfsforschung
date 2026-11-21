@@ -56,6 +56,15 @@ def extern(src):
     return s, "Externen Inhalt öffnen"
 
 
+def sim_apps():
+    """simulationen/bestand.json: alte Seite (alt_seite) → App-Ordner, sobald umgesetzt oder als Fassung aufgenommen."""
+    bpfad = os.path.join(HIER, "simulationen", "bestand.json")
+    if not os.path.exists(bpfad):
+        return {}
+    return {schluessel(p["alt_seite"]): p["app"] for p in json.load(open(bpfad, encoding="utf-8")).get("programme", [])
+            if p.get("alt_seite") and p.get("app") and p.get("status") in ("umgesetzt", "aufgenommen")}
+
+
 class Regeln:
     """Linkregeln aus archiv.json (links.*): umleiten, entfernen, offen. Zählt, was mit Links auf die alte Website geschieht."""
     def __init__(self, cfg=None):
@@ -64,6 +73,7 @@ class Regeln:
         self.ersetzen = {schluessel(k): v for k, v in cfg.get("ersetzen", {}).items()}
         self.entfernen = [re.compile(m, re.I) for m in cfg.get("entfernen", [])]
         self.offen = [re.compile(m, re.I) for m in cfg.get("offen", [])]
+        self.sim = sim_apps()                                          # alte Applet-Seite → fertige Web-App unter lab/simulationen/
         self.zahl = collections.Counter(); self.offene = collections.defaultdict(set); self.ort = ""
 
     def pruefe(self, pfad, muster):
@@ -97,6 +107,9 @@ class Reiniger(HTMLParser):
             R.zahl["umgehängt"] += 1
             z = self.karte.get(s) or R.umleiten[s]
             return self.prefix + z + (f"#{p.fragment}" if p.fragment and "#" not in z else "")
+        if R.pruefe(pfad, R.offen) and s in R.sim:
+            R.zahl["Web-App"] += 1
+            return self.prefix + "../lab/simulationen/" + R.sim[s] + "/"
         if R.pruefe(pfad, R.offen):
             R.zahl["offen"] += 1; R.offene[voll.split("#")[0]].add(R.ort); return voll
         if R.pruefe(pfad, R.entfernen):

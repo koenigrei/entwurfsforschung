@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erreichbarkeit und Gravitationsmodell · Frühe Simulationen · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Gezeichneter Graph aus Knoten und Verbindungen: Zeilensummen der Distanzmatrix als Maß der Erreichbarkeit, Streuwert und mittlere Verbindungslänge; Ströme zwischen den Orten nach dem Gravitationsmodell. Neuumsetzung von 310_Gravitation (18_Gravitation) und 17_Erreichbarkeit (Delphi, 2005) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← <span lang="de">Frühe Simulationen</span><span lang="en">Early Simulations</span></a>
+  <h1><span lang="de">Erreichbarkeit und Gravitationsmodell</span><span lang="en">Accessibility and gravity model</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Werkzeug „Knoten“: Klick ins Leere erstellt einen Knoten, Ziehen verschiebt, rechts löscht · „Verbinden“: zwei Knoten nacheinander anklicken (noch einmal: trennen) · „Größe P“: auf dem Knoten nach unten ziehen vergrößert, nach oben verkleinert · Start rechnet die Paare einzeln durch</span><span lang="en">Tool “nodes”: click on empty space creates a node, drag moves it, right button deletes · “connect”: click two nodes one after the other (again: disconnect) · “size P”: drag down on a node to enlarge, up to shrink · Start computes the pairs one by one</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>310_Gravitation (= 18_Gravitation, Version 1.1) · 17_Erreichbarkeit (Version 1.0) · Delphi · 23.11.2005</div>
+    <a href="../../../archiv/raumprozesse/simulationsprogramme/"><span lang="de">Archivseite des Originals</span><span lang="en">Archive page of the original</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Ein Graph aus Knotenpunkten (Nodes) und ihren Verbindungen wird gezeichnet – die App beginnt mit einem zufälligen, zusammenhängenden Graphen. Danach lässt sich die Konnektivität des Graphen berechnen: Für jedes Knotenpaar sucht der A*-Algorithmus den kürzesten Weg entlang der Verbindungen, und die Zahl der dabei durchlaufenen Verbindungen ist die Entfernung <code>k<sub>ij</sub></code> der beiden Knoten.</p>
+      <p>Die Zeilensummen <code>Σ<sub>j</sub> k<sub>ij</sub></code> der so entstehenden Distanzmatrix (Zahl neben jedem Knoten) bilden ein Maß für die relative Verknüpftheit jedes Knotens; niedrigere Werte entsprechen einer besseren Erreichbarkeit. Die Gesamtsumme, auch Streuwert genannt, kennzeichnet die Größe des Graphen durch alle Verbindungen innerhalb seiner Grenzen. Geteilt durch die Anzahl der positiven Werte ergeben Zeilensumme und Streuwert die durchschnittliche Verbindungslänge (dLänge), mit der sich Netzwerke vergleichen lassen.</p>
+      <p>Das Update des Programms ergänzt das Gravitationsmodell, ein Beispiel für das Paradigma der Sozialphysik: Für jede Verbindung wird der Strom <code>F<sub>ij</sub> = P<sub>i</sub> · P<sub>j</sub> / d<sub>ij</sub></code> zwischen zwei Orten aus ihrer Größe <code>P</code> (Bevölkerungszahl, Durchmesser des Kreises) und ihrer Entfernung <code>d</code> geschätzt; die Linienstärke zeigt die Intensität. Die Beschreibung des Modells teilt durch das Quadrat der Distanz <code>d²</code>, das Programm durch <code>d</code> – beides ist wählbar. Vergrößern Sie einen Ort und beobachten Sie, wie die Ströme zu seinen Nachbarn anwachsen, oder verbinden Sie entfernte Knoten und sehen Sie, wie sich die Erreichbarkeit verbessert.</p>
+      <p>Die App ist eine Neuumsetzung von 310_Gravitation (gleicher Quellcode wie 18_Gravitation) und seiner Vorgängerfassung 17_Erreichbarkeit von Reinhard König. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>A graph of nodes and their connections is drawn – the app starts with a random connected graph. Then the connectivity of the graph can be computed: for every pair of nodes the A* algorithm searches for the shortest way along the connections, and the number of connections passed is the distance <code>k<sub>ij</sub></code> between the two nodes.</p>
+      <p>The row sums <code>Σ<sub>j</sub> k<sub>ij</sub></code> of the resulting distance matrix (the number next to each node) are a measure of the relative connectedness of each node; lower values mean better accessibility. The total sum, also called the dispersion value, characterises the size of the graph through all the connections within its boundaries. Divided by the number of positive values, row sums and dispersion give the mean connection length, which can be used to compare networks.</p>
+      <p>The update of the program adds the gravity model, an example of the social physics paradigm: for every connection the flow <code>F<sub>ij</sub> = P<sub>i</sub> · P<sub>j</sub> / d<sub>ij</sub></code> between two places is estimated from their size <code>P</code> (population, the diameter of the circle) and their distance <code>d</code>; the line width shows its intensity. The description of the model divides by the square of the distance <code>d²</code>, the program by <code>d</code> – both can be selected. Enlarge a place and watch the flows to its neighbours grow, or connect distant nodes and see how accessibility improves.</p>
+      <p>The app re-implements 310_Gravitation (the same source code as 18_Gravitation) and its predecessor 17_Erreichbarkeit by Reinhard König. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../_gemeinsam/zufall.js"></script>
+<script src="../_gemeinsam/sim.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

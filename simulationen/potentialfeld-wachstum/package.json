@@ -1,0 +1,8 @@
+{
+  "name": "potentialfeld-wachstum",
+  "private": true,
+  "type": "commonjs",
+  "description": "Growth in a Potential-Field – Neuumsetzung von 30_potDevProb (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

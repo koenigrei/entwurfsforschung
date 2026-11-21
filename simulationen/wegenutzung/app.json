@@ -1,0 +1,17 @@
+{
+  "id": "wegenutzung",
+  "titel": {"de": "Wegenutzung und das Finden kürzester Pfade", "en": "Path use and shortest paths"},
+  "vorschau": {"de": "Zufällige Start- und Zielpunkte werden in einem sich selbst ordnenden Graphen mit A* verbunden; häufig genutzte Wegabschnitte werden dicker, die Verbindungen in der Mitte bündeln den Verkehr.",
+               "en": "Random start and target points are connected with A* in a self-organising graph; frequently used segments grow thicker, and the connections in the middle bundle the traffic."},
+  "original": "342_kuerzestePfade",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-07-26",
+  "datum_quelle": "Programmkopf facsSteer.pas („Version 1.0 … July-26, 2005“), alte Seite („Source - 050726“), agenten.pas und rhythmen.dpr im ZIP vom 26.07.2005 (facsSteer.pas/.dfm später gespeichert: 17.11.2005); Fassung 14_graphPath: 25.07.2005 (Seite „Source - 050720“)",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 2,
+  "vorschau_schritte": 1500,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(a => SIM.zustand.t === 1500 && a.ruhe > 0.9 && a.maxNutzung > 10 && a.mitte !== null && a.mitte < 0.85)(Modell.auswertung(SIM.zustand))"
+}

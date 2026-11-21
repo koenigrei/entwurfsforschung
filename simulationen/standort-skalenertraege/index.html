@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interaktionsmodell Standortwahl und Skalenerträge · Frühe Simulationen · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Segregation und Skalenerträge kombiniert: Kunden wählen ihren Wohnort nach Nachbarschaft und günstigem Marktpreis, Märkte werden mit mehr Kunden billiger – die Mobilität verstärkt die Monopolbildung. Neuumsetzung des Delphi-Programms 570_Interakt_Standort_Skalenertr (2006) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← <span lang="de">Frühe Simulationen</span><span lang="en">Early Simulations</span></a>
+  <h1><span lang="de">Interaktionsmodell Standortwahl und Skalenerträge</span><span lang="en">Interaction model of location choice and returns to scale</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Start: Märkte konkurrieren, Kunden ziehen um · Regler wirken sofort · Zurück: neues Setup mit neuen Märkten</span><span lang="en">Start: markets compete, customers move · sliders apply at once · Reset: new setup with new markets</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>570_Interakt_Standort_Skalenertr · Delphi · 2006</div>
+    <div class="hinweis">„Segregation and Economies of Scale“, 25.03.2006</div>
+    <a href="../../../archiv/raumprozesse/simulationsprogramme/"><span lang="de">Archivseite des Originals</span><span lang="en">Archive page of the original</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Hier werden zwei Modelle zusammengeführt: die Skalenerträge, bei denen Märkte um Kunden konkurrieren, und die Segregation mit zentralen Orten. Zehn Märkte liegen zufällig auf einem Feld von 40 × 40 Zellen, dazwischen wohnen 800 schwarze und weiße Agenten, die zugleich Kunden sind. Jeder Markt senkt seinen <em>Angebotspreis</em>, je mehr Kunden er hat; jede Zelle gehört zum Einzugsgebiet des Marktes, bei dem Ware und Weg zusammen am wenigsten kosten:</p>
+      <p><code>P_j = K_j / K_j^S · Produktionskosten · Ortspreis N_i = min_j (P_j + d_ij · Fahrtkosten)</code></p>
+      <p>Die Agenten wählen ihren Standort nach zwei Kriterien. Wer unter seinen Nachbarn zu wenige Gleiche hat (<em>Schwellenwert</em> 3/8), springt auf einen freien Platz in bis zu zehn Zellen Entfernung. Wer zufrieden ist, prüft bis zu zehn Orte in der Umgebung und zieht auf den ersten freien mit kleinerem Ortspreis – also näher an einen billigen Markt. Ohne Skalenerträge (<em>S</em> = 1, Voreinstellung) bleiben alle zehn Märkte im Geschäft, und es entstehen nur die Quartiere der Segregation.</p>
+      <p>Mit positiven Skalenerträgen (<em>S</em> &gt; 1, etwa 1,1) setzt der Konkurrenzkampf ein: Ein Markt mit mehr Kunden wird billiger, sein Einzugsgebiet wächst, er gewinnt weitere Kunden. Nach einigen hundert Schritten bleiben ein oder zwei Märkte übrig. Schaltet man „günstigere Orte suchen“ aus, überleben mehr Märkte – die Mobilität der Kunden verstärkt die Monopolbildung. Die App setzt das Delphi-Programm aus Reinhard Königs Dissertation <em>Dynamische Simulation und Visualisierung räumlicher Prozesse</em> (Kapitel 5.7) mit denselben Regeln und Voreinstellungen um; was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>Two models are combined here: economies of scale, where markets compete for customers, and segregation with central places. Ten markets lie at random on a field of 40 × 40 cells; between them live 800 black and white agents who are customers at the same time. Each market lowers its <em>bid price</em> the more customers it has; each cell belongs to the catchment area of the market where goods and travel together cost least:</p>
+      <p><code>P_j = K_j / K_j^S · production costs · local price N_i = min_j (P_j + d_ij · travel expenses)</code></p>
+      <p>The agents choose their location by two criteria. An agent with too few like neighbours (<em>threshold</em> 3/8) jumps to a free place up to ten cells away. A satisfied agent checks up to ten places nearby and moves to the first free one with a lower local price – that is, closer to a cheap market. Without returns to scale (<em>S</em> = 1, the default) all ten markets stay in business, and only the quarters of segregation emerge.</p>
+      <p>With increasing returns to scale (<em>S</em> &gt; 1, say 1.1) the competition sets in: a market with more customers becomes cheaper, its catchment area grows, and it wins further customers. After a few hundred steps one or two markets remain. Switching off “look for cheaper places” lets more markets survive – the mobility of the customers reinforces the formation of monopolies. The app re-implements the Delphi program from Reinhard König's dissertation <em>Dynamic Simulation and Visualisation of Spatial Processes</em> (chapter 5.7) with the same rules and defaults; changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../_gemeinsam/zufall.js"></script>
+<script src="../_gemeinsam/sim.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

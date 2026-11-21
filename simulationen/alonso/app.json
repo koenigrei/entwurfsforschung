@@ -1,0 +1,24 @@
+{
+ "id": "alonso",
+ "titel": {
+  "de": "Alonsos Modell der Standortwahl der Betriebe",
+  "en": "Alonso's model of firm location"
+ },
+ "vorschau": {
+  "de": "Umsatz, Produktionskosten und Bodenpreis hängen von der Entfernung zum Markt ab: Gelb leuchten die Standorte, an denen die Bid-Price-Kurve eines Betriebs den Bodenpreis trifft (nach Alonso 1960).",
+  "en": "Revenue, production cost and land price depend on the distance to the market: the locations where a firm's bid-rent curve meets the land price light up in yellow (after Alonso 1960)."
+ },
+ "original": "414_Alonso",
+ "herkunft": "Delphi",
+ "jahr": 2005,
+ "datum": "2005-08-15",
+ "datum_quelle": "Programmkopf 2005-08-15 (Dateizeit 2005-11-17 ist ein gemeinsamer Neubau-Stand). neueste Quelltextdatei im ZIP: facsSteer.dfm vom 17.11.2005 (cell.pas 15.08.2005, Kopf „Last Update: Aug-15, 2005“; gleicher Quellcode 16_urbaneNutzungen „Source - 050815“)",
+ "archiv": "raumprozesse/simulationsprogramme/",
+ "repo": null,
+ "vorschau_saat": 2,
+ "vorschau_schritte": 0,
+ "vorschau_param": {
+  "maerkte": 5
+ },
+ "pruef_ausdruck": "SIM.zustand.maerkte.length === 5 && SIM.zustand.anzahl > 40 && Modell.standortRinge(SIM.param, 300).join() === '32,34,36'"
+}

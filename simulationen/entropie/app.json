@@ -1,0 +1,17 @@
+{
+  "id": "entropie",
+  "titel": {"de": "Entropiemessung", "en": "Entropy measurement"},
+  "vorschau": {"de": "Ein eindimensionaler zellulärer Automat schreibt Zeile für Zeile sein Muster; die metrische und die topologische Shannon-Entropie messen, wie zufällig oder geordnet es ist.",
+               "en": "A one-dimensional cellular automaton writes its pattern row by row; the metric and topological Shannon entropy measure how random or ordered it is."},
+  "original": "27_entropyMeasure",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-02-08",
+  "datum_quelle": "neueste Quelltextdatei im ZIP (CellForm.pas/.dfm, 08.02.2006); alte Seite „Source - 060301“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 201,
+  "vorschau_param": {"verlauf": false},
+  "pruef_ausdruck": "SIM.zustand.zeile === 201 && SIM.zustand.t === 201 && !SIM.laeuft && Modell.mittelMetrisch(SIM.zustand) > 0.5 && SIM.zustand.metrisch.every((m, i) => m <= SIM.zustand.topologisch[i] + 1e-9)"
+}

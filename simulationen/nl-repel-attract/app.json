@@ -1,0 +1,17 @@
+{
+  "id": "nl-repel-attract",
+  "titel": {"de": "01 repel attract", "en": "01 repel attract"},
+  "vorschau": {"de": "Turtles werden zum Ursprung gezogen und stoßen sich vom jeweils nächsten Nachbarn ab: Aus der Zufallsverteilung wird ein Kreis, einzelne turtles bleiben draußen im Gleichgewicht stehen.",
+               "en": "Turtles are drawn towards the origin and push away from their nearest neighbour: the random scatter becomes a circle, while single turtles stay outside in equilibrium."},
+  "original": "repel_attract.nlogo",
+  "herkunft": "NetLogo",
+  "jahr": 2005,
+  "datum": "2005-01-01",
+  "datum_quelle": "Liste der NetLogo-Experimente auf der alten Seite (Strukturfor/netlogo/netLogo.htm): „01_repel attract - 050101“; die .nlogo-Datei (NetLogo 2.1.0) trägt kein Datum",
+  "archiv": "strukturexperimente/netlogo/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 300,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(a => SIM.zustand.t === 300 && SIM.zustand.n === 105 && Math.abs(a.mitte - 33) < 8 && a.nn > 2 && a.nnMin > 0.5)(Modell.auswertung(SIM.zustand))"
+}

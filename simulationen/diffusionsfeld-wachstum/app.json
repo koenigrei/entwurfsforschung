@@ -1,0 +1,17 @@
+{
+  "id": "diffusionsfeld-wachstum",
+  "titel": {"de": "Wachstum im Diffusionsfeld", "en": "Growth in a Diffusion Field"},
+  "vorschau": {"de": "Je Schritt wird die Randzelle mit dem höchsten Potential plus Zufall entwickelt; ein ausgemitteltes Potentialfeld lässt die Struktur eher an den Spitzen wachsen – dicht oder linear je nach Rauschen (nach Batty).",
+               "en": "Each step develops the boundary cell with the highest potential plus noise; an averaged potential field makes the structure grow at its tips – dense or linear depending on the noise (after Batty)."},
+  "original": "31_diffusionGrowth",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-03-01",
+  "datum_quelle": "neueste Quelltextdatei im ZIP: CellForm.pas/.dfm vom 01.03.2006; Programmkopf „January 2006, Last Update Jan-28, 2006“; Download auf der alten Seite „Source - 060305“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 500,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(a => SIM.zustand.t === 500 && SIM.zustand.anzahl === 501 && a.radius > 25 && a.dichte < 0.2)(Modell.auswertung(SIM.zustand))"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "nl-reakt-diffuse-1",
+  "private": true,
+  "type": "commonjs",
+  "description": "03 reakt diffuse – Neuumsetzung von reaktDiffuse02.nlogo (NetLogo) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

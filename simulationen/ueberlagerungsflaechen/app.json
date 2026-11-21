@@ -1,0 +1,17 @@
+{
+  "id": "ueberlagerungsflaechen",
+  "titel": {"de": "Überlagerungsflächen", "en": "Overlapping areas"},
+  "vorschau": {"de": "Zufällige Rechtecke werden paarweise geschnitten, die Überlagerungen addiert – wahlweise mit IntersectRect oder mit den Clipcodes des Cohen-Sutherland-Verfahrens.",
+               "en": "Random rectangles are intersected pair by pair and the overlaps added up – either with IntersectRect or with the clip codes of the Cohen–Sutherland method."},
+  "original": "05_rechtClipping",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-05-15",
+  "datum_quelle": "neueste Quelltextdatei im ZIP: 05_rechtClipping/main.pas, 15.05.2005 17:02; alte Seite: „05_rechtClipping.exe / Source - 050515“ (Fassung 04: main.pas 15.05.2005 13:17)",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 300,
+  "vorschau_param": {"numbers": 25},
+  "pruef_ausdruck": "SIM.zustand.rechtecke.length === 25 && SIM.zustand.geprueft === 300 && !SIM.zustand.offen && SIM.zustand.laps.length > 3 && SIM.zustand.summe === SIM.zustand.exakt && SIM.zustand.summe === SIM.zustand.laps.reduce((s, r) => s + Modell.flaeche(r), 0)"
+}

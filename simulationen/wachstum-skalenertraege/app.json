@@ -1,0 +1,17 @@
+{
+  "id": "wachstum-skalenertraege",
+  "titel": {"de": "Wachstum und räumliche Umverteilung durch Skalenerträge", "en": "Growth and redistribution through increasing returns"},
+  "vorschau": {"de": "Zufallswerte je Zelle werden mit dem Exponenten α umverteilt: Hohe Werte wachsen auf Kosten der übrigen, bis eine Zelle alles besitzt. Fassung mit Moore-Nachbarschaft wählbar (nach Batty).",
+               "en": "Random cell values are redistributed with the exponent α: high values grow at the expense of the others until one cell holds everything. A version with Moore neighbourhood is included (after Batty)."},
+  "original": "19_Growth_01",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-12-15",
+  "datum_quelle": "neueste Quelltextdatei im ZIP (CellForm.pas/.dfm, 15.12.2005); Kopf „Last Update: Dec-13, 2005“, alte Seite „Source - 051212“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 6,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.t === 6 && (a => a.rot >= 1 && a.anteil > 0.05 && a.positiv > 300)(Modell.auswertung(SIM.zustand))"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "facs",
+  "titel": {"de": "FACS – Free Agents in Cellular Space", "en": "FACS – Free Agents in Cellular Space"},
+  "vorschau": {"de": "Freie Agenten über einem Zellenraster, vom Grundmodell bis zum Schwarm: Die Agenten gleichen ihre Bewegungsvektoren an, und die Zellen zeichnen ihre Wege als helle Spuren auf.",
+               "en": "Free agents over a grid of cells, from the basic model to the swarm: the agents align their motion vectors, and the cells record their paths as bright trails."},
+  "original": "01_FACS, 02_Swarming, 03_Swarming",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-05-10",
+  "datum_quelle": "03_Swarming.zip: facsSteer.pas vom 10.05.2005 16:35 (neueste Quelltextdatei), alte Seite „Source - 050510“; Fassungen 01_FACS.zip 04.05.2005 (facsSteer.pas 11:11, „050504“) und 02_Swarming.zip 09.05.2005 (agenten.pas 23:27, „050509“)",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.t === 400 && SIM.zustand.n === 100 && Modell.lokaleOrdnung(SIM.zustand, 40) > 0.35 && Modell.zellAnteil(SIM.zustand, '03') > 0.3 && Modell.zellAnteil(SIM.zustand, '03') < 0.9 && Modell.tempo(SIM.zustand) <= SIM.param.vmax"
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Growth in a Potential-Field · Frühe Simulationen · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Zellen entwickeln sich, wenn ihr Potential einen Schwellenwert übersteigt; das Potential mittelt sich um entwickelte Zellen – korallenartige Verästelung (nach M. Batty). Neuumsetzung des Delphi-Programms 30_potDevProb (2006) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← <span lang="de">Frühe Simulationen</span><span lang="en">Early Simulations</span></a>
+  <h1><span lang="de">Growth in a Potential-Field</span><span lang="en">Growth in a potential field</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Hält wie das Original nach „Lebensdauer“ Schritten an, Start läuft weiter · eine neue Schwelle setzt das Rauschen auf Schwelle + 7 %</span><span lang="en">Like the original it pauses after “lifetime” steps, Start continues · a new threshold sets the noise to threshold + 7 %</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>30_potDevProb · Delphi · 2006</div>
+    <a href="../../../archiv/strukturexperimente/delphi/"><span lang="de">Archivseite des Originals</span><span lang="en">Archive page of the original</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Bei diesem zellulären Automaten findet Wachstum (Entwicklung der Zellen) nur in Abhängigkeit vom Potential P einer Zelle statt. Übersteigt das Potential einen Schwellenwert ψ, wird die Zelle entwickelt (D = 1):</p>
+      <p><code>if P<sub>i</sub>(t) &gt; ψ then D<sub>i</sub>(t) = 1</code></p>
+      <p>Das Potentialfeld wird in jedem Schritt dort neu berechnet, wo eine Zelle in der Moore-Nachbarschaft entwickelt ist; der neue Wert bildet den Durchschnitt der Umgebungswerte, dazu kommt ein Zufallswert (Noise):</p>
+      <p><code>if Σ<sub>k∈Ω<sub>i</sub>, k≠i</sub> D<sub>k</sub>(t) ≥ 1 then P<sub>i</sub>(t+1) = Σ<sub>k∈Ω<sub>i</sub>, k≠i</sub> P<sub>k</sub>(t) / 9 + ε</code></p>
+      <p>Initialisiert wird der Prozess, indem das Potential der Zelle in der Feldmitte auf 1 gesetzt wird, P<sub>c</sub>(0) = 1. Weil ein einmal berechnetes Potential stehen bleibt und entwickelte Zellen ihr Potential abgeben, wächst die Struktur nur an manchen Stellen weiter – sie ähnelt den Verästelungen einer Koralle. Ohne Rauschen bleibt sie nach dem ersten Ring stehen. Mit <em>Altern aktivieren</em> sterben Zellen nach ihrer Lebensdauer; die Anzeige „Potentialfeld“ zeigt die Werte von P. Vorbild ist Michael Battys <em>Cities and Complexity</em> (Kapitel 3); was am Originalprogramm geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>In this cellular automaton growth (the development of cells) depends only on the potential P of a cell. If the potential exceeds a threshold ψ, the cell is developed (D = 1):</p>
+      <p><code>if P<sub>i</sub>(t) &gt; ψ then D<sub>i</sub>(t) = 1</code></p>
+      <p>In every step the potential field is recalculated where a cell in the Moore neighbourhood is developed; the new value is the average of the surrounding values plus a random value (noise):</p>
+      <p><code>if Σ<sub>k∈Ω<sub>i</sub>, k≠i</sub> D<sub>k</sub>(t) ≥ 1 then P<sub>i</sub>(t+1) = Σ<sub>k∈Ω<sub>i</sub>, k≠i</sub> P<sub>k</sub>(t) / 9 + ε</code></p>
+      <p>The process starts by setting the potential of the cell in the centre of the field to 1, P<sub>c</sub>(0) = 1. Because a potential, once calculated, stays fixed and developed cells give up their potential, the structure keeps growing only in some places – it resembles the branches of a coral. Without noise it stops after the first ring. With <em>activate aging</em> cells die after their lifetime; the display “potential field” shows the values of P. The model follows Michael Batty's <em>Cities and Complexity</em> (chapter 3); changes to the original program are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../_gemeinsam/zufall.js"></script>
+<script src="../_gemeinsam/sim.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

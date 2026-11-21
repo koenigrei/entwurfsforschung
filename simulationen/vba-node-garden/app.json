@@ -1,0 +1,17 @@
+{
+  "id": "vba-node-garden",
+  "titel": {"de": "nodeGarden – Interaktion von Nodes", "en": "nodeGarden – interaction of nodes"},
+  "vorschau": {"de": "Zehn Kugeln (nodes) fliegen in einem Rahmen; kommen sich zwei näher als 30 Einheiten, ziehen sie sich an und bremsen ab – nach einiger Zeit stehen sie in Gruppen.",
+               "en": "Ten spheres (nodes) fly within a frame; when two come closer than 30 units, they attract each other and slow down – after a while they rest in groups."},
+  "original": "05nodeGarden.htm",
+  "herkunft": "AutoCAD-VBA",
+  "jahr": 2004,
+  "datum": "2004-01-01",
+  "datum_quelle": "kein genaues Datum: Seite und VBA-Text ohne Datum, Bild 08nodeGarden.jpg ohne Metadaten; Jahr aus bestand.json (spätestens 2004, die VBA-Experimente waren Grundlage von „Computergenerierte Stadtstrukturen“, Bauriedel/König 2004)",
+  "archiv": "strukturexperimente/autocad-vba/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 60,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.t === 60 && SIM.zustand.n === 10 && Modell.tempo(SIM.zustand) < 1.5 && Modell.gruppen(SIM.zustand).gruppen >= 1"
+}

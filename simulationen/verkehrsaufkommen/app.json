@@ -1,0 +1,17 @@
+{
+  "id": "verkehrsaufkommen",
+  "titel": {"de": "Verkehrsaufkommen", "en": "Traffic volume"},
+  "vorschau": {"de": "Rund 45.000 Pendler fahren morgens zur Arbeit und abends nach Hause, jeder auf seiner A*-Route durch einen sich selbst ordnenden Verkehrsgraphen; die Belastung der Kanten zeigt die Rhythmen des Tages.",
+               "en": "Some 45,000 commuters travel to work in the morning and home in the evening, each on an A* route through a self-organising traffic graph; the load on the edges shows the rhythms of the day."},
+  "original": "343_Verkehrsaufkommen",
+  "herkunft": "Delphi",
+  "jahr": 2007,
+  "datum": "2007-01-10",
+  "datum_quelle": "neueste Quelltexte im ZIP (Main.pas/.dfm, cell.pas vom 10.01.2007); Programmkopf „first operational release“ Jan-07, 2007",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 47,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.zeit === 7.83 && SIM.zustand.unterwegs > 5000 && Modell.maxBelastung(SIM.zustand) > 100 && SIM.zustand.pendler > 40000"
+}

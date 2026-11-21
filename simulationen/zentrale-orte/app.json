@@ -1,0 +1,22 @@
+{
+ "id": "zentrale-orte",
+ "titel": {
+  "de": "Zentralität und zentrale Orte",
+  "en": "Centrality and central places"
+ },
+ "vorschau": {
+  "de": "Zentren dreier Ränge – rot, blau, gelb – lagern sich hierarchisch aneinander an: Die roten verteilen sich gleichmäßig, die untergeordneten sammeln sich um sie (nach Christaller).",
+  "en": "Centres of three ranks – red, blue, yellow – attach to one another hierarchically: the red ones spread evenly, the lower-order ones gather around them (after Christaller's central place theory)."
+ },
+ "original": "09_christaller",
+ "herkunft": "Delphi",
+ "jahr": 2005,
+ "datum": "2005-06-25",
+ "datum_quelle": "Programmkopf 2005-06-25 (Dateizeit 2005-11-17 ist ein gemeinsamer Neubau-Stand). neueste Quelltextdatei im ZIP: facsSteer.pas und facsSteer.dfm vom 17.11.2005 (Kopf „Last Update: June-25, 2005“; alte Seite „Source - 050625“)",
+ "archiv": "strukturexperimente/delphi/",
+ "repo": null,
+ "vorschau_saat": 1,
+ "vorschau_schritte": 800,
+ "vorschau_param": {},
+ "pruef_ausdruck": "(c => c.n[1] === 90 && c.n[2] === 90 && c.an[1] >= 80 && c.an[2] >= 75 && Modell.rotAbstand(SIM.zustand) > 60)(Modell.zaehle(SIM.zustand))"
+}

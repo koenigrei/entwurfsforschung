@@ -1,0 +1,8 @@
+{
+  "name": "wegenutzung",
+  "private": true,
+  "type": "commonjs",
+  "description": "Wegenutzung und das Finden kürzester Pfade – Neuumsetzung von 342_kuerzestePfade (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

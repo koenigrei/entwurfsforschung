@@ -1,0 +1,8 @@
+{
+  "name": "nl-repel-attract",
+  "private": true,
+  "type": "commonjs",
+  "description": "01 repel attract – Neuumsetzung von repel_attract.nlogo (NetLogo) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,13 +1,22 @@
 {
-  "id": "thuenen-ringe",
-  "titel": {"de": "Thünen-Ringe", "en": "Thünen Rings"},
-  "vorschau": {"de": "Drei Produkte konkurrieren um die Fläche rund um Märkte: Die höchste Lagerente entscheidet, Ringe der Landnutzung entstehen und wandern mit den Märkten.",
-               "en": "Three products compete for the land around markets: the highest location rent wins, rings of land use emerge and move with the markets."},
-  "original": "412_ThuenenRinge",
-  "herkunft": "Delphi",
-  "jahr": 2008,
-  "archiv": "raumprozesse/simulationsprogramme/",
-  "repo": null,
-  "vorschau_schritte": 0,
-  "vorschau_param": {"maerkte": 3}
+ "id": "thuenen-ringe",
+ "titel": {
+  "de": "Thünen-Ringe",
+  "en": "Thünen Rings"
+ },
+ "vorschau": {
+  "de": "Drei Produkte konkurrieren um die Fläche rund um Märkte: Die höchste Lagerente entscheidet, Ringe der Landnutzung entstehen und wandern mit den Märkten.",
+  "en": "Three products compete for the land around markets: the highest location rent wins, rings of land use emerge and move with the markets."
+ },
+ "original": "412_ThuenenRinge",
+ "herkunft": "Delphi",
+ "jahr": 2008,
+ "archiv": "raumprozesse/simulationsprogramme/",
+ "repo": null,
+ "vorschau_schritte": 0,
+ "vorschau_param": {
+  "maerkte": 3
+ },
+ "datum": "2005-11-17",
+ "datum_quelle": "neueste Quelltextdatei in 412_ThuenenRinge.zip"
 }

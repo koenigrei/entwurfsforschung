@@ -4,7 +4,7 @@ Anleitung für Coding-Agenten und Menschen, die diese App weiterentwickeln. Wer 
 
 ## Worum es geht
 
-Fachlich treue Neuumsetzung von `wegesystem02direction.nlogo` (NetLogo 2.1, Reinhard König, 2005), mit „B update 1“ (`wegesystem04.nlogo`) als Fassung. Maßgeblich sind die Regeln und Parameter des Originals (siehe `QUELLE.md`), nicht seine Oberfläche. Begriffe des Originals bleiben erhalten (turtle, patch, mark, path-attract, mark-strenght – so geschrieben –, max-mark, decrease-per-tick, show-mark-over, Clock/ticks). Die Parameter-IDs sind die NetLogo-Namen mit Bindestrich, in `p` also `p["path-attract"]`.
+Fachlich treue Neuumsetzung von `wegesystem02direction.nlogo` (NetLogo 2.1, Reinhard König, 2005), mit „B update 1“ (`wegesystem04.nlogo`) und „06 wegesystem A“ (`wegesystem01.nlogo`) als Fassungen (`p.fassung` = `"b"`, `"update1"`, `"a"`). Maßgeblich sind die Regeln und Parameter des Originals (siehe `QUELLE.md`), nicht seine Oberfläche. Begriffe des Originals bleiben erhalten (turtle, patch, mark, path-attract, mark-strenght – so geschrieben –, max-mark, decrease-per-tick, show-mark-over, Clock/ticks). Die Parameter-IDs sind die NetLogo-Namen mit Bindestrich, in `p` also `p["path-attract"]`.
 
 ## Aufbau
 
@@ -39,6 +39,7 @@ nl-wegesystem-b/
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
 | `patchVorne(x, y, heading, winkel)` | `patch-left-and-ahead winkel 1` als Feldindex |
 | `bereiche(m0, m1, m2, pathAttract)`, `wahl(mV, randV)` | Wahrscheinlichkeitsbereiche und Richtungswahl (−45, 0, +45) |
+| `bereicheA(m[8], pathAttract)`, `wahlA(mV, randV)` | Fassung A: acht Nachbarn, absolute Richtungen 0…315 (−1 = heading bleibt) |
 | `verfall(mark, d)`, `grau(mark, p)` | Verfall je tick, Grauwert 0…1 wie `pcolor` (mit `show-mark-over`) |
 | `zeichneWeg(z, spalte, zeile, neu)` | update 1: Wege mit der Maus einzeichnen (mark 100) |
 | `auswertung(z, p)` | Kennzahlen `markiert`, `stark`, `aufWeg`, `orthogonal` (auch für Tests und `pruef_ausdruck`) |
@@ -54,6 +55,5 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&path-attract=20`)
 
 ## Ideen für Weiterentwicklung
 
-- „06 wegesystem A“ (`wegesystem01.nlogo`: acht Nachbarn, absolute Richtungen 0/45/…/315) als weitere Fassung – Regeln unterscheiden sich nur in `bewegeTurtle` und den Voreinstellungen.
 - Verlauf der Kennzahlen als kleines Diagramm (Einpendeln nach Parameteränderung, „einige hundert Schritte“).
 - Ziele/Quellen (Häuser, Eingänge) wie in den Delphi-Wegesystemen `331_SelbstorgaWegeSys`.

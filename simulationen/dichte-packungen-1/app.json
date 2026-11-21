@@ -1,0 +1,17 @@
+{
+  "id": "dichte-packungen-1",
+  "titel": {"de": "Dichte Packungen I/II", "en": "Dense packing I/II"},
+  "vorschau": {"de": "Eine evolutionäre Strategie schiebt zufällige Rechtecke, bis sich ihre Flächen kaum noch überschneiden (nach Elezkurtaj und Franck); in Fassung II ändern sie dabei auch ihr Seitenverhältnis.",
+               "en": "An evolutionary strategy shifts random rectangles until their areas hardly overlap any more (after Elezkurtaj and Franck); in version II they also change their aspect ratio."},
+  "original": "06_minUeberschn",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-05-17",
+  "datum_quelle": "neueste Quelltextdatei im ZIP: 06_minUeberschn/main.pas, 17.05.2005 13:18; alte Seite: „06_minUeberschn.exe / Source - 050516“ (Fassung II 07_packingScale: main.pas 17.11.2005, alte Seite „050517“)",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig && SIM.zustand.flaeche <= 100 && SIM.zustand.verlauf[0] > 3000 && SIM.zustand.verlauf.every((v, i, a) => !i || v <= a[i - 1]) && SIM.zustand.flaeche === Modell.ueberschneidung(SIM.zustand.pop[SIM.zustand.best])"
+}

@@ -1,6 +1,6 @@
 # 07 wegesystem B
 
-Selbstorganisierendes Wegesystem: turtles prüfen nur die drei Zellen vor sich (schräg links, geradeaus, schräg rechts), folgen bevorzugt Markierungen (path-attract) und markieren selbst; Markierungen verfallen (decrease-per-tick). Nach einigen tausend Schritten entsteht ein relativ orthogonales Hauptwegesystem. Neuumsetzung von `wegesystem02direction.nlogo` (NetLogo, 2005) von Reinhard König, mit „B update 1“ (`wegesystem04.nlogo`: Wege einzeichnen, show-mark-over) als Fassung.
+Selbstorganisierendes Wegesystem: turtles prüfen nur die drei Zellen vor sich (schräg links, geradeaus, schräg rechts), folgen bevorzugt Markierungen (path-attract) und markieren selbst; Markierungen verfallen (decrease-per-tick). Nach einigen tausend Schritten entsteht ein relativ orthogonales Hauptwegesystem. Neuumsetzung von `wegesystem02direction.nlogo` (NetLogo, 2005) von Reinhard König, mit „B update 1“ (`wegesystem04.nlogo`: Wege einzeichnen, show-mark-over) und dem Vorgänger „06 wegesystem A“ (`wegesystem01.nlogo`: acht Nachbarn, absolute Richtungen) als Fassungen.
 
 Online: https://entwurfsforschung.de/lab/simulationen/nl-wegesystem-b/ (während der Durchsicht unter `/neu/lab/…`)
 

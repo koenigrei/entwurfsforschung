@@ -1,0 +1,18 @@
+{
+  "id": "nl-reakt-diffuse-1",
+  "titel": {"de": "03 reakt diffuse", "en": "03 Reaction Diffusion"},
+  "vorschau": {"de": "Farbige Keime breiten sich Patch für Patch aus; wo zwei Farben aufeinandertreffen, entsteht eine weiße Grenze – eine Flächenteilung. In Fassung 04 setzen sich abstoßende turtles die Keime.",
+               "en": "Coloured seeds spread patch by patch; where two colours meet, a white boundary appears – a division of the area. In version 04 repelling turtles place the seeds."},
+  "original": "reaktDiffuse02.nlogo",
+  "herkunft": "NetLogo",
+  "jahr": 2005,
+  "datum": "2005-01-03",
+  "datum_quelle": "alte NetLogo-Seite: „03_reakt diffuse - 050103“ (Modell im Format NetLogo 2.1.0); Fassung 04 repel and reakt diffuse: „- 050104“",
+  "fassungen": ["reaktDiffuse03.nlogo (04 repel and reakt diffuse, 2005-01-04)"],
+  "archiv": "strukturexperimente/netlogo/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 100,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(a => SIM.zustand.fertig !== null && a.schwarz === 0 && a.grenze > 0.03 && a.grenze < 0.12 && a.farben >= 45)(Modell.auswertung(SIM.zustand))"
+}

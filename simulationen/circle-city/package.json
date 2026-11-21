@@ -1,0 +1,8 @@
+{
+  "name": "circle-city",
+  "private": true,
+  "type": "commonjs",
+  "description": "Modell „Circle City“ – Neuumsetzung von 590_Circle_City (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

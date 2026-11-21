@@ -1,0 +1,8 @@
+{
+  "name": "ueberlagerungsflaechen",
+  "private": true,
+  "type": "commonjs",
+  "description": "Überlagerungsflächen – Neuumsetzung von 05_rechtClipping und 04_rechtClipping (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

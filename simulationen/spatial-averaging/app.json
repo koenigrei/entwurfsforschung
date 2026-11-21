@@ -1,0 +1,17 @@
+{
+  "id": "spatial-averaging",
+  "titel": {"de": "Spatial Averaging", "en": "Spatial Averaging"},
+  "vorschau": {"de": "Eine Zufallsverteilung von −1 und 1 wird über die von-Neumann-Nachbarschaft ausgemittelt. Mit weißem Rauschen und Schwellenwert (Vicsek-Szalay-Modell) entstehen Muster wie bei urbaner Ausbreitung.",
+               "en": "A random distribution of −1 and 1 is averaged over the von Neumann neighbourhood. With white noise and a threshold (Vicsek–Szalay model) patterns resembling urban sprawl emerge."},
+  "original": "21_Spatial_Averaging",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-12-15",
+  "datum_quelle": "neueste Quelltextdatei im ZIP (CellForm.pas/.dfm, 15.12.2005, ebenso 22_Vicsek-Szalay); Kopf „Last Update: Dec-14, 2005“, alte Seite „Source - 051214“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 700,
+  "vorschau_param": {"fassung": "vicsek", "verlauf": false},
+  "pruef_ausdruck": "SIM.zustand.t === 700 && SIM.zustand.n === 135 && (a => a.entwickelt > 0.05 && a.entwickelt < 0.6)(Modell.auswertung(SIM.zustand))"
+}

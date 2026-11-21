@@ -1,0 +1,17 @@
+{
+  "id": "quellen-ziele",
+  "titel": {"de": "Quellen und Ziele der Bewegungen (Path System 02)", "en": "Sources and destinations of movement (Path System 02)"},
+  "vorschau": {"de": "Agenten suchen von zehn Home Cells aus die Center Cell und markieren ihren Heimweg; Nachfolgende folgen den Spuren. Es entsteht ein relativ stabiles Wegenetz aus rund 400 Zellen zwischen Quellen und Ziel.",
+               "en": "Agents set out from ten home cells to find the center cell and mark their way back; others follow the trails. A fairly stable path network of about 400 cells emerges between sources and destination."},
+  "original": "332_Quellen_Ziele",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-04-19",
+  "datum_quelle": "neueste Quelldateien im ZIP (CellForm.pas/.dfm vom 19.04.2006); Kopf „Path System 02 Version 1.0 … Last Update: Apr-16, 2006“; alte Seite delphi.htm „38_path_system_02 / Source - 060419“",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 4000,
+  "vorschau_param": {"verlauf": false},
+  "pruef_ausdruck": "(a => SIM.zustand.t === 4000 && a.summe > 250 && a.summe < 650 && a.heim > 50)(Modell.auswertung(SIM.zustand))"
+}

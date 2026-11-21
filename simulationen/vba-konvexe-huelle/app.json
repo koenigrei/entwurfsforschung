@@ -1,0 +1,17 @@
+{
+  "id": "vba-konvexe-huelle",
+  "titel": {"de": "convexHull – Hülle um beliebig verteilte Punkte", "en": "convexHull – hull around scattered points"},
+  "vorschau": {"de": "Um 201 zufällige Punkte legt sich Kante für Kante eine konvexe Polylinie – oben von links nach rechts, unten zurück, jede Kante in der AutoCAD-Farbe ihrer Nummer.",
+               "en": "Edge by edge, a convex polyline wraps around 201 random points – along the top from left to right, back along the bottom, each edge in the AutoCAD colour of its number."},
+  "original": "04convexHull.htm",
+  "herkunft": "AutoCAD-VBA",
+  "jahr": 2004,
+  "datum": "2004-04-11",
+  "datum_quelle": "EXIF-Datum (Photoshop 7.0) des Bildes zum Skript, 04convexHull.jpg: 11.04.2004 19:52; die Seite selbst ist undatiert",
+  "archiv": "strukturexperimente/autocad-vba/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 2600,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig && !SIM.zustand.fehler && SIM.zustand.punkte.length === 201 && SIM.zustand.kanten.length >= 8 && Modell.ausserhalb(SIM.zustand) === 0 && SIM.zustand.t === 201 * SIM.zustand.kanten.length"
+}

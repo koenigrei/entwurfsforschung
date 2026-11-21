@@ -12,7 +12,8 @@
     tempo: { min: 1, max: 200, wert: 10 },
     parameter: [
       { id: "fassung", gruppe: G1, name: { de: "Fassung", en: "Version" }, art: "auswahl", wert: S.fassung, neustart: true,
-        optionen: [{ wert: "b", name: { de: "07 wegesystem B", en: "07 path system B" } }, { wert: "update1", name: { de: "09 B update 1", en: "09 B update 1" } }] },
+        optionen: [{ wert: "b", name: { de: "07 wegesystem B", en: "07 path system B" } }, { wert: "update1", name: { de: "09 B update 1", en: "09 B update 1" } },
+                   { wert: "a", name: { de: "06 wegesystem A", en: "06 path system A" } }] },
       { id: "num-turtles", gruppe: G1, name: "num-turtles", min: 0, max: 500, wert: S["num-turtles"], neustart: true },
       { id: "path-attract", gruppe: G2, name: "path-attract", min: 0, max: 50, schritt: 0.1, wert: S["path-attract"] },
       { id: "mark-strenght", gruppe: G2, name: "mark-strenght", min: 0, max: 50, schritt: 0.2, wert: S["mark-strenght"] },
@@ -54,11 +55,11 @@
     }
   });
 
-  // Fassung wählen setzt auch deren Voreinstellungen (B: wegesystem02direction.nlogo, update 1: wegesystem04.nlogo).
+  // Fassung wählen setzt auch deren Voreinstellungen (B: wegesystem02direction.nlogo, update 1: wegesystem04.nlogo, A: wegesystem01.nlogo).
   // Über das input-Ereignis der Regler, damit Anzeige, Adresse und Modell wie bei Handbedienung nachziehen.
   const wahl = document.getElementById("p-fassung");
   if (wahl) wahl.addEventListener("change", () => {
-    const werte = wahl.value === "update1" ? Modell.UPDATE1 : S;
+    const werte = wahl.value === "update1" ? Modell.UPDATE1 : wahl.value === "a" ? Modell.FASSUNG_A : S;
     for (const id of ["path-attract", "mark-strenght", "max-mark", "decrease-per-tick", "show-mark-over"]) {
       const el = document.getElementById("p-" + id);
       if (el) { el.value = werte[id]; el.dispatchEvent(new Event("input")); }

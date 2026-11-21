@@ -1,0 +1,17 @@
+{
+  "id": "segregation-eigenschaft",
+  "titel": {"de": "Segregation durch Eigenschaftsanpassung", "en": "Segregation through adaptation"},
+  "vorschau": {"de": "Bier- oder Weintrinker: Jede Zelle übernimmt die Eigenschaft der Mehrheit ihrer Moore-Nachbarschaft. Aus dem Rauschen entstehen stabile Gebiete, die Störungen überstehen (nach Batty).",
+               "en": "Beer or wine drinkers: each cell adopts the property of the majority of its Moore neighbourhood. Stable areas emerge from the noise and survive disturbances (after Batty)."},
+  "original": "522_SegregationEigenschaft",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-12-18",
+  "datum_quelle": "neueste Quelldateien im ZIP (CellForm.pas/.dfm, cell_P.pas vom 18.12.2005); Kopf von CellForm.pas „Last Update: Dec-18, 2005“; alte Seite delphi.htm „24_Segregation02 / Source - 051218“",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 40,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig !== null && SIM.zustand.verlauf[0][1] < 0.53 && Modell.gleicheNachbarn(SIM.zustand) > 0.82"
+}

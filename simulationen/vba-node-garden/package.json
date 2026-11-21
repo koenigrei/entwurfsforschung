@@ -1,0 +1,8 @@
+{
+  "name": "vba-node-garden",
+  "private": true,
+  "type": "commonjs",
+  "description": "nodeGarden – Interaktion von Nodes – Neuumsetzung von 05nodeGarden.htm (AutoCAD-VBA) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

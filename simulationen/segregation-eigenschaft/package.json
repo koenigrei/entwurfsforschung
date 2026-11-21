@@ -1,0 +1,8 @@
+{
+  "name": "segregation-eigenschaft",
+  "private": true,
+  "type": "commonjs",
+  "description": "Segregation durch Eigenschaftsanpassung – Neuumsetzung von 522_SegregationEigenschaft (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

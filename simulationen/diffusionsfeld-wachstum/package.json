@@ -1,0 +1,8 @@
+{
+  "name": "diffusionsfeld-wachstum",
+  "private": true,
+  "type": "commonjs",
+  "description": "Growth in a Diffusion-Field – Neuumsetzung von 31_diffusionGrowth (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

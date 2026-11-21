@@ -1,0 +1,8 @@
+{
+  "name": "standort-skalenertraege",
+  "private": true,
+  "type": "commonjs",
+  "description": "Interaktionsmodell Standortwahl und Skalenerträge – Neuumsetzung von 570_Interakt_Standort_Skalenertr (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

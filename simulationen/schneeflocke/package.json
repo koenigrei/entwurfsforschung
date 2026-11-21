@@ -1,0 +1,8 @@
+{
+  "name": "schneeflocke",
+  "private": true,
+  "type": "commonjs",
+  "description": "Snow Flake Growth – Neuumsetzung von 32_snowFlake (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

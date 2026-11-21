@@ -1,0 +1,8 @@
+{
+  "name": "facs",
+  "private": true,
+  "type": "commonjs",
+  "description": "FACS – Free Agents in Cellular Space – Neuumsetzung von 01_FACS (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

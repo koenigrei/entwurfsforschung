@@ -1,0 +1,17 @@
+{
+  "id": "nl-territorien",
+  "titel": {"de": "10 territory fight 01", "en": "10 territory fight 01"},
+  "vorschau": {"de": "turtles laufen von ihrer Heimat geradeaus durch ihr Gebiet und färben die erste fremde Zelle. Vierzehn Farben teilen die Fläche und kämpfen an den Grenzen.",
+               "en": "Turtles walk straight from their home through their area and colour the first foreign cell. Fourteen colours divide the surface and fight along the borders."},
+  "original": "07_territoryFight_3.nlogo",
+  "herkunft": "NetLogo",
+  "jahr": 2005,
+  "datum": "2005-03-11",
+  "datum_quelle": "Liste der NetLogo-Experimente auf der alten Seite (Strukturfor/netlogo/netLogo.htm): „10_territory fight 01 - 050311“; die .nlogo-Datei (NetLogo 2.1.0) trägt kein Datum",
+  "archiv": "strukturexperimente/netlogo/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 4000,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.t === 4000 && SIM.zustand.gefaerbt / SIM.zustand.mark.length > 0.6 && SIM.zustand.verlauf[4000].filter(v => v > 0).length === 14"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "zentrale-orte-konkurrenz",
+  "titel": {"de": "Konkurrenz um zentrale Orte", "en": "Competition for central places"},
+  "vorschau": {"de": "Segregation nach Schelling mit Märkten: Zufriedene Agenten rücken näher an das nächste Zentrum. Die Quartiere verdichten sich um die Zentren und trennen sich nach Zentren.",
+               "en": "Schelling segregation with markets: satisfied agents move closer to the nearest centre. The quarters condense around the centres and separate by centre."},
+  "original": "560_KonkurrenzZentrOrte",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-03-25",
+  "datum_quelle": "neueste Quelldateien im ZIP (CellForm.pas/.dfm vom 25.03.2006); alte Seite delphi.htm „34_Segregation_03 / Source - 060321“",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 300,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig !== null && Modell.gleicheNachbarn(SIM.zustand) > 80 && SIM.zustand.verlauf[SIM.zustand.verlauf.length - 1][3] < 0.75 * SIM.zustand.verlauf[0][3]"
+}

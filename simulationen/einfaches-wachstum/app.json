@@ -1,0 +1,17 @@
+{
+  "id": "einfaches-wachstum",
+  "titel": {"de": "Einfaches Wachstum", "en": "Simple growth"},
+  "vorschau": {"de": "Eine Zelle wird mit der Wahrscheinlichkeit p entwickelt, wenn eine Nachbarzelle entwickelt ist. Das Alter erscheint als Grauwert; die Lebensdauer der Zellen erzeugt Entwicklungswellen.",
+               "en": "A cell is developed with probability p if a neighbouring cell is developed. Age is shown as a grey value; the lifetime of the cells produces waves of development."},
+  "original": "28_probabCA",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-01-20",
+  "datum_quelle": "neueste Quelltextdatei im ZIP (CellForm.pas/.dfm, 20.01.2006); Kopf „Last Update: Jan-20, 2006“, alte Seite „Source - 060302“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 70,
+  "vorschau_param": {"verlauf": false},
+  "pruef_ausdruck": "SIM.zustand.t === 70 && (c => c > 4000 && c < 8000)(Modell.anzahl(SIM.zustand)) && SIM.zustand.verlauf[20] < SIM.zustand.verlauf[40]"
+}

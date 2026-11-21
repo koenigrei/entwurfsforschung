@@ -1,0 +1,17 @@
+{
+  "id": "vba-2dwachstum-1",
+  "titel": {"de": "2Dwachstum 01–03 – Wanderwürfel", "en": "2D growth 01–03 – wandering cubes"},
+  "vorschau": {"de": "Ein Würfel springt per Zufall in eine von vier Richtungen und hinterlässt eine Spur farbiger Würfel – erst überschneiden sie sich, zuletzt weicht die Struktur besetzten Plätzen in die Höhe aus.",
+               "en": "A cube jumps at random in one of four directions and leaves a trail of coloured cubes – at first they overlap, finally the structure avoids occupied places by moving up or down."},
+  "original": "experiment01.htm",
+  "herkunft": "AutoCAD-VBA",
+  "jahr": 2004,
+  "datum": "2004-02-26",
+  "datum_quelle": "EXIF-Datum (Photoshop 7.0) des Bildes zum Skript, 2Dwachstum.jpg: 26.02.2004 15:27; 2Dwachstum2.jpg (Fassung 02) 26.02.2004 22:40, 2Dwachstum3/4.jpg (Fassung 03) 27.02.2004; die Seiten selbst sind undatiert",
+  "archiv": "strukturexperimente/autocad-vba/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 1000,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig && SIM.zustand.wuerfel.length === 1000 && Modell.geschosse(SIM.zustand) === 10 && SIM.zustand.doppelt > 100 && SIM.zustand.wuerfel.every((w, i) => i % 100 || (Math.abs(w.x) < 1e-9 && Math.abs(w.y) < 1e-9))"
+}

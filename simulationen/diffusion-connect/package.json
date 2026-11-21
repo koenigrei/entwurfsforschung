@@ -1,0 +1,8 @@
+{
+  "name": "diffusion-connect",
+  "private": true,
+  "type": "commonjs",
+  "description": "Diffusion Connect Model – Neuumsetzung von 23_diffusion-contract (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

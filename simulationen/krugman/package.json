@@ -1,0 +1,8 @@
+{
+  "name": "krugman",
+  "private": true,
+  "type": "commonjs",
+  "description": "Krugmans Modell – Neuumsetzung von 26_Krugman_Model (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

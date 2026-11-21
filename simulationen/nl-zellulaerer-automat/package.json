@@ -1,0 +1,8 @@
+{
+  "name": "nl-zellulaerer-automat",
+  "private": true,
+  "type": "commonjs",
+  "description": "02 cellular Automata – Neuumsetzung von celluAutomata03.nlogo (NetLogo) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

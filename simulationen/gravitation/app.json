@@ -1,0 +1,17 @@
+{
+  "id": "gravitation",
+  "titel": {"de": "Erreichbarkeit und Gravitationsmodell", "en": "Accessibility and gravity model"},
+  "vorschau": {"de": "In einem gezeichneten Graphen zeigen die Zeilensummen der Distanzmatrix, wie gut jeder Knoten erreichbar ist; das Gravitationsmodell schätzt die Ströme zwischen den Orten aus ihrer Größe und Entfernung.",
+               "en": "In a drawn graph, the row sums of the distance matrix show how accessible each node is; the gravity model estimates the flows between places from their size and distance."},
+  "original": "310_Gravitation",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-11-23",
+  "datum_quelle": "Programmkopf GravForm.pas („1.1 [Nov-23, 2005] gravitation function was added“), alte Seite („Source - 051123“) und neueste Dateien im ZIP (GravForm.pas/.dfm, Gravitation.dpr 23.11.2005); Fassung 17_Erreichbarkeit: 17.11.2005",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 72,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(w => Modell.fertig(SIM.zustand) && SIM.zustand.nodes.length === 9 && SIM.zustand.kanten.length === 10 && w.streuwert === 170 && w.mittel === 2.36)(Modell.auswertung(SIM.zustand))"
+}

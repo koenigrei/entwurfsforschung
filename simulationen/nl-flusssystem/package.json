@@ -1,0 +1,8 @@
+{
+  "name": "nl-flusssystem",
+  "private": true,
+  "type": "commonjs",
+  "description": "08 flusssystem – Neuumsetzung von 05_wegesys_attrakt.nlogo (NetLogo) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

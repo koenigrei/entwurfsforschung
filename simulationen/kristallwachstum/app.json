@@ -1,0 +1,17 @@
+{
+  "id": "kristallwachstum",
+  "titel": {"de": "Kristallwachstum", "en": "Crystal Growth"},
+  "vorschau": {"de": "Zellen kristallisieren, wenn ihr Potential unter einen Unterkühlungswert fällt, und geben dabei Wärme ins diffundierende Feld ab – mit Rauschen und Interface-Effekt entstehen dichte Flächen, Ornamente oder Verästelungen.",
+               "en": "Cells crystallise when their potential drops below an undercooling threshold and release heat into the diffusing field – noise and an interface effect yield dense areas, ornaments or branching."},
+  "original": "33_crystalGrowth",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-03-11",
+  "datum_quelle": "neueste Quelltextdatei im ZIP: CellForm.pas/.dfm vom 11.03.2006; Download auf der alten Seite „Source - 060313“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 70,
+  "vorschau_param": {"verlauf": false},
+  "pruef_ausdruck": "SIM.zustand.t === 70 && SIM.zustand.anzahl > 500 && Math.abs(Modell.gesamtpotential(SIM.zustand) - SIM.zustand.anzahl) < 1e-6"
+}

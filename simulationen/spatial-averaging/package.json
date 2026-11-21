@@ -1,0 +1,8 @@
+{
+  "name": "spatial-averaging",
+  "private": true,
+  "type": "commonjs",
+  "description": "Spatial Averaging – Neuumsetzung von 21_Spatial_Averaging (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

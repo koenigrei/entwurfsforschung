@@ -1,0 +1,8 @@
+{
+  "name": "zentrale-orte-konkurrenz",
+  "private": true,
+  "type": "commonjs",
+  "description": "Konkurrenz um zentrale Orte – Neuumsetzung von 560_KonkurrenzZentrOrte (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

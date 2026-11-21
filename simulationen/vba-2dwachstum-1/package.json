@@ -1,0 +1,8 @@
+{
+  "name": "vba-2dwachstum-1",
+  "private": true,
+  "type": "commonjs",
+  "description": "2Dwachstum 01–03 – Wanderwürfel – Neuumsetzung von experiment01–03.htm (AutoCAD-VBA) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "entropie",
+  "private": true,
+  "type": "commonjs",
+  "description": "Entropiemessung – Neuumsetzung von 27_entropyMeasure (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "interaktionsmodell",
+  "private": true,
+  "type": "commonjs",
+  "description": "Agentenbasiertes Interaktionsmodell (Interaction Pattern) – Neuumsetzung von 320_AgInteraktModell (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "mietpreisdynamik",
+  "private": true,
+  "type": "commonjs",
+  "description": "Einbeziehung der Mietpreisdynamik – Neuumsetzung von 550_Mietpreisdynamik (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

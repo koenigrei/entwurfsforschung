@@ -1,0 +1,8 @@
+{
+  "name": "optimiertes-wegesystem",
+  "private": true,
+  "type": "commonjs",
+  "description": "Optimiertes Wegesystem (Evolutionary Network) – Neuumsetzung von 333_OptiWege (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

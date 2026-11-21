@@ -1,0 +1,8 @@
+{
+  "name": "separation",
+  "private": true,
+  "type": "commonjs",
+  "description": "Separation durch Standortpräferenzen – Neuumsetzung von 421_Separation (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

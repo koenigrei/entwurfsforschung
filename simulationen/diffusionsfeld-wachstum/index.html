@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wachstum im Diffusionsfeld · Frühe Simulationen · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Je Schritt wird die Randzelle mit dem höchsten Potential plus Zufall entwickelt; das Potentialfeld wird ausgemittelt und im Abstand R zum Cluster auf 1 gesetzt (nach Batty). Neuumsetzung des Delphi-Programms 31_diffusionGrowth (2006) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← <span lang="de">Frühe Simulationen</span><span lang="en">Early Simulations</span></a>
+  <h1><span lang="de">Wachstum im Diffusionsfeld</span><span lang="en">Growth in a Diffusion Field</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Start: eine Zelle je Schritt · Halt nach „die with age“ Schritten (mit aging: läuft weiter) · Regler wirken sofort</span><span lang="en">Start: one cell per step · stops after “die with age” steps (with aging: keeps running) · sliders act immediately</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>31_diffusionGrowth · Delphi · 2006</div>
+    <a href="../../../archiv/strukturexperimente/delphi/"><span lang="de">Archivseite des Originals</span><span lang="en">Archive page of the original</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Das Wachstum findet in einem <em>Diffusionsfeld</em> statt: Jede Zelle trägt ein Potential <code>P</code>, das in jedem Schritt mit den vier Nachbarn ausgemittelt wird (wie beim „Spatial Averaging“). In einer bestimmten Entfernung <code>R</code> zum wachsenden Cluster (<em>Sphere of Influence</em>) wird das Potential auf <code>P = 1</code> gesetzt, der Cluster selbst hat <code>P = 0</code>. Zwischen Cluster und Einflussgrenze entsteht so ein Gefälle, das an den äußersten Spitzen am steilsten ist.</p>
+      <p>Je Schritt wird genau eine Zelle entwickelt: die Randzelle mit einem entwickelten von-Neumann-Nachbarn, deren Potential plus Zufallswert am größten ist – <code>wenn Σ D_k(t) ≥ 1 und P_i(t) + ε_i(t) = max, dann D_i(t+1) = 1 und P_i(t+1) = 0</code>, mit <code>ε = random · noise</code>, um die Symmetrie zu brechen. Danach wird das Feld zweimal einem Gleichgewicht angenähert: <code>P_i(t+1) = Σ P_k(t) / 4</code> für alle unentwickelten Zellen.</p>
+      <p>Weil das Potential außen höher ist, wächst die Struktur eher am Rand als in der Mitte. Wenig <code>noise</code> ergibt lineare, verästelte Strukturen, viel <code>noise</code> oder ein großes <code>R</code> dichte, kompakte Haufen – die Kennzahl „Dichte“ zeigt den Unterschied. Mit „activate aging“ sterben Zellen nach „die with age“ Schritten wieder ab; ältere Zellen erscheinen heller. In der dunklen Darstellung erscheint der Cluster weiß auf dunklem Feld.</p>
+      <p>Die App ist eine Neuumsetzung des Delphi-Programms 31_diffusionGrowth von Reinhard König aus dem „Laboratorium für räumliche Prozesse“ (2006), nach Michael Batty, <em>Cities and Complexity</em>, Kapitel 3. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>Growth takes place in a <em>diffusion field</em>: every cell carries a potential <code>P</code> that is averaged with its four neighbours in each step (as in “spatial averaging”). At a certain distance <code>R</code> from the growing cluster (<em>sphere of influence</em>) the potential is set to <code>P = 1</code>; the cluster itself has <code>P = 0</code>. This creates a gradient between the cluster and the boundary of influence that is steepest at the outermost tips.</p>
+      <p>Exactly one cell develops per step: the boundary cell with a developed von Neumann neighbour whose potential plus a random value is highest – <code>if Σ D_k(t) ≥ 1 and P_i(t) + ε_i(t) = max, then D_i(t+1) = 1 and P_i(t+1) = 0</code>, with <code>ε = random · noise</code> to break the symmetry. The field is then brought towards equilibrium twice: <code>P_i(t+1) = Σ P_k(t) / 4</code> for all undeveloped cells.</p>
+      <p>Because the potential is higher further out, the structure grows at its edge rather than in the middle. Little <code>noise</code> produces linear, branching structures; much <code>noise</code> or a large <code>R</code> produces dense, compact clusters – the measure “density” shows the difference. With “activate aging” cells die again after “die with age” steps; older cells appear lighter. In dark mode the cluster appears white on a dark field.</p>
+      <p>The app re-implements the Delphi program 31_diffusionGrowth by Reinhard König from the “Laboratory for spatial processes” (2006), after Michael Batty, <em>Cities and Complexity</em>, chapter 3. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../_gemeinsam/zufall.js"></script>
+<script src="../_gemeinsam/sim.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

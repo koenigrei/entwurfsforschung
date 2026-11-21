@@ -1,0 +1,8 @@
+{
+  "name": "nl-territorien",
+  "private": true,
+  "type": "commonjs",
+  "description": "10 territory fight 01 – Neuumsetzung von 07_territoryFight_3.nlogo (NetLogo) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "dichte-packungen-1",
+  "private": true,
+  "type": "commonjs",
+  "description": "Dichte Packungen I/II – Neuumsetzung von 06_minUeberschn und 07_packingScale (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "gravitation",
+  "private": true,
+  "type": "commonjs",
+  "description": "Gravitationsmodell – Neuumsetzung von 310_Gravitation (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "thuenen-verhandlung",
+  "private": true,
+  "type": "commonjs",
+  "description": "Verhandlungsmodell für die Landnutzung nach v. Thünen – Neuumsetzung von 413_ThuenenVerhandel (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

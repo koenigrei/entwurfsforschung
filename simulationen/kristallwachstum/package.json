@@ -1,0 +1,8 @@
+{
+  "name": "kristallwachstum",
+  "private": true,
+  "type": "commonjs",
+  "description": "Crystal Growth – Neuumsetzung von 33_crystalGrowth (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

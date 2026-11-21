@@ -1,0 +1,8 @@
+{
+  "name": "flaechenverteilung",
+  "private": true,
+  "type": "commonjs",
+  "description": "Verteilung verschiedener Flächennutzungen – Neuumsetzung von 422_Flaechenverteilung (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

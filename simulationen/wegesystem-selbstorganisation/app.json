@@ -1,0 +1,17 @@
+{
+  "id": "wegesystem-selbstorganisation",
+  "titel": {"de": "Selbstorganisation bei Wegesystemen und Slime Mold", "en": "Self-organising path systems and slime mould"},
+  "vorschau": {"de": "Agenten hinterlassen Markierungen und folgen ihnen in ihrem Sichtbereich: Aus dem Random Walk organisiert sich ein Wegesystem. Mit Diffusion der Markierungen wandern und verschmelzen Cluster wie beim Schleimpilz.",
+               "en": "Agents leave marks and follow them within their field of view: a path system organises itself out of the random walk. With diffusing marks, clusters wander and merge like a slime mould."},
+  "original": "331_SelbstorgaWegeSys",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-04-14",
+  "datum_quelle": "neueste Quelltexte im ZIP (CellForm.pas/.dfm, agenten.pas, cell_P.pas vom 14.04.2006) und alte Seite („Source - 060414“); Programmkopf „first release … Apr-02, 2006“; Fassung 37_slimeMold: 15.04.2006 (Programmkopf 1.1, Seite „Source - 060415“, ZIP)",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 2000,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(c => SIM.zustand.t === 2000 && c.anzahl <= 6 && c.groesste > 450 && Modell.aufSpur(SIM.zustand) > 0.6)(Modell.cluster(SIM.zustand, 30))"
+}

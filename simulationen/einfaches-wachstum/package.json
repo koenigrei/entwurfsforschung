@@ -1,0 +1,8 @@
+{
+  "name": "einfaches-wachstum",
+  "private": true,
+  "type": "commonjs",
+  "description": "Einfaches Wachstum – Neuumsetzung von 28_probabCA (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

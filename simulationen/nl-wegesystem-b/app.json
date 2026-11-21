@@ -1,15 +1,22 @@
 {
-  "id": "nl-wegesystem-b",
-  "titel": {"de": "07 wegesystem B", "en": "07 path system B"},
-  "vorschau": {"de": "Turtles prüfen nur die drei Zellen vor sich und folgen bevorzugt Markierungen: Nach einigen tausend Schritten organisiert sich ein relativ orthogonales Hauptwegesystem.",
-               "en": "Turtles check only the three cells ahead and prefer marked ones: after a few thousand steps a fairly orthogonal main path network organises itself."},
-  "original": "wegesystem02direction.nlogo",
-  "herkunft": "NetLogo",
-  "jahr": 2005,
-  "archiv": "strukturexperimente/netlogo/",
-  "repo": null,
-  "vorschau_saat": 1,
-  "vorschau_schritte": 4000,
-  "vorschau_param": {},
-  "pruef_ausdruck": "(a => SIM.zustand.t === 4000 && a.stark > 0.1 && a.stark < 0.35 && a.aufWeg > 2 * a.stark && a.orthogonal > 0.68)(Modell.auswertung(SIM.zustand, SIM.param))"
+ "id": "nl-wegesystem-b",
+ "titel": {
+  "de": "07 wegesystem B",
+  "en": "07 path system B"
+ },
+ "vorschau": {
+  "de": "Turtles prüfen nur die drei Zellen vor sich und folgen bevorzugt Markierungen: Nach einigen tausend Schritten organisiert sich ein relativ orthogonales Hauptwegesystem.",
+  "en": "Turtles check only the three cells ahead and prefer marked ones: after a few thousand steps a fairly orthogonal main path network organises itself."
+ },
+ "original": "wegesystem02direction.nlogo",
+ "herkunft": "NetLogo",
+ "jahr": 2005,
+ "archiv": "strukturexperimente/netlogo/",
+ "repo": null,
+ "vorschau_saat": 1,
+ "vorschau_schritte": 4000,
+ "vorschau_param": {},
+ "pruef_ausdruck": "(a => SIM.zustand.t === 4000 && a.stark > 0.1 && a.stark < 0.35 && a.aufWeg > 2 * a.stark && a.orthogonal > 0.68)(Modell.auswertung(SIM.zustand, SIM.param))",
+ "datum": "2005-02-18",
+ "datum_quelle": "netLogo.htm „07_wegesystem B - 050218“"
 }

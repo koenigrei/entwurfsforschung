@@ -1,0 +1,8 @@
+{
+  "name": "alonso",
+  "private": true,
+  "type": "commonjs",
+  "description": "Alonsos Modell der Standortwahl der Betriebe – Neuumsetzung von 414_Alonso (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

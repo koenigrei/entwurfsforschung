@@ -103,9 +103,9 @@
    "umfang": "klein",
    "gruppe": "agenten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P1, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "facs",
+   "hinweis": null,
    "reihenfolge": 1
   },
   {
@@ -125,9 +125,9 @@
    "umfang": "klein",
    "gruppe": "agenten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P1, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "facs",
+   "hinweis": "Als Fassung in facs.",
    "reihenfolge": 2
   },
   {
@@ -147,9 +147,9 @@
    "umfang": "klein",
    "gruppe": "agenten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P1, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "facs",
+   "hinweis": "Als Fassung in facs.",
    "reihenfolge": 3
   },
   {
@@ -169,9 +169,9 @@
    "umfang": "klein",
    "gruppe": "agenten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P1, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "diffusion-connect",
+   "hinweis": null,
    "reihenfolge": 4
   },
   {
@@ -191,9 +191,9 @@
    "umfang": "klein",
    "gruppe": "agenten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P1, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "nl-repel-attract",
+   "hinweis": null,
    "reihenfolge": 5
   },
   {
@@ -209,13 +209,13 @@
    "quellcode": true,
    "quellpfad": "alt_inhalte/cache/alt/Strukturfor/vba/05nodeGarden.htm",
    "duplikate": [],
-   "beschreibung": "Kugeln (Nodes) bewegen sich in einem Rahmen, weichen einander aus und bremsen in der Nähe anderer ab; es bilden sich Gruppen.",
+   "beschreibung": "Kugeln ziehen einander an und bremsen ab, bis sie zur Ruhe kommen (AutoCAD-VBA-Makro).",
    "umfang": "klein",
    "gruppe": "agenten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“). [Paket P1, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "vba-node-garden",
+   "hinweis": "Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“).",
    "reihenfolge": 6
   },
   {
@@ -235,9 +235,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P2, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "wachstum-skalenertraege",
+   "hinweis": null,
    "reihenfolge": 7
   },
   {
@@ -257,9 +257,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P2, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "wachstum-skalenertraege",
+   "hinweis": "als Fassung in wachstum-skalenertraege",
    "reihenfolge": 8
   },
   {
@@ -281,9 +281,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P2, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "spatial-averaging",
+   "hinweis": null,
    "reihenfolge": 9
   },
   {
@@ -303,9 +303,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P2, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "spatial-averaging",
+   "hinweis": "als Fassung in spatial-averaging",
    "reihenfolge": 10
   },
   {
@@ -325,9 +325,9 @@
    "umfang": "mittel",
    "gruppe": "automaten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P2, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "entropie",
+   "hinweis": null,
    "reihenfolge": 11
   },
   {
@@ -349,9 +349,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P2, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "einfaches-wachstum",
+   "hinweis": null,
    "reihenfolge": 12
   },
   {
@@ -371,9 +371,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P2, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "wachstum-umorganisation",
+   "hinweis": null,
    "reihenfolge": 13
   },
   {
@@ -395,9 +395,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P2, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "potentialfeld-wachstum",
+   "hinweis": null,
    "reihenfolge": 14
   },
   {
@@ -419,9 +419,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P3, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "diffusionsfeld-wachstum",
+   "hinweis": null,
    "reihenfolge": 15
   },
   {
@@ -441,9 +441,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P3, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "schneeflocke",
+   "hinweis": null,
    "reihenfolge": 16
   },
   {
@@ -463,9 +463,9 @@
    "umfang": "mittel",
    "gruppe": "automaten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P3, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "kristallwachstum",
+   "hinweis": null,
    "reihenfolge": 17
   },
   {
@@ -485,9 +485,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P3, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "nl-zellulaerer-automat",
+   "hinweis": null,
    "reihenfolge": 18
   },
   {
@@ -507,9 +507,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P3, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "nl-reakt-diffuse-1",
+   "hinweis": null,
    "reihenfolge": 19
   },
   {
@@ -529,9 +529,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P3, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "nl-reakt-diffuse-1",
+   "hinweis": "Als Fassung in nl-reakt-diffuse-1.",
    "reihenfolge": 20
   },
   {
@@ -551,9 +551,9 @@
    "umfang": "klein",
    "gruppe": "automaten",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P3, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "nl-zellulaerer-automat",
+   "hinweis": "Als Fassung in nl-zellulaerer-automat.",
    "reihenfolge": 21
   },
   {
@@ -573,9 +573,9 @@
    "umfang": "klein",
    "gruppe": "wege",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P7, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "gravitation",
+   "hinweis": "Als Fassung in gravitation.",
    "reihenfolge": 22
   },
   {
@@ -598,9 +598,9 @@
    "umfang": "klein",
    "gruppe": "wege",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P7, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "gravitation",
+   "hinweis": null,
    "reihenfolge": 23
   },
   {
@@ -620,9 +620,9 @@
    "umfang": "klein",
    "gruppe": "wege",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P7, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "a-stern",
+   "hinweis": null,
    "reihenfolge": 24
   },
   {
@@ -642,9 +642,9 @@
    "umfang": "klein",
    "gruppe": "wege",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P7, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "wegenutzung",
+   "hinweis": "Als Fassung in wegenutzung.",
    "reihenfolge": 25
   },
   {
@@ -666,9 +666,9 @@
    "umfang": "mittel",
    "gruppe": "wege",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P7, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "wegenutzung",
+   "hinweis": null,
    "reihenfolge": 26
   },
   {
@@ -677,7 +677,7 @@
    "titel": "Verkehrsaufkommen",
    "titel_en": "Traffic volume",
    "herkunft": "Delphi",
-   "jahr": 2008,
+   "jahr": 2007,
    "kapitel": "Räumliche Prozesse › Simulationsprogramme (Dissertation 2008) 3.4.3",
    "alt_seite": "https://www.entwurfsforschung.de/alt/RaumProzesse/DSVPro.htm",
    "archiv": "raumprozesse/simulationsprogramme/",
@@ -688,9 +688,9 @@
    "umfang": "groß",
    "gruppe": "wege",
    "welle": 3,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Auf der alten Website nur als Bild beschrieben; Regeln aus dem Quellcode erschließen. [Paket P7, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "verkehrsaufkommen",
+   "hinweis": "Auf der alten Website nur als Bild beschrieben; Regeln aus dem Quellcode erschließen.",
    "reihenfolge": 27
   },
   {
@@ -712,9 +712,9 @@
    "umfang": "mittel",
    "gruppe": "wege",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P7, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "wegesystem-selbstorganisation",
+   "hinweis": null,
    "reihenfolge": 28
   },
   {
@@ -736,9 +736,9 @@
    "umfang": "mittel",
    "gruppe": "wege",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P7, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "wegesystem-selbstorganisation",
+   "hinweis": "Als Fassung in wegesystem-selbstorganisation.",
    "reihenfolge": 29
   },
   {
@@ -761,9 +761,9 @@
    "umfang": "mittel",
    "gruppe": "wege",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P8, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "quellen-ziele",
+   "hinweis": null,
    "reihenfolge": 30
   },
   {
@@ -785,9 +785,9 @@
    "umfang": "groß",
    "gruppe": "wege",
    "welle": 3,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P8, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "optimiertes-wegesystem",
+   "hinweis": null,
    "reihenfolge": 31
   },
   {
@@ -807,9 +807,9 @@
    "umfang": "klein",
    "gruppe": "wege",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P8, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "active-walker",
+   "hinweis": null,
    "reihenfolge": 32
   },
   {
@@ -829,9 +829,9 @@
    "umfang": "klein",
    "gruppe": "wege",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P8, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "active-walker",
+   "hinweis": "Als Fassung in active-walker.",
    "reihenfolge": 33
   },
   {
@@ -854,9 +854,9 @@
    "umfang": "mittel",
    "gruppe": "wege",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P8, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "interaktionsmodell",
+   "hinweis": null,
    "reihenfolge": 34
   },
   {
@@ -876,9 +876,9 @@
    "umfang": "klein",
    "gruppe": "wege",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Unterscheidet sich von nl-wegesystem-b nur in der Bewegungsregel und den Voreinstellungen – als dritte Fassung in nl-wegesystem-b aufnehmen. [Paket P8, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "nl-wegesystem-b",
+   "hinweis": "Unterscheidet sich von nl-wegesystem-b nur in der Bewegungsregel und den Voreinstellungen – als dritte Fassung in nl-wegesystem-b aufnehmen. Als Fassung in nl-wegesystem-b.",
    "reihenfolge": 35
   },
   {
@@ -920,9 +920,9 @@
    "umfang": "klein",
    "gruppe": "wege",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P8, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "nl-flusssystem",
+   "hinweis": null,
    "reihenfolge": 37
   },
   {
@@ -990,9 +990,9 @@
    "umfang": "mittel",
    "gruppe": "boden",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P4, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "thuenen-verhandlung",
+   "hinweis": null,
    "reihenfolge": 40
   },
   {
@@ -1014,9 +1014,9 @@
    "umfang": "mittel",
    "gruppe": "boden",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Das Original lädt Hintergrundgrafiken aus dem Programmordner (414_Alonso_Prog.zip). [Paket P4, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "alonso",
+   "hinweis": "Das Original lädt Hintergrundgrafiken aus dem Programmordner (414_Alonso_Prog.zip).",
    "reihenfolge": 41
   },
   {
@@ -1039,9 +1039,9 @@
    "umfang": "mittel",
    "gruppe": "boden",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P4, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "skalenertraege",
+   "hinweis": null,
    "reihenfolge": 42
   },
   {
@@ -1061,9 +1061,9 @@
    "umfang": "klein",
    "gruppe": "boden",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P4, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "krugman",
+   "hinweis": null,
    "reihenfolge": 43
   },
   {
@@ -1085,9 +1085,9 @@
    "umfang": "mittel",
    "gruppe": "boden",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P4, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "zentrale-orte",
+   "hinweis": null,
    "reihenfolge": 44
   },
   {
@@ -1109,9 +1109,9 @@
    "umfang": "mittel",
    "gruppe": "boden",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P4, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "separation",
+   "hinweis": null,
    "reihenfolge": 45
   },
   {
@@ -1120,7 +1120,7 @@
    "titel": "Verteilung verschiedener Flächennutzungen",
    "titel_en": "Distribution of land uses",
    "herkunft": "Delphi",
-   "jahr": 2006,
+   "jahr": 2007,
    "kapitel": "Räumliche Prozesse › Simulationsprogramme (Dissertation 2008) 4.2.2",
    "alt_seite": "https://www.entwurfsforschung.de/alt/RaumProzesse/DSVPro.htm",
    "archiv": "raumprozesse/simulationsprogramme/",
@@ -1133,9 +1133,9 @@
    "umfang": "groß",
    "gruppe": "boden",
    "welle": 3,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Beschreibung knapp („Eine detailiertere Beschreibung folgt…“); Regeln aus dem Quellcode erschließen. [Paket P4, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "flaechenverteilung",
+   "hinweis": "Beschreibung knapp („Eine detailiertere Beschreibung folgt…“); Regeln aus dem Quellcode erschließen.",
    "reihenfolge": 46
   },
   {
@@ -1157,9 +1157,9 @@
    "umfang": "klein",
    "gruppe": "segregation",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P6, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "segregation-eigenschaft",
+   "hinweis": null,
    "reihenfolge": 47
   },
   {
@@ -1207,9 +1207,9 @@
    "umfang": "klein",
    "gruppe": "segregation",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P6, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "zentrale-orte-konkurrenz",
+   "hinweis": null,
    "reihenfolge": 49
   },
   {
@@ -1231,9 +1231,9 @@
    "umfang": "mittel",
    "gruppe": "segregation",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "ZIP fehlte in archiv_medien; am 21.11.2026 von der alten Website in den Cache geladen. [Paket P6, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "standort-skalenertraege",
+   "hinweis": "ZIP fehlte in archiv_medien; am 21.11.2026 von der alten Website in den Cache geladen.",
    "reihenfolge": 50
   },
   {
@@ -1242,7 +1242,7 @@
    "titel": "Einbeziehung der Mietpreisdynamik",
    "titel_en": "Including rent dynamics",
    "herkunft": "Delphi",
-   "jahr": 2008,
+   "jahr": 2007,
    "kapitel": "Räumliche Prozesse › Simulationsprogramme (Dissertation 2008) 5.5",
    "alt_seite": "https://www.entwurfsforschung.de/alt/RaumProzesse/DSVPro.htm",
    "archiv": "raumprozesse/simulationsprogramme/",
@@ -1253,9 +1253,9 @@
    "umfang": "groß",
    "gruppe": "segregation",
    "welle": 3,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Beschreibung nur in der Dissertation (Kap. 5.5). [Paket P6, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "mietpreisdynamik",
+   "hinweis": "Beschreibung nur in der Dissertation (Kap. 5.5).",
    "reihenfolge": 51
   },
   {
@@ -1275,9 +1275,9 @@
    "umfang": "groß",
    "gruppe": "segregation",
    "welle": 3,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "ZIP fehlte in archiv_medien; am 21.11.2026 in den Cache geladen. Beschreibung nur in der Dissertation (Kap. 5.8). [Paket P6, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "mietpreisdynamik",
+   "hinweis": "ZIP fehlte in archiv_medien; am 21.11.2026 in den Cache geladen. Beschreibung nur in der Dissertation (Kap. 5.8). Als Fassung in mietpreisdynamik.",
    "reihenfolge": 52
   },
   {
@@ -1297,9 +1297,9 @@
    "umfang": "groß",
    "gruppe": "segregation",
    "welle": 3,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "ZIP fehlte in archiv_medien; am 21.11.2026 in den Cache geladen. Beschreibung nur in der Dissertation (Kap. 5.9). [Paket P6, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "circle-city",
+   "hinweis": "ZIP fehlte in archiv_medien; am 21.11.2026 in den Cache geladen. Beschreibung nur in der Dissertation (Kap. 5.9).",
    "reihenfolge": 53
   },
   {
@@ -1319,9 +1319,9 @@
    "umfang": "klein",
    "gruppe": "segregation",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P6, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "nl-voting",
+   "hinweis": null,
    "reihenfolge": 54
   },
   {
@@ -1341,9 +1341,9 @@
    "umfang": "klein",
    "gruppe": "segregation",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P6, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "nl-territorien",
+   "hinweis": null,
    "reihenfolge": 55
   },
   {
@@ -1363,9 +1363,9 @@
    "umfang": "mittel",
    "gruppe": "segregation",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P6, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "nl-kulturen",
+   "hinweis": null,
    "reihenfolge": 56
   },
   {
@@ -1387,9 +1387,9 @@
    "umfang": "klein",
    "gruppe": "formen",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P5, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "ueberlagerungsflaechen",
+   "hinweis": null,
    "reihenfolge": 57
   },
   {
@@ -1409,9 +1409,9 @@
    "umfang": "klein",
    "gruppe": "formen",
    "welle": 1,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P5, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "dichte-packungen-1",
+   "hinweis": null,
    "reihenfolge": 58
   },
   {
@@ -1431,9 +1431,9 @@
    "umfang": "klein",
    "gruppe": "formen",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "[Paket P5, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "dichte-packungen-1",
+   "hinweis": "Als Fassung in dichte-packungen-1.",
    "reihenfolge": 59
   },
   {
@@ -1453,9 +1453,9 @@
    "umfang": "klein",
    "gruppe": "formen",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Quellcode als Text auf der Seite. Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“). [Paket P5, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "vba-2dwachstum-1",
+   "hinweis": "Quellcode als Text auf der Seite. Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“).",
    "reihenfolge": 60
   },
   {
@@ -1475,9 +1475,9 @@
    "umfang": "klein",
    "gruppe": "formen",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Kann mit 01 und 03 eine App mit Stufen werden. Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“). [Paket P5, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "vba-2dwachstum-1",
+   "hinweis": "Kann mit 01 und 03 eine App mit Stufen werden. Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“). Als Fassung in vba-2dwachstum-1.",
    "reihenfolge": 61
   },
   {
@@ -1497,9 +1497,9 @@
    "umfang": "klein",
    "gruppe": "formen",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“). [Paket P5, 21.11.2026]",
+   "status": "aufgenommen",
+   "app": "vba-2dwachstum-1",
+   "hinweis": "Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“). Als Fassung in vba-2dwachstum-1.",
    "reihenfolge": 62
   },
   {
@@ -1629,9 +1629,9 @@
    "umfang": "klein",
    "gruppe": "formen",
    "welle": 2,
-   "status": "in_arbeit",
-   "app": null,
-   "hinweis": "Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“). [Paket P5, 21.11.2026]",
+   "status": "umgesetzt",
+   "app": "vba-konvexe-huelle",
+   "hinweis": "Jahr: spätestens 2004 (Grundlage von Bauriedel/König 2004, „Computergenerierte Stadtstrukturen“).",
    "reihenfolge": 68
   },
   {
@@ -1673,9 +1673,9 @@
    "umfang": "groß",
    "gruppe": "stadt",
    "welle": 3,
-   "status": "in_arbeit",
+   "status": "geplant",
    "app": null,
-   "hinweis": "Größtes Programm (19 Units). ZIP fehlte in archiv_medien; am 21.11.2026 in den Cache geladen. Beschreibung in der Dissertation (Kap. 6). [Paket P1, 21.11.2026]",
+   "hinweis": "Größtes Programm (19 Units). ZIP fehlte in archiv_medien; am 21.11.2026 in den Cache geladen. Beschreibung in der Dissertation (Kap. 6). P1 (21.11.2026): ≈2000 Zeilen, 4 Laufarten; eigener Agent, zuerst runMode 1 (Erschließungsgraph 3.4.1) als App, Rest als Fassungen. Datum Main.dfm 2008-02-23.",
    "reihenfolge": 70
   },
   {

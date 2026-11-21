@@ -1,0 +1,17 @@
+{
+  "id": "nl-flusssystem",
+  "titel": {"de": "08 flusssystem", "en": "08 river system"},
+  "vorschau": {"de": "Viele Quellen streben einem per Mausklick gesetzten Ziel zu, jede folgt der nächsten turtle, die schon näher am Ziel ist; die Spuren bündeln sich wie ein Flusslauf (nach Tomor Elezkurtaj, TU Wien).",
+               "en": "Many sources head for a target set by mouse click, each following the nearest turtle already closer to it; the trails merge like a river network (after Tomor Elezkurtaj, TU Vienna)."},
+  "original": "05_wegesys_attrakt.nlogo",
+  "herkunft": "NetLogo",
+  "jahr": 2005,
+  "datum": "2005-02-26",
+  "datum_quelle": "Liste der NetLogo-Experimente auf der alten Seite netLogo.htm: „08_flusssystem - 050226“ (die .nlogo-Datei selbst nennt nur „NetLogo 2.1.0“)",
+  "archiv": "strukturexperimente/netlogo/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 200,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(a => SIM.zustand.t === 200 && a.ruhe === 1 && a.buendelung > 0.6 && a.pfad > 0.03 && a.pfad < 0.15)(Modell.auswertung(SIM.zustand, SIM.param))"
+}

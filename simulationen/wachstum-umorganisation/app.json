@@ -1,0 +1,17 @@
+{
+  "id": "wachstum-umorganisation",
+  "titel": {"de": "Wachstum mit räumlicher Umorganisation", "en": "Growth with spatial reorganisation"},
+  "vorschau": {"de": "Einfaches Wachstum kombiniert mit Segregation durch Eigenschaftsanpassung: Zellen innerhalb eines Radius werden eher grau, außerhalb eher weiß – es entstehen Inseln, und mit Altern stülpen sich die Bereiche um.",
+               "en": "Simple growth combined with segregation by adapting properties: cells inside a radius tend to become grey, outside white – islands form, and with aging the areas turn inside out."},
+  "original": "29_groupGrow",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-01-20",
+  "datum_quelle": "neueste Quelltextdatei im ZIP (CellForm.pas/.dfm, cell_P.pas, 20.01.2006); Kopf „Last Update: Jan-18, 2006“, alte Seite „Source - 060303“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 45,
+  "vorschau_param": {"verlauf": false, "kreis": false},
+  "pruef_ausdruck": "SIM.zustand.t === 45 && (t => t.innenGrau > 0.8 && t.aussenWeiss > 0.6)(Modell.trennung(SIM.zustand, SIM.param.radius))"
+}

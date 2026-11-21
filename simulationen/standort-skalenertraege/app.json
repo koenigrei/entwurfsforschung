@@ -1,0 +1,17 @@
+{
+  "id": "standort-skalenertraege",
+  "titel": {"de": "Interaktionsmodell Standortwahl und Skalenerträge", "en": "Interaction model of location choice and returns to scale"},
+  "vorschau": {"de": "Zehn Märkte konkurrieren um Kunden, die ihren Wohnort nach Nachbarschaft und Ortspreis wählen. Mit positiven Skalenerträgen entstehen Monopole – die Mobilität der Kunden verstärkt sie.",
+               "en": "Ten markets compete for customers who choose where to live by neighbourhood and local price. With increasing returns to scale monopolies emerge – the customers' mobility reinforces them."},
+  "original": "570_Interakt_Standort_Skalenertr",
+  "herkunft": "Delphi",
+  "jahr": 2006,
+  "datum": "2006-03-25",
+  "datum_quelle": "neueste Quelldateien im ZIP (CellForm.pas/.dfm vom 25.03.2006); alte Seite delphi.htm „35_segregation_04 / Source - 060322“",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 300,
+  "vorschau_param": {"skalen": 1.1},
+  "pruef_ausdruck": "Modell.aktiveMaerkte(SIM.zustand) <= 3 && Modell.groessterAnteil(SIM.zustand) > 0.4 && Modell.gleicheNachbarn(SIM.zustand) > 80"
+}

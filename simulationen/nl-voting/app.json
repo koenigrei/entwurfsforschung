@@ -1,0 +1,17 @@
+{
+  "id": "nl-voting",
+  "titel": {"de": "05 voting with four colors", "en": "05 voting with four colours"},
+  "vorschau": {"de": "Ein Wahlmodell mit vier Farben: Jeder Patch richtet sich nach der Summe der Zustände seiner acht Nachbarn. Vier Regler verschieben die Grenzen – gesucht sind stabile Wertebereiche.",
+               "en": "A voting model with four colours: each patch follows the sum of its eight neighbours' states. Four sliders shift the thresholds – the task is to find stable ranges of values."},
+  "original": "vote4col.nlogo",
+  "herkunft": "NetLogo",
+  "jahr": 2005,
+  "datum": "2005-01-18",
+  "datum_quelle": "Liste der NetLogo-Experimente auf der alten Seite (Strukturfor/netlogo/netLogo.htm): „05_voting with four colors - 050118“; die .nlogo-Datei (NetLogo 2.1.0) trägt kein Datum",
+  "archiv": "strukturexperimente/netlogo/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 100,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig !== null && SIM.zustand.fertig < 100 && Modell.anteile(SIM.zustand)[2] > 0.4 && Modell.anteile(SIM.zustand)[1] > 0.4"
+}

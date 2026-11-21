@@ -127,3 +127,48 @@ test("ohne path-attract kein Wegesystem: turtles laufen nicht gebündelt", () =>
 test("t zählt die ticks", () => {
   assert.equal(lauf(P, 1, 25).t, 25);
 });
+
+// ---- Fassung „06 wegesystem A“ (wegesystem01.nlogo)
+const PA = Object.assign({}, P, M.FASSUNG_A, { fassung: "a" });
+
+test("A: Bereiche aus acht Nachbarn, je 12,5 Grundgewicht, kumuliert und skaliert", () => {
+  assert.deepEqual(M.bereicheA([0, 0, 0, 0, 0, 0, 0, 0], 1), [12.5, 25, 37.5, 50, 62.5, 75, 87.5, 100]);
+  // mark 10 im Osten (i = 2), path-attract 1: markEnt 10 → (12,5 · (i+1) + 10 ab i = 2) · 100 / 110
+  const mV = M.bereicheA([0, 0, 10, 0, 0, 0, 0, 0], 1);
+  nah(mV[1], 25 * 100 / 110); nah(mV[2], 47.5 * 100 / 110); nah(mV[7], 100);
+  // Osten jetzt (12,5 + 10) / 110 = 20,5 % statt 12,5 %
+  nah(mV[2] - mV[1], 22.5 * 100 / 110);
+});
+
+test("A: Richtungswahl in absoluten Richtungen 0°, 45°, …, 315°; Grenze und 0 lassen heading unverändert", () => {
+  const mV = M.bereicheA([0, 0, 0, 0, 0, 0, 0, 0], 1);
+  assert.equal(M.wahlA(mV, 5), 0);
+  assert.equal(M.wahlA(mV, 30), 90);
+  assert.equal(M.wahlA(mV, 99), 315);
+  assert.equal(M.wahlA(mV, 25), -1);
+  assert.equal(M.wahlA(mV, 0), -1);
+});
+
+test("A: patch-at-heading-and-distance (i · 45) 1 liest die acht Nachbarn; eine Markierung zieht an", () => {
+  const z = M.erzeuge({ "num-turtles": 1, fassung: "a" }, zufall(1));
+  z.x[0] = 0; z.y[0] = 0; z.h[0] = 0;
+  z.mark[M.index(1, 0)] = 50;                                         // Osten (heading 90)
+  let ost = 0;
+  for (let n = 0; n < 400; n++) { z.x[0] = 0; z.y[0] = 0; z.mark[M.index(0, 0)] = 0; M.bewegeTurtle(z, PA, 0); if (z.h[0] === 90) ost++; }
+  // P(Ost) = (12,5 + 50) / 150 ≈ 42 % statt 12,5 %
+  assert.ok(ost > 120 && ost < 220, String(ost));
+  assert.ok([0, 45, 90, 135, 180, 225, 270, 315].includes(z.h[0]));
+});
+
+test("A: setup auf einem Ring 10–39 um die Mitte", () => {
+  const z = M.erzeuge({ fassung: "a" }, zufall(4));
+  for (let k = 0; k < z.n; k++) { const r = Math.hypot(z.x[k], z.y[k]); assert.ok(r > 9.99 && r < 39.01, String(r)); }
+});
+
+test("A: erwartetes Verhalten – path-attract bestimmt die Dichte der Cluster, die Wege sind nicht orthogonal wie in B", () => {
+  const dichte = pa => { const p = Object.assign({}, PA, { "path-attract": pa }); return M.auswertung(lauf(p, 1, 2000), p); };
+  const a0 = dichte(0), a1 = dichte(1), a5 = dichte(5);
+  assert.ok(a0.markiert > a1.markiert && a1.markiert > a5.markiert, `${a0.markiert} > ${a1.markiert} > ${a5.markiert}`);  // dichter, kleiner
+  assert.ok(a5.aufWeg > a1.aufWeg && a1.aufWeg > a0.aufWeg, `${a0.aufWeg} < ${a1.aufWeg} < ${a5.aufWeg}`);                // gebündelter
+  assert.ok(a1.orthogonal < 0.6, `orthogonal ${a1.orthogonal}`);
+});

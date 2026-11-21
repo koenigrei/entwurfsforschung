@@ -1,0 +1,17 @@
+{
+  "id": "krugman",
+  "titel": {"de": "Krugmans Modell", "en": "Krugman's model"},
+  "vorschau": {"de": "Zentripetale und zentrifugale Potentiale verteilen die Bevölkerung von 24 Orten auf einem Kreis neu – aus einer Zufallsverteilung entstehen mehrere zentrale Orte (nach Krugman 1996).",
+               "en": "Centripetal and centrifugal potentials redistribute the population of 24 places on a circle – several central places emerge from a random distribution (after Krugman 1996)."},
+  "original": "26_Krugman_Model",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "datum": "2005-12-22",
+  "datum_quelle": "neueste Quelltextdatei im ZIP: CellForm.pas vom 22.12.2005; Kopf „Last Update: Dec-22, 2005“; alte Seite „Source - 051222“",
+  "archiv": "strukturexperimente/delphi/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 12000,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.t === 12000 && Modell.zentren(SIM.zustand.P).length === 2 && SIM.zustand.kurven.length === 13"
+}

@@ -1,0 +1,24 @@
+{
+ "id": "thuenen-verhandlung",
+ "titel": {
+  "de": "Verhandlungsmodell für die Landnutzung nach v. Thünen",
+  "en": "Negotiation model of land use after von Thünen"
+ },
+ "vorschau": {
+  "de": "Landwirte mit festem Produkt tauschen Parzellen im Tauschradius, wenn sie dort eine höhere Lagerente erzielen als der Besitzer – aus der Zufallsverteilung werden Ringe um die Märkte.",
+  "en": "Farmers with a fixed product swap plots within the exchange radius whenever they would earn a higher location rent than the owner – the random distribution turns into rings around the markets."
+ },
+ "original": "413_ThuenenVerhandel",
+ "herkunft": "Delphi",
+ "jahr": 2005,
+ "datum": "2005-07-06",
+ "datum_quelle": "Programmkopf 2005-07-06 (Dateizeit 2005-11-17 ist ein gemeinsamer Neubau-Stand). neueste Quelltextdatei im ZIP: facsSteer.dfm vom 17.11.2005 (facsSteer.pas 09.07.2005, Kopf „Last Update: July-06, 2005“; Vorläufer 11_verh_thuenen „Source - 050706“)",
+ "archiv": "raumprozesse/simulationsprogramme/",
+ "repo": null,
+ "vorschau_saat": 1,
+ "vorschau_schritte": 150,
+ "vorschau_param": {
+  "maerkte": 3
+ },
+ "pruef_ausdruck": "SIM.zustand.t === 150 && SIM.zustand.positiv > 1500 && SIM.zustand.nutzung[30 * 77 + 40] === 0"
+}

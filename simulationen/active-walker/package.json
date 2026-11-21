@@ -1,0 +1,8 @@
+{
+  "name": "active-walker",
+  "private": true,
+  "type": "commonjs",
+  "description": "Active Walker – Neuumsetzung von 40_activeWalker (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}
