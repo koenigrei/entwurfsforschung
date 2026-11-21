@@ -46,7 +46,8 @@ def deploy(ziel):
 
 def deploy_start(daten):
     """Hauptadresse: neues Paket nach .ki_neu entpacken, BEHALTEN-Ordner hinüberretten, dann je verwalteten Pfad tauschen."""
-    behalte = " ".join(f'if [ -e "{b}" ] && [ ! -e ".ki_neu/{b}" ]; then mkdir -p ".ki_neu/$(dirname {b})"; cp -a "{b}" ".ki_neu/{b}"; fi;' for b in BEHALTEN)
+    # mv statt cp -a: gleicher Datenträger, sofort und ohne Kopie; ein gleichzeitig laufender Upload (Design-Explorer-Sync) schreibt in denselben Ordner weiter (21.11.2026)
+    behalte = " ".join(f'if [ -e "{b}" ] && [ ! -e ".ki_neu/{b}" ]; then mkdir -p ".ki_neu/$(dirname {b})"; mv "{b}" ".ki_neu/{b}"; fi;' for b in BEHALTEN)
     tausch = " ".join(f'if [ -e ".ki_neu/{v}" ]; then rm -rf ".ki_alt/{v}"; if [ -e "{v}" ]; then mv "{v}" ".ki_alt/{v}"; fi; mv ".ki_neu/{v}" "{v}"; fi;' for v in VERWALTET)
     befehl = (f"set -e; cd ~/{DOCROOT}; rm -rf .ki_neu .ki_alt; mkdir .ki_neu .ki_alt; tar -xzf - -C .ki_neu; {behalte} {tausch} "
               f"rm -rf .ki_neu .ki_alt; find {' '.join(VERWALTET)} -type d -exec chmod 755 {{}} +; find {' '.join(VERWALTET)} -type f -exec chmod 644 {{}} +; "

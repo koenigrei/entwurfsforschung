@@ -127,16 +127,20 @@ def lade_hoch(lokal: dict[str, Path], wurzel: str, loeschen: bool = False, schue
             befehl += f"; find {ziel} -type d ! -perm {ordner_modus} -exec chmod {ordner_modus} {{}} +"
         with tempfile.TemporaryFile() as fehler:
             proc = subprocess.Popen(_ssh_aufruf(befehl), stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=fehler)
-            with tarfile.open(fileobj=proc.stdin, mode="w|", format=tarfile.GNU_FORMAT) as tar:
-                for rel in neu:
-                    info = tar.gettarinfo(str(lokal[rel]), arcname=rel)
-                    info.mode, info.uid, info.gid, info.uname, info.gname = modus, 0, 0, "", ""
-                    with open(lokal[rel], "rb") as f:
-                        tar.addfile(info, f)
-            proc.stdin.close()
-            if proc.wait():
+            abgebrochen = None
+            try:
+                with tarfile.open(fileobj=proc.stdin, mode="w|", format=tarfile.GNU_FORMAT) as tar:
+                    for rel in neu:
+                        info = tar.gettarinfo(str(lokal[rel]), arcname=rel)
+                        info.mode, info.uid, info.gid, info.uname, info.gname = modus, 0, 0, "", ""
+                        with open(lokal[rel], "rb") as f:
+                            tar.addfile(info, f)
+                proc.stdin.close()
+            except OSError as e:   # die Gegenseite hat aufgehört zu lesen: ihre Fehlermeldung zeigen, nicht nur „Broken pipe“
+                abgebrochen = e
+            if proc.wait() or abgebrochen:
                 fehler.seek(0)
-                sys.exit(f"Hochladen nach {wurzel} fehlgeschlagen:\n{_sauber(fehler.read())}")
+                sys.exit(f"Hochladen nach {wurzel} fehlgeschlagen (Exit {proc.returncode}, {abgebrochen or 'ok'}):\n{_sauber(fehler.read())}")
     if weg:
         print(f"  {wurzel}: {len(weg)} Dateien entfernen (lokal nicht mehr vorhanden)", flush=True)
         ssh(f"cd ~/{ziel} && xargs -0 -r rm -f -- && find . -mindepth 1 -type d -empty -delete",
@@ -189,6 +193,8 @@ def auswahl_daten() -> dict[str, Path]:
     for rel in git_dateien("stile", "projekte", "texte"):
         if rel.endswith(".json") and (AUTOPUBLISH / rel).is_file():
             dateien[rel] = AUTOPUBLISH / rel
+    if (AUTOPUBLISH / "protokoll" / "entfernen.json").is_file():   # nach hole_vormerkungen: lokal ist die Vereinigung
+        dateien["protokoll/entfernen.json"] = AUTOPUBLISH / "protokoll" / "entfernen.json"
     return dateien
 
 
@@ -225,22 +231,29 @@ def hole() -> None:
         else:
             sys.exit(f"logbuch/{p}.jsonl: Server und lokal sind auseinandergelaufen. Nichts geändert; von Hand zusammenführen.")
     if weiter:
-        for rel in ("status.json", "protokoll/entfernen.json"):
-            inhalt = lies_server(f"{AP}/daten/{rel}")
-            if inhalt is not None:
-                (AUTOPUBLISH / rel).parent.mkdir(exist_ok=True)
-                (AUTOPUBLISH / rel).write_bytes(inhalt.replace(b"\r\n", b"\n"))
-                print(f"  {rel} vom Server")
-    else:
-        # Vormerkungen können auch ohne Post entstehen (fern.py entfernen)
-        inhalt = lies_server(f"{AP}/daten/protokoll/entfernen.json")
-        lokal = AUTOPUBLISH / "protokoll" / "entfernen.json"
-        if inhalt is not None and lokal.is_file() and inhalt.replace(b"\r\n", b"\n") != lokal.read_bytes().replace(b"\r\n", b"\n"):
-            alt = json.loads(lokal.read_text(encoding="utf-8")).get("eintraege", {})
-            neu = json.loads(inhalt.decode("utf-8")).get("eintraege", {})
-            if set(alt) <= set(neu):
-                lokal.write_bytes(inhalt.replace(b"\r\n", b"\n"))
-                print(f"  protokoll/entfernen.json: {len(set(neu) - set(alt))} neue Vormerkungen vom Server")
+        inhalt = lies_server(f"{AP}/daten/status.json")
+        if inhalt is not None:
+            (AUTOPUBLISH / "status.json").write_bytes(inhalt.replace(b"\r\n", b"\n"))
+            print("  status.json vom Server")
+    hole_vormerkungen()
+
+
+def hole_vormerkungen() -> None:
+    """protokoll/entfernen.json zusammenführen: Vormerkungen vom Server (fern.py entfernen) kommen dazu, solange ihr
+    Archivordner lokal noch liegt; was der Eingang schon erledigt hat (Ordner weg), bleibt draußen. hochladen schreibt das
+    Ergebnis danach wieder auf den Server."""
+    inhalt = lies_server(f"{AP}/daten/protokoll/entfernen.json")
+    if inhalt is None:
+        return
+    lokal_pfad = AUTOPUBLISH / "protokoll" / "entfernen.json"
+    lokal = json.loads(lokal_pfad.read_text(encoding="utf-8")) if lokal_pfad.is_file() else {"eintraege": {}}
+    server = json.loads(inhalt.decode("utf-8")).get("eintraege", {})
+    dazu = {i: e for i, e in server.items() if i not in lokal["eintraege"] and (AUTOPUBLISH / "Archive" / i).is_dir()}
+    if dazu:
+        lokal["eintraege"] = dict(sorted({**lokal["eintraege"], **dazu}.items()))
+        lokal_pfad.parent.mkdir(exist_ok=True)
+        lokal_pfad.write_text(json.dumps(lokal, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+        print(f"  protokoll/entfernen.json: {len(dazu)} Vormerkungen vom Server ({', '.join(dazu)})")
 
 
 def stand_uebernehmen() -> None:
@@ -304,6 +317,9 @@ def bearbeite_viewer(build: Path) -> None:
     html = (build / "index.html").read_text(encoding="utf-8")
     html = re.sub(r'<link[^>]+href="https://fonts\.(?:googleapis|gstatic)\.com"[^>]*>\s*', "", html)
     html = re.sub(r'<link[^>]+href="https://fonts\.googleapis\.com/css2[^"]*"[^>]*>', '<link rel="stylesheet" href="schrift/geist.css">', html)
+    # Dunkel wie die Lab-Startseite (KONZEPT.md der Website): Papier #000, Linien #2a2a2e
+    html = html.replace('<link rel="stylesheet" href="stil.css">', '<link rel="stylesheet" href="stil.css">\n'
+                        '<style>:root[data-theme="dark"]{--grund:#000;--flaeche:#111113;--linie:#2a2a2e}</style>', 1)
     neu_skript = (f'<script>document.documentElement.dataset.theme = "dark"; try {{ const t = localStorage.getItem("{THEMA_NEU}"); '
                   'if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>')
     html, n = re.subn(r"<script>try \{ const t = localStorage\.getItem\(\"" + THEMA_ALT + r"\"\).*?</script>", neu_skript, html, count=1)
