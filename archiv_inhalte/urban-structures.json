@@ -1,0 +1,19 @@
+{
+ "id": "urban-structures",
+ "titel": {
+  "de": "Urban Structures",
+  "en": "Urban Structures"
+ },
+ "kategorie": {
+  "de": "Stadt",
+  "en": "Urban"
+ },
+ "bild": "medien/copy-HeaderPicS_09.gif",
+ "inhalt": "<p><strong>Generating Urban Structures</strong></p>\n<p>This work is based on the concept that the structure of a city can be defined by six basic urban patterns. To enable more complex urban planning as a long-term objective I have developed a simulation method for generating these basic patterns and for combining them to form various structures. The generative process starts with the two-dimensional organization of streets followed by the parceling of the remaining areas. An agent-based diffusion-contact model is the basis of these first two steps. Then, with the help of cellular automata, the sites for building on are defined and a three-dimensional building structure is derived. I illustrate the proposed method by showing how it can be applied to generate possible structures for an urban area in the city of Munich.</p>\n<p>A summary article about this work is published in Space&amp;Form: <a href=\"http://www.mendeley.com/download/public/16814621/4752453321/cedb86b44e24eecb67f4747c9966f351922b97b5/dl.pdf\" rel=\"noopener\">pdf File</a></p>\n<p>The below presented book “Computergenerierte Stadtstrukturen\" is written in gernam:</p>\n\n\n<p><a href=\"medien/computergenStadtsrukt.pdf\">Download complete 29 mb pdf Datei</a></p>\n<p>Material aus dem Anhang:<br>\n<a href=\"medien/01_Scripte.zip\">VBA Quellcodes (01_Scripte) – 1 mb zip Datei</a><br>\n<a href=\"medien/03_Exkurse.zip\">03_Exkurse – 6 mb zip Datei</a><br>\n<a href=\"medien/04_Material.zip\">04_Material – 6,6 mb zip Datei</a></p>\n<p><img src=\"medien/levels.gif\" alt=\"\" loading=\"lazy\"></p>\n<p><strong>References</strong></p>\n<p>Koenig, R. (2012). Generating urban structures: A method for urban planning supported by multi-agent systems and cellular automata. <em>Space &amp; Form</em>, <em>16</em>.</p>\n<p>Koenig, R. (2011). <em>Generating urban structures: A method for urban planning supported by multi-agent systems and cellular automata</em>. (R Koenig &amp; D. Donath, Eds.)<em>Arbeitspapiere Informatik in der Architektur</em> (Vol. 3). Weimar: Bauhaus-Universität Weimar.</p>\n<p>Koenig, R., &amp; Bauriedel, C. (2004). Computer-generated Urban Structures. In <em>Generative Art Conference</em>. Milan.</p>\n<p>Koenig, R., &amp; Bauriedel, C. (2004). <em>Computergenerierte Stadtstrukturen</em>. München: Eigenverlag. http://entwurfsforschung.de/urbandesign/urbanstructures/</p>",
+ "datum": "2012-02-07",
+ "jahr": 2012,
+ "autoren": "R. König",
+ "vorschau": "Generating Urban Structures This work is based on the concept that the structure of a city can be defined by six basic urban patterns. To enable more complex urban planning as a long-term …",
+ "quelle": "https://entwurfsforschung.de/urbanstructures/",
+ "unterseiten": []
+}

@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="KI Lab Entwurfsforschung – Experimente mit KI in Architektur und Städtebau.">
+<title>{{TITEL}}</title>
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<style>
+@font-face { font-family: "Geist"; font-weight: 300; font-style: normal; font-display: swap; src: url("{{BASE}}schrift/Geist-Light.ttf") format("truetype"); }
+@font-face { font-family: "Geist"; font-weight: 400; font-style: normal; font-display: swap; src: url("{{BASE}}schrift/Geist-Regular.ttf") format("truetype"); }
+@font-face { font-family: "Geist"; font-weight: 500; font-style: normal; font-display: swap; src: url("{{BASE}}schrift/Geist-Medium.ttf") format("truetype"); }
+@font-face { font-family: "Geist Mono"; font-weight: 400; font-style: normal; font-display: swap; src: url("{{BASE}}schrift/GeistMono-Regular.ttf") format("truetype"); }
+/* Dunkel (schwarz) ist Voreinstellung (Nutzer 21.11.2026); hell wie KI Lernlabor */
+:root {
+  --paper: #000000; --surface: #0f0f10; --ink: #ffffff; --ink-2: #c9c9ce; --muted: #8e8e96;
+  --line: #2a2a2e; --accent: #4649e1; --accent-text: #9ea0f3; --img: #0f0f10;
+  --sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --row: 64px; --g: max(16px, env(safe-area-inset-left, 0px));
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --paper: #ffffff; --surface: #f2f2f2; --ink: #171717; --ink-2: #424242; --muted: #75757d;
+  --line: #dededf; --accent-text: #4649e1; --img: #ffffff;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 15px/1.5 var(--sans); }
+a { color: inherit; text-decoration: none; }
+button, select, input { font: inherit; color: inherit; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+
+/* Kopfzeile */
+header { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: stretch; height: var(--row); }
+.marke { display: flex; align-items: center; gap: 12px; padding: 0 var(--g); border-right: 1px solid var(--line); flex: 0 0 auto; }
+.marke b { font-weight: 300; font-size: 26px; letter-spacing: .01em; text-transform: uppercase; }
+.pill { border: 1px solid var(--accent-text); color: var(--accent-text); border-radius: 999px; padding: 2px 12px; font-weight: 300; font-size: 18px; text-transform: uppercase; line-height: 1.25; }
+nav { display: flex; flex: 1; justify-content: flex-end; align-items: center; }
+nav a { font-weight: 300; font-size: 26px; text-transform: uppercase; color: var(--muted); padding: 0 clamp(14px, 3vw, 48px); transition: color .15s; }
+nav a:hover, nav a[aria-current] { color: var(--ink); }
+.werkzeug { display: flex; align-items: center; gap: 4px; padding: 0 var(--g) 0 12px; }
+.sprache { font-weight: 300; font-size: 26px; text-transform: uppercase; color: var(--muted); background: none; border: 0; cursor: pointer; padding: 0 4px; }
+.sprache[aria-pressed="true"] { color: var(--accent-text); }
+.sprache-trenn { font-weight: 300; font-size: 26px; color: var(--muted); }
+.theme-btn { display: flex; align-items: center; gap: 6px; margin-left: 14px; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.theme-btn svg { width: 14px; height: 14px; }
+.theme-btn:hover { border-color: var(--ink); }
+
+/* Filterzeile */
+.filter { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.filter > * { border-right: 1px solid var(--line); height: 48px; display: flex; align-items: center; padding: 0 var(--g); gap: 10px; }
+.filter > *:last-child { border-right: 0; }
+.suche input { flex: 1; min-width: 0; background: none; border: 0; outline: none; font-weight: 300; font-size: 22px; text-transform: uppercase; }
+.suche input::placeholder { color: var(--muted); }
+.suche svg { width: 18px; height: 18px; color: var(--muted); flex: 0 0 auto; }
+.feld { justify-content: space-between; }
+.feld label { color: var(--muted); }
+.feld select { background: var(--paper); border: 0; outline: none; text-align: right; cursor: pointer; font-family: var(--mono); font-size: 11px; text-transform: uppercase; }
+.schalter { justify-content: space-between; cursor: pointer; background: none; border: 0; border-right: 1px solid var(--line); text-align: left; }
+.schalter .knopf { width: 30px; height: 16px; border-radius: 99px; border: 1px solid var(--muted); position: relative; flex: 0 0 auto; }
+.schalter .knopf::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--muted); transition: left .15s; }
+.schalter[aria-pressed="true"] .knopf { border-color: var(--accent-text); }
+.schalter[aria-pressed="true"] .knopf::after { left: 16px; background: var(--accent-text); }
+
+/* Raster */
+.raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.karte { display: flex; flex-direction: column; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 10px 12px 12px; min-height: 360px; }
+.karte .oben, .karte .unten { display: flex; justify-content: space-between; gap: 12px; }
+.karte .oben { color: var(--muted); }
+.karte .oben span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.karte .bild { flex: 1; display: flex; align-items: center; justify-content: center; padding: 18px 8px; min-height: 220px; }
+.karte img { max-width: 100%; max-height: 240px; object-fit: contain; display: block; transition: opacity .2s, transform .3s; }
+.karte .vorschau { color: var(--ink-2); font-size: 14px; line-height: 1.45; margin: 0 0 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+body:not(.mit-vorschau) .karte .vorschau { display: none; }
+.karte .titel { font-size: 16px; }
+.karte .jahr { color: var(--muted); }
+.karte:hover .titel { color: var(--accent-text); }
+.karte:hover img { transform: scale(1.015); }
+.leer { padding: 48px var(--g); color: var(--muted); }
+
+/* Über und Fuß */
+.ueber { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); border-bottom: 1px solid var(--line); }
+.ueber > div { padding: 32px var(--g); }
+.ueber > div:first-child { border-right: 1px solid var(--line); }
+.ueber h2 { font-weight: 300; font-size: 26px; text-transform: uppercase; margin: 0; }
+.ueber p { max-width: 68ch; margin: 0 0 12px; color: var(--ink-2); }
+.ueber a { color: var(--accent-text); }
+footer { display: flex; flex-wrap: wrap; gap: 8px 28px; padding: 18px var(--g) 32px; color: var(--muted); }
+footer a:hover { color: var(--ink); }
+
+/* Einzelseiten (Archiv) */
+.artikel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); border-bottom: 1px solid var(--line); }
+.artikel > aside { padding: 28px var(--g); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 18px; }
+.artikel > aside .meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; color: var(--muted); }
+.artikel > aside .meta b { font-weight: 400; color: var(--ink); }
+.artikel > aside a.zurueck { color: var(--accent-text); }
+.artikel h1 { font-weight: 300; font-size: clamp(28px, 4vw, 44px); line-height: 1.1; text-transform: uppercase; margin: 0; }
+.artikel .titelbild { max-width: 100%; height: auto; display: block; }
+.text { padding: 28px var(--g) 48px; max-width: calc(72ch + 2 * var(--g)); font-size: 16.5px; line-height: 1.65; }
+.text p, .text ul, .text ol, .text blockquote, .text figure { margin: 0 0 16px; }
+.text h2, .text h3, .text h4 { font-weight: 500; margin: 28px 0 10px; line-height: 1.3; }
+.text img { max-width: 100%; height: auto; display: block; margin: 8px 0; background: var(--img); }
+.text a { color: var(--accent-text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.text .extern a { display: inline-block; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-family: var(--mono); font-size: 12px; text-transform: uppercase; }
+.text .extern a:hover { border-color: var(--accent-text); }
+.text div { margin: 0 0 12px; }
+.unterseiten { display: flex; flex-direction: column; gap: 6px; }
+.unterseiten a { color: var(--accent-text); }
+.quelle-alt { color: var(--muted); }
+.quelle-alt a { color: var(--muted); text-decoration: underline; }
+.leerseite { padding: 48px var(--g); max-width: 72ch; color: var(--ink-2); }
+
+@media (max-width: 900px) {
+  nav a, .sprache, .sprache-trenn { font-size: 18px; } nav a { padding: 0 10px; }
+  .marke b { font-size: 18px; } .pill { font-size: 13px; }
+  .filter { grid-template-columns: 1fr 1fr; } .filter > *:nth-child(2) { border-right: 0; }
+  .filter > *:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .artikel { grid-template-columns: 1fr; } .artikel > aside { border-right: 0; border-bottom: 1px solid var(--line); }
+  .ueber { grid-template-columns: 1fr; } .ueber > div:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
+}
+@media (max-width: 600px) {
+  header { flex-wrap: wrap; height: auto; }
+  .marke { border-right: 0; height: 52px; flex: 1; }
+  .werkzeug { height: 52px; }
+  nav { order: 3; flex: 1 0 100%; justify-content: flex-start; border-top: 1px solid var(--line); height: 44px; }
+  nav a { font-size: 16px; padding: 0 var(--g); }
+  .theme-btn .t-txt { display: none; }
+  .filter { grid-template-columns: 1fr; } .filter > * { border-right: 0; border-bottom: 1px solid var(--line); }
+  .filter > *:last-child { border-bottom: 0; }
+}
+</style>
+</head>
+<body class="mit-vorschau" data-seite="{{SEITE}}">
+<header>
+  <a class="marke" href="{{BASE}}" aria-label="Entwurfsforschung – KI Lab, Startseite"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <nav aria-label="Hauptnavigation">
+    <a href="{{BASE}}" data-nav="lab" data-t="nav_lab">Lab</a>
+    <a href="{{BASE}}archiv/" data-nav="archiv" data-t="nav_archiv">Archiv</a>
+    <a href="{{BASE}}#ueber" data-nav="ueber" data-t="nav_ueber">Über</a>
+  </nav>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+{{MAIN}}
+<footer class="mono">
+  <span>© 2026 Reinhard König</span>
+  <a href="https://www.uni-weimar.de/de/architektur-und-urbanistik/professuren/infau/news/" data-t="professur">Professur InfAU</a>
+  <a href="{{BASE}}impressum/" data-t="impressum">Impressum</a>
+  <a href="{{ALT}}" data-t="alte_seite">Alte Website</a>
+</footer>
+
+<script>
+const T = {
+  de: { nav_lab: "Lab", nav_archiv: "Archiv", nav_ueber: "Über", suche: "Suche", kategorie: "Kategorie", sortierung: "Sortierung", neueste: "Neueste", aelteste: "Älteste",
+        titel: "Titel", vorschautext: "Vorschautext", alle: "Alle", leer: "Nichts gefunden.", hell: "Hell", dunkel: "Dunkel", alte_seite: "Alte Website", impressum: "Impressum", zurueck: "Zurück zum Archiv", reihenfolge: "Reihenfolge", unterseiten: "Seiten", quelle: "Ursprünglich veröffentlicht auf der alten Website",
+        lernlabor: "KI Lernlabor der Bauhaus-Universität Weimar", professur: "Professur InfAU",
+        ueber_1: "Das KI Lab sammelt Experimente mit künstlicher Intelligenz in Architektur und Städtebau: Generatoren, Formgrammatiken und Sammlungen, die zeigen, wie Entwurfswissen in Regeln übersetzt und gemeinsam mit KI weiterentwickelt werden kann.",
+        ueber_2: "Alle Projekte entstehen in Zusammenarbeit von Prof. Dr. Reinhard König und Claude von Anthropic." },
+  en: { nav_lab: "Lab", nav_archiv: "Archive", nav_ueber: "About", suche: "Search", kategorie: "Category", sortierung: "Sort", neueste: "Newest", aelteste: "Oldest",
+        titel: "Title", vorschautext: "Preview text", alle: "All", leer: "Nothing found.", hell: "Light", dunkel: "Dark", alte_seite: "Old website", impressum: "Legal notice", zurueck: "Back to the archive", reihenfolge: "Order", unterseiten: "Pages", quelle: "Originally published on the old website",
+        lernlabor: "AI Learning Lab of the Bauhaus-Universität Weimar", professur: "Chair InfAU",
+        ueber_1: "The AI Lab collects experiments with artificial intelligence in architecture and urban design: generators, shape grammars and collections that show how design knowledge can be translated into rules and developed further together with AI.",
+        ueber_2: "All projects are a collaboration between Prof. Dr. Reinhard König and Claude by Anthropic." }
+};
+const $ = s => document.querySelector(s);
+const lies = (k, d) => { try { return localStorage.getItem(k) || d; } catch (e) { return d; } };
+const merke = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+let LANG = lies("entwurfsforschung-sprache", "de");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+function karten() {
+  const q = $("#suche").value.trim().toLowerCase(), k = $("#kat").value, s = $("#sort").value;
+  let L = DATA.projekte.filter(p => (k === "*" || p.kategorie[LANG] === k) &&
+    (!q || [p.titel[LANG], p.autoren, p.kategorie[LANG], (p.vorschau || {})[LANG] || ""].join(" ").toLowerCase().includes(q)));
+  if (s !== "folge") L.sort((a, b) => s === "titel" ? a.titel[LANG].localeCompare(b.titel[LANG]) : s === "alt" ? a.datum.localeCompare(b.datum) : b.datum.localeCompare(a.datum));
+  $("#raster").innerHTML = L.length ? L.map(p => `
+    <a class="karte" href="${esc(p.href)}" data-id="${esc(p.id)}">
+      <div class="oben mono"><span>${esc(p.autoren)}</span><span>${esc(p.kategorie[LANG])}</span></div>
+      <div class="bild"><img src="${esc(p.bild)}" alt="" loading="lazy" width="${p.w}" height="${p.h}"></div>
+      ${p.vorschau && p.vorschau[LANG] ? `<p class="vorschau">${esc(p.vorschau[LANG])}</p>` : ""}
+      <div class="unten"><span class="titel">${esc(p.titel[LANG])}</span><span class="jahr mono">${p.jahr}</span></div>
+    </a>`).join("") : `<p class="leer">${T[LANG].leer}</p>`;
+}
+function kategorien() {
+  const alt = $("#kat").value, K = [...new Set(DATA.projekte.map(p => p.kategorie[LANG]))].sort();
+  $("#kat").innerHTML = `<option value="*">${T[LANG].alle}</option>` + K.map(k => `<option>${esc(k)}</option>`).join("");
+  if (K.includes(alt)) $("#kat").value = alt;
+}
+function sprache(l) {
+  LANG = l; merke("entwurfsforschung-sprache", l); document.documentElement.lang = l;
+  document.querySelectorAll("[data-t]").forEach(e => { e.textContent = T[l][e.dataset.t]; });
+  document.querySelectorAll("[data-tp]").forEach(e => { e.placeholder = T[l][e.dataset.tp]; });
+  document.querySelectorAll(".sprache").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
+  if (RASTER) { kategorien(); karten(); } paintTheme();
+}
+/* Hell/Dunkel wie auf den bisherigen Seiten, aber dunkel als Voreinstellung */
+const SUN = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></svg>';
+const MOON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1Z"/></svg>';
+const isDark = () => document.documentElement.dataset.theme !== "light";
+function paintTheme() {
+  const d = isDark();
+  $("#theme").innerHTML = (d ? SUN : MOON) + `<span class="t-txt">${d ? T[LANG].hell : T[LANG].dunkel}</span>`;
+  $("#theme").setAttribute("aria-label", LANG === "en" ? (d ? "Switch to light" : "Switch to dark") : (d ? "Zur hellen Darstellung wechseln" : "Zur dunklen Darstellung wechseln"));
+}
+$("#theme").addEventListener("click", () => { const t = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = t; merke("entwurfsforschung-theme", t); paintTheme(); });
+document.querySelectorAll(".sprache").forEach(b => b.addEventListener("click", () => sprache(b.dataset.lang)));
+const RASTER = !!$("#raster");
+if (RASTER) {
+  $("#suche").addEventListener("input", karten); $("#kat").addEventListener("change", karten); $("#sort").addEventListener("change", karten);
+  $("#vorschau").addEventListener("click", () => vorschau(!document.body.classList.contains("mit-vorschau")));
+  vorschau(lies("entwurfsforschung-vorschau", "1") === "1");
+}
+function vorschau(an) { document.body.classList.toggle("mit-vorschau", an); $("#vorschau").setAttribute("aria-pressed", an); merke("entwurfsforschung-vorschau", an ? "1" : "0"); }
+document.querySelectorAll(".email").forEach(e => { const m = e.dataset.n + "@" + e.dataset.d + "." + e.dataset.tld; e.innerHTML = `<a href="mailto:${m}">${m}</a>`; });   /* Spamschutz: Adresse erst im Browser */
+document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === document.body.dataset.seite) a.setAttribute("aria-current", "page"); });
+sprache(LANG === "en" ? "en" : "de");
+</script>
+</body>
+</html>

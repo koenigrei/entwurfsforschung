@@ -1,0 +1,1274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Raum-Prozesse</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="file:///C|/Dokumente und Einstellungen/ademus/Eigene Dateien/03_internetPrj/templ/entwf.css" rel="stylesheet" type="text/css">
+<link href="../../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#CC0000" vlink="#805151" alink="#CC0000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800">
+<table width="800" height="2087" border="0" cellpadding="0" cellspacing="0" bordercolor="#000000">
+        <!--DWLayoutTable-->
+        <tr valign="middle"> 
+          <td width="255" height="100" bgcolor="#FFFFFF"> <span class="entwfoUeberschr">Laboratorium 
+            f&uuml;r r&auml;umliche Prozesse</span><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><br>
+            </font> <div class=entwfo>Kontakt:<a href="../../CV/cvReinhardKoenig.htm" target="_self"> 
+              Reinhard K&ouml;nig</a></div></td>
+          <td width="545" height="100" class="entwfo"> <p class="entwfo"><span class="entwfo">F&uuml;r 
+              die Untersuchungen wurde die Entwicklungsplattform Delphi 2005 verwendet.<br>
+              </span><span class="entwfo">Download: <a href="http://www.delphipraxis.net/delphi2005download.php" target="_blank">Kostenlose 
+              Borland Delphi 2005 Personal-Edition</a> oder <a href="http://www.borland.com/products/downloads/download_delphi.html" target="_blank">Trial 
+              Version</a><br>
+              </span>Die Programme stehen als ausf&uuml;hrbare exe-Dateien zur 
+              Verf&uuml;gung. Der Delphi Quellcode findet sich jeweils unter 'Source' 
+              als zip-Datei. <br>
+              Sollte die Darstellung der Schriften und Anzeigefelder der Programme 
+              verzerrt oder verrutscht sein, liegt dass an den Einstellungen der 
+              <a href="bilder/BildschEinstell02.jpg" target="_blank">Windowsschriftgr&ouml;&szlig;e 
+              (DPI)</a> sowie des <a href="bilder/BildschEinstell01.jpg" target="_blank">Schriftgrades</a>.</p></td>
+        </tr>
+        <tr align="left" valign="top">
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><!--DWLayoutEmptyCell-->&nbsp;</td>
+          <td height="42" class="auszeichnung"><p>&nbsp;</p>
+          <p>Der aktuelle Stand zu den hier dargestellten Projekten findet sich hier: <a href="../../RaumProzesse/index.htm" target="_self">link</a>.</p>
+          <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="44_SettlementLandUse.exe">44_SettlementLandUse</a> 
+              - 060811</p>
+            <p><a href="44_SettlementLandUse.exe"><img src="bilder/44_landUsePat.gif" width="233" height="234" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="landUseP_01" id="landUseP_01"></a>LandUse 
+              Pattern 01</span> <span class="entwfo">------------------------------------------------------------- 
+              </span><span class="klein">(page anchor:<a href="#landUseP_01"> 
+              #landUseP_01</a>)</span></p>
+            <p>Settlement and land use pattern combined with interaction patterns.<br>
+              Eine detailiertere Beschreibung folgt...</p>
+            </td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="42_interactionPatterns.exe">42_InteractionPattern</a> 
+              / <a href="42_interactionPatterns.zip">Source</a> - 060611</p>
+            <p><a href="42_interactionPatterns.exe"><img src="bilder/42_interactionPat.gif" width="233" height="234" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="interactP_01" id="interactP_01"></a>Interaction 
+              Pattern 01</span> <span class="entwfo">----------------------------------------------------------- 
+              </span><span class="klein">(page anchor:<a href="#interactP_01"> 
+              #interactP_01</a>)<br>
+              </span><a href="42_update_Probabilistic_Interaction.exe"><span class="entwfo"><font color="#990000">Update 
+              1.1 Probabilistic Interaction &amp; Manhattan Landscape</font></span></a></p>
+            <p><span class="klein"> </span>Zu beginn des Prozesses befinden sich 
+              alle Agenten auf dem Ursprungsort in der Mitte des noch v&ouml;llig 
+              unerkundeten Zellenfeldes {<em>T<font size="1">m</font>(0) = 0</em>}. 
+              Die Erkundung des Feldes erfolg am Anfang durch zuf&auml;lliges 
+              Umherwandern der Agenten, bis erste Zielorte gefunden werden. Die 
+              zum Ursprungsort zur&uuml;ckkehrenden Agenten markieren ihren Weg 
+              und k&uuml;nftige Agenten folgen wiederum der intensivsten Markierung, 
+              wenn sie in die N&auml;he der markierten Zellen kommen. Im Verlauf 
+              der Zeit entstehen so stark markierte Pfade zu den verschiedenen 
+              Zielorten und die Agenten &quot;lernen&quot; in gewisser Weise, 
+              wo sich die Zielorte befinden, indem sie indirekt &uuml;ber die 
+              Landscape miteinander kommunizieren. Dadurch verk&uuml;rzt sich 
+              die Zeit zum Auffinden eines Zielortes und es bewegen sich immer 
+              mehr Agenten auf den stark markierten Pfaden. Lediglich die zuf&auml;lligen 
+              Fehlerwerte sorgen daf&uuml;r, dass einige Agenten weiterhin die 
+              gesamte Landscape absuchen. F&uuml;r ihren R&uuml;ckweg zum Ursprungsort 
+              werden dessen Koordinaten von den Agenten im Ged&auml;chtnis behalten, 
+              so dass sie den Weg dorthin immer wiederfinden k&ouml;nnen.</p>
+            <p align="right"><font size="1">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 5)</font></p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="41_multiWalker.exe">41_MultiWalker</a> 
+              / <a href="41_multiWalker.zip">Source</a> - 060605</p>
+            <p> <a href="41_multiWalker.exe"><img src="bilder/41_multiWalker.gif" width="233" height="234" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="activeW2" id="activeW2"></a>Multi 
+              Walker </span> <span class="entwfo">----------------------------------------------------------------------------- 
+              </span><span class="klein">(page anchor:<a href="#activeW2"> #activeW2</a>)<br>
+              </span>Das Programm erg&auml;nzt das urspr&uuml;ngliche<a href="#activeW1" target="_self"> 
+              Active Walker</a> Modell (AWM) um eine Diffusionsfunktion, einen 
+              St&ouml;rwert f&uuml;r die Bewegung des Walkers (Noise) entlang 
+              des Gradienten und der M&ouml;glichkeit, mehrere Walker (Multi-Agents-System) 
+              gleichzeitig mit der Landscape interagieren zu lassen. <br>
+              Dazu wird die &#8222;Stepping Rule&#8220; um einen Noise-Wert <img src="bilder/epsilon.gif" width="32" height="18">erg&auml;nzt, 
+              mittels welchem die Geradlinigkeit der Agentenpfade aufgelockert 
+              werden kann<br>
+              <img src="bilder/41_stepping.gif" width="202" height="32">.<br>
+              Die &#8222;Landscape Rule&#8221; wird um eine Diffusionsfunktion 
+              erweitert<br>
+              <img src="bilder/41_landscape.gif" width="237" height="26">,<br>
+              dabei ist <img src="bilder/diffKonst.gif" width="17" height="18"> 
+              die Diffusionskonstante. Der Diffusionsterm <img src="bilder/41_diffusion_1.gif" width="64" height="24"> 
+              wird f&uuml;r das Modell folgenderma&szlig;en operationalisiert: 
+              <br>
+              <img src="bilder/41_diffusion.gif" width="188" height="50"><br>
+              <img src="bilder/omegaNB.gif" width="20" height="17"> bezeichnet 
+              die Moore Nachbarschaft und <img src="bilder/37_slimeMold_F2.gif" width="13" height="17"> 
+              die St&auml;rke des Diffusionseffektes (Programmparameter: &#8222;diffusion 
+              strength&#8220;).<br>
+              Die Diffusionsfunktion sorgt daf&uuml;r, dass sich die Erreichbarkeitswerte 
+              P<font size="1">i</font>(t) &uuml;ber das Feld verteilen. Bei anf&auml;nglich 
+              relativ kleinen Werten P<font size="1">i</font>(t) hat die Diffusion 
+              nur eine geringe Auswirkung auf die Landscape. Im Verlauf der Prozesses 
+              wird der Diffusions-Summand<br>
+              (<img src="bilder/41_diffusion_1.gif" width="64" height="24">) der 
+              &#8222;Landscape Rule&#8220; mit steigenden Werten P<font size="1">i</font>(t) 
+              immer gr&ouml;&szlig;er und die Wirkung des Distanz-Summanden (<img src="bilder/41_distance.gif" width="57" height="26">) 
+              nimmt relativ dazu ab. <br>
+              Sobald der Diffusions-Summand wesentlich gr&ouml;&szlig;er ist als 
+              der Distanz-Summand, ver&auml;ndern sich die Hoch- und Tiefbereiche 
+              der Erreichbarkeitswerte P<font size="1">i</font>(t) der Landscape 
+              nicht mehr. Dies hat zur Folge, dass sich die Walker zu einzelnen 
+              Clustern zusammen finden. Die Dauer der Ver&auml;nderungsf&auml;higkeit 
+              der Landscape h&auml;ngt wesentlich von den Parametern <img src="bilder/37_slimeMold_F2.gif" width="13" height="17"> 
+              (&#8222;diffusion strength&#8220;) und <img src="bilder/alpha.gif" width="14" height="14"> 
+              (&#8222;distance scaling&#8220;) ab. </p>
+            <p align="right"><font size="1">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 5)</font></p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="40_activeWalker.exe">40_ActiveWalker</a> 
+              / <a href="40_activeWalker.zip">Source</a> - 060604</p>
+            <p> <a href="40_activeWalker.exe"><img src="bilder/40_activeWalk.gif" width="233" height="234" border="0"></a></p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="activeW1" id="activeW1"></a>Active 
+              Walker </span> <span class="entwfo">--------------------------------------------------------------------------- 
+              </span><span class="klein">(page anchor:<a href="#activeW1"> #activeW1</a></span>)<br>
+              An dieser Stelle soll ein Modell vorgestellt werden, welches die 
+              grundlegende Kopplung der beiden Komponenten &#8222;Agenten&#8220; 
+              (Agents oder Walkers) und &#8222;Landschaft&#8220; (Landscape) darstellt. 
+              Diese Koppelung ist die Basis f&uuml;r viele der hier vorgestellten 
+              Agenten basierten Modelle. F&uuml;r eine Einf&uuml;hrung bietet 
+              sich das so genannte &#8222;Active Walker&#8220; Modell aufgrund 
+              seines relativ einfachen Aufbaus an. Dabei kann ein &#8222;Walker&#8220; 
+              w&auml;hrend seiner Bewegung die &#8222;Landscape&#8220; ver&auml;ndern, 
+              wird aber gleichzeitig durch die sich ver&auml;ndernde &#8222;Landscape&#8220; 
+              beeinflusst. Die Art, wie ein &#8222;Walker&#8220; die &#8222;Landscape&#8220; 
+              ver&auml;ndert, geschieht anhand der &#8222;Landscape Rule&#8220;, 
+              einer Prozedur, welche in Abh&auml;ngigkeit der Position eines &#8222;Walkers&#8220; 
+              den Wert jedes Punktes der &#8222;Landscape&#8220; ver&auml;ndern 
+              kann. Die Art, wie ein &#8222;Walker&#8220; auf die &#8222;Landscape&#8220; 
+              reagiert wird mittels der &#8222;Stepping Rule&#8220; angegeben, 
+              welche die Bewegung des &#8222;Walkers&#8220; anhand der lokalen 
+              Bedingungen der &#8222;Landscape&#8220; steuert. Im Modell wird 
+              die &#8222;Landscape&#8220; anhand eines Zellul&auml;ren Feldes 
+              repr&auml;sentiert.<br>
+              Das vorliegende Beispiel illustriert den Prozess, indem ein &#8222;Walker&#8220; 
+              sich &uuml;ber die &#8222;Landschaft&#8220; bewegt, die wir im Folgenden 
+              als eine Art Erreichbarkeitsfl&auml;che betrachten, welche als Funktion 
+              der Position des &#8222;Walkers&#8220; bei jedem Schritt neu berechnet 
+              wird. Der &#8222;Walker&#8220; bewegt sich &uuml;ber die Fl&auml;che, 
+              in der Absicht die am schlechtesten erreichbaren Orte zu erkunden. 
+              Er geht stets in die Richtung mit dem niedrigstem Erreichbarkeitswert 
+              <em>P<font size="1">i</font>(t)</em> in seiner unmittelbaren Umgebung 
+              (Moore Nachbarschaft):<br>
+              <img src="bilder/40_stepping.gif" width="149" height="30"> (&#8222;Stepping 
+              Rule&#8220;)<br>
+              <em>A<font size="1">m</font></em> ist die Position des &#8222;Walkers&#8220; 
+              und <img src="bilder/40_potential.gif" width="44" height="21" align="bottom"> 
+              gibt den Gradienten der Erreichbarkeitsfl&auml;che an, welche durch 
+              die Gleichung<br>
+              <img src="bilder/40_landscape.gif" width="164" height="26"> (&#8222;Landscape 
+              Rule&#8220;)<br>
+              berechnet wird. Dabei gibt <img src="bilder/alpha.gif" width="14" height="14"> 
+              die Skalierungskonstante an und <em>d<font size="1">ij</font>(t)</em> 
+              ist der Abstand von einer Zelle <em>i</em> zu dem &#8222;Walker&#8220;, 
+              der sich zum Zeitpunkt <em>t</em> auf der Position <em>j</em> befindet.<br>
+              Die Natur der &#8222;Landscape&#8220; bedingt, dass der &#8222;Walker&#8220; 
+              nie an dem Ort der geringsten Erreichbarkeit ankommt. Es scheint, 
+              als ob die &#8222;Landscape&#8220; sich st&auml;ndig in einem Sinn 
+              ver&auml;ndert, der den &#8222;Walker&#8220; vom Erreichen seines 
+              Ziels abzuhalten versucht.</p>
+            <p align="right"><font size="1">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 5)</font></p>
+            <p><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="39_evoNet.exe">39_evoNet</a> 
+              / <a href="39_evoNet.zip">Source</a> - 060425</p>
+            <p><a href="39_evoNet.exe"><img src="bilder/39_evaNet.gif" width="233" height="347" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="evoNet01" id="evoNet01"></a>Evolutionary 
+              Network </span> <span class="entwfo">-------------------------------------------------------------- 
+              </span><span class="klein">(page anchor: <a href="#evoNet01" target="_self">#evoNet01</a></span>)<br>
+              Ausgehend von dem Modell &#8222;<a href="#path02" target="_self">Path 
+              System 02</a>&#8220;, soll hier untersucht werden, welche Einstellungen 
+              f&uuml;r &#8222;angle threshold&#8220; und &#8222;wiggle threshold&#8220; 
+              am effektivsten sind. Die Effizienz wird dadurch gemessen, wie oft 
+              ein Agent einen Weg von seiner &#8222;Home Cell&#8220; zu der &#8222;Center 
+              Cell&#8220; und wieder zur&uuml;ck findet. Jeder Agent ist mit einer 
+              begrenzten Energiereserve ausgestattet, die sich durch die Bewegung 
+              &uuml;ber das Zellenfeld allm&auml;hlich ersch&ouml;pft, wobei die 
+              Benutzung von Strassen (markierte Zellen) weniger Energie erfordert 
+              als die Bewegung &uuml;ber freies Feld (leere Zellen). Ist der Energievorrat 
+              verbraucht, wird der Agent mit den &#8222;gekreuzten&quot; Einstellungen 
+              der effektivsten Agenten seiner &#8222;Familie&quot; (= gleiche 
+              Home Cell) &#8222;wiedergeboren&quot;.<br>
+              Es ergibt sich eine komplexe Wechselwirkung zwischen der durch die 
+              Agenten generierten Wegestruktur und den von dieser Struktur abh&auml;ngigen 
+              optimalen Bewegungsparameter der Agenten. <br>
+              Die Parameter &#8222;angle threshold&#8220; und &#8222;wiggle threshold&#8220; 
+              werden mittels eines <a href="https://de.wikipedia.org/wiki/Genetischer_Algorithmus" target="_blank">Genetischen 
+              Algorithmus</a> optimiert. Die oben erw&auml;hnte Effizienz entspricht 
+              dabei der so genannten &#8222;Fitness-Function&#8220;. Die Mutationsrate 
+              (mutation rate) kann das System aus einem lokalen Optimum &#8222;herausschubsen&#8220; 
+              indem einzelte Parameter zuf&auml;llig ver&auml;ndert werden.<br>
+              Abh&auml;ngig von den zuf&auml;llig gesetzten Anfangswerten f&uuml;r 
+              die Position und Ausrichtung der Agenten ergibt sich ein Wegesystem, 
+              dessen Vernetzung durch die Optimierung der Verwendung der zur Verf&uuml;gung 
+              stehenden (Energie)Ressourcen begr&uuml;ndet ist. In der Abbildung 
+              rechts sind sechs verschiedenen Strukturen zu sehen, die sich nach 
+              50000 Timesteps eingestellt haben, wobei die Position der Home und 
+              Center Cells immer die gleiche ist. Bei den einzelnen Durchl&auml;ufen 
+              haben sich jeweils andere Parametereinstellungen f&uuml;r &#8222;angle 
+              threshold&#8220; und &#8222;wiggle threshold&#8220; ergeben. Dennoch 
+              wiederholen sich bei manchen Abbildungen einige Strukturelemente 
+              der unterschiedlichen Wegesysteme.</p>
+            <p class="klein">Siehe: Schweitzer, F. [2003]: <em>&quot;<a href="http://www.springer.com/west/home/physics/biophysics?SGWID=4-10103-22-2258781-0&detailsPage=ppmmedia%7Creviews" target="_blank">Brownian 
+              Agents and Active Particles</a>. Collective Dynamics in the Natural 
+              and Social Sciences&quot;</em> Berlin Heidelberg, Springer Verlag.</p>
+            <p><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="38_pathSystem_02.exe">38_path_system_02</a> 
+              / <a href="38_pathSystem_02.zip">Source</a> - 060419</p>
+            <p><a href="38_pathSystem_02.exe"><img src="bilder/38_pathSystem_2.gif" width="233" height="349" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="path02" id="path02"></a>Path 
+              System 02</span> <span class="entwfo">--------------------------------------------------------------------------- 
+              </span><span class="klein">(page anchor: <a href="#path02" target="_self">#path02</a>)</span><br>
+              Ausgehend von dem Modell &#8222;<a href="#path01" target="_self">Path 
+              System_01</a>&#8220; werden hier zehn zuf&auml;llig verteilte Ausgangsorte 
+              (Home Cells - rot) f&uuml;r die Agenten und ein Zentraler Ort (Center 
+              Cells - gr&uuml;n) in der Mitte des Feldes definiert. Die Agenten 
+              werden anfangs gleichm&auml;&szlig;ig auf die &#8222;Home Cells&#8220; 
+              verteilt.<br>
+              Solange die Agenten noch keine &#8222;Center Cell&#8220; (oder eine 
+              Wegemarkierung) entdeckt haben, bewegen sie sich in einem &#8222;Random 
+              Walk&#8220; &uuml;ber das Feld. Sobald sich ein Agent auf einer 
+              &#8222;Center Cell&#8220; befindet, wechselt er seinen inneren Zustand 
+              und versucht m&ouml;glichst schnell und kosteng&uuml;nstig zu seiner 
+              &#8222;Home Cell&#8220; zur&uuml;ck zu gelangen. Bei seinem R&uuml;ckweg 
+              hinterl&auml;sst der Agent eine Markierung bei den Zellen, welche 
+              er &uuml;berquert. Nachfolgende Agenten versuchen nun diesen Markierungen 
+              auf ihrem Heimweg zu folgen (Kostenersparnis). Die Markierungen 
+              werden ebenfalls von den Agenten benutzt, die noch (oder wieder) 
+              nach der &#8222;Center Cell&#8220; suchen. <br>
+              Der &#8222;Pathfinding&#8220; Algorithmus f&uuml;r die Bestimmung 
+              der jeweiligen Bewegungsrichtung eines Agenten bei seinem Heimweg 
+              wird dadurch erg&auml;nzt, dass vor dem &#8222;Hill Climbing&#8220; 
+              die Ausrichtung (Heading H) des Agenten auf seine &#8222;Home Cell&#8220; 
+              gerichtet wird, deren Koordinaten er gespeichert hat und diese mit 
+              seiner aktuellen Position vergleichen kann.<br>
+              Es ergibt sich eine Vernetzung der &#8222;Home Cells&#8220; und 
+              der &#8222;Center Cells&#8220;, wobei die &#8222;Home Cells&#8220; 
+              oft untereinander mit direkten Wegen verbunden sind, aber nicht 
+              immer eine direkte Verbindung zu dem Zentralen Ort aufweisen. <br>
+              Nach anf&auml;nglichen Schwankungen stellt sich eine relativ stabile 
+              Wegestruktur ein, welche sich &uuml;ber l&auml;ngere Zeitr&auml;ume 
+              hinweg nur geringf&uuml;gig ver&auml;ndert und gegen St&ouml;rungen 
+              (Mausinteraktion) verh&auml;ltnism&auml;&szlig;ig unempfindlich 
+              ist. Die Abbildung links zeigt (von l.o. nach r.u.) ein Wegesystem 
+              bei den Timesteps 2, 200, 1.000, 4.000, 10.000, 20.000.<br>
+              Bei den voreingestellten Parametern ergibt sich bei verschiedenen 
+              Veiteilungen der &#8222;Home Cells&#8220; meist eine Anzahl von 
+              ca. 400 Zellen, die f&uuml;r ein stabiles Wegesystem erforderlich 
+              sind (siehe Graph bei hohem &#8222;visibility threshold).</p>
+            <p class="klein">Siehe: Schweitzer, F. [2003]: <em>&quot;<a href="http://www.springer.com/west/home/physics/biophysics?SGWID=4-10103-22-2258781-0&detailsPage=ppmmedia%7Creviews" target="_blank">Brownian 
+              Agents and Active Particles</a>. Collective Dynamics in the Natural 
+              and Social Sciences&quot;</em> Berlin Heidelberg, Springer Verlag.</p>
+            <p class="klein"><br>
+            </p>
+            </td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="37_slimeMold.exe">37_slimeMold</a> 
+              / <a href="37_slimeMold.zip">Source</a> - 060415</p>
+            <p><a href="37_slimeMold.exe"><img src="bilder/37_slimeMold.gif" width="233" height="233" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="SlimeMold" id="SlimeMold"></a>Slime 
+              Mold</span><span class="entwfo"> <font color="#000000">----------------------------------------------------------------------------- 
+              </font></span><span class="klein">(page anchor: <a href="#SlimeMold" target="_self">#SlimeMold</a>)</span><br>
+              F&uuml;r dieses Modell wurde das Programm &#8222;<a href="#path01" target="_self">Path 
+              System 01</a>&#8220; erweitert, indem die Markierungswerte der Zellen 
+              diffundiert werden. Die Diffusion erfolgt &auml;hnlich wie bei dem 
+              Modell &#8222;<a href="#Growth02" target="_self">Growth and Moore 
+              Neighborhood</a>&#8220;:<br>
+              <img src="bilder/37_slimeMold_F1.gif" width="188" height="50"><br>
+              Dabei wird der jeweilige Wert P einer Zelle i gleichm&auml;&szlig;ig 
+              auf die acht Nachbarzellen aufgeteilt.<br>
+              <img src="bilder/37_slimeMold_F2.gif" width="13" height="17"> bezeichnet 
+              den Koeffizienten f&uuml;r den Verfall der Markierungswerte. <br>
+              Bei den voreingestellten Werten kommt es nach kurzer Zeit zur Bildung 
+              von Clustern, die sich langsam &uuml;ber das Feld bewegen und miteinander 
+              verschmelzen bzw. sich wieder trennen k&ouml;nnen. Wird der Wert 
+              f&uuml;r den &#8222;angle threshold&#8220; verringert, l&ouml;sen 
+              sich die Cluster langsam auf. Entscheiden f&uuml;r die Bildung der 
+              Cluster ist au&szlig;erdem eine ausreichende Dichte an Agenten.<br>
+              Per Maus lassen sich Markierungen hinzuf&uuml;gen (linke Maustaste), 
+              sowie l&ouml;schen (rechte Maustaste). </p>
+            <p class="klein">Siehe: Resnick, M. [1994]: <em>&quot;Turtles, Termites 
+              and Traffic Jams: Explorations in Massively Parallel Microworlds.&quot;</em> 
+              Cambridge, Ma: MIT Press.</p>
+            <p class="klein"><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="36_pathSystem_01.exe">36_path 
+              system_01</a> / <a href="36_pathSystem_01.zip">Source</a> - 060414</p>
+            <p><a href="36_pathSystem_01.exe"><img src="bilder/36_pathSystem.gif" width="233" height="232" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="path01" id="path01"></a>Path 
+              System 01</span> <span class="entwfo">--------------------------------------------------------------------------- 
+              </span><span class="klein">(page anchor: <a href="#path01" target="_self">#path01</a>)</span><br>
+              Eine bestimmte Anzahl M beweglicher Agenten A<font size="1">m</font>, 
+              m = 1, 2, &#8230;, M, wird auf zuf&auml;llige Positionen j innerhalb 
+              des Zellenrasters verteilt:<br>
+              <img src="bilder/36_path_formel_01.gif" width="117" height="30"><br>
+              Die Agenten bewegen sich zu Beginn in zuf&auml;llig gew&auml;hlten 
+              Richtungen &uuml;ber das Zellenraster (random walk). Die &Auml;nderungswerte 
+              des Bewegungsvektors (Heading H) schwanken dabei jeweils nach links 
+              (-) und rechts (+) im Bereich des &#8222;angle threshold&#8220; 
+              <img src="bilder/36_path_formel_02.gif" width="17" height="16">:</p>
+            <p><img src="bilder/36_path_formel_04.gif" width="292" height="21"><br>
+              Der &#8222;wiggle angle&#8220; <img src="bilder/36_path_formel_03.gif" width="14" height="14">gibt 
+              die zuf&auml;lligen Abweichungen des Bewegungsvektors von der jeweils 
+              gew&auml;hlten Richtung an. Die Distanz, welche ein Agent pro Zeitschritt 
+              &uuml;berwinden kann betr&auml;gt eine Zelle in der Moore-Nachbarschaft. 
+              Beim &uuml;berqueren einer Zelle hinterlassen die Agenten Markierungen, 
+              vergleichbar mit den chemischen Pheromon-Spuren bei Ameisen. Befindet 
+              sich im Verlauf des Random Walks eine oder mehrere markierte Zellen 
+              in dem Sichtbereich (angle threshold) eines Agenten, folgt er dieser 
+              Markierung. F&uuml;r die Entscheidung, welcher Spur ein Agent folgen 
+              soll, stehen zwei Verfahren zur Verf&uuml;gung. Bei dem ersten, 
+              dem so genannte 'Hill Climbing', folgt der Agent der st&auml;rksten 
+              Markierung (der mit dem h&ouml;chsten Wert). Das zweite Verfahren 
+              wird als 'Roulette Wheel' bezeichnet und gewichtet die Wahrscheinlichkeit 
+              bei der Auswahl einer Zelle entsprechend den St&auml;rken der betrachteten 
+              Markierungen. Im Verlauf der Zeit verfallen die Markierungen langsam 
+              wieder.<br>
+              Visuell werden die Markierungswerte der Zellen anhand der Grauwerte 
+              dargestellt. Durch die Interaktion der Agenten mit den Zellen ergibt 
+              sich ein sich selbst organisierendes Wegesystem. <br>
+              Aufgrund des regelm&auml;&szlig;igen Zellenrasters sind die relevanten 
+              Werte f&uuml;r den &#8222;angle threshold&#8220; 22,5 | 67,5 | 112,5 
+              | 147,5. Bei dem unter- bzw. &uuml;berschreiten dieser Werte fallen 
+              jeweils zwei benachbarte Zellen aus dem Sichtfeld eines Agenten 
+              heraus oder es kommen zwei Zellen dazu. <br>
+              Per Maus lassen sich Markierungen hinzuf&uuml;gen (linke Maustaste), 
+              sowie l&ouml;schen (rechte Maustaste).</p>
+            <p class="klein">Siehe: Schweitzer, F. [2003]: <em>&quot;<a href="http://www.springer.com/west/home/physics/biophysics?SGWID=4-10103-22-2258781-0&detailsPage=ppmmedia%7Creviews" target="_blank">Brownian 
+              Agents and Active Particles</a>. Collective Dynamics in the Natural 
+              and Social Sciences&quot;</em> Berlin Heidelberg, Springer Verlag.</p>
+            <p class="klein"><br>
+            </p>
+            </td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="35_segregation_04_scalen.exe">35_segregation_04</a> 
+              / <a href="35_segregation_04_scalen.zip">Source</a> - 060322</p>
+            <p><a href="35_segregation_04_scalen.exe"><img src="bilder/35_segregat_scale.gif" width="233" height="177" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="fett"><p class="entwfo"><span class="fett"><a name="Segregation04" id="Segregation04"></a>Skalenertr&auml;ge 
+              und Segregation</span> ----------------------------------------<span class="entwfo"> 
+              </span><span class="klein">(page anchor: <a href="#Segregation04" target="_self">#Segregation04</a>)</span><br>
+              <span class="entwfo">Hier werden die beiden Modelle '<a href="#Skalenertr" target="_self">Skalenertr&auml;ge</a>' 
+              und '<a href="#Segregation03" target="_self">Segregation und Zentrale 
+              Orte</a>' zusammengef&uuml;hrt. Dies erm&ouml;glicht eine Untersuchung 
+              der Standortwahl eines Agenten unter den kombinierten Bedingungen 
+              der Segregation und einer m&ouml;glichst g&uuml;nstigen Lage bei 
+              einem Markt. Die Qualit&auml;t eines Ortes (Zelle) wird durch das 
+              Einzugsgebiet eines Marktes definiert, welches mit den Angebotspreisen 
+              der M&auml;rke zusammenh&auml;ngt.<br>
+              Die Kunden sind jetzt nicht mehr gleichm&auml;&szlig;ig Verteilt, 
+              sonder k&ouml;nnen ihren Standort aufgrund mehrer Kriterien w&auml;hlen. 
+              Neben einer zentrumsnahen Lage ist ein weiteres Kriterium jenes 
+              der &auml;hnlichen Nachbarschaft, bzw. der Toleranz gegen&uuml;ber 
+              andersartigen Nachbarn. Insgesamt wirkt sich die Mobilit&auml;t 
+              der Kunden verst&auml;rkend auf die Monopolisierung aufgrund der 
+              Skalenertr&auml;ge aus.<br>
+              </span> </p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="34_Segregation_03_center.exe">34_Segregation_03</a> 
+              / <a href="34_Segregation_03_center.zip">Source</a> - 060321</p>
+            <p><a href="34_Segregation_03_center.exe"><img src="bilder/34_segregat_center.gif" width="233" height="233" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="fett"><p><a name="Segregation03" id="Segregation03"></a>Segregation 
+              und Zentrale Orte <span class="entwfo">------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Segregation03" target="_self">#Segregation03</a>)</span><span class="entwfo"><br>
+              Dieses Programm erweitert das Modell <a href="#Segregation02" target="_self">'Segregation 
+              durch Ortsver&auml;nderung</a>' um zentrale Orte (M&auml;rkte), 
+              denen die Agenten m&ouml;glichst nahe kommen wollen. Die Bedingungen 
+              bleiben im Wesentlichen die gleichen wie bei dem urspr&uuml;nglichen 
+              Modell. Es wird lediglich ein zentraler Ort (oder mehrere Orte) 
+              in Zelle m erg&auml;nzt. Die Regeln f&uuml;r den Segregationsprozess 
+              werden folgenderma&szlig;en erg&auml;nzt:<br>
+              Wenn der Abstand <em>d</em> von Zelle<em> i</em> zur zentralen Zelle 
+              <em>m</em> gr&ouml;&szlig;er ist als an dem verglichen Ort <em>j</em>, 
+              dann wechsle den Standort von <em>i</em> nach<em> j </em>(vergleiche 
+              hill climbing verfahren oder potential field).<br>
+              Neben der Anforderung an eine Mindestzahl an Agenten des gleichen 
+              Typs in der unmittelbaren Umgebung, entsteht unter den Agenten eine 
+              Konkurrenz um den zentralsten Ort. Die Segregationsstruktur verdichtet 
+              sich innerhalb eines Kreises um den zentralen Ort herum. Bei mehreren 
+              zentralen Orten lagern sich ab einer bestimmten Toleranzgrenze nur 
+              noch eine Sorte von Agenten (wei&szlig; oder schwarz) an einem Zentrum 
+              an. Es erfolg demnach eine &uuml;bergeordnete Segregation nach Zentren.</span></p>
+            <p><span class="entwfo"><br>
+              </span> </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="33_crystalGrowth.exe">33_crystalGrowth</a> 
+              / <a href="33_crystalGrowth.zip">Source</a> - 060313</p>
+            <p> <a href="33_crystalGrowth.exe"><img src="bilder/33_crystalGrowth.gif" width="233" height="234" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="crystalGrowth" id="crystalGrowth"></a>Crystal 
+              Growth </span><span class="entwfo">---------------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#crystalGrowth" target="_self">#crystalGrowth</a>)</span><br>
+              Als vorl&auml;ufiger Abschluss der Wachstumsmodelle bietet dieses 
+              Modell die bisher umfangreichste Palette an erzeugbaren Formen. 
+              Das zugrunde liegende Prinzip stellt eine Erweiterung des <a href="#snowFlake">Snow 
+              Flake Growth</a> Modells dar. Initialisiert wird das System mit:<br>
+              <img src="bilder/33_crystalGrowth_f1.gif" width="314" height="21"><br>
+              F&uuml;r die Berechnung des Potential-Felds werden die verschiedenen 
+              Nachbarschaftstypen unterschiedlich gewichtetet:<br>
+              <img src="bilder/33_crystalGrowth_f2.gif" width="418" height="53"><br>
+              Das Feld wird mittels mehrer Iterationen T (iteration Steps) einem 
+              Gleichgewicht angen&auml;hert:<br>
+              <img src="bilder/33_crystalGrowth_f3.gif" width="297" height="50"><br>
+              <img src="bilder/33_crystalGrowth_f6_dk.gif" width="13" height="21"> 
+              ist die Diffusionskonstante und skaliert die Geschwindigkeit der 
+              Diffusion. Entwickelt wird eine Zelle, sobald das Potential einen 
+              gewissen Wert unterschreitet und die entsprechende Zelle zu einer 
+              entwickelten Zelle benachbart ist. Das Potential kann als Temperatur 
+              verstanden werden, bei deren unterschreiten eine Kristallisation 
+              stattfindet:<br>
+              <img src="bilder/33_crystalGrowth_f4.gif" width="400" height="74"><br>
+              U gibt den &#8222;undercooling threshold&#8220; an. Dieser Wert 
+              wird beeinflusst von einem Zufallsparameter <img src="bilder/epsilon.gif" width="32" height="18"> 
+              mit der Reichweite von -1 bis 1, dessen (noise) Amplitude durch 
+              den Parameter <img src="bilder/delta.gif" width="13" height="18"> 
+              definiert wird. Der Parameter <img src="bilder/33_crystalGrowth_f6_ie.gif" width="14" height="18"> 
+              bestimmt die Gr&ouml;&szlig;e des Interface-Effekts und <img src="bilder/33_crystalGrowth_f6_ik.gif" width="12" height="17"> 
+              stellt die Interfacekonstante dar. Die Gewichtung w<font size="1">k</font> 
+              der Moore Nachbarschaft ist hier:<br>
+              <img src="bilder/33_crystalGrowth_f5.gif" width="394" height="53"><br>
+              Bei <img src="bilder/33_crystalGrowth_f6_ik.gif" width="12" height="17"> 
+              = 1,5 wird ein Mittelwert aus den Nachbarschaftsgewichten gebildet. 
+              <br>
+              Anhand des Parameters &#8222;pot. multi&#8220; kann die Markierung 
+              der Potentialwerte des Feldes eingestellt werden. <br>
+              F&uuml;r das Verhalten des Systems sollte haupts&auml;chlich mit 
+              den Parametern U (undercooling threshold), <img src="bilder/33_crystalGrowth_f6_ie.gif" width="14" height="18"> 
+              (interface size) und <img src="bilder/delta.gif" width="13" height="18"> 
+              (noise amplitude) experimentiert werden. Dabei gen&uuml;gen minimale 
+              Ver&auml;nderungen der Werte um sichtbare Abweichungen bei der Entstehung 
+              der Struktur zu bewirken.</p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 3)</p>
+            <p align="right" class="klein">&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="32_snowFlake.exe">32_snowFlake</a> 
+              / <a href="32_snowFlake.zip">Source</a> - 060310</p>
+            <p> <a href="32_snowFlake.exe"><img src="bilder/32_snowFlake.gif" width="233" height="233" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="snowFlake" id="snowFlake"></a>Snow 
+              Flake Growth</span> <span class="entwfo">-----------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#snowFlake" target="_self">#snowFlake</a>)</span><br>
+              Das Prinzip bei diesem Modell ist &auml;hnlich wie bei <a href="#diffuseGrowth" target="_self">Growth 
+              in a Diffusion-Field</a>. Zu beginn wird jede Zelle mit einem Grundpotential 
+              <img src="bilder/beta.gif" width="13" height="21"> initialisiert 
+              und eine Zelle als &quot;Samen&quot; entwickelt:<br>
+              <img src="bilder/32_snowFlake_f1.gif" width="240" height="21"><br>
+              Im Verlauf des Prozesses werden die Zellen nach jedem Schritt in 
+              &#8222;receptive&#8220; <br>
+              <img src="bilder/32_snowFlake_f2.gif" width="326" height="36"> <br>
+              und &#8222;nonreceptive&#8220; <br>
+              <img src="bilder/32_snowFlake_f3.gif" width="364" height="36"><br>
+              Zellen aufgeteilt. <br>
+              Der Potentialwert P setzt sich aus den beiden Teilpotentialen zusammen:<br>
+              <img src="bilder/32_snowFlake_f4.gif" width="134" height="20"><br>
+              Jeder Teil wird gesondert berechnet, wobei bei den &#8222;receptiven&#8220; 
+              Zellen ein konstanter Wert addiert wird:<br>
+              <img src="bilder/32_snowFlake_f5.gif" width="88" height="20"><br>
+              Bei den &#8222;nonreceptiven&#8220; Zellen wird ein Durchschnittswert 
+              aus den gewichteten Werten w<font size="1">k</font> der benachbarten 
+              Zellen gebildet. Die Gewichte sind dabei so verteilt, dass den direkten 
+              Nachbarn ein h&ouml;heres und den diagonalen ein geringeres Gewicht 
+              zukommt:<br>
+              <img src="bilder/32_snowFlake_f6.gif" width="418" height="53"><br>
+              Zusammengenommen ergeben die Gewichte aller Nachbarzellen 1 = 4*(1/6) 
+              + 4*(1/12).<br>
+              Die Formel f&uuml;r das neue Teilpotential lautet nun:<br>
+              <img src="bilder/32_snowFlake_f7.gif" width="421" height="50"><br>
+              Die Transtion Rule setzt jede Zelle mit einem Gesamtpotential P<font size="1">i</font>(t) 
+              gr&ouml;&szlig;er oder gleich 1 auf 'entwickelt' (D<font size="1">i</font>(t) 
+              = 1):<br>
+              <img src="bilder/32_snowFlake_f8.gif" width="164" height="21"><br>
+              Die durch die Iteration des beschriebenen Prozesses entstehenden 
+              Strukturen sind symmetrisch und gleichen Schneekristallen.</p>
+            <p align="right"> <span class="klein">Siehe: Reiter C. Auxiliary materials 
+              for: a local cellular model for snow crystal growth.<br>
+              <a href="http://ww2.lafayette.edu/%7Ereiterc/mvp/sfn/index.html" target="_blank">http://ww2.lafayette.edu/~reiterc/mvp/sfn/index.html</a>.</span></p>
+            <p class="klein">&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="31_diffusionGrowth.exe">31_diffuseGrowth</a> 
+              / <a href="31_diffusionGrowth.zip">Source</a> - 060305</p>
+            <p> <a href="31_diffusionGrowth.exe"><img src="bilder/31_diffuseGrow.gif" width="233" height="234" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="diffuseGrowth" id="diffuseGrowth"></a>Growth 
+              in a Diffusion-Field</span> <span class="entwfo">--------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#diffuseGrowth" target="_self">#diffuseGrowth</a>)</span><br>
+              Das Wachstum findet bei diesem Modell innerhalb eines &#8222;Diffusionsfeldes&#8220; 
+              statt, welches aus den Potentialwerten besteht, die bei jedem Schritt 
+              ausgemittelt werden (siehe <a href="#Spatial_Averaging" target="_self">Spatial 
+              Averaging</a>). <br>
+              Die Anfangsbedingungen f&uuml;r den Prozess werden folgenderma&szlig;en 
+              festgelegt:<br>
+              <img src="bilder/31_diffuseGrow_f1.gif" width="329" height="58"><br>
+              Die Erweiterung der Struktur findet schrittweise statt, wobei bei 
+              jedem Schritt nur die Zelle 'entwickelt' wird, welche den h&ouml;chsten 
+              Potentialwert P aufweist und in der (von Neumann) Nachbarschaft 
+              eine 'entwickelte' Zelle besitzt. Um die Symmetrie des Prozesses 
+              zu brechen wird zu jedem Potentialwert P ein Zufallswert <img src="bilder/epsilon.gif" width="32" height="18">(Noise) 
+              addiert. Die entsprechende &#8216;Transition Rule&#8217; lautet 
+              dann:<br>
+              <img src="bilder/31_diffuseGrow_f2.gif" width="261" height="61"><br>
+              Das Potential Field wird nach jedem Schritt in einen relativen &#8222;Gleichgewichtszustand&#8220; 
+              gebracht, indem das Feld mehrmals berechnet wird. <br>
+              <img src="bilder/31_diffuseGrow_f3.gif" width="305" height="37"><br>
+              In einer bestimmten Entfernung R (Sphere of Influence) zum sich 
+              entwickelnden Cluster werden die Potentialwerte P = 1 gesetzt. Dadurch 
+              entwickelt sich das Wachstum der Struktur eher am Rand als in der 
+              Mitte. <br>
+              Durch die Variation der Parameter k&ouml;nnen unterschiedlich dichte 
+              oder lineare Strukturen erzeugt werden. </p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 3)</p>
+            <p align="right" class="klein">&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="30_potDevProb.exe">30_potDevProb</a> 
+              / <a href="30_potDevProb.zip">Source</a> - 060304</p>
+            <p> <a href="30_potDevProb.exe"><img src="bilder/30_potDev.gif" width="233" height="136" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="potDevProb" id="potDevProb"></a>Growth 
+              in a Potential-Field</span> <span class="entwfo">---------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#potDevProb" target="_self">#potDevProb</a>)</span><br>
+              Bei diesem Zellul&auml;ren Automaten Modell findet Wachstum (Entwicklung 
+              der Zellen) nur in Abh&auml;ngigkeit des Potentials P einer Zelle 
+              statt. &Uuml;bersteigt das Potential P einen bestimmten Schwellenwert 
+              <img src="bilder/formel_00_thresh.gif" width="16" height="17">, 
+              kann die Zelle 'entwickelt' werden (D = 1) <br>
+              siehe <a href="30_potDev.exe">Grundmodelle Potential and Development</a></p>
+            <p> Zus&auml;tzlich definiert der Parameter p (Noise) den Wahrscheinlichkeitswert 
+              der Entwicklung einer Zelle.<br>
+              <img src="bilder/30_potDev_f1.gif" width="421" height="21"> <br>
+              Das 'potential field' wird in jedem Schritt aktualisiert und der 
+              Wert f&uuml;r P dort neu berechnet, wo eine Zelle in der (Moore) 
+              Nachbarschaft 'entwickelt' ist. Der neue Wert f&uuml;r P bildet 
+              den Durchschnitt aus den Umgebungswerten:<br>
+              <img src="bilder/30_potDev_f2.gif" width="305" height="37"> <br>
+              Initialisiert wird der Prozess, indem das Potential der Zelle in 
+              der Feldmitte auf 1 gesetzt wird: P<font size="1">c</font>(0) = 
+              1. Die sich ergebende Wachstumsstruktur &auml;hnelt den Ver&auml;stelungen 
+              einer Koralle.<br>
+            </p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 3)</p>
+            <p align="right" class="klein">&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="29_groupGrow.exe">29_groupGrowth</a> 
+              / <a href="29_groupGrow.zip">Source</a> - 060303</p>
+            <p> <a href="29_groupGrow.exe"><img src="bilder/29_groupGrow.gif" width="233" height="136" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="groupGrowth" id="groupGrowth"></a>Wachstum 
+              mit r&auml;umlicher Umorganisation</span> <span class="entwfo">--------------------------</span><span class="klein"> 
+              (page anchor: <a href="#groupGrowth" target="_self">#groupGrowth</a>)</span><br>
+              Hier wird ein Zellul&auml;rer Automat f&uuml;r '<a href="#probabGrowth">Einfaches 
+              Wachstum</a>' mit dem Modell zur '<a href="#Segregation01" target="_self">Segregation 
+              durch Eigenschaftsanpassung</a>' kombiniert. Innerhalb eines gegebenen 
+              Radius r werden 'entwickelte' Zellen als Typ 1 markiert (grau) und 
+              au&szlig;erhalb als Typ 2 (wei&szlig;). &Uuml;ber den Parameter 
+              &quot;State &frac12; Probability in %&quot; wird angegeben, wie 
+              h&auml;ufig die beiden Typen bei der 'Entwicklung' vertauscht werden. 
+              Nach jedem Schritt wird der Segregationsalgorithmus auf das System 
+              angewandt. Dabei entstehen einzelnen Inseln aus Zellen des einen 
+              Typs innerhalb des Bereichs aus Zellen des anderen Typs. <br>
+              Wird der Prozess mit 'activate aging' gestartet, so werden die Inseln 
+              und Ausl&auml;ufer mit jeder Entwicklungswelle kleiner und die urspr&uuml;ngliche 
+              Grenze bei r wird deutlich. Verringert man w&auml;hrenddessen den 
+              &quot;State &frac12; Probability in %&quot;&#8217; Wert unter 50, 
+              so wechseln die Farben in einer Art 'Umst&uuml;lpung' allm&auml;hlich 
+              die Bereiche.</p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 2)</p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="28_probabCA.exe">28_probabCA</a> 
+              / <a href="28_probabCA.zip">Source</a> - 060302</p>
+            <p> <a href="28_probabCA.exe"><img src="bilder/28_probabGrow.gif" width="233" height="136" border="0"></a> 
+            </p></td>
+          <td height="42" class="entwfo"><span class="fett"><a name="probabGrowth" id="probabGrowth"></a>Einfaches 
+            Wachstum</span> <span class="entwfo">-----------------------------------------------------------</span><span class="klein"> 
+            (page anchor: <a href="#probabGrowth" target="_self">#probabGrowth</a>)</span><br>
+            Grundlage ist ein einfacher Zellul&auml;rer Automat (siehe <a href="../../RaumProzesse/Grundlagen.htm" target="_self">Grundlagen 
+            Zellul&auml;rer Automaten</a>), bei dem eine Zelle 'entwickelt' (Zustand 
+            D = 1) wird, wenn sich mindestens eine 'entwickelte' Zelle in der 
+            (Moore) Nachbarschaft befindet (<a href="28_growth.exe">Beispielprogramm</a>). 
+            Der Prozess wird mit der mittleren Zelle initialisiert: D<font size="1">c</font>(0) 
+            = 1. Die Transition Rule lautet dabei: <br> <img src="bilder/28_probabGrow_f1.gif" width="224" height="61"><br> 
+            <p>Dieser Prozess wird nun mit einem Wahrscheinlichkeitswert p f&uuml;r 
+              die 'Entwicklung' einer Zelle kombiniert. Die Transition Rule wird 
+              entsprechend mit einem random-Wert erg&auml;nzt, bei dessen &Uuml;berschreiten 
+              die Zelle 'entwickelt' wird:<br>
+              <img src="bilder/28_probabGrow_f2.gif" width="349" height="61"><br>
+              Das 'Alter&#8217; einer Zelle wird anhand des Grauwertes dargestellt. 
+              &Uuml;ber die Einstellung der 'Lebensdauer&#8217; einer Zelle kann 
+              die H&auml;ufigkeit von Entwicklungswellen definiert werden. </p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 2)</p>
+            <p> <br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="27_entropyMeasure.exe">27_Entropiemessung</a> 
+              / <a href="27_entropyMeasure.zip">Source</a> - 060301</p>
+            <p> <a href="27_entropyMeasure.exe"><img src="bilder/27_Entropie.gif" width="233" height="123" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p align="left"><span class="fett"><a name="Entropie" id="Entropie"></a>Entropiemessung</span> 
+              <span class="entwfo">-----------------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Entropie" target="_self">#Entropie</a>)</span> 
+              <br>
+              Die Komplexit&auml;t eines eindimensionaler Zellul&auml;rer Automat 
+              (hier mit <br>
+              D = 2, K = 3 und N = 202) l&auml;sst sich mittels des klassischen 
+              Ma&szlig;es der Shannon Entropie messen. Die Startkonfiguration 
+              der ersten Zeile kann wahlweise entweder mit D101(0) = 1 (mittlere 
+              Zelle) und bei allen anderen Zellen der Reihe gleich 0 gesetzt oder 
+              mit einer zuf&auml;lligen Konfiguration Di (0) = ei, bei ei = 0 
+              oder 1 initialisiert werden.<br>
+              Elementare Zellul&auml;re Automaten erzeugen Muster mit einem ver&auml;nderlichen 
+              Grad an Zuf&auml;lligkeit. In einer zuf&auml;lligen Sequenz m&uuml;ssen 
+              alle 2^X m&ouml;glichen Untersequenzen mit der L&auml;nge X (Korrelationsl&auml;nge) 
+              mit gleicher Wahrscheinlichkeit auftreten (Chaos). Abweichungen 
+              von einer rein zuf&auml;lligen Sequenz implizieren ungleiche Wahrscheinlichkeiten 
+              f&uuml;r verschiedene Untersequenzen und damit m&ouml;gliche Ordnungsstrukturen. 
+              Mit der Wahrscheinlichkeit pi,n f&uuml;r 2^X m&ouml;glicher Sequenzen 
+              von Zellzust&auml;nden in einem Muster (Abschnitt nebeneinander 
+              liegender Zellen) der L&auml;nge X kann die r&auml;umlich metrischen 
+              Entropie definiert werden als:<br>
+              <img src="bilder/27_Entropie_f2.gif" width="370" height="29"><br>
+              Die Werte f&uuml;r die topologische Entropie und die metrischen 
+              Entropie liegen zwischen 0 and 1, <br>
+              0&lt;= Smetric,n &lt;= Stopologic,n &lt; 1.</p>
+            <p align="right"><span class="klein"> Siehe: HUBLER, Alfred W. (2002): 
+              Statistical Properties of Cellular Automata:<br>
+              <a href="http://www.how-why.com/cgi-bin/cyberprof/os.exe?home=&document=http://www.how-why.com/ucs2002/tutorial/CAStatistics.html" target="_blank">http://www.how-why.com/cgi-bin/cyberprof/os.exe?home=&amp;document=http://www.how-why.com/ucs2002/tutorial/CAStatistics.html</a> 
+              (login with guest/guest)</span></p>
+            <p><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="26_Krugman_Model.exe">26_Krugman&acute;s 
+              Model</a> / <a href="26_Krugman_Model.zip">Source</a> - 051222</p>
+            <p> <a href="26_Krugman_Model.exe"><img src="bilder/26_krugman.gif" width="233" height="206" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Krugman" id="Krugman"></a>Krugman&acute;s 
+              Model </span><span class="entwfo">---------------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Krugman" target="_self">#Krugman</a>)</span><span class="entwfo"><br>
+              P.R. Krugman hat 1996 in <font face="Arial, Helvetica, sans-serif"><em>'The 
+              Self-Organizing Economy' </em></font>ein Modell vorgestellt, mit 
+              welchem sich die zwei gegenl&auml;ufigen Kr&auml;fte der Zentralisierung 
+              und der Dezentralisierung erfassen lassen. Also die Notwendigkeit 
+              der Bev&ouml;lkerung, sich nah beieinander anzusiedeln, sowie das 
+              Bed&uuml;rfnis von Individuen einander zu meiden und soviel Raum 
+              wie m&ouml;glich f&uuml;r eigene Zwecke zu besetzen. <br>
+              Die Entstehung neuer Aktivit&auml;ten (= Erh&ouml;hung der Einwohnerdichte) 
+              ist Proportional zu dem Potential V<font size="-5">i</font> eines 
+              Ortes. Um die zentrifugalen und zentripetalen Kr&auml;fte wiedergeben 
+              zu k&ouml;nnen, werden jeweils zwei Potentiale an einem Ort berechnet, 
+              die zusammengenommen die Entwicklungstendenz ergeben:<br>
+              <img src="bilder/formel_08_krugman_01.gif" width="198" height="112"><br>
+              K<font size="-5">1</font> und K<font size="-5">2</font> sind Gr&ouml;&szlig;en-Parameter, 
+              w&auml;hrend alpha und beta die jeweiligen Skalierungs-Parameter 
+              f&uuml;r die Distanzen d<font size="-5">ij </font>darstellen. Ferner 
+              wird zur Berechnung der Ver&auml;nderungsrate das durchschnittliche 
+              Potential des gesamten Systems ben&ouml;tigt:<br>
+              <img src="bilder/formel_08_krugman_02.gif" width="129" height="37"><br>
+              Die Ver&auml;nderung der Bev&ouml;lkerung ist dann definiert als:<br>
+              <img src="bilder/formel_08_krugman_03.gif" width="172" height="50"><br>
+              Durch die Gewichtung der Parameter kann nun die Konkurrenz und Entwicklung 
+              einzelner Orte durch Handel und Austausch erfasst werden. Im Gegensatz 
+              zu den <a href="#Spatial_Averaging">Wachstumsmodellen (19 bis 21)</a> 
+              k&ouml;nnen sich so mehrere zentrale Orte aus einer anf&auml;nglichen 
+              Zufallsverteilung entwickeln. </span></p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 1)</p>
+            <p>&nbsp; </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="25_Segregation_02.exe">25_Segregation03</a> 
+              / <a href="25_Segregation_02.zip">Source</a> - 051219</p>
+            <p><a href="25_Segregation_02.exe"><img src="bilder/25_Segregation.gif" width="233" height="136" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Segregation02" id="Segregation02"></a><br>
+              <br>
+              </span><span class="fett">Segregation durch Ortsver&auml;nderung 
+              </span><span class="entwfo">-----------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Segregation02" target="_self">#Segregation02</a>)</span><span class="fett"> 
+              </span><br>
+              &Auml;hnlich wie bei dem Modell '<a href="#Segregat">08_segregation</a>' 
+              vom 10.06.2005 ver&auml;ndern Agenten mit bestimmten Eigenschaften 
+              ihre Position, wenn in ihrer Umgebung (3x3 Moore Nachbarschaft) 
+              nicht gen&uuml;gend Agenten mit den gleichen Eigenschaften vorhanden 
+              sind. Das mathematische Prinzip ist dasselbe wie bei dem vorigen 
+              Modell '<a href="#Segregation01">Segregation durch Eigenschaftsanpassung</a>'. 
+            </p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 1) </p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="24_Segregation_01.exe">24_Segregation02</a> 
+              / <a href="24_Segregation_01.zip">Source</a> - 051218</p>
+            <p> <a href="24_Segregation_01.exe"><img src="bilder/24_Segregation.gif" width="233" height="151" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Segregation01" id="Segregation01"></a>Segregation 
+              durch Eigenschaftsanpassung</span> <span class="entwfo">-----------------------</span><span class="klein"> 
+              (page anchor: <a href="#Segregation01" target="_self">#Segregation01</a>)</span><br>
+              Zu Beginn wird jeder Zelle ein zuf&auml;lliger Eigenschaftswert 
+              zugeordnet Pi(0) = <img src="bilder/epsilon.gif" width="32" height="18">. 
+              Der Grundgedanke des Modells besteht darin, dass jede Zelle ihre 
+              Eigenschaft (Meinung, Pr&auml;ferenz o. &auml;.) &auml;ndert, wenn 
+              die Mehrzahl der umgebenden Zellen (in der 3x3 Moore Nachbarschaft) 
+              eine andere Eigenschaft hat. Nehmen wir an, es handelt sich bei 
+              den wei&szlig;en Zellen um Personen, die lieber Bier trinken und 
+              bei den schwarzen um Weintrinker.<br>
+              Die Anzahl der Biertrinker wird formal dargestellt durch <img src="bilder/formel_07_seg_01.gif" width="40" height="29">, 
+              Weintrinker <img src="bilder/formel_07_seg_02.gif" width="42" height="29">. 
+              <br>
+              Die Bedingungen, wann sich eine Eigenschaft &auml;ndert kann wie 
+              folgt ausgedr&uuml;ckt werden:<br>
+              <img src="bilder/formel_07_seg_03.gif" width="229" height="90"><br>
+              Das sich ergebende Muster ist relativ unempfindlich gegen St&ouml;rungen. 
+            </p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 1)</p>
+            <p><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="23_diffusion-contract.exe">23_Diffusion-Connect</a> 
+              / <a href="23_diffusion-contract.zip">Source</a> - 051217</p>
+            <p> <a href="23_diffusion-contract.exe"><img src="bilder/23_diffusionContract.gif" width="233" height="234" border="0"></a> 
+            </p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Diffusion-Connect" id="Diffusion-Connect"></a>Diffusion 
+              Connect Model </span><span class="entwfo">-------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Diffusion-Connect" target="_self">#Diffusion-Connect</a>)</span><br>
+              Das Modell besteht aus einem Zellenraster und einer bestimmten Anzahl 
+              M frei beweglichen Agenten A. Die Agenten werden zu Beginn zuf&auml;llig 
+              verteilt und bewegen sich bei jedem Zeitschritt in eine zuf&auml;llige 
+              Richtung:<br>
+              <img src="bilder/formel_05.gif" width="340" height="30"><br>
+              <img src="bilder/thresh.gif" width="17" height="16">ist der Winkel-Variation 
+              der Ausrichtung des Agenten und d ist die Distanz, die er zur&uuml;cklegt. 
+              Nach jedem Schritt wird &uuml;berpr&uuml;ft, ob der Schwellenwert, 
+              gemessen an der Anzahl der Agenden in der Moore Nachbarschaft, &uuml;berschritten 
+              und die jeweilige Zelle &#8222;Entwickelt&#8220; wird:<br>
+              <img src="bilder/formel_06.gif" width="334" height="38"><br>
+              Wenn der Schwellenwert erh&ouml;ht wird, reduziert sich die Anzahl 
+              der entstehenden Cluster. Wird die Anzahl der Agenten erh&ouml;ht, 
+              nimmt die Anzahl bzw. Gr&ouml;&szlig;e der Cluster zu. Die Art, 
+              wie die Strukturen in diesem Modell entstehen, ist analog zu der 
+              Ausbreitung von Siedlungen im Raum und der Entstehung von Transportverbindungen. 
+            </p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 1)</p>
+            <p>&nbsp; </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="22_Vicsek-Szalay.exe">22_Vicsek-Szalay</a> 
+              / <a href="22_Vicsek-Szalay.zip">Source</a> - 051215<br>
+              <br>
+              <a href="22_Vicsek-Szalay.exe"><img src="bilder/22_Vicsek-Szalay.gif" width="233" height="157" border="0"></a> 
+            </p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="klein"> <p><span class="fett"><a name="Vicsek-Szalay" id="Vicsek-Szalay"></a>Vicsek-Szalay 
+              Model </span><span class="entwfo">-----------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Vicsek-Szalay" target="_self">#Vicsek-Szalay</a>)</span><span class="entwfo"><br>
+              Geordnete Strukturen, die der Ausbreitung urbaner Entwicklungs-fl&auml;chen 
+              nicht un&auml;hnlich sind, k&ouml;nnen in einem Modell emergieren, 
+              welches auf jenem der r&auml;umlichen Gleichverteilung (<a href="#Spatial_Averaging">21_Spatial 
+              Averaging</a>) aufbaut. Dazu wird bei jedem Schritt ein wei&szlig;es 
+              Rauschen eingef&uuml;gt:<br>
+              <img src="bilder/formel_04.gif" width="178" height="37"></span><br>
+              <span class="entwfo">Der Wert <img src="bilder/epsilon.gif" width="32" height="18">ist 
+              entweder 1 oder -1. Daraus ergibt sich ein <a href="21_Averaging_Noise.exe">Modell 
+              mit wei&szlig;em Rauschen</a>.<br>
+              Die Werte je Zelle (=Potential) werden f&uuml;r die Entscheidung 
+              herangezogen, ob eine Zelle &#8218;Entwickelt&#8217; ist oder nicht, 
+              wenn der Zellenwert einen bestimmten Schwellenwert &uuml;bersteigt. 
+              F&auml;llt der Zellenwert wieder unter den Schwellenwert, wird davon 
+              ausgegangen, dass der Entwicklungsstand erhalten bleibt. F&uuml;r 
+              unser Programm wurde der Schwellenwert auf 4,5 gesetzt. Entwickelte&#8217; 
+              Zellen werden wei&szlig; markiert.</span></p>
+            <p align="right">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 1)</p>
+            <p align="right"><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="21_Spatial_Averaging.exe">21_Spatial 
+              Averaging</a> / <a href="21_Spatial_Averaging.zip">Source</a> - 
+              051214<br>
+              <br>
+              <a href="21_Spatial_Averaging.exe"><img src="bilder/21_Spatial Averaging.gif" width="233" height="77" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p align="left"><span class="fett"><a name="Spatial_Averaging" id="Spatial_Averaging"></a>Spatial 
+              Averaging </span><span class="entwfo">---------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Spatial_Averaging" target="_self">#Spatial_Averaging</a>)</span><br>
+              Bei diesem Modell wird eine anf&auml;ngliche Zufallsverteilung Pi(0) 
+              = -1 or 1 Schritt f&uuml;r Schritt &uuml;ber den Zellenraum ausgemittelt. 
+              Der Maximalwert max{Pi(t)} geht gegen 0. Die r&auml;umliche Verteilung 
+              findet &uuml;ber die 4 orthogonal benachbarten Zellen (von Neumann 
+              Nachbarschaft) statt. Die entsprechende Formel lautet:<br>
+              <img src="bilder/formel_03.gif" width="145" height="44"></p>
+            <p align="right" class="klein"> Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 1)</p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="20_Growth_02.exe">20_Growth02</a> 
+              / <a href="20_Growth_02.zip">Source</a> - 051213</p>
+            <p><a href="20_Growth_02.exe"><img src="bilder/20_Growth02.gif" width="233" height="77" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Growth02" id="Growth02"></a>Growth 
+              and Moore Neighborhood </span><span class="entwfo">--------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Growth02" target="_self">#Growth02</a>)</span><br>
+              Die Ausgangssituation ist dieselbe wie bei dem Modell <a href="#Growth01">19_Growth01</a>. 
+              Die r&auml;umliche Verteilung findet jetzt allerdings &uuml;ber 
+              den Durchschnittswert der 8 direkten Nachbarn inklusive der jeweils 
+              betrachtete Zelle statt (Moore Nachbarschaft):<br>
+              <img src="bilder/formel_02.gif" width="170" height="41"></p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 1)</p>
+            <p class="klein">&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><a href="19_Growth_01.exe">19_Growth01</a> 
+            / <a href="19_Growth_01.zip">Source</a> - 051212<br> <br> <a href="19_Growth_01.exe"><img src="bilder/19_Growth01.gif" width="233" height="78" border="0"></a></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Growth01" id="Growth01"></a>Growth 
+              and spatial redistribution through increasing returns </span><span class="klein">- 
+              (page anchor: <a href="#Growth01" target="_self">#Growth01</a>)</span><br>
+              Ein einfacher Zellul&auml;rer Automat wird mit einer Zufallswerten 
+              zwischen 0 und 1 je Zelle ( Pi(0) = 0 &lt; x &lt;1 ) initialisiert. 
+              Es wird folgende Formel zur Berechnung der r&auml;umlichen Umverteilung 
+              verwendet:<br>
+              <img src="bilder/formel_01.gif" width="190" height="32"><br>
+              Wir interessieren uns f&uuml;r die F&auml;lle <img src="bilder/alpha.gif" width="14" height="14"> 
+              &gt; 0. Dies hat zur Folge, dass hohe Werte gr&ouml;&szlig;er werden 
+              auf kosten der niedrigen Werte. Man kann dies als Analogie betrachten, 
+              dass Orte mit einem hohen Entwicklungspotential ausgebaut werden, 
+              bzw. sich ausbreiten, indem sie sich Ressourcen aus der Umgebung 
+              einverleiben.</p>
+            <p align="right" class="klein">Siehe Batty: <a href="http://www.complexcity.info/" target="_blank">'Cities 
+              and Complexity'</a> (Kapietel 1)</p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="18_Gravitation.exe">18_Gravitation</a> 
+              / <a href="18_Gravitation.zip">Source</a> - 051123<br>
+              <a href="18_Gravitation.exe"><img src="bilder/18_Gravitation.gif" width="233" height="175" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><br>
+              <a name="Gravitation" id="Gravitation"></a>Gravitationsmodell</span> 
+              (social physics paradigm) <span class="entwfo">---------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Gravitation" target="_self">#Gravitation</a>)</span><br>
+              Update des Programms f&uuml;r die Erreichbarkeitsanalyse. Bei Aktivierung 
+              des dritten Buttons rechts oben werden die Str&ouml;me zwischen 
+              den Zentren (Nodes) nach dem Gravitationsmodell berechnet. Die Gr&ouml;&szlig;e 
+              (Bev&ouml;lkerungszahl P an einem Ort <font size="1">i</font> = 
+              P<font size="1">i</font>) eines Zentrums kann ver&auml;ndert werden, 
+              indem ein Node vergr&ouml;&szlig;ert oder verkleinert wird (strg 
+              + drag&amp;drop). Die Linienst&auml;rke gibt die Intensit&auml;t 
+              des Stroms an. Die Sch&auml;tzung des Stroms F<font size="1">ij</font> 
+              zwischen zwei Orten erfolgt mit Hilfe des Quadrats der Distanz d<font size="1">ij</font>:<br>
+              <img src="bilder/formel_09_gravitat.gif" width="125" height="32"><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="17_Erreichbarkeit.exe">17_Erreichbarkeit</a> 
+              / <a href="17_Erreichbarkeit.zip">Source</a> - 051117</p>
+            <p> <a href="17_Erreichbarkeit.exe"><img src="bilder/17_Erreichbarkeit.gif" width="233" height="150" border="0"></a> 
+            </p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Erreichbarkeit" id="Erreichbarkeit"></a>Erreichbarkeitsanalyse</span> 
+              <span class="entwfo">--------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Erreichbarkeit" target="_self">#Erreichbarkeit</a>)</span> 
+              <br>
+              Nach dem erstellen eines Graphen (Knotenpunkte und deren Verbindungen) 
+              kann die Konnektivit&auml;t des Graphen berechnet werde (rechter 
+              Button oben):<br>
+              Die Zeilensummen (in der Tabelle 2. Spalte v. rechts) bilden jeweils 
+              ein Ma&szlig; f&uuml;r die relative Verkn&uuml;pftheit jedes Knotenpunktes 
+              (Node). Niedrigere Werte entsprechen dabei einer besseren Erreichbarkeit. 
+              Die Gesamtsumme (unterster Wert in der Spalte; wird auch als Streuwert 
+              bezeichnet) kennzeichnet die Gr&ouml;&szlig;e des Graphen durch 
+              alle Verbindungen innerhalb seiner Grenzen. <br>
+              Bei Teilung der Zeilensummen und des Streuwerts durch die Anzahl 
+              der positiven Werte erh&auml;lt man ein Ma&szlig; f&uuml;r die durchschnittliche 
+              Verbindungsl&auml;nge (in der Tabelle die Spalte ganz rechts), welche 
+              dazu benutzt werden kann, Netzwerke miteinander zu vergleichen. 
+              (Mit dem Button oben links kann der gezeichnete Graph wieder gel&ouml;scht 
+              werden.)</p>
+            <p><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="16_urbaneNutzungenProg.zip">16_urbaneNutzungen</a> 
+              / <a href="16_urbaneNutzungen.zip">Source</a> - 050815<br>
+              <a href="16_urbaneNutzungenProg.zip"><img src="bilder/16_Nutzungen.gif" width="233" height="155" border="0"></a><br>
+              <span class="klein">Programm herunterladen, entzippen und von <br>
+              Festplatte starten! (wg. Hintergrundgrafiken)</span></p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Nutzungen"></a>Verteilung 
+              st&auml;dtischer Fl&auml;chennutzungen</span> <span class="entwfo">------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Nutzungen" target="_self">#Nutzungen</a>)</span><br>
+              Das Modell beruht auf William Alonsos &quot;Theory of the Urban 
+              Land Market&quot; (1960). Es geht um die Frage, wie sich der gewinnmaximale 
+              Standort und die optimale Betriebsgr&ouml;&szlig;e eines st&auml;dtischen 
+              Unternehmens in einer Stadt bestimmen lassen. Die Fragestellung 
+              ist &auml;hnlich wie bei Th&uuml;nens Landnutzungsmodell. <br>
+              Den Gewinn eines st&auml;dtischen Unternehmens bestimmen die drei 
+              Variablen Umsatz V, Produktionskosten C und die Bodenkosten R, die 
+              alle von der Entfernung zum Markt t und der erforderlichen Bodenfl&auml;che 
+              q (=Betriebsgr&ouml;&szlig;e) abh&auml;ngen. Durch die Variation 
+              der Variablen kann f&uuml;r den optimalen Standort die Entfernung 
+              vom Stadtkern ermittelt werden.</p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="15_Wegenutzung.exe">15_Wegenutzung</a> 
+              / <a href="15_Wegenutzung.zip">Source</a> - 050726<br>
+              <a href="15_Wegenutzung.exe"><img src="bilder/15_Wegenutzung.gif" width="233" height="184" border="0"></a> 
+            </p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><a name="Wege"></a><span class="fett">Wegenutzung</span> 
+            <span class="entwfo">-------------------------------------------------------------------------------</span><span class="klein"> 
+            (page anchor: <a href="#Wege" target="_self">#Wege</a>)</span> <br>
+            Bei diesem Modell wird die H&auml;ufigkeit der Benutzung eines Wegabschnitts 
+            aufgezeichnet. Die Nutzungsintensit&auml;t wird anhand der Linienst&auml;rke 
+            dargestellt. Dick gezeichnete Linien werden oft frequentiert, d&uuml;nn 
+            abgebildete selten. <br>
+            F&uuml;r die Bestimmung der Wege werden zuf&auml;llig Start- und Zielpunkte 
+            gesetzt und mittels des A-Stern Algorithmus verbunden (siehe voriges 
+            Programm: <a href="#Pathfind">14_graphPath</a>). Die &#8222;St&auml;rke&#8220; 
+            einer Markierung, die bei der Nutzung eines Wegeabschnitts hinterlassen 
+            wird (Parameter: St&auml;rke der Weg-Markierung), kann ebenso eingestellt 
+            werden wie die Geschwindigkeit, mit der die Markierungen wieder gel&ouml;scht 
+            werden (Parameter: Verfallsrate Markierungen). Bedingt durch die Wahrscheinlichkeitsverteilung 
+            der Start- und Endpunkte werden in der Regel die in der Mitte liegenden 
+            Verbindungen h&auml;ufiger genutzt. <br> </td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="14_graphPath.exe">14_graphPath</a> 
+              / <a href="14_graphPath.zip">Source</a> - 050720<br>
+              <a href="14_graphPath.exe"><img src="bilder/14_GraphPath.gif" width="233" height="184" border="0"></a> 
+            </p>
+            <p>&nbsp;</p></td>
+          <td height="42" class="entwfo"><br> <span class="fett"><a name="Pathfind" id="Pathfind"></a>Pathfinding 
+            in unregelm&auml;&szlig;igem Graph </span><span class="entwfo">-------------------------------------</span><span class="klein"> 
+            (page anchor: <a href="#Pathfind" target="_self">#Pathfind</a>)</span><br>
+            Auf dem A-Stern Algorithmus aufbauend, sucht dieses Programm innerhalb 
+            eines beliebigen, zusammenh&auml;ngenden unregelm&auml;&szlig;igen 
+            Graphen den k&uuml;rzesten Weg von einem Start- zu einem Zielpunkt. 
+            Die Erstellung des Graphen orientiert sich an der Methode, die bei 
+            dem Modell <a href="#Zentral">09_christaller</a> zur Zentralit&auml;t 
+            und zentralen Orten eingef&uuml;hrt wurde. </td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="13_Pathfinding.exe">13_pathfinding 
+              mit A*</a> / <a href="13_Pathfinding.zip">Source</a> - 050716<br>
+              <a href="13_Pathfinding.exe"><img src="bilder/13_Pathfinding.gif" width="233" height="185" border="0"></a> 
+            </p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><span class="fett"><a name="shortPath" id="shortPath"></a>Shortest 
+            Path with A*</span> <span class="entwfo">---------------------------------------------------------------</span><span class="klein"> 
+            (page anchor: <a href="#shortPath" target="_self">#shortPath</a>)</span><br>
+            Das Programm ermittelt den <span class="fett">k&uuml;rzesten Weg</span> 
+            von einem Startpunk (gr&uuml;n) zum Zielpunkt (rot). Die Hindernisse 
+            (blau) werden bei der Suche nach dem optimalen Pfad umgangen und d&uuml;rfen 
+            nicht diagonal geschnitten werden. Eine gute und detaillierte Einf&uuml;hrung 
+            in die Funktionsweise des <span class="fett">A-Stern</span> Algorithmus 
+            bietet der Artikel <a href="http://www.policyalmanac.org/games/aStarTutorial_de.html" target="_blank">A* 
+            Pfadfindung f&uuml;r Anf&auml;nger</a> von Patrick Lester.</td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="12_skalenertraege.exe">12_skalenertraege</a> 
+              / <a href="12_skalenertraege.zip">Source</a> - 050709</p>
+            <p><a href="12_skalenertraege.exe"><img src="bilder/12_skalenertraege.gif" width="233" height="185" border="0"></a> 
+            </p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Skalenertr"></a>Skalenertr&auml;ge</span> 
+              <span class="entwfo">--------------------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Skalenertr" target="_self">#Skalenertr</a>)</span> 
+              <br>
+              Das Modell zeigt, wie sich positive Skalenertr&auml;ge auf das Einzugsgebiet 
+              eines Herstellers/H&auml;ndlers (Markt) auswirken. Bei der Herstellung 
+              eines Produktes fallen bestimmte Kosten an (Modellparameter: Produktionskosten). 
+              Kann eine gr&ouml;&szlig;ere Anzahl der Produkte verkauft werden 
+              (versch. farbige Einzugsgebiete), sinken die Kosten pro Produkt 
+              (Skalenertrag). Es lohnt sich somit f&uuml;r einen K&auml;ufer, 
+              einen weiteren Weg zur&uuml;ckzulegen, um das billiger gehandelte 
+              Produkt zu erwerben, wodurch allerdings seine Fahrtkosten steigen. 
+              Die erh&ouml;hte Nachfrage in einem Markt f&uuml;hrt wiederum zu 
+              einer weiteren Verbilligung. Bei dem dadurch entstehenden Konkurrenzkampf 
+              um Absatzgebiete k&ouml;nnen sich einige Anbieter durchsetzen und 
+              &ouml;rtliche Monopole bilden. An den Grenzen der Einzugsgebiete 
+              gleichen sich die Fahrtkosten und die Kosten des Produkts im n&auml;chstgelegenen 
+              Markt aus. Bei teureren Produkten verst&auml;rkt sich diese Wirkung 
+              der Skalenertr&auml;ge. <br>
+            </p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="42" bgcolor="#FFFFFF" class="entwfo"><p><a href="11_verh_thuenen.exe">11_verh_thuenen</a> 
+              / <a href="11_verh_thuenen.zip">Source</a> - 050706</p>
+            <p> <a href="11_verh_thuenen.exe"><img src="bilder/11_verh_thuenen.gif" width="233" height="185" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="42" class="entwfo"><p><span class="fett"><a name="Thuenen"></a>Verhandlungsmodell 
+              f&uuml;r die Landnutzung nach Th&uuml;nen </span><span class="entwfo">--------- 
+              </span><span class="klein">(page anchor: <a href="#Thuenen" target="_self">#Thuenen</a>)</span><br>
+              Im Gegensatz zur Berechnung der idealen Landnutzung im vorhergehenden 
+              Modell (10_thuenen), wird hier f&uuml;r eine gegebene Menge von 
+              Nutzungen die ideale Verteilung ermittelt.<br>
+              Eine Zelle repr&auml;sentiert im Modell einen Landwirt, der versucht, 
+              den Gewinn mit seinem Anbauprodukt zu maximieren. Der Gewinn ist 
+              abh&auml;ngig von der Produktivit&auml;t, der Entfernung zum Markt 
+              (per Mausklick in die Zeichenfl&auml;che wird ein neuer Markt erzeugt) 
+              und den Transportkosten f&uuml;r die unterschiedlichen G&uuml;ter 
+              (Nur auf den hell markierten Fl&auml;chen f&auml;llt die Lagerente/der 
+              Gewinn positiv aus). Jeder Landwirt verhandelt mit den Anderen innerhalb 
+              eines definierten Umgebungsbereichs (Parameter: Tauschradius). K&ouml;nnte 
+              er auf einem anderen Grundst&uuml;ck mit seinem Anbauprodukt einen 
+              h&ouml;heren Gewinn erzielen, versucht er dieses zu tauschen. Kommt 
+              es dabei zu einer Konkurrenz bei der Nutzung einer Parzelle, unterliegt 
+              derjenige Landwirt, der mit seinem Produkt an dieser Stelle einen 
+              geringeren Gewinn erwirtschaften w&uuml;rde als sein Konkurrent. 
+            </p>
+            <p>&nbsp; </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="43" bgcolor="#FFFFFF" class="entwfo"><p><a href="10_thuenen.exe">10_thuenen.exe</a> 
+              / <a href="10_thuenen.zip">Source</a> - 050627<br>
+              <a href="10_thuenen.exe"><img src="bilder/10_thuenen.gif" width="233" height="185" border="0"></a> 
+            </p>
+            <p>&nbsp; </p></td>
+          <td height="43" class="entwfo"><br> <span class="fett"><a name="Thuenen1" id="Thuenen1"></a>Landnutzungsmodell 
+            nach J.H. v. Th&uuml;nen</span> <span class="entwfo">------------------------------</span><span class="klein"> 
+            (page anchor: <a href="#Thuenen1" target="_self">#Thuenen1</a>)</span> 
+            <br>
+            Die Simulation behandelt Th&uuml;nens Theorie zu den Standorten unterschiedlicher 
+            landwirtschaftlicher Nutzungen im Bezug auf einen zentralen Markt. 
+            (Zusammenfassung siehe: <a href="http://www.mygeo.info/skripte/skript_bevoelkerung_siedlung/" target="_blank">Einf&uuml;hrung 
+            in die Kultur- und Sozialgeographie.</a> -&gt; Theorie &amp; Modell 
+            -&gt; Th&uuml;nen)<br>
+            Das Programm berechnet die optimalen lokalen Lagerenten. Diese sind 
+            Abh&auml;ngig von: Anbauertrag, Entfernung zum Markt, Marktpreisen 
+            und Erzeugungskosten des Produkts, sowie den Transportkosten. Angezeigt 
+            wird die optimale r&auml;umliche Verteilung von drei verschiedenen 
+            Produkten.<br> </td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="43" bgcolor="#FFFFFF" class="entwfo"><p><a href="09_christaller.exe">09_christaller.exe</a> 
+              / <a href="09_christaller.zip">Source</a> - 050625<br>
+              <a href="09_christaller.exe"><img src="bilder/09_christaller.gif" width="233" height="182" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="43" class="entwfo"><p><span class="fett"><br>
+              <a name="Zentral"></a>Zentralit&auml;t und zentrale Orte </span><span class="entwfo">-------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Zentral" target="_self">#Zentral</a>)</span><br>
+              Das Modell demonstriert die Verteilung von Siedlungen im Raum. Die 
+              roten, blauen und gelben Punkte stellen Zentren verschieden hohen 
+              Rangs dar. Die Anlagerung der Punkte folgt dieser Hierarchie. Untergeordnete 
+              Zentren lagern sich an &uuml;bergeordnete an. Eine Zusammenfassung 
+              der Theorie zentraler Orte findet sich in der <a href="http://www.mygeo.info/skripte/skript_bevoelkerung_siedlung/" target="_blank">Einf&uuml;hrung 
+              in die Kultur- und Sozialgeographie.</a> -&gt; Theorie &amp; Modell 
+              -&gt; Zentralit&auml;t.<br>
+              Zum Starten der Simulation mit der Erstellung roter Punkte beginnen 
+              und anschlie&szlig;end blaue und gelbe hinzuf&uuml;gen. Die AnlagerDist. 
+              Parameter verringern, bis das System zur Ruhe kommt.</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="43" bgcolor="#FFFFFF" class="entwfo"><p><a href="08_fraktErschl.exe">08_segregation 
+              model</a> / <a href="08_fraktErschl.zip">Source</a> - 050610<br>
+              <a href="08_fraktErschl.exe"><img src="bilder/08_segregat.gif" width="233" height="183" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="43" class="entwfo"><span class="fett"><br>
+            <a name="Segregat"></a>Segregationsmodell</span> <span class="entwfo">-----------------------------------------------------------------</span><span class="klein"> 
+            (page anchor: <a href="#Segregat" target="_self">#Segregat</a>)</span><br>
+            Verschiedene Agenten (blau und gelb) repr&auml;sentieren Nutzungen, 
+            die r&auml;umlich nicht zusammen liegen sollen. Im Modell werden die 
+            Zellen um einen Agenten herum seiner Nutzung entsprechend markiert. 
+            Dieser Raum ist beispielsweise durch Emissionen eines Gewerbebetriebs 
+            beeintr&auml;chtigt (blau). Wohnnutzungen (gelb) bleiben diesen Fl&auml;chen 
+            fern. Es ergibt sich automatisch eine Klusterung der verschiedenen 
+            Farben um die roten Anlagerungspunkte.</td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="43" bgcolor="#FFFFFF" class="entwfo"><p><a href="07_packingScale.exe">07_packingScale.exe</a> 
+              / <a href="07_packingScale.zip">Source</a> - 050517 <br>
+              <a href="07_packingScale.exe"><img src="bilder/07_packing.gif" width="233" height="158" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="43" class="entwfo"><p><br>
+              <span class="fett"><a name="Packung"></a>Dichte Packungen II </span><span class="entwfo">------------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Packung" target="_self">#Packung</a>)</span><br>
+              Update des &Uuml;berschneidungsfl&auml;chen-Programms f&uuml;r '<span class="fett"><a href="#overlap2">Dichte 
+              Packungen I</a></span>'<br>
+              Die Rechtecke variieren ihre H&ouml;he und Breite um die &Uuml;berlagerungsfl&auml;chen 
+              zu minimieren. Der Fl&auml;cheninhalt (Rechteckgr&ouml;&szlig;e) 
+              bleibt dabei erhalten. Die Einstellung der Variationswerte legt 
+              die gr&ouml;&szlig;e der m&ouml;glichen Ver&auml;nderung pro Generation 
+              fest. Kleinere Werte erzeugen meist die besseren Ergebnisse.<br>
+              (Idee siehe &Uuml;berschneidungsfl&auml;chen)</p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="43" bgcolor="#FFFFFF" class="entwfo"><p><a href="06_minUeberschn.exe">06_minUeberschn.exe</a> 
+              / <a href="06_minUeberschn.zip">Source</a> - 050516 <br>
+              <a href="06_minUeberschn.exe"><img src="bilder/06_ueberschn.gif" width="233" height="170" border="0"></a></p>
+            <p>&nbsp;</p></td>
+          <td height="43" class="entwfo"><p><br>
+              <a name="overlap2" id="overlap2"></a><span class="fett">Dichte Packungen 
+              </span><span class="fett">I</span> <span class="entwfo">-------------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#overlap2" target="_self">#overlap2</a>)</span><br>
+              Die <span class="entwfo">&Uuml;berschneidungsfl&auml;chen</span> 
+              einer zuf&auml;llig erzeugten Rechteckanordnung wird unter Anwedung 
+              einer evolution&auml;ren Strategie <span class="fett">minimiert</span>. 
+              Die Summe aller &Uuml;berschneidungsfl&auml;chen dient dabei als 
+              Fitness-Funktion. Die jeweils beste Variante zuf&auml;lliger Positionsver&auml;nderungen 
+              wird ausgew&auml;hlt und als Basis f&uuml;r die n&auml;chste Generation 
+              verwendet. Durch Mutationen werden einzelne Rechtecke neu angeordnet. 
+              Das Programm rechnet bis eine Gesamt&uuml;berlagerungsfl&auml;che 
+              von 100 Pixel unterschritten ist. <br>
+              Die Idee ist dem Artikel <a href="http://www.iemar.tuwien.ac.at/publications/" target="_blank">&quot;Algorithmic 
+              Support of Creative Architectural Design&quot;</a> von Tomor Elezkurtaj 
+              und Georg Franck entliehen. </p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="43" bgcolor="#FFFFFF" class="entwfo"> <p><a href="05_rechtClipping.exe" target="_self">05_rechtClipping.exe</a> 
+              / <a href="05_rechtClipping.zip" target="_blank">Source</a> - 050515<br>
+              <a href="05_rechtClipping.exe"><img src="bilder/05_rechtClip.gif" width="233" height="174" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="43" class="entwfo"><p><br>
+              <a name="overlap1" id="overlap1"></a><span class="fett">&Uuml;berlagerungsfl&auml;chen</span> 
+              <span class="entwfo">---------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#overlap1" target="_self">#overlap1</a>)</span> 
+              <br>
+              Berechnung der <span class="entwfo">&Uuml;berlagerungsfl&auml;chen</span> 
+              von Rechtecken.<br>
+              Die gleiche Berechnung mittels Cohen-Sutherland-Algorithmus: <a href="04_rechtClipping.exe" target="_self">04_rechtClipping.exe</a> 
+              / <a href="04_rechtClipping.zip" target="_blank">Source</a>.</p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="43"> <div align="left" class="entwfo"> 
+              <p><a href="03_Swarming.exe" target="_self">03_Swarming.exe</a> 
+                / <a href="03_Swarming.zip" target="_blank">Source</a> - 050510<br>
+                <a href="03_Swarming.exe"><img src="bilder/03_swarming.gif" width="233" height="181" border="0"></a></p>
+              <p>&nbsp;</p>
+            </div></td>
+          <td height="43" class="entwfo"><p><span class="fett"><br>
+              <a name="Schwarm"></a>Schwarmverhalten</span> <span class="entwfo">-------------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#Schwarm" target="_self">#Schwarm</a>)</span><br>
+              Das Sichtfeld kann &uuml;ber den Interaktionsradius und den Blickwinkel 
+              eingestellt werden. Der Mindestabstand sorgt f&uuml;r eine gleichm&auml;&szlig;ige 
+              Verteilung der Agenten innerhalb eines Schwarms. Die Zellen zeichnen 
+              die H&auml;ufigkeit der &quot;Begehung&quot; auf, indem sie sich 
+              wei&szlig; verf&auml;rben. Die Bewegungsvektoren k&ouml;nnen eingeblendet 
+              werden. </p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="39" bordercolor="#FFFFFF" class="entwfo"><p><a href="02_Swarming.exe" target="_self">02_Swarming.exe</a> 
+              / <a href="02_Swarming.zip" target="_blank">Source</a> - 050509<br>
+              <a href="02_Swarming.exe"><img src="bilder/02_swarming.gif" width="233" height="181" border="0"></a></p>
+            <p>&nbsp; </p></td>
+          <td height="39" class="entwfo"><p><span class="fett"><br>
+              <a name="simpleSchwarm" id="simpleSchwarm"></a>Einfaches Schwarmverhalten</span> 
+              <span class="entwfo">-------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#simpleSchwarm" target="_self">#simpleSchwarm</a>)</span> 
+              <br>
+              Die Bewegungsvektoren innerhalb eines bestimmten Radius werden aneinander 
+              angepasst.</p>
+            <p>&nbsp;</p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td height="100" class="entwfo"><p><a href="01_FACS.exe" target="_self">01_FACS.exe</a> 
+              / <a href="01_FACS.zip" target="_blank">Source</a> - 050504<br>
+              <a href="01_FACS.exe"><img src="bilder/01_facs.gif" width="233" height="180" border="0"></a> 
+            </p>
+            <p>&nbsp; </p></td>
+          <td height="100" class="entwfo"><p><br>
+              <a name="FACS"></a><span class="fett">FACS</span> <span class="entwfo">--------------------------------------------------------------------------------------------</span><span class="klein"> 
+              (page anchor: <a href="#FACS" target="_self">#FACS</a>)</span><br>
+              Grundlegendes Modell freier Agenten in einem zellul&auml;ren Raum. 
+              <br>
+              Es kann eine Interaktion der Agenten mit den lokalen Zellen stattfinden. 
+              Das Zellenraster dient den Agenten als Speicherstruktur. <br>
+              <span class="klein">(FACS - Free Agents in Cellular Space : Siehe 
+              Juval Portugali: <a href="http://jasss.soc.surrey.ac.uk/5/2/reviews/turner.html" target="_parent">Self-Organization 
+              and the City</a>).</span><br>
+            </p></td>
+        </tr>
+        <tr align="left" valign="top"> 
+          <td width="266" height="100" class="entwfo"> <p><span class="entwoBlack">siehe 
+              auch: <a href="../netlogo/netLogo.htm" target="_self">Modelle mit 
+              NetLogo</a>______</span></p>
+            <p><img src="../../bilder/invisible.gif" width="266" height="10"></p></td>
+          <td height="100" class="entwfo">intern <a href="../../../Diss" target="_blank">documentation</a></td>
+        </tr>
+      </table> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td><p><img src="../../bilder/invisible.gif" width="800" height="10"><br>
+        <span class="entwfo">\\ <a href="../../index.htm" target="_parent">Entwurfsforschung</a> 
+        \ <a href="../../RaumProzesse/index.htm" target="_self">R&auml;umliche 
+        Prozesse</a></span></p>
+      <p>&nbsp;</p></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<script src="https://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-1945675-1";
+urchinTracker();
+</script>
+</body>
+</html>

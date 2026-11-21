@@ -1,0 +1,14 @@
+{
+  "id": "{{ID}}",
+  "titel": {"de": "{{TITEL_DE}}", "en": "{{TITEL_EN}}"},
+  "vorschau": {"de": "{{BESCHREIBUNG}}", "en": "TODO: one or two sentences in English."},
+  "original": "{{ORIGINAL}}",
+  "herkunft": "{{HERKUNFT}}",
+  "jahr": {{JAHR_JSON}},
+  "archiv": "{{ARCHIV}}",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 200,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.t === 200"
+}

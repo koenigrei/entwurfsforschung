@@ -1,0 +1,8 @@
+{
+  "name": "vba-rekursion",
+  "private": true,
+  "type": "commonjs",
+  "description": "Rekursive Strukturen 01 – Verzweigungsstrukturen – Neuumsetzung von iteration01.htm (AutoCAD-VBA) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

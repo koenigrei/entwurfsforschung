@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>objCoordinates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000000" vlink="#666666" alink="#333333" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800">
+<table width="800" height="600" border="0" cellpadding="0" cellspacing="0">
+        <!--DWLayoutTable-->
+        <tr valign="middle"> 
+          <td height="200" colspan="2" align="center">
+<div align="center"><img src="../bilder/03objCoordinates.jpg" width="393" height="453"></div></td>
+        </tr>
+        <tr valign="middle">
+          <td height="200" colspan="2" class="entwfo"><p>Mit dem abgebildeten 
+              Code lassen sich beliebige Polyeder erzeugen und deren Vertexpunkte 
+              ansteuern. In diesem Beispiel ein W&uuml;rfel, bei dem eine Ecke 
+              um -6 Einheiten in y-Richtung verzogen wurde: verti(1) = verti(1) 
+              - 6</p>
+            <p align="right"><span class="entwfo">&lt;&lt; <a href="vbaIndex.htm" target="_self">Inhaltsverzeichnis</a></span></p>
+            </td>
+        </tr>
+        <tr valign="middle"> 
+          <td width="800" height="200" colspan="2">
+<div class=Section1> 
+              <p class="entwfo">Sub main()<br>
+                <br>
+                ThisDrawing.SendCommand &quot;_erase&quot; &amp; vbCr &amp; &quot;all&quot; 
+                &amp; vbCr<br>
+                Dim vertexList(0 To 23) As Double</p>
+              <p class="entwfo"> vertexList(0) = 0: vertexList(1) = 0: vertexList(2) 
+                = 0 'punkt0<br>
+                vertexList(3) = 0: vertexList(4) = 10: vertexList(5) = 0 'punkt1<br>
+                vertexList(6) = 10: vertexList(7) = 10: vertexList(8) = 0 'punkt2<br>
+                vertexList(9) = 10: vertexList(10) = 0: vertexList(11) = 0 'punkt3<br>
+                vertexList(12) = 0: vertexList(13) = 0: vertexList(14) = 10 'punkt4<br>
+                vertexList(15) = 0: vertexList(16) = 10: vertexList(17) = 10 'punkt5<br>
+                vertexList(18) = 10: vertexList(19) = 10: vertexList(20) = 10 
+                'punkt6<br>
+                vertexList(21) = 10: vertexList(22) = 0: vertexList(23) = 10 'punkt7</p>
+              <p class="entwfo"> Dim FaceList(0 To 23) As Integer</p>
+              <p class="entwfo"> FaceList(0) = 1<br>
+                FaceList(1) = 2<br>
+                FaceList(2) = 3<br>
+                FaceList(3) = 4<br>
+                FaceList(4) = 1<br>
+                FaceList(5) = 5<br>
+                FaceList(6) = 8<br>
+                FaceList(7) = 4<br>
+                FaceList(8) = 5<br>
+                FaceList(9) = 6<br>
+                FaceList(10) = 7<br>
+                FaceList(11) = 8<br>
+                FaceList(12) = 2<br>
+                FaceList(13) = 3<br>
+                FaceList(14) = 7<br>
+                FaceList(15) = 6<br>
+                FaceList(16) = 3<br>
+                FaceList(17) = 4<br>
+                FaceList(18) = 8<br>
+                FaceList(19) = 7<br>
+                FaceList(20) = 1<br>
+                FaceList(21) = 5<br>
+                FaceList(22) = 6<br>
+                FaceList(23) = 2<br>
+                <br>
+                Dim obj As AcadPolyfaceMesh<br>
+                Set obj = ModelSpace.AddPolyfaceMesh(vertexList, FaceList)<br>
+                obj.Update</p>
+              <p class="entwfo"> 'Dim length As Double, width As Double, height 
+                As Double<br>
+                Dim center(0 To 2) As Double<br>
+                Dim experiObj As AcadPolyfaceMesh<br>
+                Dim slave As AcadPolyfaceMesh<br>
+                Dim verti As Variant</p>
+              <p class="entwfo"> 'experiObj = obj<br>
+                obj.color = 151<br>
+                Set slave = obj<br>
+                verti = obj.Coordinate(0)<br>
+                verti(1) = verti(1) - 6<br>
+                obj.Coordinate(0) = verti<br>
+                obj.Update</p>
+              <p class="entwfo"> ZoomAll<br>
+                End Sub</p>
+              <p> </p>
+              <p><br>
+              </p>
+              <p></p>
+            </div>
+            <font size="1" face="Verdana, Arial, Helvetica, sans-serif">&nbsp;</font></td>
+        </tr>
+      </table> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="../../bilder/invisible.gif" width="800" height="10"><br>
+      <span class="entwfo">\\ <a href="../../../indexC.htm" target="_self">Entwurfsforschung</a> 
+      \ <a href="../index.htm" target="_self">Strukturexperimente</a> 
+      \ <a href="vbaIndex.htm" target="_self">autoCAD_VBA experimente </a></span></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

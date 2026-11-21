@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>2Dwachstum</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000000" vlink="#666666" alink="#333333" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800">
+<table width="800" height="600" border="2" cellpadding="0" cellspacing="0" bordercolor="#FFFFFF">
+        <!--DWLayoutTable-->
+        <tr valign="middle"> 
+          <td height="200"><img src="../bilder/2Dwachstum3.jpg" width="400" height="328"></td>
+          <td height="200"><img src="../bilder/2Dwachstum4.jpg" width="400" height="281"></td>
+        </tr>
+        <tr valign="middle"> 
+          <td height="200" class="entwfo"><p>Durch den optimierten Code gibt es 
+              keine mehrfach besetzten Felder mehr und die Struktur generiert 
+              sich frei im Raum.</p>
+            <p>&nbsp;</p>
+            </td>
+          <td height="200" class="entwfo"><p>Ver&auml;ndert man die Variable 'num' 
+              - hier auf den Wert 3 gesetzt, verschiebt das System seine 3 dimensionale 
+              Rasterung.</p>
+            <p align="right"><a href="experiment04.htm" target="_self">weiter</a> 
+              &gt;</p></td>
+        </tr>
+        <tr valign="middle"> 
+          <td width="800" height="200" colspan="2"><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><br>
+            </font> <div class=Section1> 
+              <p class="entwfo">Sub setzeQuad(mittelPunkt() As Double, elevation 
+                As Double)<br>
+                ' Dim num As Integer num = 4<br>
+                Dim wuerfel As Acad3DSolid<br>
+                Dim length As Double, width As Double, height As Double<br>
+                Dim center(0 To 2) As Double<br>
+                <br>
+                ' Angaben f&uuml;r den wuerfel<br>
+                center(0) = mittelPunkt(0): center(1) = mittelPunkt(1): center(2) 
+                = mittelPunkt(2) - elevation / 2<br>
+                height = elevation<br>
+                length = 10<br>
+                width = 10<br>
+                <br>
+                ' W&uuml;rfel erstellen<br>
+                Set wuerfel = ThisDrawing.ModelSpace.AddBox(center, length, width, 
+                height)<br>
+                wuerfel.color = random(0, 255)<br>
+                End Sub</p>
+              <p class="entwfo">Sub main()<br>
+                Dim i As Integer, u As Integer, loops As Integer, entscheid As 
+                Integer<br>
+                Dim etage As Double, oneSlice As Double, angle As Double, xW As 
+                Double, yW As Double, num As Double<br>
+                Dim mitte(0 To 2) As Double<br>
+                loops = 400<br>
+                Dim checkList(0 To 400) As Variant<br>
+                Dim check As Boolean, break As Boolean<br>
+                num = 4<br>
+                oneSlice = pi * 2 / num<br>
+                checkList(0) = mitte<br>
+                checkList(0)(0) = 1#<br>
+                etage = u<br>
+                xW = 0<br>
+                yW = 0<br>
+                u = 0<br>
+                <br>
+                For i = 1 To loops<br>
+                check = True<br>
+                <br>
+                For u = 0 To i - 1<br>
+                ' W&uuml;rfelposition wird anhand des checkList-Arrays auf Doppelbelegung 
+                &uuml;berpr&uuml;ft<br>
+                If mitte(0) = checkList(u)(0) And mitte(1) = checkList(u)(1) And 
+                mitte(2) = checkList(u)(2) Then<br>
+                ' Wenn Position bereits besetzt, verschiebung nach oben oder unten<br>
+                etage = etage + random(-1, 1) * 10#<br>
+                check = False<br>
+                End If<br>
+                Next u<br>
+                <br>
+                ' Wenn keine Doppelbelegung<br>
+                If check Then<br>
+                'Richtung des n&auml;chsten W&uuml;rfels berechnen<br>
+                angle = Round((Rnd() * num + 1)) * oneSlice<br>
+                mitte(0) = xW: mitte(1) = yW: mitte(2) = etage<br>
+                <br>
+                ' mitte an checklist-Array &uuml;bergeben<br>
+                checkList(i) = mitte<br>
+                <br>
+                ' Koordinaten berechnen und W&uuml;rfel zeichnen<br>
+                xW = Round(xW + Cos(angle) * 11, 0)<br>
+                yW = Round(yW + Sin(angle) * 11, 0)<br>
+                setzeQuad mitte, 10#<br>
+                <br>
+                ' mitte-Array aktualisieren f&uuml;r Positionskontrolle<br>
+                mitte(0) = xW: mitte(1) = yW: mitte(2) = etage<br>
+                <br>
+                Else ' Bei Doppelbelegung wird lediglich die H&ouml;he ver&auml;ndert 
+                und die checkList erweitert, damit die Laufvariable nicht auf 
+                ein unbesetztes Array-Feld verweist<br>
+                mitte(2) = etage<br>
+                checkList(i) = checkList(i - 1)<br>
+                <br>
+                End If<br>
+                <br>
+                Next i<br>
+                <br>
+                ZoomAll<br>
+                End Sub</p>
+              <p class="entwfo"><br>
+                Function random(lower As Double, upper As Double)<br>
+                random = Int((upper - lower + 1) * Rnd + lower)<br>
+                End Function</p>
+              <p class="entwfo">Function pi()<br>
+                pi = (Atn(1) * 4)<br>
+                End Function</p>
+              <p><br>
+              </p>
+              <p><span class="entwfo"><br>
+                </span> </p>
+              <p></p>
+            </div>
+            <font size="1" face="Verdana, Arial, Helvetica, sans-serif">&nbsp;</font></td>
+        </tr>
+      </table> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="../../bilder/invisible.gif" width="800" height="10"><br>
+      <span class="entwfo">\\ <a href="../../index.htm" target="_self">Entwurfsforschung</a> 
+      \ <a href="../index.htm" target="_self">Strukturexperimente</a> 
+      \ <a href="vbaIndex.htm" target="_self">autoCAD_VBA experimente </a></span></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

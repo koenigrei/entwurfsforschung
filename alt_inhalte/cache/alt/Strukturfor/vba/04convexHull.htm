@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>2Dwachstum</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000000" vlink="#666666" alink="#333333" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800">
+<table width="800" height="600" border="0" cellpadding="0" cellspacing="0">
+        <!--DWLayoutTable-->
+        <tr valign="middle"> 
+          <td height="200" colspan="2"><img src="../bilder/04convexHull.jpg" width="800" height="647"></td>
+        </tr>
+        <tr valign="middle">
+          <td height="200" colspan="2" class="entwfo"><p>convex Hull<br>
+              Der Code erzeugt eine konvexe Polylinie um eine zuf&auml;llig positionierte 
+              Punktmenge. Innerhalb dieses Polygons liegen alle anderen Punkte.</p>
+            <p align="right"><span class="entwfo">&lt;&lt; <a href="vbaIndex.htm" target="_self">Inhaltsverzeichnis</a></span> 
+            </p>
+            </td>
+        </tr>
+        <tr valign="middle"> 
+          <td width="800" height="200" colspan="2"> <p class="entwfo">Option Explicit<br>
+              Const vbdMissing = -2</p>
+            <p class="entwfo">Sub main()<br>
+              Dim u As Integer, f As Integer, v As Integer, anzahl As Integer<br>
+              Dim holder As Acad3DSolid<br>
+              Dim tempList As Variant<br>
+              Dim koordList() As Variant<br>
+              Dim xKoord() As Variant<br>
+              Dim koord(0 To 2) As Double </p>
+            <p class="entwfo">Randomize<br>
+              anzahl = 200<br>
+              ReDim xKoord(anzahl) As Variant<br>
+              ReDim koordList(anzahl) As Variant</p>
+            <p class="entwfo">'Positioniert die Kugeln<br>
+              For v = 0 To anzahl<br>
+              koord(0) = random(0#, 1000#): koord(1) = random(0#, 800#): koord(2) 
+              = 0<br>
+              kugel koord, 2<br>
+              koordList(v) = koord<br>
+              xKoord(v) = koord(0)<br>
+              Next v</p>
+            <p class="entwfo">funQsort xKoord<br>
+              ' koordList nach xKoord umsortieren<br>
+              While u &lt;= anzahl<br>
+              For f = 0 + u To anzahl<br>
+              If koordList(f)(0) = xKoord(u) Then<br>
+              tempList = koordList(u)<br>
+              koordList(u) = koordList(f)<br>
+              koordList(f) = tempList<br>
+              u = u + 1<br>
+              End If<br>
+              Next f<br>
+              Wend</p>
+            <p class="entwfo">Dim z As Integer, i As Integer<br>
+              Dim zaehler As Double, deltaWinkA As Double, winkB As Double, arkWink 
+              As Double, refWi As Double<br>
+              Dim highP() As Variant, ergebnis() As Variant<br>
+              Dim vektorA(0 To 2) As Double, vektorB(0 To 2) As Double<br>
+              Dim startP(0 To 2) As Double, endP(0 To 2) As Double<br>
+              Dim richtung As Boolean</p>
+            <p class="entwfo">startP(0) = koordList(0)(0): startP(1) = koordList(0)(1): 
+              startP(2) = koordList(0)(2)<br>
+              richtung = True</p>
+            <p class="entwfo">Do<br>
+              refWi = 0<br>
+              ReDim ergebnis(anzahl) As Variant<br>
+              ReDim highP(anzahl) As Variant</p>
+            <p class="entwfo">For i = 0 To anzahl<br>
+              <br>
+              If Not (startP(0) = koordList(i)(0) And startP(1) = koordList(i)(1)) 
+              Then<br>
+              vektorA(0) = koordList(i)(0) - startP(0): vektorA(1) = koordList(i)(1) 
+              - startP(1)<br>
+              deltaWinkA = vektorA(0) / Sqr(vektorA(0) ^ 2 + vektorA(1) ^ 2)<br>
+              <br>
+              If startP(0) &gt;= koordList(anzahl)(0) Then richtung = False<br>
+              <br>
+              If richtung Then<br>
+              If koordList(i)(0) &gt;= startP(0) Then</p>
+            <p class="entwfo"> If koordList(i)(1) &lt;= startP(1) Then<br>
+              ergebnis(i) = 360 - arkusKos(deltaWinkA) * (180 / pi) - 270<br>
+              Else<br>
+              ergebnis(i) = arkusKos(deltaWinkA) * (180 / pi) + 90<br>
+              End If<br>
+              <br>
+              If refWi &lt; ergebnis(i) Then<br>
+              refWi = ergebnis(i)<br>
+              highP(z) = koordList(i)<br>
+              End If<br>
+              End If<br>
+              Else<br>
+              If koordList(i)(0) &lt;= startP(0) Then</p>
+            <p class="entwfo"> If koordList(i)(1) &lt;= startP(1) Then<br>
+              ergebnis(i) = 360 - arkusKos(deltaWinkA) * (180 / pi) - 90<br>
+              Else<br>
+              ergebnis(i) = arkusKos(deltaWinkA) * (180 / pi) - 90<br>
+              End If<br>
+              <br>
+              If refWi &lt;= ergebnis(i) Then<br>
+              refWi = ergebnis(i)<br>
+              highP(z) = koordList(i)<br>
+              End If<br>
+              End If<br>
+              <br>
+              End If<br>
+              End If<br>
+              Next i</p>
+            <p class="entwfo">endP(0) = highP(z)(0): endP(1) = highP(z)(1): endP(2) 
+              = highP(z)(2)<br>
+              draw_line startP, endP, z<br>
+              startP(0) = highP(z)(0): startP(1) = highP(z)(1): startP(2) = highP(z)(2)<br>
+              z = z + 1<br>
+              Loop While Not (startP(0) = koordList(0)(0) And startP(1) = koordList(0)(1))</p>
+            <p class="entwfo">End Sub</p>
+            <p class="entwfo">Sub kugel(location As Variant, col As Integer)<br>
+              Dim pointObj As Acad3DSolid<br>
+              Dim radius As Double<br>
+              radius = 2<br>
+              Set pointObj = ThisDrawing.ModelSpace.AddSphere(location, radius)<br>
+              pointObj.color = col<br>
+              ZoomAll<br>
+              End Sub</p>
+            <p class="entwfo">Sub draw_line(here() As Double, there() As Double, 
+              col As Integer) '---zeichnen der Verbindungslinie</p>
+            <p class="entwfo"> Dim begin(2) As Double, finish(2) As Double<br>
+              Dim path As AcadLine<br>
+              <br>
+              '---Linie zeichnen<br>
+              Set path = ThisDrawing.ModelSpace.AddLine(here, there)<br>
+              path.color = col<br>
+              path.Update</p>
+            <p class="entwfo">End Sub</p>
+            <p class="entwfo">Function arkusKos(wert As Double) '---arcusKosinus 
+              berechnen<br>
+              If wert = 1 Then arkusKos = 0<br>
+              If wert = -1 Then arkusKos = 180<br>
+              If wert &lt; 1 And wert &gt; -1 Then arkusKos = Atn(-wert / Sqr(-wert 
+              * wert + 1)) + 2 * Atn(1)<br>
+              End Function</p>
+            <p class="entwfo">Function random(lower As Double, upper As Double) 
+              '---Erzeugen eines Zufallswertes<br>
+              random = Int((upper - lower + 1) * Rnd + lower)<br>
+              End Function</p>
+            <p class="entwfo">Function pi() '---Berechnung der Zahl Pi<br>
+              pi = (Atn(1) * 4)<br>
+              End Function</p>
+            <p class="entwfo">'Sortiermethode<br>
+              Sub funQsort(varArray As Variant, Optional intLeft As Integer = 
+              vbdMissing, Optional intRight As Integer = vbdMissing)<br>
+              Dim intCnt As Integer<br>
+              Dim intStep As Integer<br>
+              Dim varTestVal As Variant<br>
+              Dim intMid As Integer<br>
+              If intLeft = vbdMissing Then intLeft = LBound(varArray)<br>
+              If intRight = vbdMissing Then intRight = UBound(varArray)<br>
+              If intLeft &lt; intRight Then<br>
+              intMid = (intLeft + intRight) \ 2<br>
+              varTestVal = varArray(intMid)<br>
+              intCnt = intLeft<br>
+              intStep = intRight<br>
+              Do<br>
+              Do While varArray(intCnt) &lt; varTestVal<br>
+              intCnt = intCnt + 1<br>
+              Loop<br>
+              Do While varArray(intStep) &gt; varTestVal<br>
+              intStep = intStep - 1<br>
+              Loop<br>
+              If intCnt &lt;= intStep Then<br>
+              SwapElements varArray, intCnt, intStep<br>
+              intCnt = intCnt + 1<br>
+              intStep = intStep - 1<br>
+              End If<br>
+              Loop Until intCnt &gt; intStep<br>
+              If intStep &lt;= intMid Then<br>
+              Call funQsort(varArray, intLeft, intStep)<br>
+              Call funQsort(varArray, intCnt, intRight)<br>
+              Else<br>
+              Call funQsort(varArray, intCnt, intRight)<br>
+              Call funQsort(varArray, intLeft, intStep)<br>
+              End If<br>
+              End If<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub SwapElements(varItems As Variant, intItem1 
+              As Integer, intItem2 As Integer)<br>
+              Dim varTemp As Variant<br>
+              varTemp = varItems(intItem2)<br>
+              varItems(intItem2) = varItems(intItem1)<br>
+              varItems(intItem1) = varTemp<br>
+              End Sub</p>
+            <div class=Section1> 
+              <p>&nbsp;</p>
+            </div></td>
+        </tr>
+      </table> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="../../bilder/invisible.gif" width="800" height="10"><br>
+      <span class="entwfo">\\ <a href="../../../indexC.htm" target="_self">Entwurfsforschung</a> 
+      \ <a href="../index.htm" target="_self">Strukturexperimente</a> 
+      \ <a href="vbaIndex.htm" target="_self">autoCAD_VBA experimente </a></span></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

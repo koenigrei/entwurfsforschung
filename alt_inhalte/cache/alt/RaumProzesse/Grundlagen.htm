@@ -1,0 +1,499 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:dt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="Grundlagen-Dateien/filelist.xml">
+<link rel=Edit-Time-Data href="../../RaumProzesse/Grundlagen-Dateien/editdata.mso">
+<link rel=OLE-Object-Data href="Grundlagen-Dateien/oledata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<title>Grundlagen Zellul&auml;rer Automaten</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Reinhard König</o:Author>
+  <o:LastAuthor>Reinhard König</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:Created>2006-01-30T19:20:00Z</o:Created>
+  <o:LastSaved>2006-01-30T19:20:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>776</o:Words>
+  <o:Characters>4890</o:Characters>
+  <o:Company>khan travel</o:Company>
+  <o:Bytes>86528</o:Bytes>
+  <o:Lines>40</o:Lines>
+  <o:Paragraphs>11</o:Paragraphs>
+  <o:CharactersWithSpaces>5655</o:CharactersWithSpaces>
+  <o:Version>10.3501</o:Version>
+ </o:DocumentProperties>
+ <o:CustomDocumentProperties>
+  <o:MTWinEqns dt:dt="boolean">1</o:MTWinEqns>
+  <o:MTEquationNumber2 dt:dt="string">(#S1.#E1)</o:MTEquationNumber2>
+  <o:MP_HTMLDest dt:dt="string">C:\Dokumente und Einstellungen\ademus\Eigene Dateien\20_Promotion\99_DissDokumentat\Grundlagen2.htm</o:MP_HTMLDest>
+  <o:MP_MathMLTarget dt:dt="string">XHTML+MathML</o:MP_MathMLTarget>
+  <o:MP_OpenInBrowser dt:dt="boolean">1</o:MP_OpenInBrowser>
+  <o:MP_UseMathML dt:dt="boolean">0</o:MP_UseMathML>
+  <o:MP_MathZoom dt:dt="boolean">0</o:MP_MathZoom>
+  <o:MP_IE5Win dt:dt="boolean">1</o:MP_IE5Win>
+ </o:CustomDocumentProperties>
+ <o:OfficeDocumentSettings>
+  <o:RelyOnVML/>
+ </o:OfficeDocumentSettings>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:HyphenationZone>21</w:HyphenationZone>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+  </w:Compatibility>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MTDisplayEquation, li.MTDisplayEquation, div.MTDisplayEquation
+	{mso-style-name:MTDisplayEquation;
+	mso-style-next:Standard;
+	margin:0pt;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	mso-pagination:widow-orphan;
+	tab-stops:center 227.0pt right 454.0pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 56.7pt 70.85pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Normale Tabelle";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0pt 5.4pt 0pt 5.4pt;
+	mso-para-margin:0pt;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="2050"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#CC0000" vlink="#805151" alink="#CC0000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style='tab-interval:35.4pt' lang=DE>
+<div class=Section1> 
+  <table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+    <tr> 
+      <td background="../bilder/entwPrj.jpg">&nbsp;</td>
+      <td height="35" background="../bilder/entwPrj.jpg"> <span class="entwfo"> 
+        </span><img src="../bilder/invisible.gif" width="800" height="20"><br>
+        <font size="2" face="Arial, Helvetica, sans-serif">\ <a href="../index.htm" target="_parent">Entwurfsforschung</a></font> 
+        \\ <font size="2" face="Arial, Helvetica, sans-serif"><a href="index.htm" target="_self">R&auml;umliche 
+        Prozesse</a> \\ <a href="cellular automata.htm" target="_self">Zellul&auml;re 
+        Automaten</a></font></td>
+      <td background="../bilder/entwPrj.jpg">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>&nbsp;</td>
+      <td width="800"><table width="800" height="500" border="0" cellpadding="0" cellspacing="0">
+          <tr> 
+            <td width="800" align="left" valign="top" class="entwfo"> <p class=MsoNormal style='line-height:200%'>&nbsp;</p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:14.0pt;
+line-height:200%;font-family:Arial'><font size="5">Grundlagen Zellulärer Automaten<o:p></o:p><o:p></o:p></font><font size="4"><o:p></o:p></font><o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Ein zellulärer Automat stellt ein Computermodell 
+                dar, welches meistens aus einer regelmäßigen Anordnung identischer 
+                Zellen besteht. Jede Zelle kann bestimmte Zustände annehmen und 
+                steht mit einer definierten Anzahl von Nachbarzellen in Wechselwirkung. 
+                Die Grundbestandteile eines solchen Systems, die Zellen und Regeln 
+                zur Berechnung des nächsten Zustandes einer Zelle, sind sehr einfach 
+                strukturiert, können in ihrem Zusammenwirken jedoch komplexe Systeme 
+                hervorbringen. Dabei sind vier Merkmale zu unterscheiden:<o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Das erste ist die Geometrie der Zellenanordnung. 
+                Meist verwendet man ein rechtwinkliges Kästchen-Gitter aus identischen 
+                Quadraten. Auch drei- oder vierdimensionale Anordnungen lassen 
+                sich ohne weiteres konstruieren, allerdings nicht mehr so ohne 
+                weiteres veranschaulichen. <o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Als zweites muss festgelegt werden, welche 
+                Plätze in einer bestimmten Anordnung als benachbart zu einer beliebigen 
+                Zelle gelten. Zwei häufig auftretende Nachbarschaften sind in 
+                Abb. 01 dargestellt. Bei der von Neumann-</span><v:shapetype id="_x0000_t202" coordsize="21600,21600"
+ o:spt="202" path="m,l,21600r21600,l21600,xe"> <v:stroke joinstyle="miter"/> <v:path gradientshapeok="t" o:connecttype="rect"/> 
+                </v:shapetype><v:shape id="_x0000_s1026" type="#_x0000_t202" style='position:absolute;
+ margin-left:677.75pt;margin-top:0;width:176.4pt;height:114.45pt;z-index:1;
+ mso-wrap-style:none;mso-position-horizontal:right;
+ mso-position-horizontal-relative:text;mso-position-vertical:top;
+ mso-position-vertical-relative:line' o:allowoverlap="f" filled="f" stroked="f"> <v:textbox style='mso-fit-shape-to-text:t'> 
+                <![if !mso]>
+              <table cellpadding=0 cellspacing=0 width="100%">
+                <tr> 
+                  <td>
+                    <![endif]>
+                    <div> 
+                      <p class=MsoNormal style='line-height:150%'><v:shapetype id="_x0000_t75"
+     coordsize="21600,21600" o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe"
+     filled="f" stroked="f"> <v:stroke joinstyle="miter"/> <v:formulas> <v:f eqn="if lineDrawn pixelLineWidth 0"/> 
+                        <v:f eqn="sum @0 1 0"/> <v:f eqn="sum 0 0 @1"/> <v:f eqn="prod @2 1 2"/> 
+                        <v:f eqn="prod @3 21600 pixelWidth"/> <v:f eqn="prod @3 21600 pixelHeight"/> 
+                        <v:f eqn="sum @0 0 1"/> <v:f eqn="prod @6 1 2"/> <v:f eqn="prod @7 21600 pixelWidth"/> 
+                        <v:f eqn="sum @8 21600 0"/> <v:f eqn="prod @7 21600 pixelHeight"/> 
+                        <v:f eqn="sum @10 21600 0"/> </v:formulas> <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/> 
+                        <o:lock v:ext="edit" aspectratio="t"/> </v:shapetype><v:shape id="_x0000_i1030" type="#_x0000_t75" style='width:162pt;
+     height:78.75pt'> <v:imagedata src="Grundlagen-Dateien/image001.jpg" o:title="CA_Nachbarschaften"/> 
+                        </v:shape></p>
+                      <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>Abb. 
+                        01. links von Neumann- und <o:p></o:p></span></p>
+                      <p class=MsoNormal><span style='font-size:8.0pt;font-family:Arial'>rechts 
+                        Moore-Nachbarschaft<o:p></o:p></span></p>
+                    </div>
+                    <![if !mso]>
+                  </td>
+                </tr>
+              </table>
+              <![endif]></v:textbox>
+              <w:wrap type="square"/> </v:shape><span style='font-size:10.0pt;line-height:200%;font-family:Arial'>Nachbarschaft 
+              werden die vier unmittelbar benachbarten Zellen oben, unten, links 
+              und rechts betrachtet. Rechnen neben diesen vier Zellen auch noch 
+              die vier diagonal benachbarten mit, so spricht man Edward F. Moor 
+              zu Ehren von Moore-Nachbarschaft.<span
+style='mso-spacerun:yes'>  </span><o:p></o:p></span>
+              <p></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Die dritte Kenngröße eines zellulären Automaten 
+                ist die Zahl der Zustände pro Zelle. <o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Das vierte und letzte Merkmal, welches vor 
+                allen anderen für die Vielfalt im Universum der zellulären Automaten 
+                sorgt, ist die Regel, nach welcher der künftige Zustand einer 
+                Zelle aus der momentanen Nachbarschafts-Konstellation ermittelt 
+                wird (<span class=SpellE>Transition</span> <span class=SpellE>Rule</span>).<o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:150%'><span
+style='mso-spacerun:yes'> </span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Zelluläre Automaten finden in der Architektur, 
+                im Städtebau und der Geografie zahlreiche Anwendungsmöglichkeiten. 
+                Wir konzentrieren uns in den nachfolgenden Darstellungen auf den 
+                städtischen Kontext. Hier werden wir insbesondere Wachstums- und 
+                Verkehrssimulationen, ökonomisches Handeln und die Dynamik der 
+                Veränderungsvorgänge untersuchen. Nachdem die zugrunde liegenden 
+                Prinzipien einmal aufgezeigt sind, wird es möglich, urbane Strukturen 
+                zu generieren, die bestimmte Vorgaben erfüllen.<o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:10.0pt;line-height:200%;font-family:Arial'>Algorithmen 
+                <o:p></o:p></span></b></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Bei dem im folgenden betrachteten Zellulären 
+                Automaten werden für jede Zelle in Spalte X und Reihe Y des Rasters 
+                die Zustände (z.B. 0 oder 1) der Moore Nachbarschaft (ohne die 
+                Zelle [X, Y] selbst) überprüft und das Ergebnis in einer Zwischenablage 
+                (</span><span
+class=SpellE><span style='font-size:10.0pt;line-height:200%;font-family:"Courier New"'>limboWorld</span></span><span
+style='font-size:10.0pt;line-height:200%;font-family:Arial'>) gespeichert.<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span class=GramE><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'>for</span></span><span lang=EN-GB style='font-size:10.0pt;font-family:
+"Courier New";mso-ansi-language:EN-GB'> I := -1 to 1 do<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span class=GramE><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'>begin</span></span><span lang=EN-GB style='font-size:10.0pt;font-family:
+"Courier New";mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>  </span><span class=GramE>for</span> K := -1 to 1 do<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>  </span><span class=GramE>begin</span><o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>    </span><span class=SpellE><span class=GramE>summe</span></span> 
+                := <span class=SpellE>summe</span> + <span class=SpellE>Zelle</span>[X+K, 
+                Y+I].status;<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>  </span><span class=GramE>end</span>;<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span class=GramE><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'>end</span></span><span lang=EN-GB style='font-size:10.0pt;font-family:
+"Courier New";mso-ansi-language:EN-GB'>;<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span class=SpellE><span
+class=GramE><span lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";
+mso-ansi-language:EN-GB'>limboWorld</span></span></span><span class=GramE><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'>[</span></span><span lang=EN-GB style='font-size:10.0pt;font-family:
+"Courier New";mso-ansi-language:EN-GB'>X, I] := <span class=SpellE>summe</span> 
+                - <span class=SpellE>Zelle</span>[X, Y].status;<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt;line-height:150%'><span
+lang=EN-GB style='font-size:10.0pt;line-height:150%;font-family:"Courier New";
+mso-ansi-language:EN-GB'><o:p>&nbsp;</o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Anschließend werden aufgrund der<i
+style='mso-bidi-font-style:normal'> <span class=SpellE>Transition</span> <span
+class=SpellE>Rule</span></i> (</span><span class=SpellE><span style='font-size:
+10.0pt;line-height:200%;font-family:"Courier New"'>limboWorld</span></span><span
+style='font-size:10.0pt;line-height:200%;font-family:"Courier New"'>[X, I] &gt;= 
+                1</span><span style='font-size:10.0pt;line-height:200%;font-family:Arial'>) 
+                die jeweiligen </span><span class=SpellE><span style='font-size:10.0pt;
+line-height:200%;font-family:"Courier New"'>status</span><span
+style='font-size:10.0pt;line-height:200%;font-family:Arial'>-Werte</span></span><span
+style='font-size:10.0pt;line-height:200%;font-family:Arial'> der Zellen auf 0 
+                oder 1 gesetzt:<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span class=GramE><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'>for</span></span><span lang=EN-GB style='font-size:10.0pt;font-family:
+"Courier New";mso-ansi-language:EN-GB'> I := -1 to 1 do<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span class=GramE><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'>begin</span></span><span lang=EN-GB style='font-size:10.0pt;font-family:
+"Courier New";mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>  </span><span class=GramE>for</span> K := -1 to 1 do<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>  </span><span class=GramE>begin</span><o:p></o:p></span></p>
+              <p class=MsoNormal style='margin-left:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>    </span>If <span class=SpellE>limboWorld</span>[X, 
+                I] &gt;= 1 Then<o:p></o:p></span></p>
+              <p class=MsoNormal style='margin-left:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>    </span><span class=GramE>begin</span><o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>  </span><span style='mso-spacerun:yes'>    </span><span
+class=SpellE>Zelle</span>[X, Y].<span class=GramE>status :</span>= 1;<o:p></o:p></span></p>
+              <p class=MsoNormal style='margin-left:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>    </span><span class=GramE>end</span> else begin<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-tab-count:1'>      </span><span class=SpellE>Zelle</span>[X, Y].<span
+class=GramE>status :</span>= 0;<o:p></o:p></span></p>
+              <p class=MsoNormal style='margin-left:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>    </span><span class=GramE>end</span>;<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span lang=EN-GB
+style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>  </span><span class=GramE>end</span>;<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt'><span class=GramE><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'>end</span></span><span lang=EN-GB style='font-size:10.0pt;font-family:
+"Courier New";mso-ansi-language:EN-GB'>;<o:p></o:p></span></p>
+              <p class=MsoNormal style='text-indent:35.4pt;line-height:150%'><span
+lang=EN-GB style='font-size:10.0pt;line-height:150%;font-family:"Courier New";
+mso-ansi-language:EN-GB'><o:p>&nbsp;</o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Durch die Zwischenspeicherung in der </span><span
+class=SpellE><span style='font-size:10.0pt;line-height:200%;font-family:"Courier New"'>limboWorld</span></span><span
+style='font-size:10.0pt;line-height:200%;font-family:Arial'> erzeugen wir ein 
+                so genanntes <i style='mso-bidi-font-style:normal'>pseudoparalleles</i> 
+                Verfahren. Die sequentielle Abarbeitung der Nachbarschaftsüberprüfung 
+                im ersten Durchgang verändert nicht die </span><span class=SpellE><span style='font-size:10.0pt;
+line-height:200%;font-family:"Courier New"'>status</span><span
+style='font-size:10.0pt;line-height:200%;font-family:Arial'>-Werte</span></span><span
+style='font-size:10.0pt;line-height:200%;font-family:Arial'> der Zellen, sondern 
+                speichert lediglich die Summen der <span class=SpellE>Nachbar-<span
+style='font-family:"Courier New"'>status</span>-Werte</span>. Auf der Grundlage 
+                dieser Summenwerte wird in der zweiten Schleife mittels der <span class=SpellE><i
+style='mso-bidi-font-style:normal'>transition</i></span><i style='mso-bidi-font-style:
+normal'> <span class=SpellE>rule</span></i> entschieden, welchen Zustand die Zellen 
+                im nächsten Zeitschritt annehmen.<o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:10.0pt;line-height:200%;font-family:Arial'>Formale 
+                Konventionen<o:p></o:p></span></b></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Die formale Notation des oben angegebenen 
+                Algorithmus wird folgendermaßen definiert:<o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Die einzelnen Zellen werden mit dem fortlaufenden 
+                Index i bezeichnet <i style='mso-bidi-font-style:normal'>{i, i 
+                = 1,2,3, …, N}</i>. <i style='mso-bidi-font-style:normal'>N</i> 
+                gibt die Gesamtzahl der im System vorhandenen Zellen an. Alternativ 
+                können für eine exakte Positionsangabe die Zellen auch mit ihren 
+                <i style='mso-bidi-font-style:normal'>x</i> und <i style='mso-bidi-font-style:normal'>y</i> 
+                Koordinaten notiert werden. Die Eigenschaft <i style='mso-bidi-font-style:normal'>D<sub>i</sub>(t) 
+                </i><span
+style='mso-spacerun:yes'> </span>einer Zelle gibt zu einem Zeitschritt (t) an, 
+                ob die Zelle <span class=SpellE><i style='mso-bidi-font-style:normal'>developed</i></span><i
+style='mso-bidi-font-style:normal'> </i>(Entwickelt) <i style='mso-bidi-font-style:
+normal'>D<sub>i</sub>(t) = 1</i> ist, oder nicht <i style='mso-bidi-font-style:
+normal'>D<sub>i</sub>(t) = 0</i>. In anderen Zusammenhängen wird oft auch von 
+                lebend/tot, an/aus oder ähnlichem gesprochen. Die Gesamtsumme 
+                der Entwicklung zu einer bestimmten Zeit <i style='mso-bidi-font-style:normal'>t</i>, 
+                <i
+style='mso-bidi-font-style:normal'>N(t),</i> wird durch die Summierung der Entwicklungsindexes 
+                ermittelt: <sub><v:shape id="_x0000_i1025" type="#_x0000_t75"
+ style='width:78pt;height:20.25pt' o:ole=""> <v:imagedata src="Grundlagen-Dateien/image002.wmz" o:title=""/> 
+                </v:shape>
+                <!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.DSMT4" ShapeID="_x0000_i1025"
+  DrawAspect="Content" ObjectID="_1200157588">
+ </o:OLEObject>
+</xml><![endif]-->
+                </sub>. Die Nachbarschaft um eine Zelle <i style='mso-bidi-font-style:
+normal'>i</i> ist definiert durch<sub><v:shape id="_x0000_i1026" type="#_x0000_t75"
+ style='width:18.75pt;height:12.75pt' o:ole=""> <v:imagedata src="Grundlagen-Dateien/image003.wmz" o:title=""/> 
+                </v:shape></sub>
+                <!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.DSMT4" ShapeID="_x0000_i1026"
+  DrawAspect="Content" ObjectID="_1200157589">
+ </o:OLEObject>
+</xml><![endif]-->
+                , wobei die Anzahl der Zellen in jeder Nachbarschaft mit <i
+style='mso-bidi-font-style:normal'>K</i> angegeben wird und die Summe der Entwicklung 
+                in jeder Nachbarschaft zum Zeitpunkt t entsprechend durch<sub><v:shape
+ id="_x0000_i1027" type="#_x0000_t75" style='width:95.25pt;height:20.25pt'
+ o:ole=""> <v:imagedata src="Grundlagen-Dateien/image004.wmz" o:title=""/> </v:shape>
+                <!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.DSMT4" ShapeID="_x0000_i1027"
+  DrawAspect="Content" ObjectID="_1200157590">
+ </o:OLEObject>
+</xml><![endif]-->
+                </sub>. Die Anzahl der Zustände, die eine Zelle annehmen kann, 
+                wird durch <i style='mso-bidi-font-style:normal'>D</i> definiert. 
+                In dem vorliegenden Beispiel <i style='mso-bidi-font-style:normal'>D 
+                = 2</i> für <i
+style='mso-bidi-font-style:normal'>entwickelt</i> und <i style='mso-bidi-font-style:
+normal'>unentwickelt</i>. <o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Jetzt kann der oben dargestellte Algorithmus 
+                formal ausgedrückt werden. Die Zählregel basiert auf einer Moore-Nachbarschaft 
+                <sub><v:shape id="_x0000_i1028" type="#_x0000_t75" style='width:18.75pt;
+ height:12.75pt' o:ole=""> <v:imagedata src="Grundlagen-Dateien/image003.wmz" o:title=""/> 
+                </v:shape></sub> 
+                <!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.DSMT4" ShapeID="_x0000_i1028"
+  DrawAspect="Content" ObjectID="_1200157591">
+ </o:OLEObject>
+</xml><![endif]-->
+                <span style='mso-spacerun:yes'> </span>um die jeweils betrachtete 
+                Zelle i. Die <span class=SpellE><i style='mso-bidi-font-style:normal'>Transition</i></span><i
+style='mso-bidi-font-style:normal'> <span class=SpellE>Rule</span></i> wird dann 
+                folgendermaßen dargestellt:<br>
+                <span style='mso-tab-count:1'>            </span><sub><v:shape id="_x0000_i1029"
+ type="#_x0000_t75" style='width:167.25pt;height:45.75pt' o:ole=""> <v:imagedata src="Grundlagen-Dateien/image005.wmz" o:title=""/> 
+                </v:shape></sub> 
+                <!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.DSMT4" ShapeID="_x0000_i1029"
+  DrawAspect="Content" ObjectID="_1200157592">
+ </o:OLEObject>
+</xml><![endif]-->
+                <o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'>&nbsp;</p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'><o:p></o:p><o:p></o:p></span><b style='mso-bidi-font-weight:
+normal'><span style='font-size:10.0pt;line-height:200%;font-family:Arial'>Programmierumgebung</span></b><span
+style='font-size:10.0pt;line-height:200%;font-family:Arial'><o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Für die Programmierung der hier vorgestellten 
+                Simulationen haben wir die Sprache <a href="http://www.borland.com/products/downloads/download_delphi.html" target="_blank">Delphi</a> 
+                (ehemals <span
+class=SpellE>Object</span> Pascal) und die gleichnamige integrierte Entwicklungsumgebung 
+                (IDE) von <span class=SpellE>Borland</span> verwendet. Für Neulinge 
+                auf dem Gebiet der Simulation paralleler Prozesse empfehlen wir 
+                <a href="http://ccl.northwestern.edu/netlogo/" target="_blank">Netlogo</a>. 
+                Dieses verfügt sowohl über vorgefertigte Elemente wie Agenten 
+                (<span
+class=SpellE>Turtles</span>) und einer Zellenstruktur, auf welche mittels einfacher 
+                Befehle zugegriffen werden kann. Weitere Simulationsumgebungen 
+                sind z.B. <span class=SpellE><a href="http://processing.org/" target="_blank">Processing</a></span>, 
+                <span class=SpellE><a href="http://repast.sourceforge.net/" target="_blank">Repast</a></span>, 
+                <span
+class=SpellE><a href="http://www.swarm.org/wiki/Main_Page" target="_blank">Swarm</a></span>, 
+                <a href="http://www-zeuthen.desy.de/lc_repository/detector_simulation/dev/BRAHMS/readme.html" target="_blank">Brahms</a> 
+                und VBA (z.B. für <span class=SpellE>AutoCAD</span>).<o:p></o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:10.0pt;line-height:200%;font-family:Arial'>Literaturempfehlung<o:p></o:p></span></b></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'>Für die Einführung in die Simulationskonzepte 
+                haben wir auf die Bücher <i style='mso-bidi-font-style:
+normal'>‚<span class=SpellE><a href="http://www.complexcity.info/" target="_blank">Cities</a></span><a href="http://www.complexcity.info/" target="_blank"> 
+                and <span class=SpellE>Complexity</span>’</a> </i>von Michael 
+                <span class=SpellE>Batty</span> und <i style='mso-bidi-font-style:
+normal'>‚<a href="http://www.geosimulation.org/" target="_blank">Geosimulation</a>’</i> 
+                von <span class=SpellE>Itzhak</span> <span
+class=SpellE>Benenson</span> und Paul M. <span class=SpellE>Torrens</span> zurückgegriffen, 
+                aus denen teilweise Ideen für die Beispiele übernommen wurden.<o:p> 
+                F&uuml;r eine tiefergreifende Einf&uuml;hrung Zellul&auml;rer 
+                Automaten empfehlen wir die Recherche bei <a href="https://de.wikipedia.org/wiki/Zellul%C3%A4rer_Automat" target="_blank">wikipedia</a>.</o:p></span></p>
+              <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:200%;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+              <p align="right" class=MsoNormal style='line-height:150%'><span style='font-size:10.0pt;
+line-height:150%;font-family:Arial'><o:p>&nbsp;WEITER &gt;</o:p></span></p>
+              <p class=MsoNormal style='line-height:150%'><span style='font-size:10.0pt;
+line-height:150%;font-family:Arial'><o:p>&nbsp;</o:p></span></p>
+              <p align="left" class="entwfo">&nbsp;</p>
+              </td>
+          </tr>
+        </table></td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td height="54">&nbsp;</td>
+      <td valign="top" class="entwfo">&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+  <p class=MsoNormal style='line-height:200%'>&nbsp;</p>
+  <p class=MsoNormal style='line-height:200%'><span style='font-size:10.0pt;
+line-height:150%;font-family:Arial'><o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

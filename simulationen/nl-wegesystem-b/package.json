@@ -1,0 +1,8 @@
+{
+  "name": "nl-wegesystem-b",
+  "private": true,
+  "type": "commonjs",
+  "description": "07 wegesystem B – Neuumsetzung von wegesystem02direction.nlogo (NetLogo) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

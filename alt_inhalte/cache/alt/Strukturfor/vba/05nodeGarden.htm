@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>nodeGarden</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000000" vlink="#666666" alink="#333333" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800">
+<table width="800" height="600" border="0" cellpadding="0" cellspacing="0">
+        <!--DWLayoutTable-->
+        <tr valign="middle"> 
+          <td height="200" colspan="2"><img src="../bilder/08nodeGarden.jpg" width="800" height="456"></td>
+        </tr>
+        <tr valign="middle">
+          <td height="200" colspan="2" class="entwfo"><p>Die Kugeln werden als 
+              'nodes' bezeichnet. Das sind Einheiten, die &uuml;ber bestimmte 
+              Eigenschaften verf&uuml;ben - in diesem Fall die individuelle Bewegung 
+              - und mit anderen nodes interagieren k&ouml;nnen um Informationen 
+              auszutauschen und ihr Verhalten zu ver&auml;ndern.<br>
+              In diesem ersten Beispiel ver&auml;ndern die nodes ihre Bewegungsbahn 
+              und werden langsamer, wenn sie in die N&auml;he eines anderen nodes 
+              kommen. Dadurch bilden sich nach einiger Zeit node-Gruppen.</p>
+            <p align="right"><a href="../../compStadt/compStadt.htm" target="_self">weiter</a> 
+              &gt;</p>
+            </td>
+        </tr>
+        <tr valign="middle"> 
+          <td width="800" height="200" colspan="2"><p>&nbsp;</p>
+            <p>&nbsp; </p>
+            <div class=Section1> <span class="entwfo">'Const unimax = 100 ' constant 
+              never changes<br>
+              Const unimin = 10<br>
+              Const maxDist = 30Private Type flee '' opposite of public<br>
+              coo As Variant ''flee type<br>
+              self As Long ''another flee type<br>
+              End TypeSub traffic() Dim cp(0 To 2) As Double 'just like shelves 
+              o 1 2'&amp;we can put any number like 100.53 in any shelf<br>
+              <br>
+              Dim amount As Integer 'we can have fixed numbers<br>
+              Dim range As Double<br>
+              Dim messagge As Variant, default As Variant<br>
+              Dim dude As AcadObject<br>
+              Dim ss As AcadSelectionSet<br>
+              Dim ssInhalt As Integer, i As Integer, j As Integer, u As Integer 
+              ThisDrawing.SendCommand &quot;erase&quot; &amp; vbCr &amp; &quot;all&quot; 
+              &amp; vbCr &amp; vbCr<br>
+              <br>
+              amount = 10 'howmany()<br>
+              ReDim loser(amount) As Variant<br>
+              Dim moveKoord(0 To 1) As Double<br>
+              <br>
+              For i = 0 To amount - 1<br>
+              moveKoord(0) = (Rnd() * 10 - 5) / 2<br>
+              moveKoord(1) = (Rnd() * 10 - 5) / 2<br>
+              loser(i) = moveKoord<br>
+              For j = 0 To 1<br>
+              cp(j) = random(unimin, unimax)<br>
+              Next j<br>
+              cp(2) = 0<br>
+              ball cp '---center point<br>
+              Next i<br>
+              <br>
+              ThisDrawing.SendCommand &quot;shade&quot; &amp; vbCr l<br>
+              <br>
+              Set ss = ThisDrawing.SelectionSets.Add(&quot;alle&quot;)<br>
+              ss.Select acSelectionSetAll '---select all objects<br>
+              ssInhalt = ss.Count<br>
+              <br>
+              For i = 1 To 10 '---send run order<br>
+              For u = 0 To ssInhalt - 1<br>
+              Dim nodeA As Variant, nodeB As Variant<br>
+              Set dude = ss.Item(u)<br>
+              nodeA = dude.Centroid<br>
+              <br>
+              For j = u + 1 To ssInhalt - 1 'Abstandsvergleich mit den allen anderen 
+              ohne Doppelvergleich =&gt; j=u+1<br>
+              Dim abstand As Double, dx As Double, dy As Double, bremse As Double<br>
+              bremse = 0.98<br>
+              nodeB = ss.Item(j).Centroid<br>
+              dx = nodeA(0) - nodeB(0)<br>
+              dy = nodeA(1) - nodeB(1)<br>
+              abstand = distance(nodeA, nodeB)<br>
+              <br>
+              If abstand &lt; maxDist Then 'Wenn sich zwei Kugeln zu nahe kommen 
+              ver&auml;ndern sie ihre Flugbahnen<br>
+              loser(u)(0) = (loser(u)(0) - (dx * 0.01)) * bremse<br>
+              loser(u)(1) = (loser(u)(1) - (dy * 0.01)) * bremse<br>
+              loser(j)(0) = (loser(j)(0) + (dx * 0.01)) * bremse<br>
+              loser(j)(1) = (loser(j)(1) + (dy * 0.01)) * bremse<br>
+              End If<br>
+              Next j<br>
+              <br>
+              run dude, loser(u), u<br>
+              Next u<br>
+              'ThisDrawing.Regen acActiveViewport<br>
+              Next i<br>
+              <br>
+              ss.Delete<br>
+              End Sub<br>
+              Sub run(duder As AcadObject, change As Variant, col As Integer)<br>
+              Dim cen As Variant<br>
+              <br>
+              cen = duder.Centroid cen(0) = cen(0) + change(0)<br>
+              cen(1) = cen(1) + change(1)<br>
+              If cen(0) &gt; unimax Then cen(0) = unimin<br>
+              If cen(0) &lt; unimin Then cen(0) = unimax<br>
+              If cen(1) &gt; unimax Then cen(1) = unimin<br>
+              If cen(1) &lt; unimin Then cen(1) = unimax<br>
+              <br>
+              duder.Move duder.Centroid, cen<br>
+              duder.color = col<br>
+              duder.Update<br>
+              <br>
+              End SubSub ball(centrePoint() As Double) Dim sphereObj As Acad3DSolid<br>
+              Dim rad As Double<br>
+              <br>
+              rad = 1<br>
+              <br>
+              Set sphereObj = ThisDrawing.ModelSpace.AddSphere(centrePoint, rad)<br>
+              sphereObj.color = acWhite<br>
+              sphereObj.Layer = &quot;0&quot;<br>
+              <br>
+              End SubFunction howmany() As Integer<br>
+              <br>
+              Dim Message As Variant, title As Variant, default As Variant<br>
+              <br>
+              Message = &quot;How many balls&quot; ' Set prompt.<br>
+              title = &quot;spheres&quot; ' Set title.<br>
+              default = &quot;10&quot; ' Set default.<br>
+              <br>
+              ' Display message, title, and default value.<br>
+              howmany = InputBox(Message, title, default)<br>
+              <br>
+              End FunctionFunction random(bn As Double, tn As Double) As Double<br>
+              random = ((tn - bn + 1) * Rnd + bn)<br>
+              End FunctionFunction distance(pta As Variant, ptb As Variant) As 
+              Double<br>
+              distance = Sqr((pta(0) - ptb(0)) ^ 2 + (pta(1) - ptb(1)) ^ 2 + (pta(2) 
+              - ptb(2)) ^ 2)<br>
+              End Function<br>
+              </span> 
+              <p>&nbsp;</p>
+            </div>
+            </td>
+        </tr>
+      </table> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="../../bilder/invisible.gif" width="800" height="10"><br>
+      <span class="entwfo">\\ <a href="../../../indexC.htm" target="_self">Entwurfsforschung</a> 
+      \ <a href="../index.htm" target="_self">Strukturexperimente</a> 
+      \ <a href="vbaIndex.htm" target="_self">autoCAD_VBA experimente </a></span></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

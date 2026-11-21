@@ -1,0 +1,8 @@
+{
+  "name": "{{ID}}",
+  "private": true,
+  "type": "commonjs",
+  "description": "{{TITEL_DE}} – Neuumsetzung von {{ORIGINAL}} ({{HERKUNFT}}) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

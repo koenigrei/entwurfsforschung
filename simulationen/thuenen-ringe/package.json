@@ -1,0 +1,8 @@
+{
+  "name": "thuenen-ringe",
+  "private": true,
+  "type": "commonjs",
+  "description": "Thünen-Ringe – Neuumsetzung von 412_ThuenenRinge (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

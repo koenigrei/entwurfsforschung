@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>eingabefeld</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000000" vlink="#666666" alink="#333333" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800">
+<table width="800" height="600" border="0" cellpadding="0" cellspacing="0">
+        <!--DWLayoutTable-->
+        <tr valign="middle"> 
+          <td height="200"><img src="../bilder/07eingabe.jpg" width="512" height="340"></td>
+          <td height="200"><div align="right"><img src="../bilder/07eingabeWin.jpg" width="266" height="304"></div></td>
+        </tr>
+        <tr valign="middle"> 
+          <td height="200" colspan="2" class="entwfo"><p>Parameter k&ouml;nnen 
+              &uuml;ber ein Eingabefeld an das Programmodul &uuml;bergebe werden. 
+              Grundlegende Technik zur Erstellung von Userinterfaces.<br>
+              Der Angegebende Code steuert die Eingabefelder und verweist auf 
+              das Modul zur Platzierung der W&uuml;rfel.</p>
+            <p>&nbsp;</p>
+            <p align="right"><span class="entwfo">&lt;&lt; <a href="vbaIndex.htm" target="_self">Inhaltsverzeichnis</a></span></p>
+            </td>
+        </tr>
+        <tr valign="middle"> 
+          <td width="800" height="200" colspan="2"> <span class="entwfo"><font size="1" face="Verdana, Arial, Helvetica, sans-serif">Dim 
+            hoch As Double, breit As Double, lang As Double, menge As Double, 
+            zufall As Double<br>
+            Dim i As Integer</font> </span> <p class="entwfo">Private Sub UserForm_Initialize()<br>
+              menge = 20<br>
+              hoch = 10<br>
+              breit = 5<br>
+              lang = 5<br>
+              zufall = 10<br>
+              parameter.TFanzahl.Text = menge<br>
+              parameter.TFhoehe.Text = hoch<br>
+              parameter.TFbreite.Text = breit<br>
+              parameter.TFlaenge.Text = lang<br>
+              parameter.TFzufall.Text = zufall<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub createButton_Click()<br>
+              For i = 1 To menge<br>
+              wuerfelModul.setzeQuad hoch, lang, breit, zufall<br>
+              Next i<br>
+              TFhoehe.SetFocus<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub deleteButton_Click()<br>
+              wuerfelModul.loeschen<br>
+              End Sub</p>
+            <p class="entwfo">'-----------Anzahl---------------------------------<br>
+              Private Sub SliderAnzahl_Change()<br>
+              TFanzahl = SliderAnzahl<br>
+              menge = SliderAnzahl<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub SliderAnzahl_Scroll()<br>
+              SliderAnzahl_Change<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub TFanzahl_Change()<br>
+              SliderAnzahl = TFanzahl<br>
+              menge = TFanzahl<br>
+              End Sub</p>
+            <p class="entwfo">'-----------H&ouml;he--------------------------------<br>
+              Private Sub SliderHoehe_Change()<br>
+              TFhoehe = SliderHoehe<br>
+              hoch = SliderHoehe<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub SliderHoehe_Scroll()<br>
+              SliderHoehe_Change<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub TFhoehe_Change()<br>
+              SliderHoehe = TFhoehe<br>
+              hoch = TFhoehe<br>
+              End Sub</p>
+            <p class="entwfo">'-----------Breite---------------------------------<br>
+              Private Sub SliderBreite_Change()<br>
+              TFbreite = SliderBreite<br>
+              breit = SliderBreite<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub SliderBreite_Scroll()<br>
+              SliderBreite_Change<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub TFbreite_Change()<br>
+              SliderBreite = TFbreite<br>
+              breit = TFbreite<br>
+              End Sub</p>
+            <p class="entwfo">'-----------L&auml;nge---------------------------------<br>
+              Private Sub SliderLaenge_Change()<br>
+              TFlaenge = SliderLaenge<br>
+              lang = SliderLaenge<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub SliderLaenge_Scroll()<br>
+              SliderLaenge_Change<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub TFlaenge_Change()<br>
+              SliderLaenge = TFlaenge<br>
+              lang = TFlaenge<br>
+              End Sub</p>
+            <p class="entwfo">'-----------Zufall---------------------------------<br>
+              Private Sub SliderZufall_Change()<br>
+              TFzufall = SliderZufall<br>
+              zufall = SliderZufall<br>
+              End Sub</p>
+            <p class="entwfo">Private Sub SliderZufall_Scroll()<br>
+              SliderZufall_Change<br>
+              End Sub</p>
+            <p><span class="entwfo">Private Sub TFzufall_Change()<br>
+              SliderZufall = TFzufall<br>
+              zufall = TFzufall<br>
+              End Sub<br>
+              </span> </p>
+            <font size="1" face="Verdana, Arial, Helvetica, sans-serif">&nbsp; </font> 
+            <div class=Section1> 
+              <p>&nbsp;</p>
+            </div></td>
+        </tr>
+      </table> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="../../bilder/invisible.gif" width="800" height="10"><br>
+      <span class="entwfo">\\ <a href="../../../indexC.htm" target="_self">Entwurfsforschung</a> 
+      \ <a href="../index.htm" target="_self">Strukturexperimente</a> 
+      \ <a href="vbaIndex.htm" target="_self">autoCAD_VBA experimente </a></span></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

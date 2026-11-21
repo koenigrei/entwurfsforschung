@@ -1,0 +1,1056 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Stadtsimulation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#CC0000" vlink="#805151" alink="#CC0000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="155%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td width="273" background="../bilder/entwPrj.jpg">&nbsp;</td>
+    <td height="35" background="../bilder/entwPrj.jpg"> <span class="entwfo"> 
+      </span><img src="../bilder/invisible.gif" width="600" height="20"><br>
+      <font size="2" face="Arial, Helvetica, sans-serif">\ <a href="../index.htm" target="_parent">Entwurfsforschung</a></font> 
+      \\ <font size="2" face="Arial, Helvetica, sans-serif"><a href="index.htm" target="_self">R&auml;umliche 
+      Prozesse</a></font></td>
+    <td width="1016" background="../bilder/entwPrj.jpg">&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800"><table width="800" height="500" border="0" cellpadding="0" cellspacing="0">
+        <tr> 
+          <td width="600" align="left" valign="top" class="entwfo"> 
+            <div class=Section1> 
+              <p class=texttitel style='line-height:150%'>&nbsp;</p>
+              <p align="center" class=texttitel style='line-height:150%'><span class="entwfoUeberschr">Stadtsimulation</span><span class="entwfo"><br>
+                Simulation und Visualisierung der Dynamik räumlicher Prozesse 
+                in St&auml;dten</span></p>
+              <p align="center" class=texttitel style='line-height:150%'><i><span style='font-weight:normal'><a href="../CV/cvReinhardKoenig.htm" target="_self">Reinhard 
+                KÖNIG</a></span></i></p>
+              <p align="center" class=textinstitution style='line-height:150%'>Dipl. 
+                Ing. Reinhard König, <span
+lang=EN-US><a
+href="http://www.rz.uni-karlsruhe.de/%7Efi48/" target="_blank"><span
+lang=DE style='color:windowtext;text-decoration:none;
+text-underline:none'><font color="#CC0000"><u>Lehrstuhl für Stadtquartiersplanung 
+                und Entwerfen</u></font></span></a></span>, TU Karlsruhe,&nbsp;&nbsp;</p>
+              <p class=textinstitution style='line-height:150%'>&nbsp;</p>
+              <h1 class="fett">1.&nbsp;&nbsp;&nbsp; EINLEITUNG </h1>
+              <p class=textstandard style='line-height:150%'>Städtische Strukturen 
+                resultieren aus verschiedenen kontinuierlich ablaufenden, sich 
+                wechselseitig beeinflussenden Prozessen. Stellt man das Erscheinungsbild 
+                einer Stadt zu einem bestimmten Zeitpunkt dar, erhält man lediglich 
+                eine Momentaufnahme dieses dynamischen Systems. Ziel des im Folgenden 
+                beschriebenen Projekts ist die Repräsentation der Stadt als kontinuierlicher 
+                Prozess.</p>
+              <p class=textstandard style='line-height:150%'>Das Tätigkeitsfeld 
+                der Raumplanung umfasst die Organisation räumlicher Strukturen 
+                und deren Wechselwirkungen mit gesellschaftlichen Prozessen. Planung 
+                bedeutet stets die konzeptionelle Vorwegnahme noch nicht existierender 
+                Zustände. Dabei konzentriert sich die gegenwärtige Praxis der 
+                Planung lediglich auf den Vergleich von Soll und Ist. Wesentlich 
+                für eine nachhaltige Stadtentwicklung wäre aber eine Auseinandersetzung 
+                mit den Prozessen, die zu den jeweiligen Zuständen geführt haben 
+                bzw. führen sollen. Sowohl eine eingehende Analyse der für die 
+                städtische Entwicklung relevanten Zusammenhänge als auch ein bewusster 
+                Umgang mit der Dynamik und den zeitlichen Eigenschaften von Prozessen 
+                sind der räumlichen Planung fremd geblieben. Dementsprechend sind 
+                Pläne immer noch statische Repräsentationen, während solche in 
+                der Form dynamischer Karten nicht bekannt sind. </p>
+              <p class=textstandard style='line-height:150%'>Für eine Visualisierung 
+                räumlicher Prozesse ist zuerst einmal die städtische Dynamik in 
+                Raum und Zeit zu simulieren. Grundlage dieser Simulation ist eine 
+                ‚bottom-up’ Beschreibung urbaner Vorgänge mittels mathematischer 
+                Modelle, welche in einem weiteren Schritt für eine computertechnische 
+                Verarbeitung in Algorithmen übertragen werden. Der Verlauf der 
+                Berechnungen und die Entwicklung des Systems sollen grafisch dargestellt 
+                werden.</p>
+              <p class=textstandard style='line-height:150%'>&nbsp;</p>
+              <h1 class="fett">2.&nbsp;&nbsp;&nbsp;&nbsp;STAND DER FORSCHUNG</h1>
+              <p class=textstandard style='line-height:150%'>Die formale Darstellung 
+                und Simulation einer Stadt unter Einbeziehung aller wesentlichen 
+                Teilbereiche<a
+name="_ftnref1"></a><a href="#_ftn1" title="">[1]</a> wird in der Fachliteratur 
+                als ‚Large-Scale Urban Model’ bezeichnet. Die Entwicklung solcher 
+                umfassenden Stadtmodelle begann in den 1950er Jahren in den USA. 
+                Ausgangspunkt bildete die Standorttheorie von Johann Heinrich 
+                von Thünen aus dem Jahr 1826, welche der Frage nachging, wie es 
+                zu einer räumlichen Gleichgewichtsverteilung von Siedlungen, Flächennutzungen 
+                und Bevölkerung kommt<a
+name="_ftnref2"></a><a href="#_ftn2" title="">[2]</a>. </p>
+              <p class=textstandard style='line-height:150%'>Von dieser Arbeit 
+                ausgehend wurden verschiedene, grundlegende geographische “Gesetze” 
+                entdeckt, die alle auf einem ökonomischen Verständnis von Optimalität 
+                beruhen. Für das Verständnis urbaner Systeme sind besonders drei 
+                dieser Gesetze relevant: Das Gesetz der Verteilung zentraler Orte<a name="_ftnref3"></a><a href="#_ftn3" title="">[3]</a>, 
+                das Gesetz der Aufteilung des Entwicklungspotentials in Abhängigkeit 
+                von der Siedlungsgröße<a name="_ftnref4"></a><a
+href="#_ftn4" title="">[4]</a> und das Gesetz der Gleichgewichtsverteilung der 
+                Grundrente, deren Höhe mit der Entfernung zum Stadtzentrum abnimmt<a name="_ftnref5"></a><a href="#_ftn5"
+title="">[5]</a>. Weitere Komponenten wie Bevölkerung, Arbeitsplätze, Dienstleistungen 
+                und Verkehrssystem wurden ergänzend hinzugefügt und nahmen Einfluss 
+                auf die Gleichgewichtsbildung. Von Bedeutung ist außerdem die 
+                1952 erstmals veröffentlichte Theorie von Torsten Hägerstrand 
+                über die räumliche Ausbreitung von Innovationen<a
+name="_ftnref6"></a><a href="#_ftn6" title="">[6]</a>.</p>
+              <p class=textstandard style='line-height:150%'>Den ersten Versuch, 
+                diese Komponenten in einem „integrierten“ Stadtmodell zu vereinen 
+                machte Lowry<a name="_ftnref7"></a><a
+href="#_ftn7" title="">[7]</a> 1964 am Beispiel von Pittsburgh. Dieses Modell 
+                war allerdings statisch und unterlag der Annahme, dass sich eine 
+                Stadt als Ganzes stets in einem Gleichgewichtszustand befindet. 
+                Für die Gliederung einer Stadt in Sektoren, in welche die Aktivitäten 
+                aufgeteilt waren, wurde ein Raster in der Auflösung von einer 
+                Quadratmeile angenommen. Diese Aufteilung erinnert bereits an 
+                die Struktur eines zellulären Automaten.</p>
+              <p class=textstandard style='line-height:150%'>Jay Forrester<a name="_ftnref8"></a><a
+href="#_ftn8" title="">[8]</a> entwickelte 1969 als erster einen Ansatz für ein 
+                dynamisches Stadtmodell. Darin werden positive Rückkoppelungen 
+                als Hauptursache für komplexe und intuitiv nicht nachvollziehbare 
+                Verhaltensweisen natürlicher und im speziellen urbaner Systeme 
+                beschrieben. In Forresters Modell dominiert stets eine Rückkoppelungsschleife 
+                das gesamte System, bis sie von einer anderen abgelöst wird. Für 
+                die Untersuchungen des Verhaltens dieses dynamischen Modells war 
+                der Computer ein unentbehrliches Werkzeug. Aus einer Änderung 
+                der Eingabeparameter resultierte eine Veränderung des Gleichgewichtszustandes. 
+                Dieser Zusammenhang war intuitiv nachvollziehbar und linear. Das 
+                Problem an seinem Modell war hauptsächlich, dass es eine zu generelle 
+                Sicht des urbanen Systems (basierend auf Durchschnittswerten) 
+                beinhaltete und jeglichen Raumbezugs ermangelte (numerische Simulation 
+                ohne graphische Oberfläche), was seine Ursache vermutlich in der 
+                Ignoranz Forresters gegenüber der geografischen Theorie seiner 
+                Zeit hatte.</p>
+              <p class=textstandard style='line-height:150%'>Die meisten Simulationen, 
+                die bis heute entwickelt wurden, basieren auf den Grundkonzepten 
+                von Lowry und Forrester und versuchen die wesentlichen Komponenten 
+                einer Stadt – Wohnen, Arbeiten, Dienstleistungen, Flächennutzung 
+                und Verkehrssystem – im Rahmen eines Modells zueinander in Beziehung 
+                zu setzen. Für eine detaillierte Erläuterung der Funktionsweisen 
+                der aktuellsten Modelle verweise ich auf M. Wegeners Artikel „Urban 
+                Land-Use Transportation Models“<a name="_ftnref9"></a><a
+href="#_ftn9" title="">[9]</a>. Das Ziel bei der Entwicklung dieser Modelle war, 
+                die Ausgewogenheit zwischen dem Verständnis des Prozesses, der 
+                Komplexität der Beschreibung und der Verfügbarkeit der Daten zu 
+                gewährleisten. Die Gemeinsamkeit all dieser Modellkonzeptionen 
+                besteht in einer reduktionistischen Sichtweise (top-down), welche 
+                Systeme durch die Unterteilung in logisch begründete Komponenten 
+                zu studieren versucht.</p>
+              <p class=textstandard style='line-height:150%'>Im Folgenden möchte 
+                ich mich auf die Kritik an den umfassenden Modellansätzen konzentrieren. 
+                Der einflussreichste und populärste Angriff stammt von Douglas 
+                B. Lee<a name="_ftnref10"></a><a
+href="#_ftn10" title="">[10]</a> und wurde 1973 unter dem Titel „Requiem for Large-Scale 
+                Models“ veröffentlicht. Darin werden ‚Seven Sins of Large-Scale 
+                Models’ beschrieben, die den Kern der Kritik bilden und in abgewandelter 
+                Form teilweise bis heute ins Feld geführt werden.</p>
+              <p class=textstandard style='line-height:150%'>Lees Liste der sieben 
+                Sünden beginnt mit <i>‚Hypercomprehensiveness’</i> (Hyperausführlichkeit), 
+                den Versuch, zu viel mit einem Modell erklären zu wollen. Konkret 
+                bedeutet dies, dass zu viele <span class=GramE>Variablen</span> 
+                zu Prozessen gekoppelt werden, deren Aussagefähigkeit und Richtigkeit 
+                nicht überprüfbar sind. Das Hinzufügen weiterer Teilaspekte in 
+                der Absicht, das Modell zu komplettieren führt entgegen der Absicht 
+                zu geringerer Genauigkeit, da mehr „Unwissen“ einfließt. Außerdem 
+                führt <i>‚Wrongheadedness’</i> (Verbohrtheit) dazu, dass durch 
+                die Integration zu vieler Einschränkungen und Beziehungen innerhalb 
+                der Modellstruktur, die sich daraus ergebenden Mechanismen selbst 
+                für den Hersteller des Modells nicht mehr zu verstehen oder zu 
+                unterscheiden sind. Aus heutiger Perspektive lässt sich (z.B. 
+                im Hinblick auf die Chaosforschung) leicht einsehen, dass zusätzliche 
+                Variablen und Beziehungen ein System immer mehr von den Anfangsparametern 
+                abhängig machen und dass relativ kleine Fehler zu einem vollständig 
+                anderen und falschen Verständnis des zugrunde liegenden Prozesses 
+                führen können.</p>
+              <p class=textstandard style='line-height:150%'>Ein weiteres Problem 
+                wird durch den Begriff <i>‚hungriness’</i> (Hunger) aufgezeigt, 
+                der die ungeheure Menge an benötigen Daten ausdrückt. In Kombination 
+                mit <i>‚complicatedness’</i> (Kompliziertheit), führt dies zu 
+                dem Vorwurf der Unfähigkeit der Modellbauer, bei komplexen Modellen 
+                ein angemessenes Verständnis für die selbst erzeugten ‚Black-Box’ 
+                Konstrukte zu entwickeln. Damit ist gemeint, dass ein Benutzer 
+                keinen Anhaltspunkt hat, wie nach einer Änderung einer Eingangsvariablen 
+                der entsprechende Ausgangswert zustande kommt<a name="_ftnref11"></a><a
+href="#_ftn11" title="">[11]</a>. Dieses Problem der Nachvollziehbarkeit führt 
+                im Zweifelsfall zu einem Verlust der Vertrauenswürdigkeit des 
+                Modells. Ferner ermöglicht es dem Programmierer durch die Festsetzung 
+                von Restriktionen das Modell so zu justieren, dass es die gewünschten 
+                Ergebnisse liefert. <i>‚Grossness’</i> (Grobheit) verstärkt die 
+                Probleme zusätzlich, indem die Modelle mit „aggregierten“ Daten 
+                (Durchschnittswerten) arbeiten, um die Kompliziertheit zu verringern, 
+                dadurch aber trotz der enormen Datenmengen nur allgemeine Aussagen 
+                auf globaler Ebene ermöglichen und nicht auf lokaler, wo sie für 
+                Planungsentscheidungen notwendig wären. </p>
+              <p class=textstandard style='line-height:150%'>Neben diesen noch 
+                heute problematischen Punkten werden Sünden angeführt, die aus 
+                gegenwärtiger Sicht durch den Fortschritt der Technik ihre Relevanz 
+                verloren haben:<i> ‚Mechanicalness’</i>, womit die damaligen computertechnischen 
+                Probleme angesprochen wurden, die durch Rundungsfehler oder die 
+                Bedeutung der sequentiellen Bearbeitung einer Aufgabe zustande 
+                kommen, sowie durch die Schwierigkeiten, ein Problem computergerecht 
+                aufzubereiten, <i>‚Expensiveness’</i> (Kostspieligkeit), steht 
+                für die hohen Kosten, welche für die Beschaffung der erforderlichen 
+                Daten und Prognosen aufgewandt werden mussten. Die kommunalen 
+                und regionalen Geo-Informations-Systeme (GIS), die seit den 1980er 
+                Jahren eingeführt wurden, kosteten zwar ein Vermögen, sind heute 
+                aber etabliert und können als Datengrundlage für die Modelle verwandt 
+                werden.</p>
+              <p class=textstandard style='line-height:150%'>In dem vorliegenden 
+                Projekt wird für einen Umgang mit dem skizzierten Problemkreis 
+                auf Erkenntnisse der Systemtheorie und speziell dem Teilbereich 
+                zurückgegriffen, der sich mit komplexen Systemen beschäftigt, 
+                der Komplexitätstheorie, auf welche später detailliert eingegangen 
+                wird. Vorgreifend lässt sich feststellen, dass die mittlerweile 
+                allgemeingültigen Richtlinien für Modellbauer, die Lee in seinem 
+                Artikel abschließend anführt, mit den Grundsätzen der Komplexitätsforschung 
+                übereinstimmen. </p>
+              <p class=textstandard style='line-height:150%'>Nach Lee ist eines 
+                der wichtigsten Kriterien eines Modells dessen Transparenz. Es 
+                soll mit einem zumutbaren Aufwand für jeden Benutzer leicht verständlich 
+                sein. Diese Forderung entspricht der Reduktion auf die wesentlichen 
+                Systemparameter und deren Relationen. Dadurch wird gewährleistet, 
+                dass bei Unstimmigkeiten im Modell die beteiligten Personen diese 
+                entdecken und benennen können, was wiederum ermöglicht, nach einem 
+                Konsens über die Anfangsannahmen Einigkeit über die Ergebnisse 
+                zu erzielen und eine fruchtbare Zusammenarbeit der am Planungsprozess 
+                beteiligten Personen zu gewährleisten.</p>
+              <p class=textstandard style='line-height:150%'>Ferner ist bei der 
+                Modellkonzeption eine Balance zwischen Theorie, Objektivität und 
+                Intuition anzustreben. Das Vorgehen sollte sich an der Problemstellung 
+                orientieren und dementsprechende Methoden auswählen, nicht umgekehrt.</p>
+              <p class=textstandard style='line-height:150%'>Zusammengefasst sollte 
+                ein Modell formal so einfach wie möglich gehalten werden, da Komplexität 
+                „automatisch“ innerhalb der Modellstruktur entsteht. </p>
+              <p class=textstandard style='line-height:150%'>&nbsp;</p>
+              <h1 class="fett">3.&nbsp;&nbsp;&nbsp; ZIELSETZUNG</h1>
+              <p class=textstandard style='line-height:150%'>Eine Stadt ist ein 
+                komplexes System par excellence. Die Bewohner und ihre Wohnstätten, 
+                die Geschäfte und Produktionsstätten, der Verkehr von Waren und 
+                Personen sind eng miteinander verwoben. Zwischen ihnen besteht 
+                eine Vielzahl dynamischer Abhängigkeiten insofern als eine Veränderung, 
+                die eines der Teile betrifft, komplexe Auswirkungen auf andere 
+                Teile innerhalb des gesamten Systems haben kann.</p>
+              <p class=textstandard style='line-height:150%'>Die zentrale Aufgabenstellung 
+                des Vorhabens besteht darin, die Regeln der einzelnen Elemente 
+                zu erkunden, die in ihrem Zusammenwirken durch Selbstorganisationsmechanismen 
+                jene komplexen Strukturen bilden, die wir in Städten beobachten 
+                können. Ich gehe davon aus, dass bestimmte Zusammenhänge - mit 
+                jeweils verschiedenen Gewichtungen - für alle Siedlungen weltweit 
+                gelten<a name="_ftnref12"></a><a href="#_ftn12"
+title="">[12]</a>. In erster Linie betrifft das die ökonomischen Gesetze des Handels 
+                mit Waren und Ressourcen, sowie das Verhalten der individuellen 
+                und kollektiven Akteure in einer Stadt, also das der Bürger und 
+                politischer oder wirtschaftlicher Gruppierungen. Diese Beziehungen 
+                werden in der Raumwirtschaftstheorie als Wechselwirkungen von 
+                Struktur (Standorttheorie), Interaktion (räumliche Mobilitätstheorie) 
+                und Prozess (regionale Wachstums- und Entwicklungstheorie) behandelt<a name="_ftnref13"></a><a href="#_ftn13" title="">[13]</a>. 
+              </p>
+              <p class=textstandard style='line-height:150%'>Im Kontext der Komplexitätstheorie, 
+                in welchem das Forschungsvorhaben entwickelt wird, müssen die 
+                Untersuchungen von den kleinsten sinnvollen Elementen ausgehen, 
+                um die übergeordneten Emergenzphänomene zu erklären. Dementsprechend 
+                muss vor der Beschäftigung mit den Modellen der einzelnen urbanen 
+                Komponenten ein <i>Simulationskonzept</i> eingeführt werden, welches 
+                darstellt wie das System Stadt computertechnisch repräsentiert 
+                werden kann. Dieses Konzept umfasst die generelle Herangehensweise 
+                sowie die Repräsentation der Elemente und deren Wechselwirkungen. 
+                Die daran anschließende Methodik wird auf dieser Grundlage aufbauen.</p>
+              <p class=textstandard style='line-height:150%'>Die Beschaffenheit 
+                des urbanen Systems wird erkundet, indem zuerst die jeweiligen 
+                Teilbereiche anhand einfacher, abstrakter Teilmodelle untersucht 
+                werden, deren Beziehungen untereinander die Fragestellungen der 
+                Teilbereiche erklären sollen. In der letzten Projektphase werden 
+                die einzelnen Bereiche schließlich miteinander verbunden und bilden 
+                so ein dynamisches Gesamtsystem.</p>
+              <p class=textstandard style='line-height:150%'>Der erste Teilbereich 
+                beschäftigt sich mit der <i>Bevölkerungsverteilung</i> im Raum. 
+                Warum siedeln die Akteure wo, mit welchen Elementen interagieren 
+                sie und welche Aktionsräume nehmen sie für sich in Anspruch?</p>
+              <p class=textstandard style='line-height:150%'>Daran schließt der 
+                Bereich des <i>Bodenmarkts</i> an, der Aufschluss darüber geben 
+                soll, was zur Bildung von Zentren sowohl bei monozentrischen als 
+                auch polyzentrischen Strukturen führt, wie sich die urbanen Funktionen 
+                verteilen und welche Kräfte hinter den Vorgängen der Zersiedelung 
+                und der Ballung stehen.</p>
+              <p class=textstandard style='line-height:150%'>Einen weiteren Bereich 
+                bildet der <i>Verkehr</i>. Dieser ist eng verknüpft mit den ersten 
+                beiden Bereichen und behandelt den Einfluss des Verkehrssystems 
+                und der Verkehrstechnologie auf den Bodenmarkt und die Bevölkerungsverteilung 
+                und vice versa.</p>
+              <p class=textstandard style='line-height:150%'>Nach der Behandlung 
+                dieser Grundthemen folgt eine Beschäftigung mit den <i>Veränderungen</i> 
+                von Strukturen. Warum und nach welchem Muster (periodisch oder 
+                chaotisch) verändern sich die Strukturen im Verlauf der Zeit? 
+              </p>
+              <p class=textstandard style='line-height:150%'>Schließlich rückt 
+                die <i>Umwelt</i> in den Fokus der Auseinandersetzungen. Hier 
+                gilt es zu klären, welche Rolle die Umwelteinflüsse auf die urbane 
+                Entwicklung haben und welche Rückkoppelungen auf die anderen Bereiche 
+                sich durch Emissionen und Immissionen ergeben.</p>
+              <p class=textstandard style='line-height:150%'>Abschließend wird 
+                erläutert, warum die <i>Visualisierung</i> des Verlaufs der dynamischen 
+                Prozesse ein wichtiger Bestandteil des Projekts ist und welche 
+                Möglichkeiten sich für die <i>Planung</i> eröffnen. Also wie Strategien 
+                für eine nachhaltige Stadtentwicklung aussehen können und wie 
+                sich diese in der Ausbildung von Städtebauern und der Praxis des 
+                städtebaulichen Entwerfens nutzen lassen.</p>
+              <p class=textstandard style='line-height:150%'>&nbsp;</p>
+              <h1 class="fett">4.&nbsp;&nbsp;&nbsp; METHODIK</h1>
+              <p class=textstandard style='line-height:150%'>Es war bereits wiederholt 
+                von Komplexität und Selbstorganisation die Rede. An dieser Stelle 
+                sollen die Grundlagen, welche hinter diesen Begriffen stehen, 
+                nochmals zusammenfassend erläutert werden.</p>
+              <p class=textstandard style='line-height:150%'>Die hier konzipierte 
+                Simulation von Stadt kann als adaptives Kollektiv interagierender 
+                Einheiten verstanden werden und steht damit im Gegensatz zu den 
+                ‚top-down’ Ansätzen der ‚Large-Scale Urban Models’, die im Abschnitt 
+                Stand der Forschung beschrieben wurden. Das vorliegende Projekt 
+                ist durch eine generative Vorgehensweise (bottom-up) charakterisiert. 
+                Dabei werden Phänomene als ein Produkt (oder Synthese) vielfacher 
+                Interaktionen einfacher elementarer Einheiten aufgefasst.</p>
+              <p class=textstandard style='line-height:150%'>Für das Verständnis 
+                generativer Systeme sind Selbstorganisation und Emergenz wesentlich. 
+                Das Zutagetreten übergeordneter (globaler) Phänomene auf der Grundlage 
+                einer beschränkten Anzahl von Regeln oder Vorschriften, die auf 
+                lokaler Ebene auf viele abstrakte Entitäten angewandt werden, 
+                wird als Emergenz bezeichnet. Derlei Emergenzphänomene können 
+                z.B. kollektives Verhalten oder räumliche Muster darstellen, die 
+                sich scheinbar selbst durch das Zusammenwirken der einzelnen Teile 
+                organisieren, indem die Interaktionen im Verlauf der Zeit zu gegenseitigen 
+                Adaptionen führen. Das Wesen der Selbstorganisation liegt dabei 
+                in der Art und Weise, wie die Wechselwirkungen zwischen den Elementen 
+                und mit der Umwelt stattfinden. John Holland hat diese Zusammenhänge 
+                mit der einprägsamen Formel „much coming from little“ umschrieben. 
+                Beispiele für derartige Phänomene lassen sich in Verkehrsstaus, 
+                städtischen Slums oder ethnisch homogenen Stadtbezirken finden.</p>
+              <p class=textstandard style='line-height:150%'>Da das Verhalten 
+                dieser Systeme nicht linear und vorhersehbar, sondern an sich 
+                unvorhersehbar ist, werden sie als komplexe Systeme bezeichnet. 
+                Der einzige Weg das Verhalten dieser Systeme zu erforschen, ist 
+                sie zu simulieren.<br>
+              </p>
+              <h2 class="fett" style='line-height:150%'>4.1&nbsp; Simulationskonzept</h2>
+              <p class=textstandard style='line-height:150%'>Ich beginne mit der 
+                Erklärung, wie sich das System Stadt computertechnisch repräsentieren 
+                lässt. Dazu werden verschiedene Repräsentationsformen für Raum, 
+                Zeit und Akteure eingeführt. Ausgehend von dem Paradigma der Objektorientierten 
+                Programmierung (OOP) wird es jeweils eine Klasse geben für:</p>
+              <p class=aufzhlung style='line-height:150%'><span style='font-family:Symbol'>·</span><span
+style='font-size:7.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                </span><i>Räumliche Elemente</i> wie Straßen, Parzellen und Gebäude<a
+name="_ftnref14"></a><a href="#_ftn14" title="">[14]</a>, die als örtlich fixierte 
+                Objekte behandelt werden, deren Zustände (Eigenschaften) sich 
+                aber zu bestimmten Zeitpunkten verändern. In einem ersten Abstraktionsschritt 
+                werden diese Elemente in die Zellen eines regelmäßigen Rasters 
+                übertragen und anhand des Status einer solchen Zelle gespeichert. 
+                Diese Struktur bildet die Grundlage für die Funktionsweise eines 
+                Zellulären Automaten (ZA). Bei einem ZA können der Status und 
+                die Eigenschaften einer Zelle von den Zuständen seiner Nachbarzellen 
+                abhängig gemacht werden und sich bei jedem Zeitschritt verändern<a name="_ftnref15"></a><a href="#_ftn15" title="">[15]</a>. 
+              </p>
+              <p class=aufzhlung style='line-height:150%'><span style='font-family:Symbol'>·</span><span
+style='font-size:7.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                </span><i>Akteure</i>, deren Entitäten im Folgenden als Agenten 
+                bezeichnet werden. Mittels diesen können sowohl individuelle als 
+                auch kollektive urbane Akteure<a name="_ftnref16"></a><a href="#_ftn16" title="">[16]</a> 
+                dargestellt werden. Im Gegensatz zu den Zellen sind Agenten mobil 
+                und können sich frei über das Zellenraster (zellulärer Raum) bewegen. 
+                Dabei lassen sich verschiedene Arten der Kommunikation der Agenten 
+                untereinander, sowie mit den Zellen anhand der Objektmethoden 
+                (interne Verarbeitungsregeln der Objekte) definieren. Das gesamte 
+                System der Agenten wird als Multi-Agenten System (MAS) bezeichnet<a
+name="_ftnref17"></a><a href="#_ftn17" title="">[17]</a>. Ein aus den&nbsp; beiden 
+                Komponenten ZA und MAS bestehendes System bildet ein ‚Inter Representation 
+                Network’ (IRN)<a name="_ftnref18"></a><a href="#_ftn18"
+title="">[18]</a>.</p>
+              <p style='text-align:justify;line-height:150%'> <a href="../Strukturfor/netlogo/wegesystem3.html" target="_self"><em><img
+src="Stadtsimulation-Dateien/image001.gif"
+alt="Textfeld:  &#13;&#10;Abb. 1: Wegesystem.&#13;&#10;&#13;&#10;" width=161 height=189 hspace=12 border="0" align=right v:shapes="_x0000_s1026"></em></a> 
+                <em><span
+style='font-size:10.0pt;line-height:150%;font-family:Arial'>Ein einfaches Beispiel 
+                für ein IRN ist das Modell ‚Wegesystem’ (siehe Prototyp Abb. 01), 
+                bei welchem sich die Agenten des MAS frei über den zellulären 
+                Raum bewegen und dabei jene Zellen markieren, welche sie überquert 
+                haben. Stößt ein Agent in seiner nächsten Umgebung auf eine markierte 
+                Zelle, so bewegt er sich tendenziell in deren Richtung und verstärkt 
+                dadurch die bestehende Markierung. Das System lässt sich mit Fußspuren 
+                über einem frisch ver­schneiten Platz vergleichen, welche im Verlauf 
+                der Zeit durch andere Fußgänger verstärkt, oder bei Nichtbenutzung 
+                wieder verweht werden</span><span style='font-size:9.0pt;
+line-height:150%;font-family:Arial'>.</span></em></p>
+              <p class=textstandard style='line-height:150%'>Für die Repräsentation 
+                des Vergehens der <i>Zeit</i> ist beabsichtigt, mit zwei Zeitkoordinaten 
+                zu arbeiten, die jedem Objekt des Systems zugewiesen werden, um 
+                eine Unterscheidung von Ereignissen nach Gegenwart, Zukunft und 
+                Vergangenheit zu ermöglichen. Dies ist notwendig, um z.B. die 
+                Auswirkungen einer zukünftigen Planung in Bezug zu einer gegenwärtigen 
+                Entwicklung oder Überschneidungen mit anderen Planungen berücksichtigen 
+                zu können. </p>
+              <p class=textstandard style='line-height:150%'>Ferner müssen die 
+                unterschiedlichen Geschwindigkeiten und zeitlichen Rhythmen der 
+                Komponenten berücksichtigt werden: Verkehrssysteme und Flächennutzungen 
+                verändern sich nur in sehr großen Zeiträumen (Jahrhunderte), die 
+                Wohnungsstruktur und der Arbeitsmarkt unterliegen einer mittelschnellen 
+                (Jahrzehnte), die Beschäftigungsstruktur und Bevölkerung dagegen 
+                einer schnellen (Jahre) Veränderungsrate. Der Warentransport und 
+                Personenverkehr erfolgen unmittelbar, wogegen die Auswirkungen 
+                wie Luft- und Lärmbelastung, welche die Umwelt betreffen, indirekt 
+                ablaufen<a name="_ftnref19"></a><a href="#_ftn19" title="">[19]</a>. 
+                Hierzu lassen sich den spezifischen Objekten mittels ihrer Methoden 
+                interne Uhren zuweisen, welche die Geschwindigkeiten kontrollieren. 
+                Eine Umsetzung der Veränderungsrhythmen kann über Schwellenwerte 
+                erfolgen, indem ein Objekt marginale Veränderungsanforderungen 
+                in einem Potentialparameter speichert und eine Veränderung erst 
+                dann stattfindet, wenn das Potential den Schellenwert überschreitet.</p>
+              <p class=textstandard style='line-height:150%'>Als Datengrundlage 
+                für die Simulationsmodelle dienen GIS, auf deren Datenbanken über 
+                ein ‚loose coupling’ zugegriffen wird<a name="_ftnref20"></a><a href="#_ftn20" title="">[20]</a>, 
+                oder indem spezieller GIS Funktionen in die Simulationsumgebung 
+                integriert werden, die einen direkten Datenaustausch erlauben<a name="_ftnref21"></a><a href="#_ftn21" title="">[21]</a>. 
+                Die Auswahl der Methodik wird sich erst im Fortgang des Projektes 
+                aus den möglichen Planungsanwendungen ergeben.<br>
+              </p>
+              <h2 class="fett" style='line-height:150%'>4.2&nbsp; Bevölkerungsverteilung</h2>
+              <p class=textstandard style='line-height:150%'>Eine Antwort auf 
+                die Fragestellungen, warum bestimmte Akteure wo siedeln und welche 
+                Aktionsräume sie für sich in Anspruch nehmen, hängt mit einer 
+                Vielzahl von Einflussfaktoren zusammen. Zu diesen gehört insbesondere 
+                im städtischen Raum der Bodenmarkt, welcher unter dem nächsten 
+                Punkt besprochen wird. Bodenpreise und Nutzungsdichten sind eng 
+                miteinander verknüpft, sie sind sozusagen verschiedene Seiten 
+                derselben Medaille (Eine Veränderung in dem einen Bereich findet 
+                nicht ohne Auswirkungen auf den Anderen statt): Beide Teilsysteme 
+                bilden zusammen eine zirkuläre Kausalität. Unter diesem Punkt 
+                soll betrachtet werden, wie es zur Bildung von Zentren kommt. 
+                Deren Wirkungen sollen unter Punkt 4.3 <span
+class=GramE>Bodenmarkt</span> untersucht werden. </p>
+              <p class=textstandard style='line-height:150%'>Der Begriff des Zentrums 
+                kann in seiner Bedeutung je nach Betrachtungsebene variieren. 
+                So verteilen sich beispielsweise über die ganze Welt Handels- 
+                oder Technologiezentren in Form bedeutender Städte oder Regionen. 
+                Begrenzt man das Blickfeld auf ein Land, werden Städte nach ihrem 
+                Rang geordnet, entsprechend ihrer Bevölkerungszahl oder Produktionsleistung. 
+                Eine Stadt für sich beinhaltet wiederum mindestens ein Stadtzentrum, 
+                den so genannten zentralen Handelsbereich (Central Business Distrikt 
+                CBD). Einzelne Stadtgebiete unterscheiden sich danach, ob sie 
+                vorwiegend Produktions-, Handels- oder Wohnnutzungen beherbergen 
+                oder bei einer heterogenen Zusammensetzung als Mischgebiet gelten. 
+                Die verschiedenen Gebiete bilden untergeordnete Zentren innerhalb 
+                der Stadt, welche die Bebauungsart und -dichte definieren. Diese 
+                Hierarchie der Zentren setzt sich fort bis in die Wohnungen, in 
+                welchen die Zimmer mit der höchsten Nutzungsdauer die zentralen 
+                Räume darstellen.</p>
+              <p class=textstandard style='line-height:150%'>Die Entstehung und 
+                Dynamik der Zentren innerhalb einer Stadt, welche hier besprochen 
+                werden, hängen von exogenen sowie endogenen Einflüssen ab. Exogene 
+                Einflüsse sind z.B. topographische Gegebenheiten oder stadtplanerische 
+                Konzepte. Die endogenen Faktoren, welche dem Prozess der Zentrenbildung 
+                zugrunde liegen, setzen sich zusammen aus den Präferenzen der 
+                individuellen oder kollektiven Akteure, welche sich ökonomisch 
+                anhand des Wertes eines Standortes ausdrücken lassen und als „anziehende“ 
+                oder „abstoßende“ Wechselwirkung zwischen den unterschiedlichen 
+                Bebauungsarten modelliert werden können (siehe Segregationsmodell, 
+                Prototyp Abb. 2). Der Wert eines Standorts hängt ab von dessen 
+                Entfernung zu anderen Standorten (zu ermitteln über Erreichbarkeitsanalysen<a name="_ftnref22"></a><a href="#_ftn22"
+title="">[22]</a>) und dem sozialen Umfeld. Diese Entfernungen werden auf zweierlei 
+                Weise bewertet: erstens gemäß der Fahrtkosten, die durch die Wahl 
+                des Standortes ent­&#8209; bzw. anfallen (siehe Skalenerträge, 
+                Prototyp Abb. 3), und zweitens danach, ob der Ausblick angenehm, 
+                die Umgebung passend und die Emissionsquellen von Störungen und 
+                Beeinträchtigungen fern sind. Die Bewertung der Bezüge der letzteren 
+                Art leitet sich <a href="../../Strukturfor/delphi/delphiF.htm#Segregat" target="_self"><img
+src="Stadtsimulation-Dateien/image002.gif"
+alt="Textfeld:  &#13;&#10;    Abb. 2: Segregationsmodell.&#13;&#10;&#13;&#10;" width=167 height=189 hspace=12 border="0" align=right
+v:shapes="_x0000_s1027"></a> nicht aus den Preisen für knappe Ressourcen ab, sondern 
+                aus den Raten räumlicher Diskontierung<a name="_ftnref23"></a><a
+href="#_ftn23" title="">[23]</a>. </p>
+              <p class=MsoCaption style='line-height:150%'><em><font size="2" face="Times New Roman, Times, serif"><span style='font-size:10.0pt;
+line-height:150%;font-family:Arial'>Segregationsmodell</span><span
+style='font-size:10.0pt;line-height:150%;font-family:Arial'> (siehe Abb.2): Verschiedene 
+                Agenten (in Abb. 2 blau und gelb markierte Punkte) repräsentieren 
+                Nutzungen, die räumlich nicht zusammen liegen sollen. Im Modell 
+                werden die Zellen um einen Agenten herum seiner Nutzung entsprechend 
+                markiert. Dieser Raum ist beispielsweise durch Emissionen eines 
+                Gewerbebetriebs beeinträchtigt (blau). Wohnnutzungen (gelb) bleiben 
+                diesen Flächen fern. Es entstehen automatisch Cluster der verschiedenen 
+                Farben um die Anlagerungspunkte (rot).</span><span
+style='font-size:10.0pt;line-height:150%;font-family:Arial'></span></font></em></p>
+              <p class=MsoCaption style='line-height:150%'><span style='font-size:10.0pt;
+line-height:150%;font-family:Arial'><em>Skalenerträge</em></span><em><span
+style='font-size:10.0pt;line-height:150%;font-family:Arial'> (siehe Abb. 3): Das 
+                Modell zeigt, wie sich positive Skalenerträge auf das Einzugsgebiet 
+                eines Herstellers/Händlers (Markt) auswirken: Bei der Herstellung 
+                eines Produktes fallen bestimmte Kosten an. Kann eine größere 
+                Anzahl der Produkte verkauft werden (versch. farbige Einzugsgebiete), 
+                sinken die Kosten pro Produkt (Skalenertrag). Es </span> <a href="../../Strukturfor/delphi/delphiF.htm#Skalenertr" target="_self"><img
+src="Stadtsimulation-Dateien/image003.gif"
+alt="Textfeld:  &#13;&#10;         Abb. 3: Skalenerträge.&#13;&#10;" width=173 height=188 hspace=12 border="0" align=right v:shapes="_x0000_s1028"></a> 
+                <span
+style='font-size:10.0pt;line-height:150%;font-family:Arial'>lohnt sich somit für 
+                einen Käufer, einen weiteren Weg zurückzulegen, um das billiger 
+                gehandelte Produkt zu erwerben, wodurch allerdings seine Fahrtkosten 
+                steigen. Die erhöhte Nachfrage in einem Markt führt wiederum zu 
+                einer weiteren Preissenkung. Bei dem dadurch entstehenden Konkurrenzkampf 
+                um Absatzgebiete können sich einige Anbieter durchsetzen und örtliche 
+                Monopole bilden. An den Grenzen der Einzugsgebiete gleichen sich 
+                die Fahrtkosten und die Kosten des Produkts im nächstgelegenen 
+                Markt aus. Bei teureren Produkten verstärkt sich diese Wirkung 
+                der Skalenerträge.</span><span style='font-size:10.0pt;line-height:150%'> 
+                </span></em><span style='font-size:10.0pt;line-height:150%'> </span></p>
+              <p class=textstandard style='line-height:150%'>Die Umwelteinflüsse 
+                (Ressourcen, Emissionen und Immissionen) werden mittels der Objekteigenschaften 
+                der Zellen als Umweltdaten in das Rastermodell aufgenommen, welches 
+                mindestens die Komponenten Luftverschmutzung, Lärmbelastung, Verbrauch 
+                natürlicher Ressourcen, Umwelt- und Landschaftsqualitäten sowie 
+                unverbauter Raum enthält. <a
+name=Skalenertr></a><br>
+              </p>
+              <h2 class="fett" style='line-height:150%'>4.3&nbsp; Bodenmarkt</h2>
+              <p class=textstandard style='line-height:150%'>Ist das System der 
+                Zentren ansatzweise definiert, sind auch die Randbedingungen für 
+                ein Bodenmarktmodell in Anlehnung an Thünen (siehe Abb. 4) und 
+                Alonso zustande gekommen. &nbsp;Dieses regelt auf gesamtstädtischer 
+                (Makro-) Ebene das Layout der Grundstücke und Erschließungswege. 
+                Ferner stellen die Bodenpreise den Zusammenhang zwischen Fahrtkosten 
+                und Nutzungsdichten her (siehe Punkt 4.2).</p>
+              <p class=textstandard style='line-height:150%'>Als ein erster Lösungsansatz 
+                soll hier ein <a name=Thuenen></a>Verhandlungsmodell für die Landnutzung 
+                nach von Thünen vorgestellt werden (siehe Prototyp Abb. 4). Im 
+                Gegensatz zur Berechnung idealer Landzonierungen, wird hier für 
+                eine gegebene Menge von Nutzungen deren ideale Verteilung verhandelt.</p>
+              <p class=textstandard style='line-height:150%'><span style='font-size:10.0pt;
+line-height:150%;font-family:Arial'><em>Verhandlungsmodell </em></span><em><span
+style='font-size:10.0pt;line-height:150%;font-family:Arial'>(siehe Abb. 4): Eine 
+                Zelle repräsentiert im Modell einen Landwirt, der versucht, den 
+                Gewinn mit </span> <a href="../../Strukturfor/delphi/delphiF.htm#Thuenen" target="_self"><img
+src="Stadtsimulation-Dateien/image004.gif"
+alt="Textfeld:  &#13;&#10;Abb. 4: Verhandlungsmodell&#13;&#10;" width=181 height=189 hspace=12 border="0" align=right v:shapes="_x0000_s1029"></a> 
+                <span
+style='font-size:10.0pt;line-height:150%;font-family:Arial'>seinem Anbauprodukt 
+                zu maximieren. Der Gewinn ist abhängig von der Produktivität, 
+                der Entfernung zum Markt und den Transportkosten für die unterschiedlichen 
+                Güter. Die Verhandlungsregeln sind so definiert, dass jeder Landwirt 
+                innerhalb eines definierten Umgebungsbereichs vergleicht, ob er 
+                auf einem anderen Grundstück mit seinem Anbauprodukt einen höheren 
+                Gewinn erzielen kann. Ist dies der Fall, versucht er dieses einzutauschen. 
+                Kommt es dabei zu einer Konkurrenz bei der Nutzung einer Parzelle, 
+                unterliegt derjenige Landwirt, der mit seinem Produkt an dieser 
+                Stelle einen geringeren Gewinn erwirtschaften würde als sein Konkurrent. 
+                Eine erste Besonderheit bei diesem ‚bottom-up’ Ansatz ist die 
+                Abhängigkeit der Landnutzungsstruktur von dem Umgebungsbereich, 
+                innerhalb welchem ein Vergleich stattfindet. Ist dieser relativ 
+                gering, kommt es nicht zu einer idealen Verteilung. </span></em></p>
+              <p class=textstandard style='line-height:150%'>Auf einem derartigen 
+                dezentralen Verhandlungs- und Vergleichsmodell aufbauend soll 
+                eine der grundlegenden Aufgaben dieses Projektes angegangen werden, 
+                die darin besteht, dass Zusammenwirken mit den Teilmodellen für 
+                die Bevölkerungsumverteilung (4.1) und des Verkehrssystems (4.3) 
+                aufzuzeigen, wodurch sich das Zustandekommen sowie die Auswirkungen 
+                der Bodenpreise eingehend untersuchen lassen: Die Nachfrage nach 
+                zentralen Gütern führt zu einem erhöhten Verkehrsaufkommen zum 
+                Zentrum hin und resultiert in der Nachfrage nach Raum für mobile 
+                und immobile Nutzungen, was sich in den Quadratmeterpreisen widerspiegelt. 
+                Dieses Zusammenspiel kann zu einem effizienten Marktgleichgewicht 
+                führen<a name="_ftnref24"></a><a
+href="#_ftn24" title="">[24]</a>, welches den Ausgleich räumlicher und zeitlicher 
+                Knappheit herstellt und den Verlauf der Dichte- und Bodenpreisgradienten 
+                reproduziert, dessen statistische Regelmäßigkeit sich empirisch 
+                nachweisen lässt. Die Relativität räumlicher und zeitlicher Knappheit 
+                besteht darin, dass erstens räumliche Entfernung in Fahrtzeit 
+                übersetzt und Fahrzeit zweitens zur Geräumigkeit der Verkehrskorridore 
+                in Abhängigkeit gesetzt wird. Der dem Verkehr gewidmete Raum geht 
+                vom Raum für die immobilen Nutzungen ab, die er verbindet. Je 
+                mehr Raum für einen schnell und reibungslos fließenden Verkehr 
+                verwandt wird, desto knapper wird der Raum für diejenigen Nutzungen, 
+                welche die Nähe zum Zentrum wegen der Zeitersparnis und den höheren 
+                Erträgen suchen.</p>
+              <p class=textstandard style='line-height:150%'>Schließlich bilden 
+                die Verkehrsbelastungen in Form von Lärmbelästigung und Luftverschmutzung 
+                die Emissionen für das Umweltmodell und die Dichte der Besiedlung 
+                wirkt sich auf die Ressourcen an unverbauter Landschaft aus. Als 
+                technische Grundlage, z.B. für die Berechnung der Ausbreitung 
+                von Abgasen greife ich auf das Diffusionsmodell<a
+name="_ftnref25"></a><a href="#_ftn25" title="">[25]</a> zurück. Als Immissionen 
+                wirken die Belastungen und Beeinträchtigungen auf die Raten räumlicher 
+                Diskontierung zurück, wodurch sich ein weiterer Rückkoppelungskreis 
+                über das Umweltmodell zur Standortbewertung schließt.<br>
+              </p>
+              <h2 class="fett" style='line-height:150%'>4.4&nbsp; Verkehr</h2>
+              <p class=textstandard style='line-height:150%'>Wie das Verkehrs-Teilmodell 
+                in das Gesamtmodell zu integrieren ist, wurde unter dem letzten 
+                Punkt (4.3) dargestellt. Im Folgenden wird erläutert, wie erstens 
+                die Struktur der Verkehrsverbindungen computertechnisch erfasst 
+                werden kann und wie sich zweitens die Benutzung dieser Struktur 
+                ausdrücken lässt.</p>
+              <p class=textstandard style='line-height:150%'><i>Fraktale Struktur 
+                des Transportsystems:</i> Als weitere Form der Selbstorganisation 
+                wird die fraktale Geometrie von erschließenden und erschlossenen 
+                Räumen behandelt<a
+name="_ftnref26"></a><a href="#_ftn26" title="">[26]</a>. Von der kleinsten architektonischen 
+                Einheit –dem einzelnen Zimmer – ausgehend, stellt sich die gebaute 
+                Struktur als eine Abfolge von erschlossener Raumeinheit und erschließendem 
+                Umraum dar: Das Zimmer wird vom Gang, die Wohnung vom Treppenhaus, 
+                das Treppenhaus vom Grundstückszugang, der Häuserblock von der 
+                Anliegerstraße, das Quartier von der Durchgangsstraße usw. erschlossen.</p>
+              <p class=textstandard style='line-height:150%'>Als Grundlage für 
+                die Ableitung des beschriebenen fraktalen Graphen können die Daten 
+                des Verkehrsnetzes der untersuchten Region aus einem GIS herangezogen 
+                werden. Dadurch erhält man die geometrisch-räumliche Struktur 
+                des Netzwerks, welches die Ausgangsdaten für Wegelängen, Verkehrsauslastungen, 
+                Instandhaltungskosten usw. liefert. Daraus werden die topologischen 
+                Eigenschaften eines gewichteten Graphen hergeleitet, auf dessen 
+                Basis sich Erreichbarkeitsanalysen anhand der Konvektivität des 
+                Graphen sowie Kosten-Nutzen-Verhältniswerte berechnen lassen. 
+                Erstere sind relevant für Standortanalysen und Aussagen über die 
+                Ausprägung der abgestuften Zugangsrechte bestimmter Räumlichkeiten, 
+                welche eng verbunden sind mit der sozialen Struktur einer Stadt. 
+                Letztere schließen im Zusammenspiel mit den Daten der Flächennutzungen 
+                den Wirkungskreis zum Bodenmarkt. Diese zirkuläre Abhängigkeit 
+                geht mit Effekten sich multiplizierender Parameter einher, deren 
+                Untersuchung einen der zentralen Gegenstände dieses Vorhabens 
+                darstellt.</p>
+              <p class=textstandard style='line-height:150%'><i>Benutzung des 
+                Transportsystems:</i> Analog zu der räumlich fraktalen Struktur 
+                des Erschließungssystems lässt sich eine fraktale Zeitstruktur 
+                bei dessen Benutzung feststellen: Man geht so und so oft im Zimmer 
+                umher, bevor man auf den Gang tritt; man geht so und so oft in 
+                der Wohnung umher, bevor man sie verlässt; man legt so und so 
+                viele Hin- und Rückwege im Quartier zurück, bevor man umliegende 
+                Quartiere aufsucht; man fährt so und so oft in der eigenen Stadt 
+                umher, bevor man eine andere besucht usw. Diese Pendelbewegungen 
+                bilden zusammengenommen eine Hierarchie von wiederum sich selbst 
+                ähnlichen Rhythmen und sind meist typisch stabile Prozesse. Sie 
+                führen zum Ausgangspunkt zurück und streben einem Gleichgewicht 
+                zu. </p>
+              <p class=textstandard style='line-height:150%'>Die Summe der Bewegungen 
+                eines Akteurs in einem bestimmten Zeitraum kann als ‚Spur’ dargestellt 
+                werden, welche als <i>Trajektorie</i> bezeichnet wird, deren räumliche 
+                Ausdehnung wiederum den <i>Aktionsraum</i> eines Akteurs bildet. 
+                Trajektorien werden bei jedem Akteursobjekt (Agent) erfasst, indem 
+                eine Eigenschaft als ‚historischer Container’ die Raumkoordinaten 
+                der zurückgelegten Wege des Akteurs mit den zugehörigen Zeitkoordinate 
+                speichert. Dadurch lassen sich die Trajektorien und Aktionsräume 
+                in allen möglichen Zeiträumen abrufen und analysieren, was für 
+                den folgenden Punkt wichtig ist.<br>
+              </p>
+              <h2 class="fett" style='line-height:150%'>4.5&nbsp; Veränderungen</h2>
+              <p class=textstandard style='line-height:150%'>In einer Stadt findet 
+                sich keine zentrale Planungseinrichtung, welche das Problem der 
+                Verteilung von Angebot und Nachfrage löst. Trotzdem werden verheerende 
+                Schwankungen zwischen Knappheit und Überangebot über die Jahre 
+                und Dekaden hinweg vermieden. Diese geheimnisvolle Selbstregulierung 
+                wird umso rätselhafter, wenn man die facettenreiche Natur großer 
+                Städte in Betracht zieht. Käufer, Verkäufer, Verwaltung, Straßen, 
+                Brücken und Gebäude unterliegen einer ständigen Veränderung, so 
+                dass die Kohärenz einer Stadt auf wundersame Weise aus einem kontinuierlichen 
+                Fluss von Menschen und Strukturen besteht. Gleichsam einer stehenden 
+                Welle vor einem Fels in einem schnell fließenden Strom, bildet 
+                eine Stadt ein Muster in der Zeit.</p>
+              <p class=textstandard style='line-height:150%'> <img width=212 height=146
+src="Stadtsimulation-Dateien/image005.gif" align=right hspace=12
+alt="Textfeld:  &#13;&#10;Abb. 5: Trajektorie eines Lorenz-Attraktors&#13;&#10;"
+v:shapes="_x0000_s1030"> Dieses Bild von John Holland wird in der Sprache der 
+                Komplexitätstheorie als seltsamer Attraktor beschrieben, ein System 
+                am Rande des Chaos, welches weder einem Gleichgewichtspunkt (Attraktor) 
+                zustrebt, noch in unregelmäßiges Chaos abgleitet, sondern dazwischen 
+                pendelt (siehe Abb. 5). </p>
+              <p class=textstandard style='line-height:150%'>Um die Vorgänge in 
+                einer Stadt für meine Untersuchungen greifbar zu machen, werden 
+                nicht nur die Bewegungen eines Akteurs, sondern auch der Verlauf 
+                aller möglichen Prozesse mittels Trajektorien erfasst, deren Gestalten 
+                als vierdimensionale (drei Raumkoordinaten zur Positionsbeschreibung 
+                plus Zeitkoordinate) ‚Linien’, ‚Röhren’ oder ‚Bäume’ dargestellt 
+                werden können. Ein anschaulicher Beispielfall von röhrenartigen 
+                Prozessen sind Fahrzeuge, deren Grundfläche im Prinzip gleich 
+                bleibt, aber insofern schwankt, als die in Anspruch genommene 
+                Verkehrsfläche mit der Fahrtgeschwindigkeit variiert. Baumartig 
+                sind Prozesse, in deren Zustandsfolge Objekte aus Teilen zusammengesetzt 
+                und in Teile wieder aufgelöst werden. Das Standardbeispiel eines 
+                baumartigen Prozesses ist die Geschichte einer Parzelle, die durch 
+                mehrfache Verschmelzung und Teilung ihre aktuelle Gestalt gefunden 
+                hat. </p>
+              <p class=textstandard style='line-height:150%'>Aus der Form der 
+                Trajektorien lassen sich Aktivitätsmuster ableiten (tägliche, 
+                wöchentliche, saisonale und jährliche Austauschprozesse), die 
+                Aussagen erlauben über die Benutzungsfrequenz räumlicher Einheiten. 
+                Diese Aktivitätsmuster werden als Rhythmen bezeichnet<a
+name="_ftnref27"></a><a href="#_ftn27" title="">[27]</a>.</p>
+              <p class=textstandard style='line-height:150%'>Die Klassifikation 
+                sozialer Prozesse nach dem Grad der Stabilität ihrer Rhythmen 
+                (stabil, konservativ, instabil, selbstorganisierend) eignet sich 
+                als neuer und viel versprechender Ansatz zur Beschreibung der 
+                räumlichen Wirkungen sich verändernder Zeitstrukturen. Als Generalannahme 
+                kann nämlich gelten, dass wir es dort, wo räumlich dauerhafte 
+                Strukturen vorliegen, mit stabilen Prozessen in den zugehörigen 
+                Aktivitätsmustern zu tun haben. Städte sind als räumliche Strukturen 
+                so dauerhaft, weil sie Aktivitätsmuster mit außerordentlich stabilen 
+                Rhythmen bergen.<br>
+              </p>
+              <h2 class="fett" style='line-height:150%'>4.6&nbsp; Visualisierung</h2>
+              <p class=textstandard style='line-height:150%'>Neben der Simulation 
+                urbaner Mechanismen ist es ein zentrales Anliegen des Projektes, 
+                diese grafisch darzustellen. Nur durch eine allgemeinverständliche 
+                Visualisierung der Prozesse kann bei den am Planungsprozess Beteiligten 
+                ein Bewusstsein für die Problematik der dynamischen Abhängigkeiten 
+                sich gegenseitig beeinflussender Einflussgrößen geschaffen werden. 
+                Unter dem Modellkriterium der Transparenz wurde die Bedeutung 
+                der Nachvollziehbarkeit einer Simulation bereits diskutiert<a name="_ftnref28"></a><a
+href="#_ftn28" title="">[28]</a>. Umgesetzt wird diese Anforderung durch den hierarchischen 
+                Aufbau der Teilbereiche, deren Funktionsweisen anhand einzelner 
+                Teilmodelle nachvollzogen werden können. Als Beispiele für die 
+                grafische Aufbereitung der Prozessverläufe können die bereits 
+                angefertigten Prototypen herangezogen werden, die als eigene Windowsprogramme 
+                konzipiert wurden und technisch auf der Windows Schnittstelle 
+                zur Anwendungsprogrammierung (Windows-API) beruhen.</p>
+              <p class=textstandard style='line-height:150%'>Die Visualisierung 
+                räumlicher Prozesse beinhaltet neben einer Darstellung der Dynamik 
+                räumlicher Prozesse die vektorbasierte Abbildung der städtischen 
+                Struktur. Zu diesem Zweck müssen die topologischen Relationen, 
+                die aus den Raumbeziehungen hervorgehen, ständig von einer geometrischen 
+                Darstellung begleitet werden. Die Restriktionen, welche mit der 
+                Geometrie der räumlichen Elemente verbunden sind, werden an die 
+                topologischen Organisationsmöglichkeiten rückgekoppelt<a name="_ftnref29"></a><a
+href="#_ftn29" title="">[29]</a>. Die dadurch ermöglichte vektorbasierte Abbildung 
+                soll eine präzise Darstellung und eine Anbindung an die Datenstruktur 
+                bestehender GIS erlauben.</p>
+              <p class=textstandard style='line-height:150%'>&nbsp;</p>
+              <h2 class="fett" style='line-height:150%'>5.&nbsp;&nbsp;&nbsp; PLANUNG</h2>
+              <p class=textstandard style='line-height:150%'>Im Verlauf des vorliegenden 
+                Projekts soll ein Computerprogramm entwickelt werden, welches 
+                die Untersuchung der Auswirkungen alternativer Planungen und Strategien 
+                innerhalb des städtischen Gefüges anhand klar umrissener Szenarienmodelle 
+                erlaubt. An dieser Stelle wird abschließend noch einmal zusammengefasst, 
+                was das Programm leisten soll:</p>
+              <p class=aufzhlung style='line-height:150%'><span style='font-family:Symbol'>·</span><span
+style='font-size:7.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                </span>Die Manipulation von Einflussgrößen (Kontrollparameter) 
+                mittels einer grafischen Benutzeroberfläche erlaubt die interaktive 
+                Einflussnahme auf die ablaufenden Prozesse. </p>
+              <p class=aufzhlung style='line-height:150%'><span style='font-family:Symbol'>·</span><span
+style='font-size:7.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                </span>Die einzelnen Teilprogramme können zur Erweiterung der 
+                Funktionalität bestehender GIS dienen, beispielsweise zur Visualisierung 
+                von Verkehrsströmen und der Kartierung von Aktionsräumen. </p>
+              <p class=aufzhlung style='line-height:150%'><span style='font-family:Symbol'>·</span><span
+style='font-size:7.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                </span>Die Simulation der komplexen Zusammenhänge in urbanen Handlungsfeldern, 
+                die nicht als allumfassendes Stadtmodell sondern als „Denkwerkzeug“ 
+                verstanden werden soll, ermöglicht gezielte Prognosen städtischer 
+                Szenarien. </p>
+              <p class=aufzhlung style='line-height:150%'><span style='font-family:Symbol'>·</span><span
+style='font-size:7.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                </span>Das zu konzipierende Programm ist zum einen als Planungsinstrumentarium 
+                zu nutzen, denn es ermöglicht ein besseres Verständnis komplexer 
+                Zusammenhänge verschiedener Einflussgrößen auf die Stadtentwicklung 
+                und erleichtert somit administrative und politische Entscheidungen, 
+                die als exogene Einflüsse in das Simulationsprogramm aufgenommen 
+                werden. </p>
+              <p class=aufzhlung style='line-height:150%'> <img width=305 height=238
+src="Stadtsimulation-Dateien/image006.gif" align=right hspace=12
+alt="Textfeld:  &#13;&#10;Abb. 6: Simulation als Kommunikationsplattform&#13;&#10;"
+v:shapes="_x0000_s1031"> <span style='font-family:Symbol'>·</span><span
+style='font-size:7.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                </span>Zum anderen können administrative und politische Entscheidungen 
+                der Bevölkerung besser vermittelt werden, wenn die den Entscheidungen 
+                zugrunde gelegten Zusam-menhänge visualisier- und damit besser 
+                nachvollziehbar sind (siehe Abb. 6).</p>
+              <p class=aufzhlung style='line-height:150%'><span style='font-family:Symbol'>·</span><span
+style='font-size:7.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                </span>Nicht zuletzt eröffnen sich durch die Visualisierung räumlicher 
+                Prozesse neue Möglichkeiten für die Partizipation der Bevölkerung 
+                an der Stadtplanung (e-Democracy). Beispielsweise lassen sich 
+                unterschiedliche Interessen als Kontrollparameter ausdrücken. 
+                Die jeweiligen Simulations-modelle könnten den Bürgern zugänglich 
+                gemacht werden, womit die Auswirkungen der Haltungen unterschiedlicher 
+                Interessengruppen für den Einzelnen unmittelbar einsichtig würden 
+                (siehe Abb. 6).</p>
+              <p class=aufzhlung style='line-height:150%'>&nbsp;</p>
+              <h1 class="fett">6.&nbsp;&nbsp;&nbsp; LITERATUR</h1>
+              <p class=textstandard style='line-height:150%'>Die Programme, denen 
+                die Abbildungen für die Prototypen entnommen wurden sind im Internet 
+                erhältlich unter: <a href="https://www.entwurfsforschung.de/alt/Strukturfor/delphi/delphi.htm" target="_self"><span
+style='color:windowtext;text-decoration:none;text-underline:none'><font color="#CC0000"><u>http://www.entwurfsforschung.de/Strukturfor/delphi/delphi.htm</u></font></span></a><font color="#990000">&nbsp;</font></p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>BATTY, 
+                Michael (2005): <i>Cities and Complexity. <span class=GramE>Understanding 
+                Cities with Cellular Automata, Agent-Based Models, and Fractals.</span> 
+                </i></span>Cambridge: MIT Press.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>BAURIEDEL, 
+                Christan / KÖNIG, Reinhard (2004): <i>Computergenerierte Stadtstrukturen.</i> 
+                München: Eigenverlag. Internet unter <span lang=EN-GB><a href="https://www.entwurfsforschung.de/alt/compStadt/compStadt.htm" target="_self"><span lang=DE
+style='color:windowtext;text-decoration:none;text-underline:
+none'><font color="#CC0000"><u>http://www.entwurfsforschung.de/compStadt/compStadt.htm</u></font></span></a></span></p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>BENENSON, 
+                Itzhak / </span><span
+ lang=EN-GB>TORRENS</span><span
+lang=EN-GB>, Paus M. (2004): <i>Geosimulation – Automata-based modeling of urban 
+                phenomena.</i> </span><st1:country-region><span
+  lang=EN-GB>England</span></st1:country-region><span
+lang=EN-GB>: John Wiley &amp; Sons.</span></p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>ELEZKURTAJ, 
+                Tomor / FRANCK, Georg (2002): <i><a
+href="http://www.iemar.tuwien.ac.at/publications/" target="_blank"><span
+style='color:windowtext;text-decoration:none;text-underline:none'><font color="#CC0000"><u>Algorithmic 
+                Support of Creative Architectural Design</u></font></span></a></i>, 
+                IEMAR, </span><span
+  lang=EN-GB>Vienna University of Technology.</span></p>
+              <p class=literaturverzeichnis style='line-height:150%'>FORRESTER, 
+                J. W. (1969): <i>Urban Dynamics.</i> Cambridge, MA, MIT Press.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>FRANCK, Georg 
+                / WEGENER, Michael (2002): Die Dynamik Räumlicher Prozesse. In 
+                <i>Raumzeitpolitik</i>. Edited by Henckel, Dietrich and Eberling, 
+                Matthias, 145-162, Opladen: Leske + Budrich.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>FRANCK, Georg 
+                (2002): Soziale Raumzeit. In <i>Raumzeitpolitik</i>. Edited by 
+                Henckel, Dietrich and Eberling, Matthias, 61-80, Opladen: Leske 
+                + Budrich.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>FRANCK, Georg 
+                (1992): <i>Raumökonomie, Stadtentwicklung und Umweltpolitik,</i> 
+                Stuttgart: Kohlhammer.</p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>GEDDES, 
+                Patrick (1915): <i>Cities in Evolution.</i> </span><span lang=EN-GB>London</span><span
+lang=EN-GB>: Wiliams and Norgate.</span></p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>GAEBE, 
+                Wolf (2004): <i>Urbane Räume.</i> </span>Stuttgart: Eugen Ulmer.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>HAGGETT, 
+                Peter (1983): <i>Geographie. Eine moderne Synthese.</i> <span lang=EN-GB>New 
+                York</span><span
+lang=EN-GB>: Harper &amp; Row.</span></p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>HILLIER, 
+                Bill (1996): <i>Space is the Machine.</i> </span>Cambridge University 
+                Press.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>HUMPERT, 
+                Klaus (1994): <i>Das Phänomen der Stadt. Berichte aus Forschung 
+                und Lehre.</i> Arbeitsbericht des Städtebaulichen Instituts der 
+                Universität Stuttgart.</p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>LEE, 
+                Douglas B. (1973): A requiem for large scale modeling. In: <i>Journal 
+                <span class=GramE>Of</span> The American Institute Of Planners</i> 
+                39(3): 163 – 178.</span></p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>LOWRY, 
+                </span><span lang=EN-GB>I.</span><span lang=EN-GB> S. (1964): 
+                <i>A model of metropolis</i>. </span><span
+  lang=EN-GB>Santa Monica</span><span
+lang=EN-GB>, DA, <span class=GramE>The</span> RAND Corporation: 136.</span></p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>PORTUGALI, 
+                Juval (2000): <i>Self-Organization and the City</i>. <span class=GramE>Edited 
+                by Hermann Haken, Springer Series in Synergetics.</span> </span>Berlin 
+                Heidel­berg: Springer.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>SCHÄTZL, 
+                Ludwig (2003): <i>Wirtschaftsgeographie 1</i>, Theorie. 9.Auflage, 
+                Erstveröffentlicht 1979. UTB 782, Paderborn: Ferdinand Schöningh.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>SIMON, Herbert 
+                A. (1994): <i>Die Wissenschaften vom Künstlichen.</i> <span lang=EN-GB>2. 
+                Auflage, Wien: Springer. (Originalausgabe 1981: The Sciences of 
+                the Artificial. </span><span
+  lang=EN-GB>Cambridge</span><span
+lang=EN-GB>: MIT Press.) </span></p>
+              <p class=literaturverzeichnis style='line-height:150%'><span lang=EN-GB>WEGENER, 
+                Michael (1994): Operational Urban Models – State of the Art. </span>In 
+                <i>American Planning Association</i> Journal, Vol. 60, No.1, Winter 
+                1994, Chicago.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>WEGENER, 
+                Michael / SPIEKERMANN, Klaus (2002): Beschleunigung und Raumgerechtigkeit. 
+                In <i>Raumzeitpolitik</i>. Edited by Henckel, Dietrich and Eberling, 
+                Matthias, 145-162, Opladen: Leske + Budrich.</p>
+              <p class=literaturverzeichnis style='line-height:150%'>WEGENER, 
+                Michael (2004): Urban Land-Use Transportation Models. In: David 
+                Maguire, Michael Batty and Michael F. Goodchild (Eds.): <i>GIS, 
+                Spatial Analysis and Modeling</i>. <span
+  lang=EN-GB>Redlands</span><span
+ lang=EN-GB>, </span><span
+  lang=EN-GB>CA</span><span
+lang=EN-GB>: ESRI Press, 203-220.</span></p>
+              <div> 
+                <hr size=1 width="33%" align=left>
+              </div>
+              <div id=ftn1> 
+                <p class=MsoFootnoteText><a
+name="_ftn1"></a><a href="#_ftnref1" title=""><span
+class=MsoFootnoteReference>[1]</span></a> &nbsp; <span style='font-size:9.0pt'>Dieses 
+                  sind: Verkehrsnetz mit Personenverkehr und Warentransport, Bevölkerung 
+                  mit Wohnungsstruktur und Beschäftigungsverhältnissen, Arbeitsmarkt, 
+                  Flächennutzung. Siehe Wegener (1994)</span></p>
+              </div>
+              <div id=ftn2> 
+                <p class=MsoFootnoteText><a name="_ftn2"></a><a href="#_ftnref2" title=""><span class=MsoFootnoteReference>[2]</span></a><span
+style='font-size:9.0pt'> siehe Haggett (1983): Thünen und seine Landnutzungszonen: 
+                  S. 526-536</span></p>
+              </div>
+              <div id=ftn3> 
+                <p class=MsoFootnoteText><a name="_ftn3"></a><a href="#_ftnref3" title=""><span class=MsoFootnoteReference>[3]</span></a> 
+                  <span
+style='font-size:9.0pt'>ebd.: Weber: S. 537-549, Christaller und Lösch: S.463-480</span></p>
+              </div>
+              <div id=ftn4> 
+                <p class=MsoFootnoteText><a name="_ftn4"></a><a href="#_ftnref4" title=""><span class=MsoFootnoteReference>[4]</span></a> 
+                  <span
+style='font-size:9.0pt'>ebd.: Räumliche Aspekte der ökonomischen Entwicklung: 
+                  S. 646 - 653</span></p>
+              </div>
+              <div id=ftn5> 
+                <p class=MsoFootnoteText><a name="_ftn5"></a><a href="#_ftnref5" title=""><span class=MsoFootnoteReference>[5]</span></a> 
+                  <span
+style='font-size:9.0pt'>ebd.: Die Geometrie von Bodenpreisen: S. 484-488</span></p>
+              </div>
+              <div id=ftn6> 
+                <p class=MsoFootnoteText><a name="_ftn6"></a><a href="#_ftnref6" title=""><span class=MsoFootnoteReference>[6]</span></a> 
+                  <span
+style='font-size:9.0pt'>ebd.: Räumliche Diffusion: S. 383-400</span></p>
+              </div>
+              <div id=ftn7> 
+                <p class=MsoFootnoteText><a name="_ftn7"></a><a href="#_ftnref7" title=""><span class=MsoFootnoteReference>[7]</span></a> 
+                  <span
+style='font-size:9.0pt'>siehe Lowry (1964). Im Internet erhältlich unter: http://people.hofstra.edu/geotrans/eng/ch6en/meth6en/ch6m2en.html</span></p>
+              </div>
+              <div id=ftn8> 
+                <p class=MsoFootnoteText><a name="_ftn8"></a><a href="#_ftnref8" title=""><span class=MsoFootnoteReference>[8]</span></a> 
+                  &nbsp;<span style='font-size:9.0pt'>siehe Forrester (1969). 
+                  Das Modell „Urban Dynamics“ ist im Internet erhältlich unter: 
+                  http://www.sd3.info/models/</span></p>
+              </div>
+              <div id=ftn9> 
+                <p class=MsoFootnoteText><a
+name="_ftn9"></a><a href="#_ftnref9" title=""><span
+class=MsoFootnoteReference>[9]</span></a> &nbsp; <span style='font-size:9.0pt'>siehe 
+                  Wegener (2004)</span></p>
+              </div>
+              <div id=ftn10> 
+                <p class=MsoFootnoteText><a name="_ftn10"></a><a href="#_ftnref10" title=""><span class=MsoFootnoteReference>[10]</span></a> 
+                  <span style='font-size:9.0pt'>siehe Lee (1973)</span></p>
+              </div>
+              <div id=ftn11> 
+                <p class=MsoFootnoteText><a name="_ftn11"></a><a href="#_ftnref11" title=""><span class=MsoFootnoteReference>[11]</span></a> 
+                  <span style='font-size:9.0pt'>Bei dem Stadtsimulationsspiel 
+                  „<a href="https://de.wikipedia.org/wiki/SimCity" target="_blank">Sim 
+                  City</a>“ kann diese Problematik gut nachvollzogen werden.</span></p>
+              </div>
+              <div id=ftn12> 
+                <p class=MsoFootnoteText><a name="_ftn12"></a><a href="#_ftnref12" title=""><span class=MsoFootnoteReference>[12]</span></a> 
+                  <span style='font-size:9.0pt'>siehe Gaebe (2004), S.315</span></p>
+              </div>
+              <div id=ftn13> 
+                <p class=MsoFootnoteText><a name="_ftn13"></a><a href="#_ftnref13" title=""><span class=MsoFootnoteReference>[13]</span></a> 
+                  <span style='font-size:9.0pt'>siehe Schätzel (2003), S. 25-26</span></p>
+              </div>
+              <div id=ftn14> 
+                <p class=MsoFootnoteText><a
+name="_ftn14"></a><a href="#_ftnref14" title=""><span
+class=MsoFootnoteReference>[14]</span></a> <span style='font-size:9.0pt'>siehe 
+                  Humpert (1994), S. 28. Für eine Anwendung anhand eines Computergenerierten 
+                  Entwurfsverfahrens für städtische Strukturen siehe Bauriedel 
+                  / König (2004)</span></p>
+              </div>
+              <div id=ftn15> 
+                <p class=MsoFootnoteText><a
+name="_ftn15"></a><a href="#_ftnref15" title=""><span
+class=MsoFootnoteReference>[15]</span></a> <span style='font-size:9.0pt'>Für eine 
+                  einführende Darstellung zellulärer Automaten in der Geografie 
+                  siehe Benenson / Torrens (2004): Kapitel 4.3, Urban Cellular 
+                  Automata, S. 106 ff</span></p>
+              </div>
+              <div id=ftn16> 
+                <p class=MsoFootnoteText><a
+name="_ftn16"></a><a href="#_ftnref16" title=""><span
+class=MsoFootnoteReference>[16]</span></a><span style='font-size:9.0pt'> Individuelle 
+                  Akteure sind beispielsweise der einzelne Bürger oder politische 
+                  Entscheidungsträger, kollektive Akteure sind beispielsweise 
+                  Interessengruppen oder Institutionen.</span></p>
+              </div>
+              <div id=ftn17> 
+                <p class=MsoFootnoteText><a
+name="_ftn17"></a><a href="#_ftnref17" title=""><span
+class=MsoFootnoteReference>[17]</span></a><span style='font-size:9.0pt'> Für eine 
+                  einführende Darstellung von Multi-Agenten Systemen in der Geografie 
+                  siehe Benenson/Torrens (2004): Kapitel 5, Modeling Urban Dynamics 
+                  with Multiagent Systems, S. 153 ff</span></p>
+              </div>
+              <div id=ftn18> 
+                <p class=MsoFootnoteText><a
+name="_ftn18"></a><a href="#_ftnref18" title=""><span
+class=MsoFootnoteReference>[18]</span></a> <span style='font-size:9.0pt'>siehe 
+                  Portugali (2000)</span></p>
+              </div>
+              <div id=ftn19> 
+                <p class=MsoFootnoteText><a
+name="_ftn19"></a><a href="#_ftnref19" title=""><span
+class=MsoFootnoteReference>[19]</span></a><span style='font-size:9.0pt'> siehe 
+                  Franck / Wegener (2002), S. 149 – 153: Anpassungsgeschwindigkeiten, 
+                  <i>Tabelle 1 Städtische Veränderungsprozesse</i> und <i>Tabelle 
+                  2 Demographische Veränderungen</i>.</span></p>
+              </div>
+              <div id=ftn20> 
+                <p class=MsoFootnoteText><a
+name="_ftn20"></a><a href="#_ftnref20" title=""><span
+lang=EN-GB>[20]</span></a> <span class=GramE><span lang=EN-GB
+style='font-size:9.0pt;'>siehe</span></span><span
+lang=EN-GB style='font-size:9.0pt;'> Wegener (2004), S. 215: &quot;With loose 
+                  coupling the linkage between model and GIS is performed by ASCII 
+                  or binary files.”</span></p>
+              </div>
+              <div id=ftn21> 
+                <p class=MsoFootnoteText><a
+name="_ftn21"></a><a href="#_ftnref21" title="">[21]</a><sup> </sup><span style='font-size:9.0pt'>Für 
+                  ein solches Vorgehen kann auf die ESRI MapObjects Komponenten 
+                  zurückgegriffen werden, die es erlauben, dynamische Karten und 
+                  GIS Funktionalität in eigene Applikationen zu integrieren. <br>
+                  Eine Beschreibung findet sich im Internet unter: http://www.esri-germany.de/products/mapobjects/</span></p>
+              </div>
+              <div id=ftn22> 
+                <p class=MsoFootnoteText><a
+name="_ftn22"></a><a href="#_ftnref22" title=""><span
+class=MsoFootnoteReference>[22]</span></a><span style='font-size:9.0pt'> siehe 
+                  Wegener / Spiekermann (2002), S. 135</span></p>
+              </div>
+              <div id=ftn23> 
+                <p class=MsoFootnoteText><a
+name="_ftn23"></a><a href="#_ftnref23" title=""><span
+class=MsoFootnoteReference>[23]</span></a><span style='font-size:9.0pt'> siehe 
+                  Frank (2002), S. 66, sowie Franck (1992), S. 3: Diskontierung 
+                  meint die Bewertung räumlicher und zeitlicher Entfernung im 
+                  Sinne des Abstandes vom Hier bzw. Jetzt. Sie ist unabhängig 
+                  von der Bewertung des Raums als nutzbares Volumen und von der 
+                  Bewertung der Zeit als nutzbare Stunde.</span></p>
+              </div>
+              <div id=ftn24> 
+                <p class=MsoFootnoteText><a name="_ftn24"></a><a href="#_ftnref24" title=""><span class=MsoFootnoteReference>[24]</span></a> 
+                  <span style='font-size:9.0pt'>siehe Frank (1992) S. 76: Der 
+                  Nachweis wurde von Edwin S. Mills geführt.</span></p>
+              </div>
+              <div id=ftn25> 
+                <p class=MsoFootnoteText><a name="_ftn25"></a><a href="#_ftnref25" title=""><span class=MsoFootnoteReference>[25]</span></a> 
+                  <span style='font-size:9.0pt'>siehe Hagget (1983): Hägerstrand-Modell: 
+                  S. 392 - 406</span></p>
+              </div>
+              <div id=ftn26> 
+                <p class=MsoFootnoteText><a name="_ftn26"></a><a href="#_ftnref26" title=""><span class=MsoFootnoteReference>[26]</span></a><span
+style='font-size:9.0pt'> siehe Batty; Longley (1994), sowie Hillier (1996)</span></p>
+              </div>
+              <div id=ftn27> 
+                <p class=MsoFootnoteText><a name="_ftn27"></a><a href="#_ftnref27" title=""><span class=MsoFootnoteReference>[27]</span></a><span
+style='font-size:9.0pt'> Zu den Grundrhythmen der Stadt sowie der Stabilität räumlicher 
+                  Prozesse siehe Franck / Wegener (2002), S. 154</span></p>
+              </div>
+              <div id=ftn28> 
+                <p class=MsoFootnoteText><a name="_ftn28"></a><a href="#_ftnref28" title=""><span class=MsoFootnoteReference>[28]</span></a> 
+                  <span style='font-size:9.0pt'>siehe 2. Stand der Forschung</span></p>
+              </div>
+              <div id=ftn29> 
+                <p class=MsoFootnoteText><a name="_ftn29"></a><a href="#_ftnref29" title=""><span class=MsoFootnoteReference>[29]</span></a> 
+                  <span style='font-size:9.0pt'>siehe Elezkurtaj / Franck (2002)</span></p>
+              </div>
+            </div>
+            <p align="left" class="entwfo">&nbsp;</p>
+            </td>
+        </tr>
+      </table> </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td height="54">&nbsp;</td>
+    <td valign="top" class="entwfo">&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

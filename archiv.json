@@ -1,0 +1,377 @@
+{
+ "alt_basis": "https://entwurfsforschung.de",
+ "eintraege": [
+  {
+   "id": "raumprozesse",
+   "typ": "statisch",
+   "titel": {
+    "de": "Räumliche Prozesse",
+    "en": "Spatial Processes"
+   },
+   "kategorie": {
+    "de": "Forschung",
+    "en": "Research"
+   },
+   "jahr": 2008,
+   "datum": "2008-01-01",
+   "autoren": "R. König",
+   "quelle": "https://www.entwurfsforschung.de/alt/RaumProzesse/index.htm",
+   "unterseiten": {
+    "stadtsimulation": [
+     "Stadtsimulation.htm",
+     "Stadtsimulation"
+    ],
+    "zellulaere-automaten": [
+     "Grundlagen.htm",
+     "Grundlagen Zellulärer Automaten"
+    ],
+    "simulationsprogramme": [
+     "DSVPro.htm",
+     "Dynamische Simulation und Visualisierung räumlicher Prozesse"
+    ],
+    "stadt-der-agenten": [
+     "mas_za_city.htm",
+     "Die Stadt der Agenten und Automaten"
+    ],
+    "computergenerierte-stadtstrukturen": [
+     "../compStadt/compStadt.htm",
+     "Computergenerierte Stadtstrukturen"
+    ]
+   },
+   "bild": "bilder/stadt.gif"
+  },
+  {
+   "id": "strukturexperimente",
+   "typ": "statisch",
+   "titel": {
+    "de": "Strukturexperimente",
+    "en": "Structure Experiments"
+   },
+   "kategorie": {
+    "de": "Forschung",
+    "en": "Research"
+   },
+   "jahr": 2006,
+   "datum": "2006-01-01",
+   "autoren": "R. König",
+   "quelle": "https://www.entwurfsforschung.de/alt/Strukturfor/index.htm",
+   "unterseiten": {
+    "delphi": [
+     "delphi/delphi.htm",
+     "Laboratorium für räumliche Prozesse (Delphi)"
+    ],
+    "netlogo": [
+     "netlogo/netLogo.htm",
+     "Experimente mit NetLogo"
+    ],
+    "autocad-vba": [
+     "vba/vbaIndex.htm",
+     "AutoCAD-VBA-Experimente"
+    ],
+    "wachstum": [
+     "Fibonacci.htm",
+     "Wachstum"
+    ],
+    "zeit": [
+     "zeit.htm",
+     "Zeit"
+    ],
+    "labor": [
+     "labor/dasLabor.htm",
+     "Das Labor"
+    ],
+    "fibonacci-01": [
+     "Fibonacci01.htm",
+     "Fibonacci 01 – Sonnenblume",
+     "wachstum"
+    ],
+    "fibonacci-02": [
+     "Fibonacci02.htm",
+     "Fibonacci 02 – erweitert",
+     "wachstum"
+    ],
+    "zeit-01": [
+     "zeit01.htm",
+     "Zeit 01",
+     "zeit"
+    ],
+    "zeit-02-1": [
+     "zeit02.htm",
+     "Zeit 02-1",
+     "zeit"
+    ],
+    "zeit-02-2": [
+     "zeit02-2.htm",
+     "Zeit 02-2",
+     "zeit"
+    ],
+    "eisenman-skalierung": [
+     "labor/eisenmanScale.htm",
+     "Eisenman Scaling",
+     "labor"
+    ],
+    "tanz-rechtecke": [
+     "labor/tanzRecht.htm",
+     "Tanzende Rechtecke (tanzRecht)",
+     "labor"
+    ],
+    "zentrum-peripherie-01": [
+     "labor/ZentrPeriph01.htm",
+     "Zentrum und Peripherie 01",
+     "labor"
+    ],
+    "zentrum-peripherie-02": [
+     "labor/ZentrPeriph02.htm",
+     "Zentrum und Peripherie 02 (Nord-Süd)",
+     "labor"
+    ],
+    "architektur-am-nullpunkt": [
+     "Architektur am Nullpunkt.htm",
+     "Eisenman – Architektur am Nullpunkt"
+    ]
+   },
+   "bild": null
+  },
+  {
+   "id": "electronic-music",
+   "typ": "wp_post",
+   "wp": 2046,
+   "kategorie": {
+    "de": "Musik",
+    "en": "Music"
+   }
+  },
+  {
+   "id": "design-generation",
+   "typ": "wp_post",
+   "wp": 400,
+   "kategorie": {
+    "de": "Architektur",
+    "en": "Architecture"
+   },
+   "unterseiten_basis": "https://www.entwurfsforschung.de/alt/Entwurfsgenerator/",
+   "unterseiten": {
+    "entwurfsgenerator": [
+     "index.htm",
+     "Entwurfsgenerator (ältere Dokumentation)"
+    ],
+    "prozessbeschreibung": [
+     "prozessbeschreibung.htm",
+     "Prozessbeschreibung",
+     "entwurfsgenerator"
+    ],
+    "praesentation": [
+     "Entwurfsgenerator.html",
+     "Interaktive Präsentation (Flash)",
+     "prozessbeschreibung"
+    ],
+    "prozess-1": [
+     "prozess1.htm",
+     "1 – Primäre Beziehungen",
+     "prozessbeschreibung"
+    ],
+    "prozess-2": [
+     "prozess2.htm",
+     "2 – Sekundäre Beziehungen",
+     "prozessbeschreibung"
+    ],
+    "prozess-3": [
+     "prozess3.htm",
+     "3 – Freiraumbindungen",
+     "prozessbeschreibung"
+    ],
+    "prozess-4": [
+     "prozess4.htm",
+     "4 – Formstabilität",
+     "prozessbeschreibung"
+    ],
+    "prozess-5": [
+     "prozess5.htm",
+     "5 – Implementierung",
+     "prozessbeschreibung"
+    ],
+    "prozess-6": [
+     "prozess6.htm",
+     "6 – Gaußsche Normalverteilung",
+     "prozessbeschreibung"
+    ],
+    "prozess-7": [
+     "prozess7.htm",
+     "7 – Ausgewählte Variante",
+     "prozessbeschreibung"
+    ],
+    "entwurf": [
+     "Entwurf01.htm",
+     "Entwurf: Systemschnitt",
+     "entwurfsgenerator"
+    ],
+    "entwurf-perspektiven": [
+     "Entwurf02.htm",
+     "Entwurf: Perspektiven",
+     "entwurf"
+    ],
+    "perspektiven": [
+     "Perspektiven.htm",
+     "Perspektiven",
+     "entwurf-perspektiven"
+    ],
+    "entwurf-bereiche": [
+     "Entwurf03.htm",
+     "Entwurf: Bereiche",
+     "entwurf"
+    ],
+    "entwurf-konstruktion": [
+     "Entwurf04.htm",
+     "Entwurf: Konstruktion",
+     "entwurf"
+    ],
+    "ausstellung": [
+     "entwurfsgAusstell.htm",
+     "Ausstellung",
+     "entwurfsgenerator"
+    ],
+    "ausblick": [
+     "ausblick.htm",
+     "Ausblick",
+     "entwurfsgenerator"
+    ]
+   }
+  },
+  {
+   "id": "gravitationsmodell",
+   "typ": "wp_post",
+   "wp": 87,
+   "kategorie": {
+    "de": "Stadt",
+    "en": "Urban"
+   }
+  },
+  {
+   "id": "parametrisches-entwerfen",
+   "typ": "wp_post",
+   "wp": 64,
+   "kategorie": {
+    "de": "Theorie",
+    "en": "Theory"
+   }
+  },
+  {
+   "id": "floor-plans",
+   "typ": "wp_post",
+   "wp": 57,
+   "kategorie": {
+    "de": "Architektur",
+    "en": "Architecture"
+   }
+  },
+  {
+   "id": "urban-structures",
+   "typ": "wp_post",
+   "wp": 41,
+   "kategorie": {
+    "de": "Stadt",
+    "en": "Urban"
+   }
+  },
+  {
+   "id": "stadtplanung",
+   "typ": "wp_page",
+   "wp": 24,
+   "titel": {
+    "de": "Stadtplanung",
+    "en": "Urban Planning"
+   },
+   "kategorie": {
+    "de": "Stadt",
+    "en": "Urban"
+   }
+  },
+  {
+   "id": "teaching",
+   "typ": "wp_page",
+   "wp": 326,
+   "titel": {
+    "de": "Lehre",
+    "en": "Teaching"
+   },
+   "kategorie": {
+    "de": "Lehre",
+    "en": "Teaching"
+   }
+  },
+  {
+   "id": "working-papers",
+   "typ": "wp_page",
+   "wp": 331,
+   "titel": {
+    "de": "Working Papers",
+    "en": "Working Papers"
+   },
+   "kategorie": {
+    "de": "Publikationen",
+    "en": "Publications"
+   }
+  },
+  {
+   "id": "traversin",
+   "typ": "statisch",
+   "titel": {
+    "de": "Traversin",
+    "en": "Traversin"
+   },
+   "kategorie": {
+    "de": "Publikationen",
+    "en": "Publications"
+   },
+   "jahr": 2004,
+   "datum": "2004-01-01",
+   "autoren": "C. Bauriedel, S. Bucher, R. König, U. Winko",
+   "quelle": "https://www.entwurfsforschung.de/alt/traversin/index.htm",
+   "vorschau": "Traversin – „Klebstoff für Architektur & andere Künste & Wissenschaften“: Online-Zeitschrift (2004–2006) von C. Bauriedel, S. Bucher, R. König und U. Winko mit Texten zu Entwerfen, Architekturtheorie und Simulation.",
+   "unterseiten": {
+    "impressum": [
+     "html/Impressum.htm",
+     "Impressum und Redaktion"
+    ]
+   },
+   "bild": null
+  }
+ ],
+ "links": {
+  "umleiten": {
+   "https://www.entwurfsforschung.de/Strukturfor/delphi/delphiF.htm": "strukturexperimente/delphi/",
+   "https://www.entwurfsforschung.de/alt/Strukturfor/delphi/delphiF.htm": "strukturexperimente/delphi/",
+   "https://www.entwurfsforschung.de/alt/RaumProzesse/cellular automata.htm": "raumprozesse/zellulaere-automaten/",
+   "https://www.entwurfsforschung.de/zeit02-2.htm": "strukturexperimente/zeit-02-2/"
+  },
+  "ersetzen": {
+   "https://www.entwurfsforschung.de/RaumProzesse/bilder/mas_ca_city/02_Segregation durch Ortsveränderung.pdf": "https://www.entwurfsforschung.de/alt/RaumProzesse/bilder/mas_ca_city/02_Segregation durch Ortsveraenderung.pdf"
+  },
+  "entfernen": [
+   "^/alt/CV/",
+   "/cv[^/]*\\.htm$",
+   "^/(alt/)?(index|indexC)\\.html?$",
+   "^/alt/?$",
+   "publi[ck]ation",
+   "^/Diss/?$",
+   "^/gast/",
+   "^/domains/",
+   "^/cdn-cgi/",
+   "/Entwurfsgenerator/entwurfsgStart\\.htm$",
+   "^/alt/traversin/html/Kontakt\\.htm$",
+   "\\.swf$",
+   "^/(urbandesign|publications|cv|videos|about|stadtplanung|small|imprint|privacy-policy)/?$",
+   "^/(category|tag)/"
+  ],
+  "offen": [
+   "^/alt/Strukturfor/netlogo/[^/]+\\.html$",
+   "^/alt/Strukturfor/vba/[^/]+\\.htm$"
+  ],
+  "hinweise": {
+   "entfernen": "Lebenslauf (alt/CV), alte Startseiten (alt/index.htm, indexC.htm), Publikationslisten; tote Adressen (Diss, gast/48nordPavillon, domains/, entwurfsgStart.htm: schon auf der alten Website 404); Kontaktseite von Traversin (verschlüsselte E-Mail-Adressen der eingestellten Zeitschrift); Flash-Dateien (.swf). WordPress-Seiten, die wegfallen (urbandesign, publications, cv, videos, about, small, Kategorie- und Schlagwortseiten; /stadtplanung/ ist schon 404).",
+   "umleiten": "delphiF.htm war die Frame-Fassung von delphi.htm (404), die Sprungmarken gibt es dort; cellular automata.htm war ein leeres Inhaltsverzeichnis „im Aufbau“ zu Grundlagen.htm; /zeit02-2.htm ist ein falscher relativer Link auf Strukturfor/zeit02-2.htm.",
+   "offen": "NetLogo-Applets und AutoCAD-VBA-Experimente werden als Web-Apps unter lab/simulationen/ neu umgesetzt; Liste in archiv_offen.json.",
+   "ersetzen": "Die PDF zur Segregation durch Ortsveränderung liegt auf dem Server unter „Ortsveraenderung“ (ohne Umlaut) und im Ordner /alt/."
+  }
+ }
+}

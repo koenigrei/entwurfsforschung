@@ -1,0 +1,8 @@
+{
+  "name": "segregation-standort",
+  "private": true,
+  "type": "commonjs",
+  "description": "Segregation durch Standortwahl – Neuumsetzung von 521_SegragationStandort (Delphi) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

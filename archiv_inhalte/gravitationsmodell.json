@@ -1,0 +1,19 @@
+{
+ "id": "gravitationsmodell",
+ "titel": {
+  "de": "Gravitationsmodell",
+  "en": "Gravitationsmodell"
+ },
+ "kategorie": {
+  "de": "Stadt",
+  "en": "Urban"
+ },
+ "bild": "medien/Gravitationsmodell-800x288-1.jpg",
+ "inhalt": "<p>Das <a href=\"http://de.wikipedia.org/wiki/Gravitationsmodell_%28%C3%96konomie%29\" rel=\"noopener\">Gravitationsmodell</a> ist ein grundlegendes Modell der Raumökonomie für die Schätzung der Ströme zwischen Orten, welches ursprünglich zur Berechnung der Anziehungskraft zwischen zwei Körpern im Raum dient. Diese Ströme können z.B. als Intensität des Handels, des Verkehrs zwischen Städten interpretiert werden. Das Modell zeichnet sich durch seine Einfachheit aus. Als Eingabe sind lediglich die Größe der Orte und deren räumliche Lage zueinander erforderlich. Die Schätzung des Stroms <em>F</em> zwischen zwei Orten <em>P</em> erfolgt mit Hilfe des Quadrats der Distanz: <em>F<sub>ij</sub> = (P<sub>i</sub> * P<sub>j</sub>) /d²</em>, wobei <em>P</em> die Bevölkerungszahl eines Orts angibt.</p>\n<p><a href=\"medien/Gravitationsmodell.jpg\"><img src=\"medien/Gravitationsmodell.jpg\" alt=\"\" loading=\"lazy\"></a></p>\n<p>In der Abbildung und im Video repräsentieren die roten Kreise Städte. Der Kreisdurchmesser gibt die größe einer Stadt an. Die Dicke der Linien stellt die Intensität der Ströme zwischen den Städten dar.</p>\n<p><p class=\"extern\"><a href=\"https://vimeo.com/40007332\" rel=\"noopener\">Video auf Vimeo ansehen ↗</a></p></p>\n<p>Das Gravitationsmodell ist ein typisches Beispiel für die Herangehensweise der <a href=\"http://de.wikipedia.org/wiki/Soziophysik\" rel=\"noopener\">Soziophysik</a>, welche versucht, soziale, ökonomische und kulturelle Phänomene anhand physikalischer Modelle zu beschreiben. Der große Vorteil von Soziophysik-Modellen, wie dem vorliegenden, besteht darin, dass komplexe Prozesse stark abstrahiert dargestellt werden. Das Verstehen und Kontrollieren der  Zusammenhänge und Effekte verschiedener Einflussgrößen im Rahmen der betrachteten Prozesse wird durch deren starke Vereinfachung erst möglich. Der Nachteil dieser Modelle liegt dagegen oft darin, dass aufgrund des hohen Abstraktionsgrads und der starken Aggregation relevanter Informationen die Anwendung für reale Szenarien nur sehr eingeschränkt möglich ist. In der Stadtplanung ist es in der Regel erforderlich, detailliertere Informationen verarbeiten zu können.</p>\n<p>Zusammenfassen lässt sich feststellen, dass das Gravitationsmodell zwar ein sinnvolles Modell für die Vermittlung des grundlegenden Verständnisses von Strömen zwischen Orten bietet, sich aber nur schwer für konkrete Anwendungen operationalisieren lässt.</p>\n<hr>\n<p>Download: <a href=\"medien/18_Gravitation.exe\">Programm als Windows exe</a> | <a href=\"medien/18_Gravitation.zip\">Source Code</a> (Delpi / Object Pascal)</p>\n<p>Weiterführende Informationen zu Distanz- und Gravitationsmodellen finden sich bei  <a href=\"http://de.wikipedia.org/wiki/Migrationsforschung#Makrotheoretische_Gravitationsmodelle\" rel=\"noopener\">wikipedia</a> oder <a href=\"http://www.mygeo.info/skripte/skript_bevoelkerung_siedlung/bev4.htm\" rel=\"noopener\">mygeo</a>.</p>",
+ "datum": "2012-04-09",
+ "jahr": 2012,
+ "autoren": "R. König",
+ "vorschau": "Das Gravitationsmodell ist ein grundlegendes Modell der Raumökonomie für die Schätzung der Ströme zwischen Orten, welches ursprünglich zur Berechnung der Anziehungskraft zwischen zwei …",
+ "quelle": "https://entwurfsforschung.de/gravitationsmodell/",
+ "unterseiten": []
+}

@@ -1,0 +1,5 @@
+site/
+__pycache__/
+deploy.local.json
+*.local.json
+simulationen/_pruefung/

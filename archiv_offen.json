@@ -1,0 +1,237 @@
+{
+ "stand": "2026-11-21",
+ "beschreibung": "Links der Archivseiten, die noch auf die alte Website zeigen (NetLogo-Applets, AutoCAD-VBA-Experimente). Sie werden als Web-Apps unter lab/simulationen/ neu umgesetzt und danach umgehängt (archiv.json → links.umleiten oder Karte in konvertiere.py). Wird von konvertiere.py geschrieben; pruefe.py lässt nur diese alten Adressen zu.",
+ "links": [
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/CA01.html",
+   "app": "nl-zellulaerer-automat",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-zellulaerer-automat/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/CA_buildingStructureA.html",
+   "app": "nl-gebaeudestruktur",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-gebaeudestruktur/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/flusssystem.html",
+   "app": "nl-flusssystem",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-flusssystem/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/kulturenKrieg.html",
+   "app": "nl-kulturen",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-kulturen/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/reakt_diffuse01.html",
+   "app": "nl-reakt-diffuse-1",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-reakt-diffuse-1/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/reakt_diffuse02.html",
+   "app": "nl-reakt-diffuse-2",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-reakt-diffuse-2/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/repel_attract.html",
+   "app": "nl-repel-attract",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-repel-attract/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/territoryFight01.html",
+   "app": "nl-territorien",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-territorien/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/vote01.html",
+   "app": "nl-voting",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-voting/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/wegesystem1.html",
+   "app": "nl-wegesystem-a",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/nl-wegesystem-a/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/wegesystem2.html",
+   "app": "nl-wegesystem-b",
+   "app_ordner": "nl-wegesystem-b",
+   "status": "umgesetzt",
+   "neu": "lab/simulationen/nl-wegesystem-b/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/netlogo/wegesystem3.html",
+   "app": "nl-wegesystem-b-update",
+   "app_ordner": "nl-wegesystem-b",
+   "status": "aufgenommen",
+   "neu": "lab/simulationen/nl-wegesystem-b-update/",
+   "verlinkt_von": [
+    "archiv/raumprozesse/stadtsimulation/",
+    "archiv/strukturexperimente/netlogo/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/03objCoordinates.htm",
+   "app": "vba-objektkoordinaten",
+   "app_ordner": null,
+   "status": "zurueckgestellt",
+   "neu": "lab/simulationen/vba-objektkoordinaten/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/04convexHull.htm",
+   "app": "vba-konvexe-huelle",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/vba-konvexe-huelle/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/05nodeGarden.htm",
+   "app": "vba-node-garden",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/vba-node-garden/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/eingabefeld.htm",
+   "app": "vba-eingabefeld",
+   "app_ordner": null,
+   "status": "zurueckgestellt",
+   "neu": "lab/simulationen/vba-eingabefeld/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/experiment01.htm",
+   "app": "vba-2dwachstum-1",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/vba-2dwachstum-1/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/experiment02.htm",
+   "app": "vba-2dwachstum-2",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/vba-2dwachstum-2/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/experiment03.htm",
+   "app": "vba-wanderwuerfel",
+   "app_ordner": null,
+   "status": "geplant",
+   "neu": "lab/simulationen/vba-wanderwuerfel/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/experiment04.htm",
+   "app": "vba-skalieren",
+   "app_ordner": null,
+   "status": "nur_bilder",
+   "neu": "lab/simulationen/vba-skalieren/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/iteration01.htm",
+   "app": "vba-rekursion",
+   "app_ordner": "vba-rekursion",
+   "status": "umgesetzt",
+   "neu": "lab/simulationen/vba-rekursion/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/iteration02.htm",
+   "app": "vba-rekursion-3d",
+   "app_ordner": "vba-rekursion",
+   "status": "aufgenommen",
+   "neu": "lab/simulationen/vba-rekursion-3d/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  },
+  {
+   "alt": "https://www.entwurfsforschung.de/alt/Strukturfor/vba/iteration03.htm",
+   "app": "vba-hoehenstaffelung",
+   "app_ordner": "vba-rekursion",
+   "status": "aufgenommen",
+   "neu": "lab/simulationen/vba-hoehenstaffelung/",
+   "verlinkt_von": [
+    "archiv/strukturexperimente/autocad-vba/"
+   ]
+  }
+ ]
+}

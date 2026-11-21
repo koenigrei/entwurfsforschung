@@ -1,0 +1,76 @@
+{
+ "quelle_basis": "C:/LocalOnlyData/GitHub/Planungsgrundlagen",
+ "projekte": [
+  {
+   "id": "gartenatelier",
+   "titel": {"de": "Konzeptstudie Gartenatelier", "en": "Garden Studio Concept Study"},
+   "autoren": "R. König · Claude",
+   "kategorie": {"de": "Generator", "en": "Generator"},
+   "jahr": 2026,
+   "datum": "2026-11-19",
+   "bild": "Apps/_werkzeuge/site/img/konzeptstudie_ks_cover_ki.webp",
+   "vorschau": {"de": "Tausende Varianten eines Gartenateliers aus Formprinzipien, Dächern, Grundrissen, Fassaden und Bauweisen – geprüft, verglichen, in Generationen weitergezüchtet.",
+                "en": "Thousands of variants of a garden studio from form principles, roofs, plans, facades and construction systems – checked, compared and bred on in generations."},
+   "ziel": "lab/gartenatelier/",
+   "start": "konzeptstudie.html",
+   "dateien": {"konzeptstudie.html": "Apps/konzeptstudie/dist/konzeptstudie.html"},
+   "ordner": {"texturen": "Apps/gartenatelier/konzeptstudie/texturen"}
+  },
+  {
+   "id": "campus",
+   "titel": {"de": "Konzeptstudie Campus", "en": "Campus Concept Study"},
+   "autoren": "R. König · Claude",
+   "kategorie": {"de": "Generator", "en": "Generator"},
+   "jahr": 2026,
+   "datum": "2026-11-19",
+   "bild": "Apps/_werkzeuge/site/img/campus_sw_3d.webp",
+   "vorschau": {"de": "Wege, Parzellen und Gebäude für ein Baufeld in Weimar: eine Spielwiese für städtebauliche Konzepte, von der Erschließung bis zur Raumkante.",
+                "en": "Paths, plots and buildings for a site in Weimar: a playground for urban design concepts, from access to the street edge."},
+   "ziel": "lab/campus/",
+   "start": "spielwiese.html",
+   "dateien": {"spielwiese.html": "Apps/campus/dist/spielwiese.html"}
+  },
+  {
+   "id": "duarte-siza",
+   "titel": {"de": "Konzeptstudie Duarte/Siza", "en": "Duarte/Siza Concept Study"},
+   "autoren": "R. König · Claude",
+   "kategorie": {"de": "Formgrammatik", "en": "Shape grammar"},
+   "jahr": 2026,
+   "datum": "2026-11-20",
+   "bild": "Apps/_werkzeuge/site/img/malagueira_md_start.webp",
+   "vorschau": {"de": "Lässt sich ein Haus entwerfen, das man nicht von einem Haus Álvaro Sizas in der Malagueira unterscheiden kann? Eine Formgrammatik nach José P. Duarte als Generator.",
+                "en": "Can a house be designed that cannot be told apart from Álvaro Siza's Malagueira houses? A shape grammar after José P. Duarte as a generator."},
+   "ziel": "lab/duarte-siza/",
+   "start": "malagueira.html",
+   "dateien": {"malagueira.html": "Apps/malagueira/dist/malagueira.html"}
+  },
+  {
+   "id": "bergdoerfer",
+   "titel": {"de": "Bergdörfer", "en": "Mountain Villages"},
+   "autoren": "R. König · Claude",
+   "kategorie": {"de": "Sammlung", "en": "Collection"},
+   "jahr": 2026,
+   "datum": "2026-11-21",
+   "bild": "Apps/_werkzeuge/site/img/bergdoerfer_wand.webp",
+   "vorschau": {"de": "159 italienische Bergdörfer als einheitliche Schwarzpläne mit Höhenlinien, Straßen und Gebäuden – Material für einen Generator aus Gelände und Dorf.",
+                "en": "159 Italian mountain villages as uniform figure-ground plans with contours, streets and buildings – material for a generator of terrain and village."},
+   "ziel": "lab/bergdoerfer/",
+   "start": "index.html",
+   "dateien": {"index.html": "Apps/bergdoerfer/dist/index.html", "app.js": "Apps/bergdoerfer/dist/app.js", "stil.css": "Apps/bergdoerfer/dist/stil.css", "bilderwand.js": "Apps/bergdoerfer/dist/bilderwand.js"},
+   "ordner": {"daten": "Apps/bergdoerfer/dist/daten"}
+  },
+  {
+   "id": "simulationen",
+   "titel": {"de": "Frühe Simulationen", "en": "Early Simulations"},
+   "autoren": "R. König · Claude",
+   "kategorie": {"de": "Simulation", "en": "Simulation"},
+   "jahr": "2005–2026",
+   "datum": "2005-05-04",
+   "bild": null,
+   "vorschau": {"de": "Die Simulationsprogramme der alten Website – Delphi, NetLogo, AutoCAD-VBA – neu umgesetzt als Web-Apps: Thünen-Ringe, Segregation, Wegesysteme, rekursive Strukturen und mehr.",
+                "en": "The simulation programs of the old website – Delphi, NetLogo, AutoCAD VBA – re-implemented as web apps: Thünen rings, segregation, path systems, recursive structures and more."},
+   "ziel": "lab/simulationen/",
+   "start": "index.html"
+  }
+ ]
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>2Dwachstum</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000000" vlink="#666666" alink="#333333" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800">
+<table width="800" height="600" border="0" cellpadding="0" cellspacing="0">
+        <!--DWLayoutTable-->
+        <tr valign="middle"> 
+          <td height="200" colspan="2"><img src="../bilder/2Dwachstum.jpg" width="800" height="401"></td>
+        </tr>
+        <tr valign="middle">
+          <td height="200" colspan="2" class="entwfo"><p>Die erzeugte Struktur 
+              breitet sich mit Hilfe eines Zufallsgenerators in x-y-Ebene aus, 
+              wobei sich einige W&uuml;rfel &uuml;berschneiden. Um dies zu vermeiden 
+              wird im n&auml;chsten Schritt eine Kontrolliste eingef&uuml;hrt, 
+              die die Positionen speichert und Doppelbelegungen verhindert.</p>
+            <p align="right"><a href="experiment02.htm" target="_self">weiter</a> 
+              &gt;</p>
+            </td>
+        </tr>
+        <tr valign="middle"> 
+          <td width="800" height="200" colspan="2"> <font size="1" face="Verdana, Arial, Helvetica, sans-serif"><br>
+            </font> <div class=Section1> 
+              <p><font size="1" face="Verdana, Arial, Helvetica, sans-serif">Sub 
+                setzeQuad(mittelPunkt() As Double, elevation As Double)<br>
+                ' Dim num As Integer num = 4<br>
+                Dim wuerfel As Acad3DSolid<br>
+                Dim length As Double, width As Double, height As Double<br>
+                Dim center(0 To 2) As Double<br>
+                <br>
+                ' Angaben f&uuml;r den wuerfel<br>
+                center(0) = mittelPunkt(0): center(1) = mittelPunkt(1): center(2) 
+                = mittelPunkt(2) - elevation / 2<br>
+                height = elevation<br>
+                length = 10<br>
+                width = 10<br>
+                <br>
+                ' W&uuml;rfel erstellen<br>
+                Set wuerfel = ThisDrawing.ModelSpace.AddBox(center, length, width, 
+                height)<br>
+                <br>
+                wuerfel.color = random(1, 255)<br>
+                End Sub<br>
+                <br>
+                Sub main()<br>
+                Dim i As Integer<br>
+                Dim u As Integer<br>
+                Dim etage As Integer<br>
+                Dim loops As Integer<br>
+                Dim mitte(0 To 2) As Double<br>
+                Dim oneSlice As Double<br>
+                Dim angle As Double<br>
+                Dim xW As Double<br>
+                Dim yW As Double<br>
+                Dim entscheid As Integer<br>
+                Dim num As Double<br>
+                num = 4<br>
+                loops = 100<br>
+                oneSlice = pi * 2 / num<br>
+                <br>
+                For u = 1 To 10<br>
+                etage = u<br>
+                xW = 0<br>
+                yW = 0<br>
+                For i = 1 To loops<br>
+                'entscheid = random(0#, 1#)<br>
+                angle = Round((Rnd() * num + 1)) * oneSlice<br>
+                'var angle = Math.floor(Math.random()*num+1)*oneSlice<br>
+                mitte(0) = xW: mitte(1) = yW: mitte(2) = u * 10#<br>
+                xW = xW + Cos(angle) * 11<br>
+                yW = yW + Sin(angle) * 11<br>
+                setzeQuad mitte, 10#<br>
+                Next i<br>
+                Next u<br>
+                ZoomAll<br>
+                End Sub<br>
+                <br>
+                Function random(lower As Double, upper As Double)<br>
+                random = Int((upper - lower + 1) * Rnd + lower)<br>
+                End Function<br>
+                <br>
+                Function pi()<br>
+                pi = (Atn(1) * 4)<br>
+                End Function</font> </p>
+              <p></p>
+            </div>
+            <font size="1" face="Verdana, Arial, Helvetica, sans-serif">&nbsp;</font></td>
+        </tr>
+      </table> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="../../bilder/invisible.gif" width="800" height="10"><br>
+      <span class="entwfo">\\ <a href="../../../indexC.htm" target="_self">Entwurfsforschung</a> 
+      \ <a href="../index.htm" target="_self">Strukturexperimente</a> 
+      \ <a href="vbaIndex.htm" target="_self">autoCAD_VBA experimente </a></span></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

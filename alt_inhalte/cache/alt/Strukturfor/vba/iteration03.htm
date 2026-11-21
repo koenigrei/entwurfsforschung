@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>recursion</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../../templ/entwf.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000000" vlink="#666666" alink="#333333" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="800">
+<table width="800" height="600" border="0" cellpadding="0" cellspacing="0">
+        <!--DWLayoutTable-->
+        <tr valign="middle"> 
+          <td><img src="../bilder/rekursion_02-04.jpg" width="400" height="250"></td>
+          <td><img src="../bilder/rekursion_02-06.jpg" width="400" height="196"></td>
+        </tr>
+        <tr valign="middle">
+          <td><img src="../bilder/rekursion_02-07.jpg" width="400" height="347"></td>
+          <td><img src="../bilder/rekursion_02-09.jpg" width="400" height="304"></td>
+        </tr>
+        <tr valign="middle"> 
+          <td><img src="../bilder/rekursion_02-08.jpg" width="400" height="182"></td>
+          <td><img src="../bilder/rekursion_02-11.jpg" width="400" height="271"></td>
+        </tr>
+        <tr valign="middle"> 
+          <td height="200" colspan="2" class="entwfo"><p>Die Struktur kann sich 
+              auf bereits gesetzten Feldern in die H&ouml;he entwickeln, wobei 
+              die Anzahl der 'Geschosse' vorgeschrieben ist.</p>
+            <p align="left">Durch weitere Optimierungsmethoden k&ouml;nnte die 
+              Struktur z.B. auf ausreichende Belichtung oder M&ouml;glichkeiten 
+              der Erschlie&szlig;ung und andere funktionale Aspekte hin untersucht 
+              werden.</p>
+            <p align="right"> <span class="entwfo">&lt;&lt; <a href="vbaIndex.htm" target="_self">Inhaltsverzeichnis</a></span> 
+            </p>
+            <p align="left">&nbsp;</p></td>
+        </tr>
+        <tr valign="middle"> 
+          <td width="800" height="200" colspan="2"> <p>&nbsp;</p>
+            <div class=Section1> 
+              <p class="entwfo">''**********************Das Skript erzeugt eine 
+                Wachstumsstruktur durch Recursion******************<br>
+                '---weitere Bearbeitung<br>
+                <br>
+                Private loser() As Long<br>
+                Private koord(0 To 2) As Double<br>
+                Private oneSlice<br>
+                Private f As Integer, u As Integer<br>
+                Private etage As Double<br>
+                Private durchlauf As Integer<br>
+                Private max As Double<br>
+                Private startpoint(2) As Double<br>
+                Private endpoint(2) As Double<br>
+                Private mengeWuerfel As Integer<br>
+                Private astZahl As Integer<br>
+                Private num As Integer<br>
+                Private checkList() As Variant<br>
+                Private Ktod As Double<br>
+                Private KtodGesamt As Double<br>
+                Private KtodAlt As Double</p>
+              <p class="entwfo">Sub main() '---Initialisierung<br>
+                Dim amount As Integer, default As Variant, messagge As Variant<br>
+                Dim startTrip(0 To 2) As Double<br>
+                num = 4<br>
+                max = 1<br>
+                <br>
+                '---InputBox f&uuml;r die Anzahl der W&uuml;rfel<br>
+                messagge = &quot;geben Sie die Anzahl der W&uuml;rfel an&quot;<br>
+                default = &quot;300&quot;<br>
+                mengeWuerfel = InputBox(messagge, , default)<br>
+                <br>
+                '---InputBox f&uuml;r die Zahl der Verzweigungen<br>
+                messagge = &quot;geben Sie die Anzahl der Verzweigungen an&quot;<br>
+                default = &quot;2&quot;<br>
+                astZahl = InputBox(messagge, , default)<br>
+                <br>
+                ReDim checkList(mengeWuerfel) As Variant '---Liste mit den besetzten 
+                Positionen<br>
+                ReDim loser(mengeWuerfel) As Long '---Die Indevariable zur bestimmung 
+                des vorhergehenden Astes<br>
+                checkList(0) = startTrip<br>
+                checkList(0)(0) = 1<br>
+                <br>
+                startTrip(0) = 0<br>
+                startTrip(1) = 0<br>
+                startTrip(2) = 0<br>
+                oneSlice = pi * 2 / num<br>
+                durchlauf = 0<br>
+                ThisDrawing.SendCommand &quot;_erase&quot; &amp; vbCr &amp; &quot;all&quot; 
+                &amp; vbCr<br>
+                ThisDrawing.SendCommand vbCr<br>
+                setzeQuad startTrip 'Der Samen<br>
+                <br>
+                create 0 '---Die Iteration wird gestartet und l&auml;ft bis mengeW&uuml;rfel 
+                erreicht ist<br>
+                End Sub</p>
+              <p class="entwfo">Sub create(i As Integer) '---Berechnung der Postion 
+                der jeweiligen W&uuml;rfel<br>
+                Dim m As Integer, s As Integer, geschoss As Integer<br>
+                Dim angle As Double<br>
+                Dim mitte(0 To 2) As Double<br>
+                geschoss = 4<br>
+                <br>
+                For m = 0 To astZahl - 1 '---Anzahl der Ver&auml;stelung<br>
+                Dim Centroid As Variant, besetzt As Boolean, rauf As Boolean, 
+                runter As Boolean<br>
+                Dim baddy As AcadObject<br>
+                <br>
+                Set baddy = ThisDrawing.ObjectIdToObject(loser(i)) '---Der Basisast 
+                wird durch die Indexvariable i aufgerufen und die Koordinaten 
+                an baddy &uuml;bergeben<br>
+                Centroid = baddy.Centroid<br>
+                koord(0) = Centroid(0)<br>
+                koord(1) = Centroid(1)<br>
+                koord(2) = Centroid(2)<br>
+                Randomize<br>
+                <br>
+                '---Richtung des n&auml;chsten W&uuml;rfels berechnen<br>
+                angle = Round((Rnd() * num + 1)) * oneSlice<br>
+                ' Koordinaten berechnen<br>
+                koord(0) = Round(koord(0) + Cos(angle) * 11, 0)<br>
+                koord(1) = Round(koord(1) + Sin(angle) * 11, 0)<br>
+                mitte(0) = koord(0): mitte(1) = koord(1): mitte(2) = koord(2)<br>
+                <br>
+                besetzt = check(mitte)<br>
+                <br>
+                If besetzt Then '---Wenn Positione noch frei, setze W&uuml;rfel 
+                und zeichne Linie<br>
+                If mitte(2) = 0 Then<br>
+                setzeQuad mitte<br>
+                Else<br>
+                mitte(2) = mitte(2) - 11<br>
+                runter = check(mitte)<br>
+                If runter = False Then<br>
+                mitte(2) = mitte(2) + 11<br>
+                setzeQuad mitte<br>
+                Else<br>
+                Ktod = Ktod + 1<br>
+                End If<br>
+                End If<br>
+                <br>
+                Else '---Wenn Position besetzt erh&ouml;he den Z&auml;hler Ktod 
+                um die nichtbesetzten Felder zu speichern<br>
+                mitte(2) = mitte(2) + 11<br>
+                rauf = check(mitte)<br>
+                If rauf And mitte(2) &lt; geschoss * 11 Then<br>
+                setzeQuad mitte<br>
+                Else<br>
+                Ktod = Ktod + 1<br>
+                End If<br>
+                End If<br>
+                '---Bestimmt den Start- und Endpunkt der Verbindungslinien<br>
+                'startpoint(0) = Centroid(0): startpoint(1) = Centroid(1): startpoint(2) 
+                = Centroid(2)<br>
+                'endpoint(0) = mitte(0): endpoint(1) = mitte(1): endpoint(2) = 
+                mitte(2)<br>
+                'draw_line startpoint, endpoint, durchlauf<br>
+                Next m<br>
+                <br>
+                '---Berechnung der Indexvariablen des Basisastes<br>
+                If u &gt;= max - 1 Then<br>
+                u = 0: durchlauf = durchlauf + 1: '---durchlauf z&auml;hlt die 
+                Iterationsschritte<br>
+                KtodGesamt = (KtodGesamt + KtodAlt) * astZahl '---errechnet die 
+                Zahl aller nicht gesetzter W&uuml;rfel<br>
+                max = (astZahl ^ durchlauf) - Ktod - KtodGesamt '---um den richtigen 
+                Basisast zu finden wird die Anzahl der nichtgesetzten W&uuml;rfel 
+                von der Anzahl aller m&ouml;glichen abgezogen<br>
+                KtodAlt = Ktod<br>
+                Ktod = 0<br>
+                ThisDrawing.Regen acActiveViewport<br>
+                Else<br>
+                u = u + 1<br>
+                End If</p>
+              <p class="entwfo"> create (f - (u * astZahl - Ktod) + u - max) '---der 
+                entsprechende Index des Basisastes wird an create &uuml;bergeben, 
+                Prozedur ruft sich selbst auf<br>
+                <br>
+                End Sub</p>
+              <p class="entwfo">Sub draw_line(here() As Double, there() As Double, 
+                segment As Integer) '---zeichnen der Verbindungslinie</p>
+              <p class="entwfo"> Dim begin(2) As Double, finish(2) As Double<br>
+                Dim path As AcadLine<br>
+                <br>
+                '---Linie zeichnen<br>
+                Set path = ThisDrawing.ModelSpace.AddLine(here, there)<br>
+                path.color = segment + 1<br>
+                path.Update</p>
+              <p class="entwfo">End Sub</p>
+              <p class="entwfo">Sub setzeQuad(mittelPunkt() As Double) 'zeichnen 
+                der W&uuml;rfel<br>
+                Dim wuerfel As Acad3DSolid<br>
+                Dim length As Double, width As Double, height As Double<br>
+                Dim center(0 To 2) As Double<br>
+                Dim cont As Long<br>
+                <br>
+                ' Angaben f&uuml;r den wuerfel<br>
+                center(0) = mittelPunkt(0): center(1) = mittelPunkt(1): center(2) 
+                = mittelPunkt(2)<br>
+                height = 10<br>
+                length = 10<br>
+                width = 10<br>
+                <br>
+                ' W&uuml;rfel erstellen<br>
+                Set wuerfel = ThisDrawing.ModelSpace.AddBox(center, length, width, 
+                height)<br>
+                <br>
+                wuerfel.color = 151 'durchlauf + 1<br>
+                'wuerfel.ScaleEntity center, 1 / (durchlauf / 4 + 1)<br>
+                'wuerfel.Rotate center, u<br>
+                loser(f) = wuerfel.ObjectID</p>
+              <p class="entwfo"> f = f + 1 '---Z&auml;hlt und indexiert W&uuml;rfel<br>
+                checkList(f) = center<br>
+                <br>
+                If f = mengeWuerfel Then End '---Wenn die maximale Anzahl an W&uuml;rfel 
+                = menge W&uuml;rfel, erreicht ist wird das Programm abgebrochen<br>
+                ZoomAll<br>
+                <br>
+                End Sub<br>
+                Function check(pos() As Double) '---Pr&uuml;ft, ob eine Position 
+                bereits mit einem W&uuml;rfel besetzt ist<br>
+                Dim position(0 To 2) As Double<br>
+                position(0) = pos(0)<br>
+                position(1) = pos(1)<br>
+                position(2) = pos(2)<br>
+                check = True<br>
+                <br>
+                For s = 1 To f '---W&uuml;rfelposition wird anhand des checkList-Arrays 
+                auf Doppelbelegung &uuml;berpr&uuml;ft<br>
+                If position(0) = checkList(s)(0) And position(1) = checkList(s)(1) 
+                And position(2) = checkList(s)(2) Then<br>
+                check = False<br>
+                End If<br>
+                Next s<br>
+                End Function</p>
+              <p class="entwfo">Function random(lower As Double, upper As Double) 
+                '---Erzeugen eines Zufallswertes<br>
+                random = Int((upper - lower + 1) * Rnd + lower)<br>
+                End Function</p>
+              <p class="entwfo">Function pi() '---Berechnung der Zahl Pi<br>
+                pi = (Atn(1) * 4)<br>
+                End Function</p>
+            </div></td>
+        </tr>
+      </table> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="../../bilder/invisible.gif" width="800" height="10"><br>
+      <span class="entwfo">\\ <a href="../../index.htm" target="_self">Entwurfsforschung</a> 
+      \ <a href="../index.htm" target="_self">Strukturexperimente</a> 
+      \ <a href="vbaIndex.htm" target="_self">autoCAD_VBA experimente </a></span></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

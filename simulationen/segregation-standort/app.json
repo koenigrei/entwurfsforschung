@@ -1,0 +1,15 @@
+{
+  "id": "segregation-standort",
+  "titel": {"de": "Segregation durch Standortwahl", "en": "Segregation through location choice"},
+  "vorschau": {"de": "Schwarze und weiße Agenten ziehen um, solange in ihrer Moore-Nachbarschaft zu wenige Gleiche wohnen. Aus der Zufallsverteilung entstehen getrennte Quartiere (nach Schelling).",
+               "en": "Black and white agents move as long as too few of their Moore neighbours are alike. Separate quarters emerge from the random distribution (after Schelling)."},
+  "original": "521_SegragationStandort",
+  "herkunft": "Delphi",
+  "jahr": 2005,
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 150,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig !== null && SIM.zustand.suchend === 0 && SIM.zustand.verlauf[0][2] < 55 && Modell.gleicheNachbarn(SIM.zustand) > 85"
+}

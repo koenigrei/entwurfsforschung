@@ -1,0 +1,19 @@
+{
+ "id": "electronic-music",
+ "titel": {
+  "de": "Electronic Music",
+  "en": "Electronic Music"
+ },
+ "kategorie": {
+  "de": "Musik",
+  "en": "Music"
+ },
+ "bild": "medien/RK_abstr_sp2-e1575634186298.png",
+ "inhalt": "<p>I started exploring the synthesis of music and the corresponding tools for the production of electronic music. There are many fascinating concepts that can be found in tools like <a href=\"https://cycling74.com/products/max-features\" rel=\"noopener\">Max/MSP</a>, <a href=\"https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/\" rel=\"noopener\">Reactor</a>, or <a href=\"https://www.bitwig.com/en/bitwig-studio/bitwig-studio-3.html\" rel=\"noopener\">Bitwig Grid</a>. They may serve as inspiration for the development of parametric design tools like <a href=\"https://www.rhino3d.com/6/new/grasshopper\" rel=\"noopener\">Grasshopper</a> or <a href=\"https://dynamobim.org/\" rel=\"noopener\">Dynamo</a>. I’ll write more about this analogy soon, but here I’d like to present some experimental results of my electronic music investigations:</p>\n<p><p class=\"extern\"><a href=\"https://soundcloud.com/\" rel=\"noopener\">Auf SoundCloud anhören ↗</a></p></p>",
+ "datum": "2019-12-06",
+ "jahr": 2019,
+ "autoren": "R. König",
+ "vorschau": "I started exploring the synthesis of music and the corresponding tools for the production of electronic music. There are many fascinating concepts that can be found in tools like Max/MSP, …",
+ "quelle": "https://entwurfsforschung.de/electronic-music/",
+ "unterseiten": []
+}

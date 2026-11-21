@@ -1,0 +1,15 @@
+{
+  "id": "vba-rekursion",
+  "titel": {"de": "Rekursive Strukturen 01 – Verzweigungsstrukturen", "en": "Recursive structures 01 – branching"},
+  "vorschau": {"de": "Ab einem Samen verzweigt sich jeder Würfel in weitere Würfel, jede Iterationsstufe ein Geschoss höher und in eigener Farbe – eine Baumstruktur im Raum.",
+               "en": "Starting from a seed, every cube branches into further cubes, each iteration level one storey higher and in its own colour – a tree structure in space."},
+  "original": "iteration01.htm",
+  "herkunft": "AutoCAD-VBA",
+  "jahr": 2004,
+  "archiv": "strukturexperimente/autocad-vba/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.wuerfel.length === SIM.param.mengeWuerfel && SIM.zustand.t === SIM.param.mengeWuerfel - 1 && new Set(SIM.zustand.wuerfel.map(w => w.z)).size >= 5 && SIM.zustand.linien.every((l, i) => l.kind === i + 1 && SIM.zustand.wuerfel[l.kind].eltern === l.eltern)"
+}
