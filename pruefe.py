@@ -141,7 +141,7 @@ def pruefe_simulationen(site=SITE, tests=True):
             b.append(f"bestand.json {e.get('id')}: unbekannter Status {e.get('status')}")
         if e.get("gruppe") not in gruppen:
             b.append(f"bestand.json {e.get('id')}: unbekannte Gruppe {e.get('gruppe')}")
-        if e.get("quellpfad") and not os.path.exists(os.path.join(HIER, e["quellpfad"])):
+        if e.get("quellpfad") and not e["quellpfad"].startswith("extern:") and not os.path.exists(os.path.join(HIER, e["quellpfad"])):
             b.append(f"bestand.json {e['id']}: Quelle {e['quellpfad']} fehlt")
         if not os.path.exists(os.path.join(site, "archiv", e.get("archiv", "x"), "index.html")):
             b.append(f"bestand.json {e['id']}: Archivseite archiv/{e.get('archiv')} fehlt")

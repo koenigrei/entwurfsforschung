@@ -2,7 +2,7 @@
 
 Stand 2026-11-21 · erzeugt aus `bestand.json` mit `python simulationen/bestand_md.py` – nicht von Hand bearbeiten.
 
-**79 Programme**: 47 Delphi, 12 NetLogo, 11 AutoCAD-VBA, 9 Flash. Status: 48 umgesetzt, 18 aufgenommen, 9 zurueckgestellt, 2 nur_beschreibung, 1 nur_bilder, 1 geplant.
+**80 Programme**: 47 Delphi, 12 NetLogo, 11 AutoCAD-VBA, 9 Flash, 1 C#. Status: 50 umgesetzt, 18 aufgenommen, 9 zurueckgestellt, 2 nur_beschreibung, 1 nur_bilder.
 
 Wellen (Vorschlag für die Reihenfolge): **1** klein, Regeln klar, Quellcode oder genaue Beschreibung vorhanden · **2** Varianten und mittlere Modelle · **3** groß, nur Dissertation, nur Bilder oder ohne Beschreibung.
 
@@ -104,12 +104,13 @@ Wellen (Vorschlag für die Reihenfolge): **1** klein, Regeln klar, Quellcode ode
 | 67 | `vba-objektkoordinaten` | objectCoordinates – Manipulation der Object-Vertices | AutoCAD-VBA | 2004 | `03objCoordinates.htm` | klein | 3 | zurueckgestellt | Erzeugt Polyeder und verschiebt einzelne Eckpunkte (Würfel mit verzogener Ecke). |
 | 68 | `vba-konvexe-huelle` | convexHull – Hülle um beliebig verteilte Punkte | AutoCAD-VBA | 2004 | `04convexHull.htm` | klein | 2 | umgesetzt | Konvexe Polylinie um eine zufällige Punktmenge. |
 | 69 | `vba-eingabefeld` | eingabefeld – Parameter über Eingabefeld steuern | AutoCAD-VBA | 2004 | `eingabefeld.htm` | klein | 3 | zurueckgestellt | Technikdemo: Parameter über ein Eingabefeld an das Modul zur Platzierung der Würfel übergeben. |
+| 80 | `kremlas-dichte-packung` | KREMLAS · Dichte Packung | C# | 2011 | `` | groß | 3 | umgesetzt | Eine hybride Evolutionsstrategie mit Kollisionserkennung (Abstoßen und Proportionsänderung nach dem Separating Axis Theorem) packt Räume fester Fläche überlappungsfrei in einen Umriss; virtuelle Federn erzeugen geforderte Nachbarschaften (Stern, Gang mit drei Wohnungen). |
 
 ## Wachstumsmodell urbaner Strukturen
 
 | Nr. | id | Titel | Herkunft | Jahr | Quelle | Umfang | Welle | Status | Kurzbeschreibung |
 |---|---|---|---|---|---|---|---|---|---|
-| 70 | `wachstumssimulation` | Wachstumssimulation urbaner Strukturen | Delphi | 2008 | `600_Wachstumssimulation.zip` | groß | 3 | geplant | Wachsende Stadt aus Erschließungsgraph, Potentialfeld und Parzellen (growingCity); enthält auch „Generieren eines Erschließungsgraphen“ (3.4.1). |
+| 70 | `wachstumssimulation` | Wachstumssimulation urbaner Strukturen | Delphi | 2008 | `600_Wachstumssimulation.zip` | groß | 3 | umgesetzt | Wachsende Stadt aus Erschließungsgraph, Potentialfeld und Parzellen (growingCity); enthält auch „Generieren eines Erschließungsgraphen“ (3.4.1). |
 
 ## Flash-Skizzen
 

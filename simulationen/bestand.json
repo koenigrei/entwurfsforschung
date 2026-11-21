@@ -5,7 +5,7 @@
  "felder": {
   "id": "Ordnername der App unter simulationen/ (Kleinbuchstaben, Bindestriche)",
   "original": "Programm- oder Dateiname des Originals",
-  "herkunft": "Delphi | NetLogo | AutoCAD-VBA | Flash",
+  "herkunft": "Delphi | NetLogo | AutoCAD-VBA | Flash | C#",
   "jahr": "Jahr des Originals (null = undatiert)",
   "kapitel": "Kapitel/Seite der alten Website",
   "alt_seite": "Adresse der alten Seite",
@@ -1673,9 +1673,9 @@
    "umfang": "groß",
    "gruppe": "stadt",
    "welle": 3,
-   "status": "geplant",
-   "app": null,
-   "hinweis": "Größtes Programm (19 Units). ZIP fehlte in archiv_medien; am 21.11.2026 in den Cache geladen. Beschreibung in der Dissertation (Kap. 6). P1 (21.11.2026): ≈2000 Zeilen, 4 Laufarten; eigener Agent, zuerst runMode 1 (Erschließungsgraph 3.4.1) als App, Rest als Fassungen. Datum Main.dfm 2008-02-23.",
+   "status": "umgesetzt",
+   "app": "wachstumssimulation",
+   "hinweis": "Laufarten network only (3.4.1, voreingestellt), boom, interlink, cluster als Fassungen. Analysefenster des Originals nicht umgesetzt.",
    "reihenfolge": 70
   },
   {
@@ -1875,6 +1875,28 @@
    "app": null,
    "hinweis": "Nur SWF ohne Beschreibung; Inhalt unbekannt.",
    "reihenfolge": 79
+  },
+  {
+   "id": "kremlas-dichte-packung",
+   "original": "Kremlas (Einpassung_21.sln)",
+   "titel": "KREMLAS · Dichte Packung",
+   "titel_en": "KREMLAS · Dense packing",
+   "herkunft": "C#",
+   "jahr": 2011,
+   "kapitel": "Architektur › Floor Plans (DFG-Projekt KREMLAS)",
+   "alt_seite": "https://entwurfsforschung.de/layout/",
+   "archiv": "floor-plans/",
+   "quellcode": true,
+   "quellpfad": "extern: bitbucket.org/koenigr/cpg_all, Source/Kremlas/",
+   "duplikate": [],
+   "beschreibung": "Eine hybride Evolutionsstrategie mit Kollisionserkennung (Abstoßen und Proportionsänderung nach dem Separating Axis Theorem) packt Räume fester Fläche überlappungsfrei in einen Umriss; virtuelle Federn erzeugen geforderte Nachbarschaften (Stern, Gang mit drei Wohnungen).",
+   "umfang": "groß",
+   "gruppe": "formen",
+   "welle": 3,
+   "status": "umgesetzt",
+   "app": "kremlas-dichte-packung",
+   "hinweis": "Fassungen Einpassung, Kollision allein, Topologie Stern und Gang in einer App. Neufassung durch den ursprünglichen Autor unter CC BY 4.0 (Original LGPL in cpg_all).",
+   "reihenfolge": 80
   }
  ]
 }

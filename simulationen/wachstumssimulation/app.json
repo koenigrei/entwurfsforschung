@@ -1,0 +1,17 @@
+{
+  "id": "wachstumssimulation",
+  "titel": {"de": "Wachstumssimulation urbaner Strukturen", "en": "Growth simulation of urban structures"},
+  "vorschau": {"de": "Eine Stadt wächst aus einem Erschließungsgraphen, einem Potentialfeld und einem Bebauungsautomaten; die Fassung „network only“ erzeugt den Erschließungsgraphen aus Kapitel 3.4.1, „boom“, „interlink“ und „cluster“ lassen Straßen und Häuser gemeinsam wachsen.",
+               "en": "A city grows from an access graph, a potential field and a building automaton; the version “network only” generates the access graph from chapter 3.4.1, while “boom”, “interlink” and “cluster” let streets and houses grow together."},
+  "original": "600_Wachstumssimulation",
+  "herkunft": "Delphi",
+  "jahr": 2008,
+  "datum": "2008-02-23",
+  "datum_quelle": "neueste Quelldatei im ZIP: Main.dfm vom 23.02.2008 (Formular mit den Voreinstellungen); Quelltext zuletzt geändert potentialField.pas 13.08.2007 und Main.pas 30.07.2007; Programmkopf Main.pas „Growing Network Version 1.0 … May 2007 … Last Update: May-25, 2007“ (Beginn der Arbeit); veröffentlicht mit der Dissertation 2008 (Kapitel 3.4.1 und 6)",
+  "archiv": "raumprozesse/simulationsprogramme/",
+  "repo": null,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {"zellgroesse": 12},
+  "pruef_ausdruck": "(a => SIM.zustand.t === 400 && a.knoten === 401 && a.kanten === 509 && a.zusammenhaengend && a.naechster === 2 && Modell.konnektivitaet(SIM.zustand, {}).globML === 13.91)(Modell.auswertung(SIM.zustand))"
+}

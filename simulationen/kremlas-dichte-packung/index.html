@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KREMLAS · Dichte Packung · Frühe Simulationen · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Grundrisse durch dichte Packung: Eine hybride Evolutionsstrategie mit Kollisionserkennung ordnet Räume fester Fläche überlappungsfrei an, virtuelle Federn sorgen für gewünschte Nachbarschaften. Neuumsetzung des C#-Programms aus dem DFG-Projekt KREMLAS als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← <span lang="de">Frühe Simulationen</span><span lang="en">Early Simulations</span></a>
+  <h1><span lang="de">KREMLAS · Dichte Packung</span><span lang="en">KREMLAS · Dense packing</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">ein Schritt = eine Generation · gezeigt wird die beste Lösung · Raum mit der Maus ziehen: er bleibt, bis die Taste losgelassen wird, die anderen weichen aus</span><span lang="en">one step = one generation · the best solution is shown · drag a room with the mouse: it stays put until you release, the others make way</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Kremlas (Einpassung) · C# · 2010/11</div>
+    <a href="../../../archiv/floor-plans/"><span lang="de">Archivseite des Originals</span><span lang="en">Archive page of the original</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Wie findet ein Computer einen Grundriss, wenn nur die Räume, ihre Flächen und ihre Nachbarschaften bekannt sind? Im DFG-Projekt KREMLAS (2009–2011) entstand dafür der Layoutsolver <em>Dichte Packung</em>. Jeder Raum ist ein Rechteck mit fester Fläche, nur Lage und Seitenverhältnis sind frei. Zusammen bedecken die Räume drei Viertel des Umgebungsrechtecks. Gesucht ist eine Anordnung, in der sie sich nicht überlappen. Zu minimieren ist</p>
+      <p><code>Sg = Σ Schnittflächen der Räume + Σ Flächen außerhalb des Umgebungsrechtecks</code></p>
+      <p>Eine hybride Evolutionsstrategie verbindet zwei Verfahren. Kinder entstehen durch Rekombination zweier Eltern und durch zufällige Verschiebung einzelner Räume, selten mit großen Sprüngen. Jedes Kind „entwickelt“ sich danach durch Kollisionserkennung: Überlappen sich zwei Räume, weichen beide um einen Teil des kürzesten Trennvektors aus (Kraft β) und ändern ihre Proportion (Kraft α), sodass die Fläche erhalten bleibt. Bei der (μ+λ)-Selektion kommen die Eltern selbst in die Auswahl, bei (μ,λ) nur die Kinder. Die Fassung <em>Kollision allein</em> zeigt, warum die Selektion nötig ist: Ohne sie schaukeln sich manche Anordnungen immer wieder auf.</p>
+      <p>Die beiden Fassungen mit <em>Topologie</em> fordern Nachbarschaften: Alle Räume sollen an einen zentralen Raum grenzen (Stern), oder ein Gang erschließt drei Wohnungen mit je fünf Räumen. Virtuelle Federn ziehen Räume zusammen, die benachbart sein sollen. Ein zweites Kriterium f2 summiert ihre Abstände samt fehlender Durchgangsbreite. Die Selektion wählt einen Teil der Eltern nach Sg, den anderen nach f2. Bis zu sechs, sieben Räume findet das System meist eine Lösung, die beides erfüllt. Ab acht Räumen bleibt es oft in einem lokalen Optimum hängen, wie das Buch zum Projekt berichtet. Ziehen Sie einen Raum mit der Maus an eine andere Stelle: Die übrigen ordnen sich um ihn herum neu.</p>
+      <p>Die App ist eine Neuumsetzung des C#-Programms von Reinhard König aus dem Projekt KREMLAS. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>How can a computer find a floor plan when only the rooms, their areas and their adjacencies are known? The DFG research project KREMLAS (2009–2011) developed the layout solver <em>Dense packing</em> for this. Each room is a rectangle with a fixed area; only its position and aspect ratio are free. Together the rooms cover three quarters of the surrounding rectangle. The aim is an arrangement in which they do not overlap. The quantity to minimise is</p>
+      <p><code>Sg = Σ intersections of the rooms + Σ areas outside the surrounding rectangle</code></p>
+      <p>A hybrid evolution strategy combines two methods. Children are created by recombining two parents and by shifting single rooms at random, occasionally with large jumps. Each child then “develops” through collision detection: if two rooms overlap, both move apart by a share of the shortest separating vector (force β) and change their proportions (force α) so that their area stays the same. With (μ+λ) selection the parents themselves compete with the children; with (μ,λ) only the children do. The version <em>Collision only</em> shows why selection is needed: without it, some arrangements keep building up again and again.</p>
+      <p>The two <em>topology</em> versions demand adjacencies: all rooms should border a central room (star), or a corridor gives access to three flats of five rooms each. Virtual springs pull together rooms that should be neighbours. A second criterion f2 sums their distances, including any missing passage width. Selection picks part of the parents by Sg and the rest by f2. Up to six or seven rooms the system usually finds a solution that satisfies both criteria. From eight rooms on it often gets stuck in a local optimum, as the project book reports. Drag a room somewhere else with the mouse, and the other rooms rearrange themselves around it.</p>
+      <p>The app re-implements Reinhard König's C# program from the KREMLAS project. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../_gemeinsam/zufall.js"></script>
+<script src="../_gemeinsam/sim.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

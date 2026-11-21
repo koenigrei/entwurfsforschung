@@ -1,0 +1,8 @@
+{
+  "name": "kremlas-dichte-packung",
+  "private": true,
+  "type": "commonjs",
+  "description": "KREMLAS · Dichte Packung – Neuumsetzung des C#-Layoutsolvers Einpassung (Kremlas) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

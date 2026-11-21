@@ -1,0 +1,45 @@
+# KREMLAS · Dichte Packung
+
+Grundrisse durch dichte Packung: Eine hybride Evolutionsstrategie (μ+λ) bzw. (μ,λ) mit Kollisionserkennung ordnet Räume fester Fläche überlappungsfrei in einem Umgebungsrechteck an; virtuelle Federn sorgen für gewünschte Nachbarschaften (Stern oder Gang mit drei Wohnungen). Neuumsetzung des C#-Programms „Einpassung“ (`Source/Kremlas/` im Repository cpg_all) von Reinhard König aus dem DFG-Projekt KREMLAS (2009–2011).
+
+Online: https://entwurfsforschung.de/lab/simulationen/kremlas-dichte-packung/ (während der Durchsicht unter `/neu/lab/…`)
+
+## Fassungen
+
+| Fassung | Ablauf im Original | Voreinstellung |
+|---|---|---|
+| Einpassung | `REvo.RunAdjust` + `NextGeneration` (Stand des Programms) | 25 Räume, μ = 1, Druck 2 |
+| Kollision allein | derselbe Ablauf mit μ = 1, Druck 1: nur Kollisionserkennung, keine Selektion | 10 Räume, α 0,1, ρG 0,5, β 0,5, ρL 1 |
+| Topologie: Stern | `REvo.RunTopo` + `NextGenerationProportionate`, `SetNeighbours` | 8 Räume, μ = 10 |
+| Topologie: Gang | dasselbe mit `SetSzenario` (Gang, drei Wohnungen zu fünf Räumen) | 16 Räume, μ = 10 |
+
+## Starten
+
+- Doppelklick auf `index.html` genügt (klassische Skripte, keine Module, kein Build).
+- Oder mit lokalem Server aus dem Ordner **über** diesem App-Ordner (dort liegt `_gemeinsam/`):
+  `python -m http.server 8000` → http://localhost:8000/kremlas-dichte-packung/
+- Außerhalb der Website fehlen nur die Schriften Geist und Geist Mono; der Browser nimmt dann Systemschriften.
+
+## Dateien
+
+| Datei | Inhalt |
+|---|---|
+| `index.html` | Seite: Kopfzeile, Zeichenfläche, Bedienfeld, Text, Links zu Quellcode und AGENTS.md |
+| `modell.js` | Modelllogik ohne DOM – in Node testbar |
+| `app.js` | Bedienung und Darstellung: Parameter, Zeichnen, Verlauf, Legende, Kennzahlen, Ziehen mit der Maus |
+| `../_gemeinsam/sim.js`, `sim.css`, `zufall.js` | gemeinsamer Rahmen aller Frühen Simulationen (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
+| `test/modell.test.mjs` | Tests der Modellregeln und des erwarteten Verhaltens |
+| `app.json` | Metadaten für die Übersichtsseite (Titel, Vorschautext, Datum, Archivseite, `repo`) |
+| `QUELLE.md` | Originalprogramm, was übernommen und was geändert wurde |
+| `AGENTS.md` | Anleitung für Coding-Agenten (und Menschen), die weiterentwickeln |
+
+## Testen
+
+```
+node --test
+```
+(Node 20 oder neuer, im App-Ordner; keine Abhängigkeiten.)
+
+## Lizenz
+
+CC BY 4.0 – Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic (siehe `LICENSE.md`).
