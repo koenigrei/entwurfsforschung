@@ -127,7 +127,8 @@
     "en": "The simulation programs of the old website – Delphi, NetLogo, AutoCAD VBA – re-implemented as web apps: Thünen rings, segregation, path systems, recursive structures and more."
    },
    "ziel": "lab/simulationen/",
-   "start": "index.html"
+   "start": "index.html",
+   "zuletzt": true
   }
  ]
 }
