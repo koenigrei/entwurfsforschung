@@ -221,3 +221,80 @@ test("Maus: gezogener Raum sitzt an der Mausposition und bleibt dort, solange er
   assert.equal(z.gesperrt, -1);
   assert.equal(M.ziehe(z, -100, -100, "unten"), false);                     // daneben: nichts
 });
+
+/* ---------------- Ergänzungen 22.11.2026: Federrichtung, Belegung, Grundriss-Generator ---------------- */
+
+test("Federn ziehen zum Nachbarn hin, auch wenn er links/oben liegt (Original: Zuschlag immer positiv)", () => {
+  const I = ind([[0, 300, 110, 50, 50], [1, 100, 100, 50, 50]]);         // Spiegelbild des Falls oben: Nachbar links
+  assert.deepEqual(M.federVektor(I.g[0], I.g[1], 50), { x: -150, y: -10 });
+  const D = ind([[0, 300, 300, 50, 50], [1, 100, 100, 50, 50]]);
+  assert.deepEqual(M.federVektor(D.g[0], D.g[1], 50), { x: -200, y: -200 });
+  // nur in x überdeckt (40 < 50): der Zuschlag schiebt die Räume so, dass die Überdeckung wächst, nicht schrumpft
+  const S = ind([[0, 100, 100, 50, 50], [1, 90, 200, 50, 50]]);
+  const v = M.federVektor(S.g[0], S.g[1], 50);
+  assert.ok(v.x < 0, "A muss nach links, zum Nachbarn");
+});
+
+test("Belegung: Summe der Raumflächen = Anteil des Umgebungsrechtecks; mit Raumprogramm m² · 2500 px²", () => {
+  for (const b of [0.3, 0.75, 1]) {
+    const E = M.startPopulation(1, 12, zufall(2), b)[0];
+    assert.ok(nah(E.g.reduce((s, g) => s + g.a, 0), b * 499 * 429, 1e-6));
+  }
+  for (const [prog, n] of [["acht", 8], ["zehn", 10]]) {
+    const R = M.PROGRAMME[prog].raeume;
+    assert.equal(R.length, n);
+    assert.equal(R.reduce((s, r) => s + r[2], 0), 86);                    // REvo.GrowPolys: total = 86
+    const A = M.flaechen(n, 1, prog);
+    assert.ok(nah(A.reduce((s, a) => s + a, 0), M.BREITE * M.HOEHE, 1e-6)); // 100 % füllen das Feld 10 × 8,6 m genau
+  }
+  const z = M.erzeuge(fassung("grundriss8"), zufall(1));
+  assert.equal(z.n, 8); assert.equal(z.programm, "acht"); assert.equal(z.belegung, 0.85);
+  assert.ok(z.paare.some(([a, b]) => a === 0 && b === -1), "Flur braucht einen Eingang");
+});
+
+test("Außenraum (−1): Distanz 0, wenn der Raum mit Durchgangsbreite an der Feldkante liegt", () => {
+  const I = ind([[0, 25, 200, 50, 100], [1, 250, 200, 50, 100]]);
+  assert.equal(M.distanzen(I, [[0, -1]], 50), 0);
+  assert.ok(M.distanzen(I, [[1, -1]], 50) > 100);
+  M.federn(I, [[1, -1]], 0, 50, -1);                                      // Feder zieht Raum 1 zur nächsten Kante (oben, 150 px)
+  assert.equal(I.g[1].y, 125); assert.equal(I.g[1].x, 250);
+});
+
+test("Grundriss ableiten: Räume wachsen in die Lücken, gegenüberliegende treffen sich in der Mitte, Überlappung blockiert", () => {
+  const I = ind([[0, 100, 215, 100, 430], [1, 400, 215, 100, 430]]);     // zwei Streifen mit 250 px Lücke
+  const R = M.grundriss(I);
+  const a = R.find(r => r.id === 0), b = R.find(r => r.id === 1);
+  assert.ok(nah(a.x1, 0, 0.5) && nah(b.x2, 500, 0.5));
+  assert.ok(Math.abs(a.x2 - b.x1) < 1 && nah(a.x2, 250, 15), `Treffpunkt ${a.x2}`);
+  const U = ind([[0, 100, 100, 100, 100], [1, 140, 100, 100, 100]]);     // überlappen: keiner wächst durch den anderen
+  const Q = M.grundriss(U);
+  assert.ok(Q.find(r => r.id === 0).x2 <= 150 + 1e-9 && Q.find(r => r.id === 1).x1 >= 90 - 1e-9);
+});
+
+test("Türen nur an gemeinsamen Kanten geforderter Nachbarn, mittig, Eingang an der Außenwand", () => {
+  const R = [{ id: 0, x1: 0, y1: 0, x2: 200, y2: 430 }, { id: 1, x1: 200, y1: 0, x2: 500, y2: 200 }, { id: 2, x1: 200, y1: 200, x2: 500, y2: 430 }];
+  const T = M.tueren(R, [[0, 1], [0, 2], [1, 2], [0, -1]], 45);
+  assert.equal(T.length, 4);
+  assert.deepEqual(T[0], { a: 0, b: 1, senkrecht: true, x: 200, y: 100, l: 45 });
+  assert.deepEqual(T[2], { a: 1, b: 2, senkrecht: false, x: 350, y: 200, l: 45 });
+  assert.equal(T[3].b, -1); assert.equal(T[3].x, 0);
+  assert.equal(M.tueren([{ id: 0, x1: 0, y1: 0, x2: 100, y2: 100 }, { id: 1, x1: 100, y1: 70, x2: 200, y2: 170 }], [[0, 1]], 45).length, 0); // nur 30 px gemeinsam
+});
+
+test("Topologie: Stern mit 8 Räumen wird mit korrigierten Federn gelöst (alle Nachbarschaften, kaum Überlappung)", () => {
+  let ok = 0;
+  for (const s of [1, 2, 3, 4]) {
+    const { z, p } = lauf("topologie", {}, 1200, s), b = M.beste(z), A = b.g.reduce((q, g) => q + g.a, 0);
+    if (M.erfuellt(b, z.paare, p.rlap) === z.paare.length && b.fo < 0.01 * A) ok++;
+  }
+  assert.ok(ok >= 2, `nur ${ok} von 4 Läufen gelöst`);
+});
+
+test("Grundriss-Generator: Lösung erfüllt alle Nachbarschaften samt Eingang, der abgeleitete Grundriss füllt das Feld", () => {
+  const { z, p } = lauf("grundriss8", {}, 1500, 1), b = M.beste(z);
+  assert.equal(M.erfuellt(b, z.paare, p.rlap), z.paare.length);
+  const R = M.grundriss(b);
+  const A = R.reduce((s, r) => s + (r.x2 - r.x1) * (r.y2 - r.y1), 0);
+  assert.ok(A > 0.97 * M.BREITE * M.HOEHE, `gefüllt nur ${A / (M.BREITE * M.HOEHE)}`);
+  assert.ok(M.tueren(R, z.paare, 45).length >= z.paare.length - 1);
+});

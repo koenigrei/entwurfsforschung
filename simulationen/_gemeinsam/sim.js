@@ -64,15 +64,21 @@
 
     // Werte aus der Adresse (#saat=7&dichte=0.4) – so lässt sich ein Lauf teilen und wiederholen
     try {
-      new URLSearchParams(location.hash.slice(1)).forEach((v, k) => {
+      const h = new URLSearchParams(location.hash.slice(1));
+      h.forEach((v, k) => {
         if (k === "saat") saat = parseInt(v, 10) || saat;
         const d = P.find(q => q.id === k);
         if (d) p[k] = d.art === "schalter" ? v === "1" : d.art === "auswahl" ? v : Number(v);
       });
+      // Voreinstellungen einer gewählten Auswahl (folgen) gelten auch beim Aufruf über die Adresse, sofern dort nicht selbst gesetzt
+      P.forEach(d => { const f = d.folgen && h.has(d.id) && d.folgen[p[d.id]]; if (f) Object.keys(f).forEach(k => { if (!h.has(k)) p[k] = f[k]; }); });
     } catch (e) {}
     const adresse = () => {
       const q = new URLSearchParams(); q.set("saat", saat);
-      P.forEach(d => { if (p[d.id] !== d.wert) q.set(d.id, d.art === "schalter" ? (p[d.id] ? "1" : "0") : p[d.id]); });
+      // Bezug ist die Voreinstellung der gewählten Fassung (folgen), sonst der Startwert – so bleibt der Link kurz und eindeutig
+      const bezug = {}; P.forEach(d => { bezug[d.id] = d.wert; });
+      P.forEach(d => { const f = d.folgen && p[d.id] !== d.wert && d.folgen[p[d.id]]; if (f) Object.keys(f).forEach(k => { bezug[k] = f[k]; }); });
+      P.forEach(d => { if (p[d.id] !== bezug[d.id]) q.set(d.id, d.art === "schalter" ? (p[d.id] ? "1" : "0") : p[d.id]); });
       try { history.replaceState(null, "", "#" + q.toString()); } catch (e) {}
     };
 

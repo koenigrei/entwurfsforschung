@@ -4,7 +4,7 @@ Anleitung für Coding-Agenten und Menschen, die diese App weiterentwickeln. Wer 
 
 ## Worum es geht
 
-Fachlich treue Neuumsetzung des Layoutsolvers „Dichte Packung“ (Einpassung, C#, Reinhard König, DFG-Projekt KREMLAS 2009–2011; Quelle `Source/Kremlas/` im Repository cpg_all). Vier Fassungen (`p.fassung`): `einpassung` (Stand des Programms, `REvo.RunAdjust`), `kollision` (nur Kollisionserkennung), `topologie` (Stern, `REvo.RunTopo`) und `gang` (Testszenario mit Gang und drei Wohnungen). Maßgeblich sind die Regeln und Parameter des Originals (siehe `QUELLE.md`), nicht seine Oberfläche. Begriffe des Originals bleiben erhalten (Rooms, Pressure, Rooms Overlap, spring Damp, repel/proport. Force und Rate, Elite, (μ+λ)-ES). Bewusst übernommene Eigenheiten: Sg < 1 gilt als gleich gut, Berühren zählt als Kollision mit Vektor 0, der Federzuschlag für die Durchgangsbreite ist immer positiv, die Schwellen 1,25 und 1,5 · Räume aus dem Code.
+Fachlich treue Neuumsetzung des Layoutsolvers „Dichte Packung“ (Einpassung, C#, Reinhard König, DFG-Projekt KREMLAS 2009–2011; Quelle `Source/Kremlas/` im Repository cpg_all). Sechs Fassungen (`p.fassung`): `einpassung` (Stand des Programms, `REvo.RunAdjust`), `kollision` (nur Kollisionserkennung), `topologie` (Stern, `REvo.RunTopo`), `gang` (Testszenario mit Gang und drei Wohnungen) sowie `grundriss8` und `grundriss10` (Grundriss-Generator: Raumprogramme aus `GrowPolys`, Nachbarschaften angenommen, Eingang als Nachbar −1, Grundriss mit Wänden und Türen über `grundriss()`/`tueren()`). Regler `belegung`: Anteil des Umgebungsrechtecks (im Original fest 0,75). Maßgeblich sind die Regeln und Parameter des Originals (siehe `QUELLE.md`), nicht seine Oberfläche. Begriffe des Originals bleiben erhalten (Rooms, Pressure, Rooms Overlap, spring Damp, repel/proport. Force und Rate, Elite, (μ+λ)-ES). Bewusst übernommene Eigenheiten: Sg < 1 gilt als gleich gut, Berühren zählt als Kollision mit Vektor 0, die Schwellen 1,25 und 1,5 · Räume aus dem Code. Behoben: Der Federzuschlag für die Durchgangsbreite war im Original immer positiv (zog die Hälfte der Federn falsch herum).
 
 ## Aufbau
 
@@ -34,7 +34,7 @@ kremlas-dichte-packung/
 
 | Funktion | Aufgabe |
 |---|---|
-| `erzeuge(param, zufall)` | neuer Zustand `z`: `t`, `n` (Räume), `mu`, `ablauf`, `paare` (geforderte Nachbarschaften), `eltern` (Individuen `{g: [Gene], fo: Sg, fd: f2}`, Gen `{id, x, y, w, h, a}` mit Mittelpunkt), `kinder`, `aufteilung` (nach f1 · f2), `gesperrt` (gezogener Raum), `verlauf`, `verlaufD`, `dichte` |
+| `erzeuge(param, zufall)` | neuer Zustand `z`: `t`, `n` (Räume), `mu`, `ablauf`, `programm`, `belegung`, `paare` (geforderte Nachbarschaften, Nachbar −1 = Außenraum), `eltern` (Individuen `{g: [Gene], fo: Sg, fd: f2}`, Gen `{id, x, y, w, h, a}` mit Mittelpunkt), `kinder`, `aufteilung` (nach f1 · f2), `gesperrt` (gezogener Raum), `verlauf`, `verlaufD`, `dichte` |
 | `schritt(z, param)` | eine Generation: `RunAdjust` bzw. `RunTopo` mit Auswahl; erhöht `z.t` |
 | `aendere(z, param, id)` | `rlap` ohne Neustart (f2 neu) |
 | `FASSUNGEN`, `REGLER`, `STANDARD` | Ablauf, Topologie und Voreinstellungen je Fassung |
@@ -43,7 +43,9 @@ kremlas-dichte-packung/
 | `verschiebe`, `variiereGroesse`, `variiereGroesseVoll`, `inversion`, `kreuzung` | Mutation und Rekombination (`MoveRandon`, `VarySize`, `VarySizeFull`, `Inversion`, `CrossoverTopo`) |
 | `ueberlappung`, `distanzen`, `paarDistanz`, `ringAbstand`, `zusatzAbstand`, `zusatzUeberlappung`, `erfuellt` | Fitness f1 (Sg) und f2 und ihre Teile |
 | `nachbarn(n, art)`, `federVektor`, `federn` | Topologien (`SetNeighbours`, `SetSzenario`) und virtuelle Federn (`RSpring`) |
-| `beste(z)`, `ziehe(z, x, y, phase)`, `loslassen(z)` | beste Lösung; Raum mit der Maus ziehen und sperren |
+| `beste(z)`, `ziehe(z, x, y, phase)`, `loslassen(z)` | beste Lösung (mit Topologie: Sg < 1 %, dann meiste Nachbarschaften); Raum mit der Maus ziehen und sperren |
+| `PROGRAMME`, `PX_M`, `flaechen(n, belegung, programm)`, `aussen(A)` | Raumprogramme (Name DE/EN, m²) mit Nachbarschaften, Maßstab 50 px = 1 m, Flächen, Außenraum als virtueller Nachbar |
+| `grundriss(ind)`, `tueren(R, paare, breite)` | Grundriss ableiten (Räume wachsen in die Restflächen) und Türen an gemeinsamen Kanten |
 
 Im Browser steht zum Ausprobieren `window.SIM` bereit: `SIM.schritt(100)`, `SIM.zuruecksetzen(7)`, `SIM.setze("fassung", "topologie")`, `SIM.zustand`, dazu `Modell.beste(SIM.zustand)`.
 Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&fassung=gang&mu=12`).
@@ -55,7 +57,7 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&fassung=gang&mu=1
 
 ## Ideen für Weiterentwicklung
 
-- Raumprogramme mit verschiedenen Flächen (im Original als Kommentar vorbereitet: 8 bzw. 10 Räume nach Flemming, Buch Tab. 8/9) und frei eingegebene Nachbarschaften (Nachbarschaft per Klick auf zwei Räume).
+- Frei eingegebene Raumprogramme und Nachbarschaften (Nachbarschaft per Klick auf zwei Räume), nicht rechteckige Umrisse (L-Form, wie im AIEDAM-Artikel 2014).
+- Belegung 100 % zuverlässiger erreichen, z. B. mit einer Proportionsänderung, die auch auf den Rand reagiert.
 - Mehrere Populationen nebeneinander: eine konservative (μ+λ) und innovative (μ,λ), die ihre Besten regelmäßig abgeben (`Migration`, Buch Kapitel 9).
-- Türen an den gemeinsamen Kanten der Nachbarn zeichnen (`RDoors`, im Code vorbereitet).
 - Zweites Diagramm f1 gegen f2 aller Eltern (`chart2`), um die Pareto-Front zu sehen.

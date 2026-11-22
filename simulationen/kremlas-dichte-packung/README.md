@@ -1,6 +1,6 @@
 # KREMLAS · Dichte Packung
 
-Grundrisse durch dichte Packung: Eine hybride Evolutionsstrategie (μ+λ) bzw. (μ,λ) mit Kollisionserkennung ordnet Räume fester Fläche überlappungsfrei in einem Umgebungsrechteck an; virtuelle Federn sorgen für gewünschte Nachbarschaften (Stern oder Gang mit drei Wohnungen). Neuumsetzung des C#-Programms „Einpassung“ (`Source/Kremlas/` im Repository cpg_all) von Reinhard König aus dem DFG-Projekt KREMLAS (2009–2011).
+Grundrisse durch dichte Packung: Eine hybride Evolutionsstrategie (μ+λ) bzw. (μ,λ) mit Kollisionserkennung ordnet Räume fester Fläche überlappungsfrei in einem Umgebungsrechteck an; virtuelle Federn sorgen für gewünschte Nachbarschaften (Stern, Gang mit drei Wohnungen oder Raumprogramm einer Wohnung). Die Grundriss-Fassungen leiten aus der Packung einen Grundriss mit Wänden, Türen und Eingang ab. Neuumsetzung des C#-Programms „Einpassung“ (`Source/Kremlas/` im Repository cpg_all) von Reinhard König aus dem DFG-Projekt KREMLAS (2009–2011).
 
 Online: https://entwurfsforschung.de/lab/simulationen/kremlas-dichte-packung/ (während der Durchsicht unter `/neu/lab/…`)
 
@@ -12,6 +12,10 @@ Online: https://entwurfsforschung.de/lab/simulationen/kremlas-dichte-packung/ (w
 | Kollision allein | derselbe Ablauf mit μ = 1, Druck 1: nur Kollisionserkennung, keine Selektion | 10 Räume, α 0,1, ρG 0,5, β 0,5, ρL 1 |
 | Topologie: Stern | `REvo.RunTopo` + `NextGenerationProportionate`, `SetNeighbours` | 8 Räume, μ = 10 |
 | Topologie: Gang | dasselbe mit `SetSzenario` (Gang, drei Wohnungen zu fünf Räumen) | 16 Räume, μ = 10 |
+| Grundriss: 8 Räume | dasselbe mit dem Raumprogramm aus `GrowPolys` (auskommentiert, 86 m²) und angenommenen Nachbarschaften samt Eingang; Grundriss mit Wänden und Türen abgeleitet (neu) | Belegung 85 %, μ = 20 |
+| Grundriss: 10 Räume | dasselbe mit dem zweiten Raumprogramm (Essen, zweites Bad) | Belegung 85 %, μ = 20 |
+
+Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einnehmen (30–100 %, im Original fest 75 %).
 
 ## Starten
 
