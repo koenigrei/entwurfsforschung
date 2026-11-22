@@ -86,9 +86,10 @@ def titelbild(titel, ziel):
     return im.width, im.height
 
 
-RUECKWEG = ('<a class="ef-zurueck" href="{z}" style="position:fixed;left:12px;bottom:12px;z-index:2147483000;font:500 11px/1 Geist Mono,ui-monospace,monospace;'
-            'letter-spacing:.04em;text-transform:uppercase;text-decoration:none;color:#fff;background:rgba(0,0,0,.78);border:1px solid #3a3a3e;'
-            'border-radius:999px;padding:7px 12px" title="Zurück zum KI Lab auf entwurfsforschung.de">← Lab</a>')
+RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="display:flex;align-items:center;min-height:34px;padding:0 16px;margin:0;'
+            'background:#000;border-bottom:1px solid #2a2a2e;position:relative;z-index:2147483000;font:500 12px/1 Geist Mono,ui-monospace,monospace;'
+            'letter-spacing:.06em;text-transform:uppercase"><a href="{z}" style="color:#fff;text-decoration:none" '
+            'title="Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab">← Entwurfsforschung · KI Lab</a></nav>')
 
 
 def versionieren(t, ordner):
@@ -114,7 +115,7 @@ def lokal(pfad, zur_wurzel):
         t = t.replace(u, f"{zur_wurzel}vendor/three.r128.min.js")
     t = versionieren(t, os.path.dirname(pfad))
     if "ef-zurueck" not in t:                                         # Rückweg ins Lab in jeder App (Nutzer 21.11.2026)
-        t = t.replace("</body>", RUECKWEG.format(z=zur_wurzel) + "</body>", 1)
+        t = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + RUECKWEG.format(z=zur_wurzel), t, count=1)   # sichtbare Leiste oben (22.11.2026, vorher kleines Etikett unten links)
     open(pfad, "w", encoding="utf-8").write(t)
 
 
@@ -144,7 +145,35 @@ def zwei(de, en, tag="span"):
     return f'<{tag} class="nur-de">{html.escape(de)}</{tag}><{tag} class="nur-en">{html.escape(en)}</{tag}>'
 
 
-def artikel(e, inhalt, base, unterseiten=None, eltern=None, zu_unter="", eltern_href="../", inhalt_en=None):
+def webapps(pfad, base):
+    """Kasten oben auf einer Archivseite: Programme dieser Seite (simulationen/bestand.json „archiv“), die als Web-App umgesetzt sind.
+    Auf einer Hauptseite (z. B. strukturexperimente/) zählen auch die Programme ihrer Unterseiten, mit Link dorthin. (Nutzer 22.11.2026)"""
+    B = json.load(open(os.path.join(SIM, "bestand.json"), encoding="utf-8"))["programme"]
+    U = sorted((e for e in B if e.get("status") == "umgesetzt" and e.get("app") and e.get("archiv")), key=lambda e: (e.get("jahr") or 0, e.get("reihenfolge") or 0))
+    hier = [e for e in U if e["archiv"] == pfad]
+    unter = [e for e in U if e["archiv"] != pfad and e["archiv"].startswith(pfad)]
+    if not hier and not unter:
+        return ""
+    sim = f"{base}lab/simulationen/"
+    t = f'<aside class="webapps"><div class="mono">{zwei("Jetzt als Web-App", "Now available as web apps")}</div>'
+    if hier:
+        n = len(hier)
+        t += ("<p>" + (zwei("Dieses Programm läuft jetzt als Neuumsetzung direkt im Browser, im KI Lab unter „Frühe Simulationen“:",
+                            "This program now runs as a re-implementation directly in the browser, in the AI Lab under “Early Simulations”:") if n == 1 else
+                       zwei(f"Für {n} Programme dieser Seite gibt es jetzt Neuumsetzungen, die direkt im Browser laufen, im KI Lab unter „Frühe Simulationen“:",
+                            f"{n} programs on this page now run as re-implementations directly in the browser, in the AI Lab under “Early Simulations”:")) + "</p>")
+        t += '<ul>' + "".join(f'<li><a href="{sim}{e["app"]}/">{zwei(e["titel"], e.get("titel_en"))}</a></li>' for e in hier) + "</ul>"
+    if unter:
+        seiten = {}
+        for e in unter:
+            seiten.setdefault(e["archiv"], []).append(e)
+        t += ("<p>" + zwei(f"Für {len(unter)} Programme aus den Unterseiten gibt es Web-Apps:", f"{len(unter)} programs from the subpages are available as web apps:") + "</p><ul>"
+              + "".join(f'<li><a href="{base}archiv/{a}">{html.escape(a.rstrip("/").split("/")[-1])}</a> · {zwei(f"{len(L)} Apps", f"{len(L)} apps") if len(L) > 1 else zwei("1 App", "1 app")}</li>' for a, L in seiten.items())
+              + "</ul>")
+    return t + f'<a class="mono alle" href="{sim}">→ {zwei("Alle Frühen Simulationen", "All Early Simulations")}</a></aside>'
+
+
+def artikel(e, inhalt, base, unterseiten=None, eltern=None, zu_unter="", eltern_href="../", inhalt_en=None, kasten=""):
     """unterseiten: Liste, die in der Seitenleiste steht; zu_unter: Weg von dieser Seite zu den Unterseiten-Ordnern ("" oder "../");
     eltern/eltern_href: Rückweg zur übergeordneten Seite (Eintrag oder Unterseite). inhalt_en: englische Fassung (archiv_uebersetzung/)."""
     t = e["titel"]; k = e["kategorie"]
@@ -159,7 +188,7 @@ def artikel(e, inhalt, base, unterseiten=None, eltern=None, zu_unter="", eltern_
     text = KRUEMEL.sub("", inhalt)
     if inhalt_en:
         text = f'<div class="nur-de" lang="de">{text}</div><div class="nur-en" lang="en">{englisch_links(KRUEMEL.sub("", inhalt_en))}</div>'
-    return f'<main class="artikel"><aside><h1>{zwei(t["de"], t.get("en"))}</h1>{meta}{liste}{zurueck}</aside><div class="text">{text}</div></main>'
+    return f'<main class="artikel"><aside><h1>{zwei(t["de"], t.get("en"))}</h1>{meta}{liste}{zurueck}</aside><div class="text">{kasten}{text}</div></main>'
 
 
 
@@ -237,7 +266,7 @@ def bauen(alt="/"):
             uu = UU.get(u["id"], {})
             if uu.get("titel"):
                 u["titel"], u["titel_en"] = uu["titel"].get("de", u["titel"]), uu["titel"].get("en")
-        seite(vorlage, os.path.join(d, "index.html"), artikel(e, inhalt_de, "../../", kinder(None), inhalt_en=inhalt_en), "../../", f"{e['titel']['de']} · Entwurfsforschung", "archiv", alt)
+        seite(vorlage, os.path.join(d, "index.html"), artikel(e, inhalt_de, "../../", kinder(None), inhalt_en=inhalt_en, kasten=webapps(f"{e['id']}/", "../../")), "../../", f"{e['titel']['de']} · Entwurfsforschung", "archiv", alt)
         for u in alle:
             uu = UU.get(u["id"], {})
             ude, uen = fassungen(u["inhalt"], uu.get("inhalt"), uu.get("original", U.get("original", "de")))
@@ -245,7 +274,7 @@ def bauen(alt="/"):
             el = nach_id.get(u.get("eltern"))
             seite(vorlage, os.path.join(d, u["id"], "index.html"),
                   artikel(ue, ude, "../../../", kinder(u["id"]), eltern=(el["titel"], el.get("titel_en")) if el else (e["titel"]["de"], e["titel"].get("en")), zu_unter="../",
-                          eltern_href=f"../{el['id']}/" if el else "../", inhalt_en=uen), "../../../",
+                          eltern_href=f"../{el['id']}/" if el else "../", inhalt_en=uen, kasten=webapps(f"{e['id']}/{u['id']}/", "../../../")), "../../../",
                   f"{u['titel']} · Entwurfsforschung", "archiv", alt)
         karten.append({"id": e["id"], "titel": e["titel"], "autoren": e["autoren"], "kategorie": e["kategorie"], "jahr": e["jahr"], "datum": e["datum"],
                        "vorschau": {"de": e["vorschau"], "en": vorschau_en or e["vorschau"]}, "href": f"{e['id']}/",

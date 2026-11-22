@@ -99,6 +99,7 @@ footer a:hover { color: var(--ink); }
 .artikel > aside .meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; color: var(--muted); }
 .artikel > aside .meta b { font-weight: 400; color: var(--ink); }
 .artikel > aside a.zurueck { color: var(--accent-text); }
+.artikel > * { min-width: 0; } .artikel > aside, .artikel .text a { overflow-wrap: anywhere; }
 .artikel h1 { font-weight: 300; font-size: clamp(28px, 4vw, 44px); line-height: 1.1; text-transform: uppercase; margin: 0; }
 .artikel .titelbild { max-width: 100%; height: auto; display: block; }
 .text { padding: 28px var(--g) 48px; max-width: calc(72ch + 2 * var(--g)); font-size: 16.5px; line-height: 1.65; }
@@ -125,6 +126,14 @@ html[lang="en"] .nur-de, html[lang="de"] .nur-en { display: none !important; }
 .spalt-griff:focus-visible { outline: 0; }
 body.spalt-ziehen { cursor: col-resize; user-select: none; }
 
+.webapps { border: 1px solid var(--accent-text); border-radius: 8px; padding: 16px 18px; margin: 0 0 28px; display: flex; flex-direction: column; gap: 8px; }
+.webapps > .mono { color: var(--accent-text); text-transform: uppercase; letter-spacing: .06em; font-size: 12px; }
+.webapps p { margin: 0; }
+.webapps ul { margin: 0; padding-left: 18px; columns: 2; column-gap: 28px; }
+.webapps li { break-inside: avoid; }
+.webapps a { color: var(--accent-text); }
+.webapps .alle { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; text-decoration: none; }
+@media (max-width: 600px) { .webapps ul { columns: 1; } }
 @media (max-width: 900px) {
   nav a, .sprache, .sprache-trenn { font-size: 18px; } nav a { padding: 0 10px; }
   .marke b { font-size: 18px; } .pill { font-size: 13px; }

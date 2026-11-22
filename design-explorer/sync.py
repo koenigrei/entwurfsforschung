@@ -57,9 +57,10 @@ SCHRIFTEN = [("Geist", 300, "Geist-Light"), ("Geist", 400, "Geist-Regular"), ("G
              ("Geist Mono", 500, "GeistMono-Medium"), ("Geist Mono", 600, "GeistMono-SemiBold")]
 SCHRIFT_QUELLEN = [REPO / "site" / "schrift", Path(os.environ.get("LOCALAPPDATA", "")) / "Microsoft" / "Windows" / "Fonts",
                    Path("C:/Windows/Fonts")]
-RUECKWEG = ('<a class="ef-zurueck" href="../../" style="position:fixed;left:12px;bottom:12px;z-index:2147483000;font:500 11px/1 Geist Mono,ui-monospace,monospace;'
-            'letter-spacing:.04em;text-transform:uppercase;text-decoration:none;color:#fff;background:rgba(0,0,0,.78);border:1px solid #3a3a3e;'
-            'border-radius:999px;padding:7px 12px" title="Zurück zum KI Lab auf entwurfsforschung.de">← Lab</a>')
+RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="display:flex;align-items:center;min-height:34px;padding:0 16px;margin:0;'
+            'background:#000;border-bottom:1px solid #2a2a2e;position:relative;z-index:2147483000;font:500 12px/1 Geist Mono,ui-monospace,monospace;'
+            'letter-spacing:.06em;text-transform:uppercase"><a href="{z}" style="color:#fff;text-decoration:none" '
+            'title="Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab">← Entwurfsforschung · KI Lab</a></nav>')
 RAUSCHEN = ("post-quantum", "store now", "upgraded", "pq.html", "tput")
 
 
@@ -326,7 +327,7 @@ def bearbeite_viewer(build: Path) -> None:
     if n != 1:
         sys.exit("index.html: Zeile für die Darstellung nicht gefunden (Viewer geändert?)")
     if "ef-zurueck" not in html:
-        html = html.replace("</body>", RUECKWEG + "</body>", 1)
+        html = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + RUECKWEG.format(z="../../"), html, count=1)   # sichtbare Leiste oben (22.11.2026)
     html = _version(build, html)
     (build / "index.html").write_text(html, encoding="utf-8")
     app = (build / "app.js").read_text(encoding="utf-8")
