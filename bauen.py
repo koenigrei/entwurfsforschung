@@ -216,7 +216,13 @@ def bauen(alt="/"):
             w, h = kachelbild(eigen if os.path.exists(eigen) else os.path.join(Q, p["bild"]), os.path.join(SITE, "bilder", p["id"] + ".webp"))
         else:                                                          # noch kein Kachelbild (z. B. Frühe Simulationen vor pruefe_apps.py)
             w, h = titelbild(p["titel"]["de"], os.path.join(SITE, "bilder", p["id"] + ".webp"))
-        z = os.path.join(SITE, p["ziel"]); os.makedirs(z, exist_ok=True)
+        z = os.path.join(SITE, p["ziel"])
+        if p.get("nur_kachel"):                                        # nur Kachel, Inhalt pflegt ein anderes Werkzeug (Design Explorer: sync.py).
+            if os.path.exists(z):                                      # Kein Ordner in site/, sonst ersetzt deploy.py den Ordner auf dem Server.
+                sys.exit(f"{p['ziel']}: Projekt ist nur_kachel, darf in site/ nicht vorkommen")
+            lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
+            continue
+        os.makedirs(z, exist_ok=True)
         for ziel, quelle in p.get("dateien", {}).items():
             shutil.copy(os.path.join(Q, quelle), os.path.join(z, ziel))
         for ziel, quelle in p.get("ordner", {}).items():
@@ -226,7 +232,7 @@ def bauen(alt="/"):
                 lokal(os.path.join(z, ziel), "../" * p["ziel"].strip("/").count("/") + "../")
         if p["start"] != "index.html":
             open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"], q=(f'<link rel="code-repository" href="{p["quellcode"]}"><link rel="license" href="https://creativecommons.org/licenses/by/4.0/">' if p.get("quellcode") else "")))
-        lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
+        lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
     seite(vorlage, os.path.join(SITE, "index.html"), FILTER.format(id="lab", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": lab}, ensure_ascii=False)) + "\n" + UEBER,
           "", "Entwurfsforschung · KI Lab", "lab", alt)
 

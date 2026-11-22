@@ -36,6 +36,10 @@ def pruefe(site=SITE, projekte=None):
         if not os.path.exists(os.path.join(site, "bilder", p["id"] + ".webp")):
             b.append(f"{p['id']}: Kachelbild fehlt")
         z = os.path.join(site, p["ziel"])
+        if p.get("nur_kachel"):                                        # Inhalt pflegt ein anderes Werkzeug (Design Explorer: sync.py)
+            if os.path.exists(z):
+                b.append(f"{p['id']}: nur_kachel, {p['ziel']} darf nicht in site/ stehen (Deploy würde den Ordner auf dem Server ersetzen)")
+            continue
         for f in ["index.html", p["start"], *p.get("dateien", {})]:
             if not os.path.exists(os.path.join(z, f)):
                 b.append(f"{p['id']}: {p['ziel']}{f} fehlt")

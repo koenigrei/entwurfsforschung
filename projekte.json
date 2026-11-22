@@ -2,6 +2,28 @@
  "quelle_basis": "C:/LocalOnlyData/GitHub/Planungsgrundlagen",
  "projekte": [
   {
+   "id": "design-explorer",
+   "titel": {
+    "de": "Design Explorer",
+    "en": "Design Explorer"
+   },
+   "autoren": "R. König · Claude",
+   "kategorie": {
+    "de": "Explorer",
+    "en": "Explorer"
+   },
+   "jahr": 2026,
+   "datum": "2026-11-09",
+   "vorschau": {
+    "de": "Alle Varianten der Konzeptstudien mit Bildern, Plänen und Begleittexten in vielen literarischen Stilen – täglich gepostet auf Instagram, Bluesky, Mastodon, Facebook und LinkedIn. Durchsuchen, vergleichen, Gepostetes ansehen.",
+    "en": "All variants of the concept studies with images, plans and accompanying texts in many literary styles – posted daily on Instagram, Bluesky, Mastodon, Facebook and LinkedIn. Browse, compare, see what was posted."
+   },
+   "ziel": "lab/design-explorer/",
+   "start": "index.html",
+   "nur_kachel": true,
+   "zuerst": true
+  },
+  {
    "id": "gartenatelier",
    "titel": {
     "de": "Konzeptstudie Gartenatelier",
