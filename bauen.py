@@ -2,7 +2,7 @@
 
 Seiten: Lab (Startseite, projekte.json), Archiv (archiv.json + archiv_inhalte/ aus konvertiere.py) mit Einzelseiten, Impressum (Platzhalter,
 bis die Angaben aus dem Impressum-Generator vorliegen). Alle Seiten teilen vorlage.html ({{MAIN}}).
---alt: Adresse der alten Website (kleiner Link unten); Voreinstellung "/" (solange die neue Seite unter /neu/ liegt, ist "/" das alte WordPress).
+--alt: Adresse der alten Website; seit 22.11.2026 ohne Wirkung (WordPress gelöscht, der Link „Alte Website“ ist aus vorlage.html entfernt).
 Schrift: Geist (SIL Open Font License) aus den lokal installierten Windows-Schriften, selbst ausgeliefert (keine Google Fonts).
 """
 import html, json, os, re, shutil, sys
