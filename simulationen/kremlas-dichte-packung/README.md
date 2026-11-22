@@ -12,10 +12,10 @@ Online: https://entwurfsforschung.de/lab/simulationen/kremlas-dichte-packung/ (w
 | Kollision allein | derselbe Ablauf mit μ = 1, Druck 1: nur Kollisionserkennung, keine Selektion | 10 Räume, α 0,1, ρG 0,5, β 0,5, ρL 1 |
 | Topologie: Stern | `REvo.RunTopo` + `NextGenerationProportionate`, `SetNeighbours` | 8 Räume, μ = 10 |
 | Topologie: Gang | dasselbe mit `SetSzenario` (Gang, drei Wohnungen zu fünf Räumen) | 16 Räume, μ = 10 |
-| Grundriss: 8 Räume | dasselbe mit dem Raumprogramm aus `GrowPolys` (auskommentiert, 86 m²) und angenommenen Nachbarschaften samt Eingang; Grundriss mit Wänden und Türen abgeleitet (neu) | Belegung 85 %, μ = 20 |
-| Grundriss: 10 Räume | dasselbe mit dem zweiten Raumprogramm (Essen, zweites Bad) | Belegung 85 %, μ = 20 |
+| Grundriss: 8 Räume | dasselbe mit dem Raumprogramm aus Buch Tab. 8 (= `GrowPolys`, auskommentiert, 86 m²), Sterntopologie um den Flur wie im Buch, wahlweise Wohnung mit Eingang; Grundriss mit Wänden und Türen (neu) | Belegung 100 %, kürzeste Seite 0,4 · √Fläche, μ = 20 |
+| Grundriss: 10 Räume | dasselbe mit Buch Tab. 9 (Essen, zweites Bad) | wie oben |
 
-Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einnehmen (30–100 %, im Original fest 75 %).
+Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einnehmen (30–100 %, im Original fest 75 %). Regler **kürzeste Seite**: Untergrenze als Anteil von √Fläche (Original fest 0,75).
 
 ## Starten
 

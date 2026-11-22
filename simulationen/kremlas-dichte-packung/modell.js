@@ -33,17 +33,17 @@
                   μ = 10 wie die einfache MOES im Buch (Abschn. 5.2.3).
       gang:       wie topologie mit dem Testszenario (SetSzenario): ein Gang, drei Wohnungen zu je fünf Räumen (16 Räume). */
   const FASSUNGEN = {
-    einpassung: { ablauf: "einpassung", topologie: "stern", belegung: 0.75, raeume: 25, mu: 1, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+    einpassung: { ablauf: "einpassung", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 25, mu: 1, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 },
-    kollision:  { ablauf: "einpassung", topologie: "stern", belegung: 0.75, raeume: 10, mu: 1, druck: 1, plus: true, elite: false, kreuzung: false, kreuzRate: 0.75,
+    kollision:  { ablauf: "einpassung", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 10, mu: 1, druck: 1, plus: true, elite: false, kreuzung: false, kreuzRate: 0.75,
                   repForce: 0.5, repRate: 1, propForce: 0.1, propRate: 0.5, daempfung: 0.5, rlap: 50 },
-    topologie:  { ablauf: "topologie", topologie: "stern", belegung: 0.75, raeume: 8, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+    topologie:  { ablauf: "topologie", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 8, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 },
-    gang:       { ablauf: "topologie", topologie: "gang", belegung: 0.75, raeume: 16, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+    gang:       { ablauf: "topologie", topologie: "gang", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 16, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 },
-    grundriss8: { ablauf: "topologie", topologie: "programm", programm: "acht", belegung: 0.85, raeume: 8, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+    grundriss8: { ablauf: "topologie", topologie: "programm", programm: "acht", belegung: 1, minSeite: 0.4, grundrissTopo: "stern", raeume: 8, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 },
-    grundriss10:{ ablauf: "topologie", topologie: "programm", programm: "zehn", belegung: 0.85, raeume: 10, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+    grundriss10:{ ablauf: "topologie", topologie: "programm", programm: "zehn", belegung: 1, minSeite: 0.4, grundrissTopo: "stern", raeume: 10, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 }
   };
 
@@ -51,8 +51,9 @@
       (REvo.GrowPolys, auskommentiert: „1000 x 860 Pixel => 500 x 430“, total = 86). */
   const PX_M = 50;
 
-  /** Raumprogramme für den Grundriss-Generator: Flächen aus REvo.GrowPolys (auskommentiert, je 86 m²). Die Nachbarschaften
-      stehen nicht im Code; sie sind hier für eine Wohnung angenommen: Flur (hall) liegt an der Außenwand (Eingang, Nachbar −1)
+  /** Raumprogramme für den Grundriss-Generator: Flächen aus REvo.GrowPolys (auskommentiert, je 86 m²) = Buch Tab. 8 und 9
+      (Szenarien nach Flemming et al. 1992). Nachbarschaften wie im Buch (Kap. 9.1): Sterntopologie, alle Räume grenzen an den
+      Flur (grundrissTopo "stern", Voreinstellung). Wahlweise ("wohnung") hier angenommene Nachbarschaften einer Wohnung: Flur (hall) liegt an der Außenwand (Eingang, Nachbar −1)
       und erschließt Wohnen, Schlafräume und Bad,
       Wohnen grenzt an Hof und Küche (bzw. Essen, Essen an Küche), das zweite Bad gehört zum Elternschlafzimmer. */
   const PROGRAMME = {
@@ -66,7 +67,7 @@
                ["Bad 2", "Bathroom 2", 4], ["Essen", "Dining", 10]],
       paare: [[0, -1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 7], [2, 1], [2, 9], [9, 6], [3, 8]] }
   };
-  const REGLER = ["belegung", "raeume", "mu", "druck", "plus", "elite", "kreuzung", "kreuzRate", "repForce", "repRate", "propForce", "propRate", "daempfung", "rlap"];
+  const REGLER = ["belegung", "minSeite", "grundrissTopo", "raeume", "mu", "druck", "plus", "elite", "kreuzung", "kreuzRate", "repForce", "repRate", "propForce", "propRate", "daempfung", "rlap"];
 
   function pick(o, ks) { const r = {}; ks.forEach(k => { r[k] = o[k]; }); return r; }
 
@@ -88,8 +89,8 @@
 
   /* ---------------------------------------------------------------- Räume (Gene) */
   /** Gen: Raumnummer id, Mittelpunkt (x, y), Breite w, Höhe h, Fläche a (bleibt fest), Geschwindigkeit (vx, vy) für die Federn */
-  const gen = (id, x, y, w, h, a) => ({ id, x, y, w, h, a: a == null ? w * h : a, vx: 0, vy: 0 });
-  const kopieGen = g => ({ id: g.id, x: g.x, y: g.y, w: g.w, h: g.h, a: g.a, vx: 0, vy: 0 });
+  const gen = (id, x, y, w, h, a, ms) => ({ id, x, y, w, h, a: a == null ? w * h : a, vx: 0, vy: 0, ms: ms || 0.75 });
+  const kopieGen = g => ({ id: g.id, x: g.x, y: g.y, w: g.w, h: g.h, a: g.a, vx: 0, vy: 0, ms: g.ms });
   const kopie = ind => ({ g: ind.g.map(kopieGen), fo: ind.fo, fd: ind.fd });
   const links = g => g.x - g.w / 2, oben = g => g.y - g.h / 2, rechts = g => g.x + g.w / 2, unten = g => g.y + g.h / 2;
 
@@ -132,7 +133,7 @@
 
   /** Breite setzen und Höhe aus der Fläche ableiten (RGen.CheckWidtHeight): kürzeste Seite ≥ 0,75·√Fläche, höchstens Feldbreite/-höhe */
   function setzeBreite(g, w) {
-    const min = Math.sqrt(g.a) * 0.75;
+    const min = Math.sqrt(g.a) * (g.ms || 0.75);                       // Mindestseite (Original fest 0,75 · √Fläche)
     if (w < min) w = min; else if (w > BREITE) w = BREITE;
     let h = g.a / w;
     if (h < min) { h = min; w = g.a / h; }
@@ -379,7 +380,7 @@
 
   /** Startpopulation (REvo-Konstruktor, GrowPolys): Mittelpunkte zufällig im Feld, Flächen siehe flaechen();
       Breite √Fläche + Zufall −10 … 9 (höchstens Feldbreite / 2), Höhe aus der Fläche – je Individuum neu */
-  function startPopulation(mu, n, zufall, belegung, programm) {
+  function startPopulation(mu, n, zufall, belegung, programm, minSeite) {
     const A = flaechen(n, belegung == null ? 0.75 : belegung, programm), P = [];
     for (let k = 0; k < mu; k++) {
       const G = [];
@@ -387,7 +388,7 @@
         const a = A[i], x = zufall.ganz(BREITE), y = zufall.ganz(HOEHE);
         let w = Math.sqrt(a) + zufall.ganz(20) - 10;
         if (w > Math.trunc(BREITE / 2)) w = Math.trunc(BREITE / 2);
-        G.push(gen(i, x, y, w, a / w, a));
+        G.push(gen(i, x, y, w, a / w, a, minSeite));
       }
       P.push(bewerte({ g: G, fo: 0, fd: 0 }));
     }
@@ -399,8 +400,8 @@
     const prog = F.programm || null, n = prog ? PROGRAMME[prog].raeume.length : Math.max(2, Math.round(p.raeume)), mu = Math.max(1, Math.round(p.mu));
     const bel = Math.min(1, Math.max(0.05, p.belegung == null ? 0.75 : p.belegung));
     const z = { t: 0, zufall, n, mu, ablauf: F.ablauf, topologie: F.topologie, programm: prog, belegung: bel,
-                paare: prog ? PROGRAMME[prog].paare.map(q => q.slice()) : nachbarn(n, F.topologie),
-                eltern: startPopulation(mu, n, zufall, bel, prog), kinder: 0, aufteilung: null, gesperrt: -1, verlauf: [], verlaufD: [], dichte: 1, rlap: p.rlap };
+                paare: prog ? (p.grundrissTopo === "wohnung" ? PROGRAMME[prog].paare.map(q => q.slice()) : nachbarn(n, "stern")) : nachbarn(n, F.topologie),
+                eltern: startPopulation(mu, n, zufall, bel, prog, p.minSeite), kinder: 0, aufteilung: null, gesperrt: -1, verlauf: [], verlaufD: [], dichte: 1, rlap: p.rlap };
     for (const e of z.eltern) e.fd = distanzen(e, z.paare, p.rlap);
     merke(z);
     return z;

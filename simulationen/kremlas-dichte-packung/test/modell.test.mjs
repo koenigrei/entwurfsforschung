@@ -247,9 +247,14 @@ test("Belegung: Summe der Raumflächen = Anteil des Umgebungsrechtecks; mit Raum
     const A = M.flaechen(n, 1, prog);
     assert.ok(nah(A.reduce((s, a) => s + a, 0), M.BREITE * M.HOEHE, 1e-6)); // 100 % füllen das Feld 10 × 8,6 m genau
   }
-  const z = M.erzeuge(fassung("grundriss8"), zufall(1));
-  assert.equal(z.n, 8); assert.equal(z.programm, "acht"); assert.equal(z.belegung, 0.85);
-  assert.ok(z.paare.some(([a, b]) => a === 0 && b === -1), "Flur braucht einen Eingang");
+  const z = M.erzeuge(fassung("grundriss8"), zufall(1));                  // wie im Buch: Stern um den Flur, 100 %, kürzeste Seite 0,4 · √Fläche
+  assert.equal(z.n, 8); assert.equal(z.programm, "acht"); assert.equal(z.belegung, 1);
+  assert.deepEqual(z.paare, [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]]);
+  assert.ok(z.eltern[0].g.every(g => g.ms === 0.4));
+  const w = M.erzeuge(fassung("grundriss8", { grundrissTopo: "wohnung" }), zufall(1));
+  assert.ok(w.paare.some(([a, b]) => a === 0 && b === -1), "Wohnung: Flur braucht einen Eingang");
+  const g = M.gen(0, 0, 0, 100, 100, null, 0.4); M.setzeBreite(g, 10);
+  assert.ok(nah(g.w, 40) && nah(g.h, 250));                                // kürzeste Seite 0,4 · √10000 = 40
 });
 
 test("Außenraum (−1): Distanz 0, wenn der Raum mit Durchgangsbreite an der Feldkante liegt", () => {
