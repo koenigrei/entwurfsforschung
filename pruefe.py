@@ -89,6 +89,7 @@ def pruefe(site=SITE, projekte=None):
                 for host in ("fonts.googleapis", "fonts.gstatic", "cdnjs.cloudflare", "cdn.jsdelivr", "<iframe"):
                     if host in t and not (host == "<iframe" and stumm):
                         b.append(f"{os.path.relpath(os.path.join(wurzel, f), site)}: {host}")
+    b += pruefe_bki(site)
     b += pruefe_simulationen(site)
     b += pruefe_katalog(site)
     imp = os.path.join(site, "impressum", "index.html")
@@ -104,6 +105,32 @@ def pruefe(site=SITE, projekte=None):
 
 ALT_LINK = re.compile(r"""(?i)^(?:(?:https?:)?//(?:www\.)?entwurfsforschung\.de)?/(?:alt(?:/|$)|indexC\.htm|Diss(?:/|$)|wp-|\?p=|\?page_id=)""")
 NEU_PFAD = re.compile(r"(?i)^/(?:archiv|lab|impressum|neu|schrift|bilder|vendor)(?:/|$)|^/?$")
+
+
+def pruefe_bki(site):
+    """Lizenzierte BKI-Kostenkennwerte nie veröffentlichen (Reinhard 23.11.2026): kein Paket mit kosten_kennwerte.json und keine
+    systeme.json, in der die BKI-abgeleiteten Bauweisen (holzrahmen, bsp) noch Kosten tragen."""
+    b = []
+    for wurzel, _, dateien in os.walk(os.path.join(site, "lab")):
+        for f in dateien:
+            if not f.lower().endswith(".zip"):
+                continue
+            pfad = os.path.join(wurzel, f); rel = os.path.relpath(pfad, site)
+            try:
+                with zipfile.ZipFile(pfad) as zf:
+                    for n in zf.namelist():
+                        name = n.rsplit("/", 1)[-1]
+                        if name == "kosten_kennwerte.json":
+                            b.append(f"{rel}: enthält {n} (BKI)")
+                        elif name == "systeme.json":
+                            d = json.loads(zf.read(n).decode("utf-8"))
+                            S = d.get("systeme", d) if isinstance(d, dict) else d
+                            for k, s in (S.items() if isinstance(S, dict) else ((x.get("id"), x) for x in S)):
+                                if k in ("holzrahmen", "bsp") and isinstance(s, dict) and s.get("kosten") is not None:
+                                    b.append(f"{rel}: {n} – Bauweise {k} mit BKI-abgeleiteten Kosten")
+            except zipfile.BadZipFile:
+                b.append(f"{rel}: kein gültiges ZIP")
+    return b
 
 
 def pruefe_methode(site, p, z):

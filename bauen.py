@@ -150,6 +150,9 @@ def lernbereich(p, z, Q, methode=None, methode_datei=None):
         shutil.copytree(tmp, z, dirs_exist_ok=True)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+    for f in sorted(os.listdir(z)):                                    # lizenzierte BKI-Werte nie veröffentlichen (Reinhard 23.11.2026)
+        if f.lower().endswith(".zip"):
+            bki_aus_zip(os.path.join(z, f))
     if methode_datei:                                                  # vor dem Versionieren (?v= hängt am Inhalt der Pakete)
         methode_in_zips(z, methode_datei)
     zur_beschreibung = (rueckweg("index.html", methode).replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Beschreibung")
@@ -292,6 +295,35 @@ def methode_quelle(p, Q):
         if os.path.isfile(os.path.join(basis, m)):
             return os.path.join(basis, m)
     sys.exit(f"{p['id']}: METHODE.md nicht gefunden ({m})")
+
+
+BKI_SYSTEME = ("holzrahmen", "bsp")   # Bauweisen in systeme.json, deren Kosten aus BKI-Kennwerten abgeleitet sind (K17, K21, K31)
+
+
+def bki_aus_zip(pfad):
+    """In einem veröffentlichten Paket die BKI-abgeleiteten Kosten in jeder systeme.json leeren (kosten → null); die Quelle im
+    Repo bleibt. Das Kette-Paket (make_kette_paket.py) macht es schon selbst; hier für das Quellcode-Paket der Konzeptstudie."""
+    import zipfile
+    with zipfile.ZipFile(pfad) as zf:
+        namen = [n for n in zf.namelist() if n.rsplit("/", 1)[-1] == "systeme.json"]
+        if not namen:
+            return
+        eintraege = [(i, zf.read(i.filename)) for i in zf.infolist()]
+    neu, geaendert = [], 0
+    for info, daten in eintraege:
+        if info.filename in namen:
+            d = json.loads(daten.decode("utf-8"))
+            S = d.get("systeme", d) if isinstance(d, dict) else d
+            for k, s in (S.items() if isinstance(S, dict) else ((x.get("id"), x) for x in S)):
+                if k in BKI_SYSTEME and isinstance(s, dict) and s.get("kosten") is not None:
+                    s["kosten"] = None; geaendert += 1
+            daten = json.dumps(d, ensure_ascii=False, indent=1).encode("utf-8")
+        neu.append((info, daten))
+    if not geaendert:
+        return
+    with zipfile.ZipFile(pfad, "w", zipfile.ZIP_DEFLATED) as zf:
+        for info, daten in neu:
+            zf.writestr(info, daten, compress_type=zipfile.ZIP_DEFLATED)
 
 
 def methode_in_zips(ordner, quelle, namen=None):
