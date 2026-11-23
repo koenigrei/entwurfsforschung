@@ -6,7 +6,7 @@ Alles ist offen: Jede App und jede Seite darf weiterentwickelt werden (Lizenz si
 | Bereich | Adresse | Quellen hier |
 |---|---|---|
 | Lab (Startseite) | https://entwurfsforschung.de/ | `projekte.json`, `vorlage.html`, `bauen.py` |
-| Lab-Apps | https://entwurfsforschung.de/lab/… | Gartenatelier, Campus, Duarte/Siza, Bergdörfer: gebaute Apps; ihre Quellen und Quellcode-Pakete liegen im KI Lernlabor der Bauhaus-Universität Weimar. `simulationen/`: die alten Simulationsprogramme (Delphi, NetLogo, VBA) als neue Web-Apps |
+| Lab-Apps | https://entwurfsforschung.de/lab/… | Gartenatelier, Campus, Duarte/Siza, Bergdörfer: gebaute Apps; ihre Quellen und Quellcode-Pakete liegen im KI Lernlabor der Bauhaus-Universität Weimar. Palladio: Quellen im Repo Planungsgrundlagen (`_prozess/konzepte/2026-11-22_Palladio_Grammatik`, Bau mit `Apps/palladio/baue.py`), Quellcode-Paket in der App. `simulationen/`: die alten Simulationsprogramme (Delphi, NetLogo, VBA) als neue Web-Apps |
 | Archiv | https://entwurfsforschung.de/archiv/ | `archiv.json` (Einträge, Unterseiten, Linkregeln), `konvertiere.py` (übernimmt die alte Website), `archiv_inhalte/`, `archiv_medien/`, `archiv_offen.json` (alte Links, die noch umgehängt werden) |
 | Impressum | https://entwurfsforschung.de/impressum/ | `impressum.html` |
 

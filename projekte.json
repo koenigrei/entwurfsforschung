@@ -101,6 +101,31 @@
    "quellcode": "Konzeptstudie_Duarte_Siza_Quellcode.zip"
   },
   {
+   "id": "palladio",
+   "titel": {
+    "de": "Konzeptstudie Palladio",
+    "en": "Palladio Concept Study"
+   },
+   "autoren": "R. König · Claude",
+   "kategorie": {
+    "de": "Formgrammatik",
+    "en": "Shape grammar"
+   },
+   "jahr": 2026,
+   "datum": "2026-11-22",
+   "vorschau": {
+    "de": "Villen im Stil Andrea Palladios aus der Formgrammatik von Stiny und Mitchell (1978): acht Stufen vom Raster bis zur Enfilade, mit dem vollständigen Katalog aller Raumaufteilungen.",
+    "en": "Villas in the style of Andrea Palladio from the shape grammar of Stiny and Mitchell (1978): eight stages from the grid to the enfilade, with the complete catalogue of room layouts."
+   },
+   "ziel": "lab/palladio/",
+   "start": "palladio.html",
+   "dateien": {
+    "palladio.html": "Apps/palladio/dist/palladio.html",
+    "Konzeptstudie_Palladio_Quellcode.zip": "Apps/palladio/dist/Konzeptstudie_Palladio_Quellcode.zip"
+   },
+   "quellcode": "Konzeptstudie_Palladio_Quellcode.zip"
+  },
+  {
    "id": "bergdoerfer",
    "titel": {
     "de": "Bergdörfer",
