@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const M = require("../modell.js");
-const { zufall } = require("../../_gemeinsam/zufall.js");
+const { zufall } = require("../../simulationen/_gemeinsam/zufall.js");
 
 /** Parameter einer Fassung mit Änderungen */
 const fassung = (f, q) => Object.assign({}, M.STANDARD, M.FASSUNGEN[f], { fassung: f }, q);

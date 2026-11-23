@@ -1893,7 +1893,8 @@
    "umfang": "groß",
    "gruppe": "formen",
    "welle": 3,
-   "status": "umgesetzt",
+   "status": "verschoben",
+   "neu": "lab/kremlas/",
    "app": "kremlas-dichte-packung",
    "hinweis": "Fassungen Einpassung, Kollision allein, Topologie Stern und Gang, Grundriss mit 8 und 10 Räumen (Raumprogramme Buch Tab. 8 und 9, Topologie Stern oder Wohnung) in einer App. Behobene Programmfehler (Federrichtung, Federn bei Berührung) und neuer Regler Federrunden je Kind, gemessen über viele Saaten: QUELLE.md. Neu (23.11.2026): Grundriss mit 6 Räumen als Voreinstellung, Mindestmaße je Raum und Suche nach gültigen Grundrissen (Karten, Laden in die Einzelansicht). Neufassung durch den ursprünglichen Autor unter CC BY 4.0 (Original LGPL in cpg_all).",
    "reihenfolge": 80

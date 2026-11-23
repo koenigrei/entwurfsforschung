@@ -198,20 +198,23 @@ def webapps(pfad, base):
     """Kasten oben auf einer Archivseite: Programme dieser Seite (simulationen/bestand.json „archiv“), die als Web-App umgesetzt sind.
     Auf einer Hauptseite (z. B. strukturexperimente/) zählen auch die Programme ihrer Unterseiten, mit Link dorthin. (Nutzer 22.11.2026)"""
     B = json.load(open(os.path.join(SIM, "bestand.json"), encoding="utf-8"))["programme"]
-    U = sorted((e for e in B if e.get("status") == "umgesetzt" and e.get("app") and e.get("archiv")), key=lambda e: (e.get("jahr") or 0, e.get("reihenfolge") or 0))
+    U = sorted((e for e in B if e.get("status") in ("umgesetzt", "verschoben") and e.get("app") and e.get("archiv")), key=lambda e: (e.get("jahr") or 0, e.get("reihenfolge") or 0))
     hier = [e for e in U if e["archiv"] == pfad]
     unter = [e for e in U if e["archiv"] != pfad and e["archiv"].startswith(pfad)]
     if not hier and not unter:
         return ""
     sim = f"{base}lab/simulationen/"
+    href = lambda e: f'{base}{e["neu"]}' if e.get("status") == "verschoben" else f'{sim}{e["app"]}/'   # verschoben: eigenes Lab-Projekt (KREMLAS, 23.11.2026)
     t = f'<aside class="webapps"><div class="mono">{zwei("Jetzt als Web-App", "Now available as web apps")}</div>'
     if hier:
-        n = len(hier)
-        t += ("<p>" + (zwei("Dieses Programm läuft jetzt als Neuumsetzung direkt im Browser, im KI Lab unter „Frühe Simulationen“:",
+        n, eigen = len(hier), all(e.get("status") == "verschoben" for e in hier)
+        t += ("<p>" + (zwei("Dieses Programm läuft jetzt als Neuumsetzung direkt im Browser, als eigenes Projekt im KI Lab:",
+                            "This program now runs as a re-implementation directly in the browser, as a project of its own in the AI Lab:") if n == 1 and eigen else
+                       zwei("Dieses Programm läuft jetzt als Neuumsetzung direkt im Browser, im KI Lab unter „Frühe Simulationen“:",
                             "This program now runs as a re-implementation directly in the browser, in the AI Lab under “Early Simulations”:") if n == 1 else
-                       zwei(f"Für {n} Programme dieser Seite gibt es jetzt Neuumsetzungen, die direkt im Browser laufen, im KI Lab unter „Frühe Simulationen“:",
-                            f"{n} programs on this page now run as re-implementations directly in the browser, in the AI Lab under “Early Simulations”:")) + "</p>")
-        t += '<ul>' + "".join(f'<li><a href="{sim}{e["app"]}/">{zwei(e["titel"], e.get("titel_en"))}</a></li>' for e in hier) + "</ul>"
+                       zwei(f"Für {n} Programme dieser Seite gibt es jetzt Neuumsetzungen, die direkt im Browser laufen, im KI Lab:",
+                            f"{n} programs on this page now run as re-implementations directly in the browser, in the AI Lab:")) + "</p>")
+        t += '<ul>' + "".join(f'<li><a href="{href(e)}">{zwei(e["titel"], e.get("titel_en"))}</a></li>' for e in hier) + "</ul>"
     if unter:
         seiten = {}
         for e in unter:
@@ -502,6 +505,9 @@ def bauen(alt="/"):
     # ---------------------------------------------------------------- Parametric Planning Catalogue (katalog/, 23.11.2026)
     nkat = katalog(vorlage, alt)
 
+    # ---------------------------------------------------------------- KREMLAS als eigenes Projekt (kremlas/, 23.11.2026)
+    kremlas()
+
     # ---------------------------------------------------------------- Impressum (Platzhalter)
     seite(vorlage, os.path.join(SITE, "impressum", "index.html"),
           open(os.path.join(HIER, "impressum.html"), encoding="utf-8").read(),
@@ -533,6 +539,14 @@ def simulationen(vorlage, alt):
         'AddType "text/plain; charset=utf-8" .md\nAddType "text/javascript; charset=utf-8" .mjs\n')
     karten = []
     for e in bestand["programme"]:
+        if e.get("status") == "verschoben" and e.get("app") and e.get("neu"):   # eigenes Lab-Projekt: alte Adresse leitet weiter, Saat und Regler in # bleiben
+            d = os.path.join(ziel, e["app"]); os.makedirs(d, exist_ok=True)
+            neu = "../../../" + e["neu"]
+            open(os.path.join(d, "index.html"), "w", encoding="utf-8").write(
+                f'<!doctype html><meta charset="utf-8"><title>{html.escape(e["titel"])}</title><link rel="canonical" href="{neu}">'
+                f'<script>location.replace("{neu}" + location.hash)</script><meta http-equiv="refresh" content="0; url={neu}">'
+                f'<a href="{neu}">{html.escape(e["titel"])} · jetzt eigenes Projekt im KI Lab · now a project of its own in the AI Lab</a>\n')
+            continue
         if e.get("status") != "umgesetzt":
             continue
         aid = e["app"]; q = os.path.join(SIM, aid); d = os.path.join(ziel, aid)
@@ -563,11 +577,14 @@ def simulationen(vorlage, alt):
                        "bild": f"bilder/{aid}.webp" + vq(os.path.join(ziel, "bilder", aid + ".webp")), "w": w, "h": h})
     de, en = SIM_TEXT["de"], SIM_TEXT["en"]
     n_alle = len(bestand["programme"])
+    eigene = [e for e in bestand["programme"] if e.get("status") == "verschoben" and e.get("neu")]
+    eigen_de = "".join(f' {html.escape(e["titel"])} ist inzwischen ein eigenes Projekt im KI Lab: <a href="../../{e["neu"]}">{html.escape(e["titel"])}</a>.' for e in eigene)
+    eigen_en = "".join(f' {html.escape(e.get("titel_en") or e["titel"])} is now a project of its own in the AI Lab: <a href="../../{e["neu"]}">{html.escape(e.get("titel_en") or e["titel"])}</a>.' for e in eigene)
     einleitung = (f'<style>html[lang="en"] .nur-de, html[lang="de"] .nur-en {{ display: none; }} .feld select {{ max-width: 62%; text-overflow: ellipsis; }}</style>'
                   f'<section class="ueber" id="ueber"><div><h2><span class="nur-de">{html.escape(de[0])}</span><span class="nur-en">{html.escape(en[0])}</span></h2></div>'
                   f'<div><p class="nur-de">{html.escape(de[1])}</p><p class="nur-en">{html.escape(en[1])}</p>'
-                  f'<p class="nur-de">{len(karten)} von {n_alle} Programmen sind umgesetzt. {html.escape(de[2])}</p>'
-                  f'<p class="nur-en">{len(karten)} of {n_alle} programs are done. {html.escape(en[2])}</p>'
+                  f'<p class="nur-de">{len(karten)} von {n_alle} Programmen sind hier umgesetzt.{eigen_de} {html.escape(de[2])}</p>'
+                  f'<p class="nur-en">{len(karten)} of {n_alle} programs are done here.{eigen_en} {html.escape(en[2])}</p>'
                   f'<p><a href="../../archiv/raumprozesse/simulationsprogramme/"><span class="nur-de">Originale im Archiv</span><span class="nur-en">Originals in the archive</span></a>'
                   + (' · <a href="../../lab/methode/simulationen/"><span class="nur-de">Methode</span><span class="nur-en">Method</span></a>' if METHODEN.get("simulationen") else "")
                   + '</p></div></section>')
@@ -576,6 +593,30 @@ def simulationen(vorlage, alt):
           "../../", "Frühe Simulationen · Entwurfsforschung", "lab", alt)
     return len(karten)
 
+
+
+KREM = os.path.join(HIER, "kremlas")
+
+
+def kremlas():
+    """lab/kremlas/: KREMLAS · Dichte Packung als eigenes Lab-Projekt (Reinhard 23.11.2026, vorher unter den Frühen Simulationen).
+    Kopiert kremlas/ (Seiten nutzen ../simulationen/_gemeinsam/ wie der Katalog), quellcode.zip mit kremlas/ und
+    simulationen/_gemeinsam/ in derselben relativen Lage, METHODE.md im Paket, ?v= gegen den Cloudflare-Cache."""
+    import zipfile
+    d = os.path.join(SITE, "lab", "kremlas")
+    shutil.copytree(KREM, d, ignore=SIM_NICHT, dirs_exist_ok=True)
+    open(os.path.join(d, ".htaccess"), "w", encoding="utf-8").write('AddType "text/plain; charset=utf-8" .md\nAddType "text/javascript; charset=utf-8" .mjs\n')
+    with zipfile.ZipFile(os.path.join(d, "quellcode.zip"), "w", zipfile.ZIP_DEFLATED) as zf:
+        for basis, name in ((KREM, "kremlas"), (os.path.join(SIM, "_gemeinsam"), "simulationen/_gemeinsam")):
+            for wurzel, ordner, dateien in os.walk(basis):
+                ordner[:] = sorted(o for o in ordner if o not in ("node_modules", ".git", "__pycache__", "_pruefung"))
+                for f in sorted(dateien):
+                    if f != "quellcode.zip" and ".local." not in f:
+                        zf.write(os.path.join(wurzel, f), (name + "/" + os.path.relpath(os.path.join(wurzel, f), basis)).replace(os.sep, "/"))
+    for f in os.listdir(d):                                            # alle Seiten des Projekts (später Tabs Palladio, Siza)
+        if f.endswith(".html"):
+            p_ = os.path.join(d, f); t_ = versionieren(open(p_, encoding="utf-8").read(), d)   # erst lesen, dann schreiben
+            open(p_, "w", encoding="utf-8").write(t_)
 
 
 KAT = os.path.join(HIER, "katalog")
