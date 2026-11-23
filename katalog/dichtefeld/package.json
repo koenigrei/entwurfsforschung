@@ -1,0 +1,8 @@
+{
+  "name": "dichtefeld",
+  "private": true,
+  "type": "commonjs",
+  "description": "Dichtefeld – Neuumsetzung des Grasshopper-Skripts Building coverage Density (DeCodingSpaces Lab, Workshop Discovering Cities Amman) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

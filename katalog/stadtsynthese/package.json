@@ -1,0 +1,8 @@
+{
+  "name": "stadtsynthese",
+  "private": true,
+  "type": "commonjs",
+  "description": "Stadtsynthese – Neuumsetzung der Generierungskette des SSS12-Workshops (DeCodingSpaces Lab, 2019): Straßennetz, Blöcke, Parzellen, Gebäude, Space-Syntax-Kennzahlen",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

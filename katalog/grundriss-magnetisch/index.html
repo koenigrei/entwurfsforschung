@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Magnetischer Grundrissgenerator · DeCodingSpaces Lab · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Räume docken nacheinander an ein wachsendes Flursystem an, geforderte Nachbarn liegen nah beieinander, eine quasi-evolutionäre Suche verbessert die fünf besten Grundrisse. Neuumsetzung des Werkzeugs „Magnetizing Floor Plan Generator“ aus dem DeCodingSpaces Lab (Bauhaus-Universität Weimar) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../#dcs-lab">← DeCodingSpaces Lab</a>
+  <h1><span lang="de">Magnetischer Grundrissgenerator</span><span lang="en">Magnetizing Floor Plan Generator</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Klick oder Ziehen im Plan: Zellen sperren oder freigeben (Umriss ändern) · Rechtsklick oder Umschalt-Klick: Eingangspunkt setzen · Start: Räume docken an</span><span lang="en">Click or drag in the plan: block or free cells (change the boundary) · right-click or shift-click: set entrance point · Start: rooms dock on</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Magnetizing Floor Plan Generator · Werkzeug (studentisches Forschungsprojekt, Grasshopper-Plugin), 2019 · Egor Gavrilov (Autor); Reinhard König, Sven Schneider, Martin Dennemark (Betreuung)</div>
+    <a href="https://toolbox.decodingspaces.net/magnetizing-floor-plan-generator/"><span lang="de">Eintrag im DeCodingSpaces Lab</span><span lang="en">Entry in the DeCodingSpaces Lab</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Räume docken nacheinander an ein wachsendes Flursystem an, geforderte Nachbarn liegen nah beieinander, und eine quasi-evolutionäre Suche verbessert die fünf besten Grundrisse – ein Generator für Grundrisse aus Raumprogramm und Umriss.</p>
+      <p>Über dem Umriss liegt ein Raster aus 1-m-Zellen; jede Zelle ist frei, Flur, Teil eines Raums oder außen. Das Raumprogramm nennt für jeden Raum Fläche, geforderte Nachbarn und Typ (Raum oder Halle). Zuerst wird der Eingangsraum am Eingangspunkt gesetzt, danach jeweils der Raum mit den meisten Verbindungen zu schon platzierten Räumen. Jeder Raum bringt seinen eigenen Flurstreifen mit – an einer, zwei oder allen Seiten, Hallen immer ringsum. Er darf nur dort andocken, wo die Ecke seines Flurs an das bestehende Flursystem grenzt und wo alle schon platzierten Nachbarn über Flurzellen höchstens <code>MaxAdjDistance</code> entfernt sind; unter den möglichen Lagen gewinnt die mit den meisten belegten Zellen in Verlängerung seiner Kanten – daher „magnetisch“. Passt ein Raum nicht mehr, ist die Lösung fertig und wird bewertet: nach der Zahl oder der Fläche der platzierten Räume.</p>
+      <p>Je Iteration entstehen fünf Lösungen. Jede dritte Iteration werden stattdessen die fünf besten genommen, ihre letzten ein bis fünf Räume entfernt und neu gesetzt; passt danach mehr, ersetzt die neue Fassung die alte. Nach den Iterationen (im Plugin 300–900) zeigt die App die beste Lösung und entfernt Sackgassen im Flur. Rechts steht der Nachbarschaftsgraph: Kreise nach Fläche, hohl und rot markiert, wenn der Raum fehlt; rote Punkte zeigen Räume, denen ein geforderter Nachbar fehlt. Darunter die Bestenliste.</p>
+      <p>Probieren: mit „Start“ zusehen, wie Raum für Raum andockt; „Ein Schritt ist: eine Iteration“ wählen, um die Bestenliste wachsen zu sehen. Zellen im Plan sperren (Treppenhaus, Innenhof, Baumbestand) oder den Eingangspunkt verlegen, Flure auf „an allen Seiten“ stellen, den Umriss verkleinern, bis Räume fehlen – oder zur Villa Savoye und zum Hallenbad wechseln.</p>
+      <p>Die App setzt das Werkzeug „Magnetizing Floor Plan Generator“ aus dem <a href="https://toolbox.decodingspaces.net/#lab">DeCodingSpaces Lab</a> neu im Browser um: 2019 von Egor Gavrilov als studentisches Forschungsprojekt an der Bauhaus-Universität Weimar entwickelt, betreut von Reinhard König, Sven Schneider und Martin Dennemark; veröffentlicht in Gavrilov, Schneider, Dennemark, König (2020): Computer-aided approach to public buildings floor plan generation. Magnetizing Floor Plan Generator. Procedia Manufacturing 44, 132–139, <a href="https://doi.org/10.1016/j.promfg.2020.02.214">doi:10.1016/j.promfg.2020.02.214</a>. Die Raumprogramme (Haus am Horn, Villa Savoye, Miller House, Hallenbad) stammen aus der Beispieldatei des Plugins. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>Rooms dock one by one onto a growing corridor system, required neighbours stay close to each other, and a quasi-evolutionary search improves the five best floor plans – a generator for floor plans from a room programme and a boundary.</p>
+      <p>A grid of 1 m cells covers the boundary; each cell is free, corridor, part of a room or outside. The room programme gives each room an area, required neighbours and a type (room or hall). The entrance room is placed first at the entrance point, then always the room with the most connections to rooms already placed. Every room brings its own corridor strip – along one, two or all sides, halls always all around. It may only dock where the corner of its corridor touches the existing corridor system and where all neighbours already placed are at most <code>MaxAdjDistance</code> away via corridor cells; among the possible positions, the one with the most occupied cells in line with its edges wins – hence “magnetizing”. When a room no longer fits, the solution is complete and evaluated: by the number or the area of the rooms placed.</p>
+      <p>Each iteration produces five solutions. Every third iteration, the five best are taken instead, their last one to five rooms are removed and placed again; if more rooms fit, the new version replaces the old one. After the iterations (300–900 in the plug-in) the app shows the best solution and removes dead ends from the corridor. On the right, the adjacency graph: circles by area, hollow and marked red if the room is missing; red dots mark rooms that lack a required neighbour. Below it, the list of the best solutions.</p>
+      <p>Try: press “Start” and watch room after room dock on; choose “One step is: one iteration” to see the best list grow. Block cells in the plan (stair, courtyard, trees) or move the entrance point, set corridors to “all sides”, shrink the boundary until rooms are missing – or switch to the Villa Savoye and the indoor pool.</p>
+      <p>The app re-implements the tool “Magnetizing Floor Plan Generator” of the <a href="https://toolbox.decodingspaces.net/#lab">DeCodingSpaces Lab</a> in the browser: developed in 2019 by Egor Gavrilov as a student research project at Bauhaus-Universität Weimar, supervised by Reinhard König, Sven Schneider and Martin Dennemark; published in Gavrilov, Schneider, Dennemark, König (2020): Computer-aided approach to public buildings floor plan generation. Magnetizing Floor Plan Generator. Procedia Manufacturing 44, 132–139, <a href="https://doi.org/10.1016/j.promfg.2020.02.214">doi:10.1016/j.promfg.2020.02.214</a>. The room programmes (Haus am Horn, Villa Savoye, Miller House, indoor pool) come from the plug-in's example file. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

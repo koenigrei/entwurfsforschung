@@ -198,8 +198,8 @@
    "datum": "2020-01-01",
    "bild": null,
    "vorschau": {
-    "de": "Die Grasshopper-Module des Parametric Planning Catalogue der Bauhaus-Universität Weimar als Web-Apps: Isovisten, Parzellierung, Straßenhierarchie, kürzeste Wege, Serpentinen, Ringstraßen, Regenwasserabfluss und Starkregen.",
-    "en": "The Grasshopper modules of the Parametric Planning Catalogue of Bauhaus-Universität Weimar as web apps: isovists, parcellation, street hierarchy, shortest paths, serpentine roads, ring roads, rainwater rundown and flood risk."
+    "de": "Die Grasshopper-Module des Parametric Planning Catalogue der Bauhaus-Universität Weimar als Web-Apps – Isovisten, Parzellierung, Straßennetze, Wasser, Gelände, Nutzung, Gebäude – und die Modelle des DeCodingSpaces Lab.",
+    "en": "The Grasshopper modules of the Parametric Planning Catalogue of Bauhaus-Universität Weimar as web apps – isovists, parcellation, street networks, water, terrain, land use, buildings – and the models of the DeCodingSpaces Lab."
    },
    "ziel": "lab/parametric-planning-catalogue/",
    "start": "index.html",

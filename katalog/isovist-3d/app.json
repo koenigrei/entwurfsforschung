@@ -1,0 +1,22 @@
+{
+  "id": "isovist-3d",
+  "titel": {
+    "de": "Isovist 3D",
+    "en": "Isovist 3D"
+  },
+  "vorschau": {
+    "de": "Was sieht man von einem Standpunkt aus im Raum – Himmel, Gebäude oder Boden? Ein Bündel von Strahlen über den horizontalen und vertikalen Blickwinkel trifft die Baukörper der Stadt; gesehene Gebäude leuchten auf, unsichtbare bleiben grau.",
+    "en": "What can be seen from a viewpoint in space – sky, buildings or ground? A bundle of rays across the horizontal and vertical viewing angle hits the buildings of the town; buildings that are seen light up, hidden ones stay grey."
+  },
+  "original": "Isovist 3D",
+  "katalog": "Isovist3D",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/Isovist3D/",
+  "autoren": "DeCodingSpaces – Martin Bielik, Ekaterina Fuchkina",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 0,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(() => { const z = SIM.zustand, A = z.A, a = Modell.auswertung(z); return z.E.n === 8100 && A.zahl[0] + A.zahl[1] + A.zahl[2] === 8100 && A.anteil[0] > 0.02 && A.anteil[1] > 0.2 && A.anteil[2] > 0.2 && a.kirche > 100 && a.sichtbar > 3 && a.sichtbar < a.gebaeude && z.L.min > 0 && z.L.max <= 100 + 1e-6; })()"
+}

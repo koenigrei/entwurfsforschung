@@ -1,0 +1,16 @@
+{
+  "id": "wasserbasiertes-wachstum",
+  "titel": {"de": "Straßenwachstum nach dem Wasserabfluss", "en": "Waterbased Street Growth"},
+  "vorschau": {"de": "Ein Straßennetz wächst Segment für Segment über ein Gelände, längs und quer zur Fließrichtung des Regenwassers, innerhalb einer Wachstumsgrenze aus Neigung, Höhe und Nähe zum Zentrum.", "en": "A street network grows segment by segment across a terrain, along and across the rainwater rundown direction, inside a growth boundary derived from slope, height and closeness to the center."},
+  "original": "Waterbased Street Growth",
+  "katalog": "WaterBasedStreetGrowth",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WaterBasedStreetGrowth/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 1500,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.neu > 150 && Modell.alleInnen(SIM.zustand) && Modell.mittlereAbweichung(SIM.zustand) < 22.5 && Modell.fertig(SIM.zustand, SIM.param)"
+}

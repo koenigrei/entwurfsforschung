@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dichtefeld · DeCodingSpaces Lab · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Grundflächenzahl im Suchradius je Rasterzelle: Wie dicht ist die Stadt um jeden Ort – und wie stark hängt das vom gewählten Radius ab? Neuumsetzung des Skripts „Building coverage Density“ aus dem Workshop „Discovering Cities | Amman“ (DeCodingSpaces Lab, Bauhaus-Universität Weimar, 2018) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../#dcs-lab">← DeCodingSpaces Lab</a>
+  <h1><span lang="de">Dichtefeld</span><span lang="en">Density Field</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Start rechnet Zeile für Zeile · Klick auf eine Zelle: Suchradius und gezählte Gebäude · Radien ziehen: Karten rechnen sofort neu</span><span lang="en">Start computes row by row · click a cell: search radius and counted buildings · drag the radii: maps update at once</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Building coverage Density (GSI Density Grid) · <span lang="de">Workshop „Discovering Cities“, Amman, 2018</span><span lang="en">Workshop “Discovering Cities”, Amman, 2018</span> · DeCodingSpaces / Bauhaus-Universität Weimar</div>
+    <a href="https://toolbox.decodingspaces.net/discovering-cities-workshop-amman/"><span lang="de">Eintrag im DeCodingSpaces Lab</span><span lang="en">Entry in the DeCodingSpaces Lab</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Grundflächenzahl im Suchradius je Rasterzelle: Wie dicht ist die Stadt um jeden Ort – und wie stark hängt das vom gewählten Radius ab?</p>
+      <p>Die <em>Grundflächenzahl</em> (GSI, ground space index) setzt die bebaute Fläche ins Verhältnis zur betrachteten Fläche – 0 heißt unbebaut, 1 vollständig überbaut. Wie im Grasshopper-Skript wird das Gebiet in Rasterzellen geteilt (Zellmaß 50 × 50 m). Für jede Zelle zählen alle Gebäude, deren Schwerpunkt näher als der Suchradius am Zellmittelpunkt liegt: <code>GSI = Σ Grundflächen / (π · R²)</code>. Die Farbe reicht wie der „Gradient“ der Datei von 0 (dunkelblau) bis 1 (rot).</p>
+      <p>Die betrachtete Fläche ist ein Kreis, und sein Radius entscheidet, was „Dichte“ heißt: Mit kleinem Radius zeigt die Karte die unmittelbare Umgebung – einzelne Höfe, Parks und Straßen treten hervor –, mit großem Radius die Dichte des Viertels, die Unterschiede glätten sich. Deshalb stehen zwei Karten nebeneinander, links der Radius der Datei (150 m), rechts ein zweiter (400 m); rechts unter „Kennzahlen“ zeigt die Streuung, wie stark der größere Radius ausgleicht. Am Rand ragt der Kreis über das Gebiet hinaus, dort fällt der Wert ab – wie im Original.</p>
+      <p>Probieren: eine Zelle im Zentrum und eine am Park anklicken und die Rechnung vergleichen; den Suchradius von 50 auf 600 m ziehen; das Zellmaß auf 10 m senken, um ein feines Dichtefeld zu erhalten.</p>
+      <p>Die App setzt das Skript „Building coverage Density“ aus dem Eintrag <a href="https://toolbox.decodingspaces.net/discovering-cities-workshop-amman/">Discovering Cities Workshop | Amman</a> im DeCodingSpaces Lab neu im Browser um – ein Workshop von DeCodingSpaces (Bauhaus-Universität Weimar) an der German Jordanian University 2018, gefördert vom DAAD, zur quantitativen Analyse des Viertels Jabal Al Hussain. Statt des Rhino-Modells von Amman rechnet sie mit einer Beispielstadt. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>The <em>ground space index</em> (GSI, building coverage) relates built area to the area considered – 0 means unbuilt, 1 completely covered. As in the Grasshopper script, the area is divided into grid cells (cell size 50 × 50 m). For each cell, all buildings whose centroid lies closer to the cell centre than the search radius are counted: <code>GSI = Σ footprints / (π · R²)</code>. As with the “Gradient” of the file, colours range from 0 (dark blue) to 1 (red).</p>
+      <p>The area considered is a circle, and its radius decides what “density” means: with a small radius the map shows the immediate surroundings – single courtyards, parks and streets stand out –, with a large radius the density of the district, and differences are smoothed out. That is why two maps are shown side by side, the radius of the file (150 m) on the left and a second one (400 m) on the right; the deviation under “Measures” shows how much the larger radius evens out. At the edge the circle reaches beyond the area and the value drops – as in the original.</p>
+      <p>Try: click a cell in the centre and one next to a park and compare the calculation; drag the search radius from 50 to 600 m; lower the cell size to 10 m for a fine density field.</p>
+      <p>The app re-implements the script “Building coverage Density” of the entry <a href="https://toolbox.decodingspaces.net/discovering-cities-workshop-amman/">Discovering Cities Workshop | Amman</a> in the DeCodingSpaces Lab in the browser – a workshop by DeCodingSpaces (Bauhaus-Universität Weimar) at the German Jordanian University in 2018, funded by DAAD, on the quantitative analysis of the Jabal Al Hussain neighbourhood. Instead of the Rhino model of Amman it uses a sample city. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

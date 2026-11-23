@@ -1,0 +1,25 @@
+{
+  "id": "grundriss-magnetisch",
+  "titel": {
+    "de": "Magnetischer Grundrissgenerator",
+    "en": "Magnetizing Floor Plan Generator"
+  },
+  "vorschau": {
+    "de": "Räume docken nacheinander an ein wachsendes Flursystem an, geforderte Nachbarn liegen nah beieinander; eine quasi-evolutionäre Suche verbessert die fünf besten Grundrisse – mit Haus am Horn, Villa Savoye und anderen Raumprogrammen.",
+    "en": "Rooms dock one by one onto a growing corridor system, required neighbours stay close; a quasi-evolutionary search improves the five best floor plans – with Haus am Horn, Villa Savoye and other room programmes."
+  },
+  "original": "Magnetizing Floor Plan Generator",
+  "katalog": "magnetizing-floor-plan-generator",
+  "katalog_url": "https://toolbox.decodingspaces.net/magnetizing-floor-plan-generator/",
+  "autoren": "Egor Gavrilov (Autor); Reinhard König, Sven Schneider, Martin Dennemark (Betreuung)",
+  "jahr": 2019,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 60,
+  "vorschau_param": {
+    "ablauf": "iteration",
+    "iterationen": 60
+  },
+  "pruef_ausdruck": "(() => { const z = SIM.zustand, A = Modell.anzeige(z, SIM.param), e = Modell.erschliessung(A.gitter, z.W, z.H, A.L, z.prog); return z.fertig && z.best.length === 5 && z.best[0].folge.length >= 11 && e.zusammenhaengend && e.ohneZugang.length === 0; })()"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "stadtdynamik",
+  "titel": {"de": "Stadtdynamik", "en": "Urban Dynamics"},
+  "vorschau": {"de": "Wo ziehen Einwohner hin, wo entstehen Arbeitsplätze? Raster- und Netzstadt verteilen Iteration für Iteration neue Einheiten nach Attraktivität und Distanz; dazu die Systemdynamik-Modelle Wolf-Schaf und Stadtsystem.", "en": "Where do residents move, where do workplaces appear? Grid and net city distribute new units iteration by iteration by attractivity and distance; plus the system dynamics models wolves–sheep and urban system."},
+  "original": "Urban Simulation with Grasshopper for Rhino3D",
+  "katalog": "urban-simulation-with-grasshopper",
+  "katalog_url": "https://toolbox.decodingspaces.net/urban-simulation-with-grasshopper/",
+  "autoren": "Reinhard König, Martin Bielik, Sven Schneider",
+  "jahr": 2018,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 100,
+  "vorschau_param": {"modell": "raster", "darstellung": "saeulen"},
+  "pruef_ausdruck": "SIM.zustand.t === 100 && SIM.zustand.n === 96 && (b => b.einwohner === 1001 && b.arbeit === 1001 && b.zentralW < b.zentralP && b.verkehr > 0)(Modell.bilanz(SIM.zustand, SIM.param.maxDichte))"
+}

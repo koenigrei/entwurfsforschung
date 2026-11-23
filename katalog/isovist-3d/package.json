@@ -1,0 +1,8 @@
+{
+  "name": "isovist-3d",
+  "private": true,
+  "type": "commonjs",
+  "description": "Isovist 3D – Neuumsetzung des Grasshopper-Moduls Isovist 3D (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

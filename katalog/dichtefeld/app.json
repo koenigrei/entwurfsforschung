@@ -1,0 +1,16 @@
+{
+  "id": "dichtefeld",
+  "titel": {"de": "Dichtefeld", "en": "Density Field"},
+  "vorschau": {"de": "Grundflächenzahl im Suchradius je Rasterzelle: Wie dicht ist die Stadt um jeden Ort – und wie stark hängt das vom gewählten Radius ab?", "en": "Ground space index within a search radius for every grid cell: how dense is the city around each place – and how much does that depend on the radius chosen?"},
+  "original": "Discovering Cities Workshop | Amman – Building coverage Density (GSI Density Grid)",
+  "katalog": "discovering-cities-workshop-amman",
+  "katalog_url": "https://toolbox.decodingspaces.net/discovering-cities-workshop-amman/",
+  "autoren": "DeCodingSpaces / Bauhaus-Universität Weimar (Workshopleitung nicht namentlich genannt)",
+  "jahr": 2018,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 14,
+  "vorschau_param": {"skala": "spanne"},
+  "pruef_ausdruck": "Modell.fertig(SIM.zustand) && Modell.statistik(SIM.zustand, 0).n === 280 && Modell.statistik(SIM.zustand, 1).std < 0.8 * Modell.statistik(SIM.zustand, 0).std && Modell.statistik(SIM.zustand, 0).max > 0.3 && Modell.statistik(SIM.zustand, 0).max < 1"
+}

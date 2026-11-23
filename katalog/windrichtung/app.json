@@ -1,0 +1,16 @@
+{
+  "id": "windrichtung",
+  "titel": {"de": "Windrichtung und Luftbelastung", "en": "Wind Direction"},
+  "vorschau": {"de": "Windrose eines Ortes auf Parzellen übertragen: Welche Nachbarn liegen im Wind einer gewählten Parzelle, und wie stark wäre ihre Luftbelastung mit einem beispielhaften Abfall über die Entfernung?", "en": "Applying a site's wind rose to parcels: which neighbours lie downwind of a selected parcel, and how strongly would they be polluted with an exemplary falloff over distance?"},
+  "original": "Wind Direction",
+  "katalog": "WindDirection",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WindDirection/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 72,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.aktiv === SIM.zustand.rose.n && SIM.zustand.mitWert === SIM.zustand.sz.parzellen.length - 1 && Modell.leeLuv(SIM.zustand).lee > 2 * Modell.leeLuv(SIM.zustand).luv"
+}

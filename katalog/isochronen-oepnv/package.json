@@ -1,0 +1,8 @@
+{
+  "name": "isochronen-oepnv",
+  "private": true,
+  "type": "commonjs",
+  "description": "Isochronen im ÖPNV – Neuumsetzung des Grasshopper-Moduls Public Transport Isochronal Map (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

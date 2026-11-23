@@ -546,7 +546,7 @@ KAT = os.path.join(HIER, "katalog")
 KAT_TAGS = {"Parcel": ("Parzellen", "Parcels"), "Visibility": ("Sichtbarkeit", "Visibility"), "Street": ("Straßen", "Streets"), "Water": ("Wasser", "Water"),
             "Context": ("Kontext", "Context"), "Land Use": ("Nutzung", "Land use"), "Building": ("Gebäude", "Buildings")}
 KAT_STATUS = {"umgesetzt": ("Web-App", "Web app"), "in_arbeit": ("in Arbeit", "in progress"), "naechste_runde": ("nächste Runde", "next round"),
-              "nicht_umgesetzt": ("nicht umgesetzt", "not implemented")}
+              "nicht_umgesetzt": ("nicht umgesetzt", "not implemented"), "abgedeckt": ("abgedeckt", "covered"), "teil": ("Teil einer App", "part of an app")}
 
 
 def katalog(vorlage, alt):
@@ -561,10 +561,7 @@ def katalog(vorlage, alt):
     shutil.copytree(os.path.join(KAT, "_gemeinsam"), os.path.join(ziel, "_gemeinsam"), ignore=shutil.ignore_patterns("test", *SIM_NICHT_MUSTER), dirs_exist_ok=True)
     open(os.path.join(ziel, ".htaccess"), "w", encoding="utf-8").write('AddType "text/plain; charset=utf-8" .md\nAddType "text/javascript; charset=utf-8" .mjs\n')
     pakete = [(os.path.join(KAT, "_gemeinsam"), "katalog/_gemeinsam"), (os.path.join(SIM, "_gemeinsam"), "simulationen/_gemeinsam")]
-    karten = []
-    for e in sorted(B["eintraege"], key=lambda e: e.get("reihenfolge", 0)):
-        if e.get("status") != "umgesetzt" or not e.get("app"):
-            continue
+    def app_bauen(e):
         aid = e["app"]; q = os.path.join(KAT, aid); d = os.path.join(ziel, aid)
         meta = json.load(open(os.path.join(q, "app.json"), encoding="utf-8"))
         shutil.copytree(q, d, ignore=SIM_NICHT, dirs_exist_ok=True)
@@ -586,19 +583,30 @@ def katalog(vorlage, alt):
         else:
             w, h = titelbild(meta["titel"]["de"], os.path.join(ziel, "bilder", aid + ".webp"))
         tag = KAT_TAGS.get(e["tags"][0], (e["tags"][0], e["tags"][0]))
-        karten.append({"id": aid, "titel": meta["titel"], "autoren": "Gismo · InfAR" if "Gismo" in e["autoren"] else "DeCodingSpaces · InfAR",
-                       "kategorie": {"de": tag[0], "en": tag[1]}, "jahr": meta.get("jahr", 2020), "datum": meta.get("datum") or "2020-01-01",
-                       "vorschau": meta.get("vorschau"), "href": f"{aid}/",
-                       "bild": f"bilder/{aid}.webp" + vq(os.path.join(ziel, "bilder", aid + ".webp")), "w": w, "h": h})
+        return {"id": aid, "titel": meta["titel"], "autoren": "Gismo · InfAR" if "Gismo" in e["autoren"] else "DeCodingSpaces · InfAR",
+                "kategorie": {"de": tag[0], "en": tag[1]}, "jahr": meta.get("jahr", 2020), "datum": meta.get("datum") or "2020-01-01",
+                "vorschau": meta.get("vorschau"), "href": f"{aid}/",
+                "bild": f"bilder/{aid}.webp" + vq(os.path.join(ziel, "bilder", aid + ".webp")), "w": w, "h": h}
+
+    fertig = lambda L: [e for e in sorted(L, key=lambda e: e.get("reihenfolge", 0)) if e.get("status") == "umgesetzt" and e.get("app")]
+    karten = [app_bauen(e) for e in fertig(B["eintraege"])]
+    lab_karten = [app_bauen(e) for e in fertig(B.get("lab", []))]          # DeCodingSpaces Lab (23.11.2026): eigener Abschnitt, Kacheln fest im HTML
     K = B["katalog"]
-    zeilen = []
-    for e in sorted(B["eintraege"], key=lambda e: e.get("reihenfolge", 0)):
-        st = KAT_STATUS.get(e["status"], (e["status"], e["status"]))
-        titel = (f'<a href="{e["app"]}/">{zwei(e["titel_de"], e["titel"])}</a>' if e["status"] == "umgesetzt" and e.get("app") else html.escape(e["titel"]))
-        grund = e.get("grund") or {}
-        zeilen.append(f'<li><div class="kopfzeile">{titel}<span class="mono status s-{e["status"]}">{zwei(*st)}</span></div>'
-                      f'<div class="mono klein">{html.escape(" · ".join(e["tags"]))} · {html.escape(e["autoren"])} · <a href="{html.escape(e["url"])}">{zwei("Katalogeintrag", "catalogue entry")}</a></div>'
-                      + (f'<p class="nur-de">{html.escape(grund["de"])}</p><p class="nur-en">{html.escape(grund.get("en", grund["de"]))}</p>' if grund else "") + "</li>")
+    def liste(L, eintrag, lab=False):
+        z = []
+        for e in sorted(L, key=lambda e: e.get("reihenfolge", 0)):
+            st = KAT_STATUS.get(e["status"], (e["status"], e["status"]))
+            if e["status"] == "teil" and e.get("teil_von"):
+                st = (f'Teil von {e["teil_von"]}', f'part of {e["teil_von"]}')
+            app = e.get("app") if e["status"] == "umgesetzt" else e.get("teil_von") if e["status"] == "teil" else None
+            titel = (f'<a href="{app}/">{zwei(e.get("titel_de") or e["titel"], e.get("titel_en") or e["titel"])}</a>' if app else html.escape(e["titel"]))
+            grund = e.get("grund") or {}
+            kopf = " · ".join(x for x in ([e.get("art") or "", str(e.get("jahr") or "")] if lab else [" · ".join(e["tags"])]) if x)
+            z.append(f'<li><div class="kopfzeile">{titel}<span class="mono status s-{e["status"]}">{zwei(*st)}</span></div>'
+                     f'<div class="mono klein">{html.escape(kopf)} · {html.escape(e["autoren"])} · <a href="{html.escape(e["url"])}">{zwei(*eintrag)}</a></div>'
+                     + (f'<p class="nur-de">{html.escape(grund["de"])}</p><p class="nur-en">{html.escape(grund.get("en") or grund["de"])}</p>' if grund.get("de") else "") + "</li>")
+        return "".join(z)
+    zeilen = [liste(B["eintraege"], ("Katalogeintrag", "catalogue entry"))]
     n_alle, n_um = len(B["eintraege"]), len(karten)
     stil = ('<style>html[lang="en"] .nur-de, html[lang="de"] .nur-en { display: none; } .feld select { max-width: 62%; text-overflow: ellipsis; }'
             ' .bestand { list-style: none; margin: 0; padding: 0; } .bestand li { border-top: 1px solid var(--line); padding: 12px 0; }'
@@ -613,11 +621,36 @@ def katalog(vorlage, alt):
                   f'<a href="{html.escape(K["repo"])}">GitHub infar-buw/parametric-planning-catalogue</a> · {zwei("Lizenz des Katalogs: MIT", "Catalogue license: MIT")}'
                   + (f' · <a href="../../lab/methode/parametric-planning-catalogue/">{zwei("Methode", "Method")}</a>' if METHODEN.get("parametric-planning-catalogue") else "")
                   + '</p></div></section>'
-                  f'<section class="ueber" id="bestand"><div><h2>{zwei("Alle Module", "All modules")}</h2></div><div><ul class="bestand">{"".join(zeilen)}</ul></div></section>')
+                  f'<section class="ueber" id="bestand"><div><h2>{zwei("Alle Module", "All modules")}</h2></div><div><ul class="bestand">{"".join(zeilen)}</ul></div></section>'
+                  + lab_abschnitt(B, lab_karten, liste))
     seite(vorlage, os.path.join(ziel, "index.html"),
           FILTER.format(id="katalog", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
           "../../", "Parametric Planning Catalogue · Entwurfsforschung", "lab", alt)
-    return len(karten)
+    return len(karten) + len(lab_karten)
+
+
+def lab_abschnitt(B, karten, liste):
+    """Abschnitt „DeCodingSpaces Lab“ auf der Katalogseite (23.11.2026): Einleitung, Kacheln der umgesetzten Lab-Apps (fest im HTML, damit DATA
+    nur die Katalogkacheln trägt) und Liste aller Lab-Einträge mit Entscheidung und Begründung."""
+    L = B.get("lab") or []
+    if not L:
+        return ""
+    I = B.get("lab_info", {})
+    kacheln = "".join(
+        f'<a class="karte" href="{html.escape(k["href"])}" data-id="{html.escape(k["id"])}"><div class="oben mono"><span>DeCodingSpaces Lab</span><span>{k["jahr"]}</span></div>'
+        f'<div class="bild"><img src="{html.escape(k["bild"])}" alt="" loading="lazy" width="{k["w"]}" height="{k["h"]}"></div>'
+        + (f'<p class="vorschau">{zwei(k["vorschau"]["de"], k["vorschau"].get("en"))}</p>' if k.get("vorschau") else "")
+        + f'<div class="unten"><span class="titel">{zwei(k["titel"]["de"], k["titel"].get("en"))}</span><span class="jahr mono">{k["jahr"]}</span></div></a>' for k in karten)
+    n = {s: sum(1 for e in L if e["status"] == s) for s in ("umgesetzt", "in_arbeit", "abgedeckt", "nicht_umgesetzt")}
+    return (f'<section class="ueber" id="dcs-lab"><div><h2>DeCodingSpaces Lab</h2></div><div>'
+            f'<p class="nur-de">Das DeCodingSpaces Lab der Bauhaus-Universität Weimar (Computational Planning Group, Professur Informatik in der Architektur und Urbanistik) sammelt Forschungsprojekte, Workshops und Werkzeuge, die mit der DeCodingSpaces Toolbox für Grasshopper entstanden sind. Wo ein eigenständiges Modell darin steckt, läuft es hier als Web-App – im gleichen Rahmen wie die Module des Katalogs, mit Original, Autorinnen und Autoren und Lizenzlage in jeder App.</p>'
+            f'<p class="nur-en">The DeCodingSpaces Lab of Bauhaus-Universität Weimar (Computational Planning Group, Chair for Informatics in Architecture and Urbanism) collects research projects, workshops and tools built with the DeCodingSpaces Toolbox for Grasshopper. Where they contain a model of their own, it runs here as a web app – in the same frame as the catalogue modules, with original, authors and licence situation in every app.</p>'
+            f'<p class="nur-de">{len(L)} Einträge gesichtet: {n["umgesetzt"]} als Web-App umgesetzt, {n["abgedeckt"]} durch vorhandene Apps abgedeckt, {n["nicht_umgesetzt"]} ohne eigenes Modell (Begründung unten).</p>'
+            f'<p class="nur-en">{len(L)} entries reviewed: {n["umgesetzt"]} implemented as web apps, {n["abgedeckt"]} covered by existing apps, {n["nicht_umgesetzt"]} without a model of their own (reasons below).</p>'
+            f'<p><a href="{html.escape(I.get("url", "https://toolbox.decodingspaces.net/#lab"))}">{zwei("Original: DeCodingSpaces Lab", "Original: DeCodingSpaces Lab")}</a> · '
+            f'{zwei("Lizenz: DeCodingSpaces Toolbox GNU GPL v3; die Lab-Seiten nennen keine eigene Lizenz – die Apps sind Neuumsetzungen ohne übernommenen Code", "Licence: DeCodingSpaces Toolbox GNU GPL v3; the Lab pages state no licence of their own – the apps are re-implementations without copied code")}</p></div></section>'
+            + (f'<div class="raster" id="raster-lab">{kacheln}</div>' if kacheln else "")
+            + f'<section class="ueber" id="lab-bestand"><div><h2>{zwei("Alle Lab-Einträge", "All Lab entries")}</h2></div><div><ul class="bestand">{liste(L, ("Eintrag im Lab", "Lab entry"), lab=True)}</ul></div></section>')
 
 
 if __name__ == "__main__":
