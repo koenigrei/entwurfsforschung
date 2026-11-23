@@ -336,7 +336,44 @@ def bearbeite_viewer(build: Path) -> None:
     if THEMA_ALT not in app:
         sys.exit("app.js: Speicher der Darstellung nicht gefunden (Viewer geändert?)")
     (build / "app.js").write_text(app.replace(THEMA_ALT, THEMA_NEU), encoding="utf-8")
+    _bildversionen(build)
     pruefe_viewer(build)
+
+
+def _bildversionen(build: Path) -> None:
+    """Bildadressen in den Viewer-Daten bekommen ?v=<Inhaltskennung> (23.11.2026): Cloudflare und Browser halten Bilder – und
+    auch ein 404 – vier Stunden fest. Mit der Kennung lädt ein getauschtes oder neu hinzugekommenes Bild sofort."""
+    import gzip
+    import hashlib
+    kennung: dict[str, str] = {}
+
+    def v(rel: str) -> str | None:
+        if rel not in kennung:
+            kennung[rel] = ""
+            for basis in (build, AUTOPUBLISH):
+                f = basis / rel
+                if f.is_file():
+                    kennung[rel] = hashlib.sha1(f.read_bytes()).hexdigest()[:10]
+                    break
+        return kennung[rel] or None
+
+    def ersetze(m: re.Match) -> str:
+        vor, rel = m.group(1), m.group(2)
+        k = v(rel)
+        return f'"{vor}{rel}?v={k}"' if k else m.group(0)
+
+    muster = re.compile(r'"((?:' + re.escape(SEITE.rstrip("/") + "/") + r')?)((?:medien|Archive|karten)/[^"?]+\.(?:jpg|jpeg|png|webp))"')
+    n = 0
+    for f in [build / "daten" / "index.json", *sorted((build / "daten" / "v").glob("*.json"))]:
+        if not f.is_file():
+            continue
+        t = f.read_text(encoding="utf-8")
+        t2, k = muster.subn(ersetze, t)
+        n += k
+        f.write_text(t2, encoding="utf-8")
+        if f.name == "index.json" and (f.parent / "index.json.gz").exists():
+            (f.parent / "index.json.gz").write_bytes(gzip.compress(t2.encode("utf-8"), 9))
+    print(f"  Bildadressen mit Kennung: {n} ({sum(1 for x in kennung.values() if x)} Dateien)")
 
 
 def pruefe_viewer(build: Path) -> None:
