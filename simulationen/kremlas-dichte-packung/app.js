@@ -161,15 +161,17 @@
     const mz = document.getElementById("p-mindest"), mzeile = mz && mz.closest(".zeile"); if (!mzeile) return;
     let box = document.getElementById("l-wahl");
     if (!box) { box = document.createElement("div"); box.id = "l-wahl"; box.className = "l-wahl"; mzeile.after(box); }
-    const zeigen = !!(z.programm && z.mindest), d = zeigen ? "" : "none";
+    const zeigen = !!z.programm, d = zeigen ? "" : "none";             // in allen Grundriss-Fassungen sichtbar; ohne Mindestmaße ausgegraut
     if (box.style.display !== d) box.style.display = d;
     if (!zeigen) return;
-    const maske = (p && p.lform) || 0, k = [z.programm, maske, en()].join("|");
+    const maske = (p && p.lform) || 0, k = [z.programm, maske, en(), !!z.mindest].join("|");
     if (k === lSchluessel) return;
     lSchluessel = k;
     const R = Modell.PROGRAMME[z.programm].raeume;
-    box.innerHTML = `<div class="l-titel">${en() ? "L-shaped allowed (new)" : "L-förmig erlaubt (neu)"}</div>` + R.map((q, i) => {
-      const ok = Modell.lMoeglich(z.programm, i), an = ok && Math.floor(maske / 2 ** i) % 2 === 1;
+    box.innerHTML = `<div class="l-titel">${en() ? "L-shaped rooms" : "L-förmige Räume"}</div><div class="l-hinweis">${z.mindest
+        ? (en() ? "Tick the rooms that may become L-shaped (made of two rectangles). Greyed out: too small for two legs of minimum width." : "Räume ankreuzen, die L-förmig werden dürfen (aus zwei Rechtecken). Grau: zu klein für zwei Schenkel mit Mindestbreite.")
+        : (en() ? "Only with minimum dimensions (switch above)." : "Nur mit Mindestmaßen (Schalter darüber).")}</div>` + R.map((q, i) => {
+      const ok = z.mindest && Modell.lMoeglich(z.programm, i), an = ok && Math.floor(maske / 2 ** i) % 2 === 1;
       return `<label class="${ok ? "" : "aus"}" title="${ok ? "" : (en() ? "too small for two legs of minimum width" : "zu klein für zwei Schenkel mit Mindestbreite")}"><input type="checkbox" data-raum="${i}"${an ? " checked" : ""}${ok ? "" : " disabled"}> ${en() ? q[1] : q[0]}</label>`;
     }).join("");
     box.querySelectorAll("input").forEach(e => e.addEventListener("change", () => {

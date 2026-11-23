@@ -10,7 +10,7 @@
   "datum_quelle": "cpg_all, Source/Kremlas/: AssemblyInfo.cs „Copyright © Computational Planning Group 2010“ (Projekt angelegt 2010); die abgezweigte ältere Fassung Source/UrbanPattern/XOldEinpassung trägt SVN-Köpfe vom 09.02. bis 21.02.2011 (REvo.cs, RChromosome.cs: Rev 393, 21.02.2011) und setzt die Kremlas-Klassen voraus; Buchkapitel 5 nach Koenig (2011b), Projektlaufzeit 2009–2011. Die Köpfe „2014/10/18“ sind nachträglich eingefügte Lizenzköpfe, der Commit vom 28.06.2013 ist der Import nach CPlan.",
   "archiv": "floor-plans/",
   "repo": null,
-  "vorschau_saat": 1,
+  "vorschau_saat": 2,
   "vorschau_schritte": 400,
   "vorschau_param": {},
   "pruef_ausdruck": "SIM.zustand.t === 400 && SIM.zustand.programm === 'sechs' && Modell.planPruefung(Modell.beste(SIM.zustand), SIM.zustand.paare, SIM.zustand.programm, 300).gueltig && SIM.zustand.eltern.every(e => e.g.every(g => Math.abs(g.w * g.h - g.a) < 1e-6))"
