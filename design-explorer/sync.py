@@ -60,7 +60,9 @@ SCHRIFT_QUELLEN = [REPO / "site" / "schrift", Path(os.environ.get("LOCALAPPDATA"
 RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="display:flex;align-items:center;min-height:34px;padding:0 16px;margin:0;'
             'background:#000;border-bottom:1px solid #2a2a2e;position:relative;z-index:2147483000;font:500 12px/1 Geist Mono,ui-monospace,monospace;'
             'letter-spacing:.06em;text-transform:uppercase"><a href="{z}" style="color:#fff;text-decoration:none" '
-            'title="Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab">← Entwurfsforschung · KI Lab</a></nav>')
+            'title="Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab">← Entwurfsforschung · KI Lab</a>'
+            '<a href="{z}lab/methode/design-explorer/" style="margin-left:auto;color:#9ea0f3;text-decoration:none" '   # Methode (23.11.2026)
+            'title="Wie das Projekt arbeitet · How the project works">Methode · Method</a></nav>')
 RAUSCHEN = ("post-quantum", "store now", "upgraded", "pq.html", "tput")
 
 

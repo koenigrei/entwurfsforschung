@@ -38,6 +38,7 @@ def pruefe(site=SITE, projekte=None):
         if not os.path.exists(os.path.join(site, "bilder", p["id"] + ".webp")):
             b.append(f"{p['id']}: Kachelbild fehlt")
         z = os.path.join(site, p["ziel"])
+        b += pruefe_methode(site, p, z)
         if p.get("nur_kachel"):                                        # Inhalt pflegt ein anderes Werkzeug (Design Explorer: sync.py)
             if os.path.exists(z):
                 b.append(f"{p['id']}: nur_kachel, {p['ziel']} darf nicht in site/ stehen (Deploy würde den Ordner auf dem Server ersetzen)")
@@ -103,6 +104,31 @@ def pruefe(site=SITE, projekte=None):
 
 ALT_LINK = re.compile(r"""(?i)^(?:(?:https?:)?//(?:www\.)?entwurfsforschung\.de)?/(?:alt(?:/|$)|indexC\.htm|Diss(?:/|$)|wp-|\?p=|\?page_id=)""")
 NEU_PFAD = re.compile(r"(?i)^/(?:archiv|lab|impressum|neu|schrift|bilder|vendor)(?:/|$)|^/?$")
+
+
+def pruefe_methode(site, p, z):
+    """Jedes Projekt hat eine Methodenbeschreibung (Nutzer 23.11.2026): Seite lab/methode/<id>/ mit Rohdatei METHODE.md, Link in den
+    App-Seiten (Rückweg-Leiste) bzw. auf der Übersicht, METHODE.md in jedem Quellcode-Paket des Projektordners."""
+    b, pid = [], p["id"]
+    if not p.get("methode"):
+        return [f"{pid}: keine Methodenbeschreibung (projekte.json „methode“)"]
+    d = os.path.join(site, "lab", "methode", pid)
+    for f in ("index.html", "METHODE.md"):
+        if not os.path.isfile(os.path.join(d, f)):
+            b.append(f"{pid}: lab/methode/{pid}/{f} fehlt")
+    if os.path.isfile(os.path.join(d, "index.html")) and "<h2>" not in open(os.path.join(d, "index.html"), encoding="utf-8").read():
+        b.append(f"{pid}: Methodenseite ohne Abschnitte (Markdown nicht umgesetzt?)")
+    if p.get("nur_kachel") or not os.path.isdir(z):
+        return b
+    seiten = [f for f in os.listdir(z) if f.endswith(".html")]
+    if seiten and not any(f"lab/methode/{pid}/" in open(os.path.join(z, f), encoding="utf-8").read() for f in seiten):
+        b.append(f"{pid}: keine Seite in {p['ziel']} verlinkt die Methode")
+    for f in os.listdir(z):
+        if f.lower().endswith(".zip") and "quellcode" in f.lower():
+            with zipfile.ZipFile(os.path.join(z, f)) as zf:
+                if not any(n.rsplit("/", 1)[-1] == "METHODE.md" for n in zf.namelist()):
+                    b.append(f"{pid}: {p['ziel']}{f} ohne METHODE.md")
+    return b
 
 
 def pruefe_archivlinks(site=SITE):

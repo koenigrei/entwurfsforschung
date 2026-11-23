@@ -20,6 +20,7 @@
    },
    "ziel": "lab/design-explorer/",
    "start": "index.html",
+   "methode": "AutoPublish/METHODE.md",
    "nur_kachel": true,
    "zuerst": true
   },
@@ -43,6 +44,7 @@
    },
    "ziel": "lab/gartenatelier/",
    "start": "index.html",
+   "methode": "Apps/gartenatelier/METHODE.md",
    "lernbereich": "konzeptstudie"
   },
   {
@@ -65,6 +67,7 @@
    },
    "ziel": "lab/campus/",
    "start": "spielwiese.html",
+   "methode": "Apps/campus/METHODE.md",
    "dateien": {
     "spielwiese.html": "Apps/campus/dist/spielwiese.html"
    }
@@ -89,6 +92,7 @@
    },
    "ziel": "lab/duarte-siza/",
    "start": "malagueira.html",
+   "methode": "Apps/malagueira/METHODE.md",
    "dateien": {
     "malagueira.html": "Apps/malagueira/dist/malagueira.html",
     "Konzeptstudie_Duarte_Siza_Quellcode.zip": "Apps/malagueira/dist/Konzeptstudie_Duarte_Siza_Quellcode.zip"
@@ -114,6 +118,7 @@
    },
    "ziel": "lab/palladio/",
    "start": "palladio.html",
+   "methode": "Apps/palladio/METHODE.md",
    "dateien": {
     "palladio.html": "Apps/palladio/dist/palladio.html",
     "Konzeptstudie_Palladio_Quellcode.zip": "Apps/palladio/dist/Konzeptstudie_Palladio_Quellcode.zip"
@@ -140,6 +145,7 @@
    },
    "ziel": "lab/bergdoerfer/",
    "start": "index.html",
+   "methode": "Apps/bergdoerfer/METHODE.md",
    "dateien": {
     "index.html": "Apps/bergdoerfer/dist/index.html",
     "app.js": "Apps/bergdoerfer/dist/app.js",
@@ -170,6 +176,7 @@
    },
    "ziel": "lab/procedural-cities/",
    "start": "procedural_cities.html",
+   "methode": "Apps/procedural_cities/METHODE.md",
    "dateien": {
     "procedural_cities.html": "Apps/procedural_cities/dist/procedural_cities.html",
     "Procedural_Cities_Quellcode.zip": "Apps/procedural_cities/dist/Procedural_Cities_Quellcode.zip"
@@ -218,6 +225,7 @@
    },
    "ziel": "lab/simulationen/",
    "start": "index.html",
+   "methode": "simulationen/METHODE.md",
    "zuletzt": true
   }
  ]

@@ -92,6 +92,15 @@ RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="displ
             'title="Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab">← Entwurfsforschung · KI Lab</a></nav>')
 
 
+def rueckweg(z, methode=None):
+    """Rückweg-Leiste; mit methode (Adresse der Methodenseite) rechts der Link „Methode · Method“ (23.11.2026)."""
+    t = RUECKWEG.format(z=z)
+    if methode:
+        t = t.replace("</a></nav>", f'</a><a href="{methode}" style="margin-left:auto;color:#9ea0f3;text-decoration:none" '
+                                    f'title="Wie das Projekt arbeitet · How the project works">Methode · Method</a></nav>')
+    return t
+
+
 def versionieren(t, ordner):
     """Lokale src/href (js, css, Bilder) bekommen ?v=<Inhaltskennung>: Cloudflare vor dem Webspace cacht statische Dateien 4 h (21.11.2026)."""
     import hashlib
@@ -106,8 +115,9 @@ def versionieren(t, ordner):
     return re.sub(r'(src|href)="([^"]+\.(?:js|css|webp|png|jpg|jpeg|gif|svg|ttf|woff2?|zip))"', ersetze, t)
 
 
-def lokal(pfad, zur_wurzel):
-    """Google Fonts und three.js vom CDN in einer App-Datei durch Kopien auf dem eigenen Server ersetzen (keine Inhalte Dritter)."""
+def lokal(pfad, zur_wurzel, methode=None):
+    """Google Fonts und three.js vom CDN in einer App-Datei durch Kopien auf dem eigenen Server ersetzen (keine Inhalte Dritter);
+    oben die Rückweg-Leiste, mit methode auch der Link zur Methodenbeschreibung."""
     t = open(pfad, encoding="utf-8").read()
     t = re.sub(r'<link[^>]+href="https://fonts\.(?:googleapis|gstatic)\.com"[^>]*>\s*', "", t)
     t = re.sub(r'<link[^>]+href="https://fonts\.googleapis\.com/css2[^"]*"[^>]*>', f'<link rel="stylesheet" href="{zur_wurzel}schrift/geist.css">', t)
@@ -115,11 +125,16 @@ def lokal(pfad, zur_wurzel):
         t = t.replace(u, f"{zur_wurzel}vendor/three.r128.min.js")
     t = versionieren(t, os.path.dirname(pfad))
     if "ef-zurueck" not in t:                                         # Rückweg ins Lab in jeder App (Nutzer 21.11.2026)
-        t = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + RUECKWEG.format(z=zur_wurzel), t, count=1)   # sichtbare Leiste oben (22.11.2026, vorher kleines Etikett unten links)
+        t = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + rueckweg(zur_wurzel, methode), t, count=1)   # sichtbare Leiste oben (22.11.2026, vorher kleines Etikett unten links)
+    elif methode and methode not in t:                                 # eigener Rückweg der App (z. B. Palladio): Methodenlink gleich dahinter
+        m = re.search(r'<a\b[^>]*class="[^"]*ef-zurueck[^"]*"[^>]*>.*?</a>', t, flags=re.S)
+        if m:
+            t = t[:m.end()] + (f' <a class="ef-methode" href="{methode}" style="margin-left:1em;color:#9ea0f3;text-decoration:none;font:500 12px/1 Geist Mono,ui-monospace,monospace;'
+                               f'letter-spacing:.06em;text-transform:uppercase" title="Wie das Projekt arbeitet · How the project works">Methode · Method</a>') + t[m.end():]
     open(pfad, "w", encoding="utf-8").write(t)
 
 
-def lernbereich(p, z, Q):
+def lernbereich(p, z, Q, methode=None, methode_datei=None):
     """Baut einen Lernbereich des KI Lernlabors (Planungsgrundlagen/Apps/<p["lernbereich"]>) mit dessen eigenem Werkzeug
     (Apps/_werkzeuge/build_apps.py, Modus LERNLABOR_EINZELN) nach z: index.html, en.html, img/ und die App-Dateien daneben.
     Die App-Dateien bekommen den Rückweg zur Beschreibung, die Beschreibung den Rückweg ins Lab (Nutzer 23.11.2026)."""
@@ -135,7 +150,9 @@ def lernbereich(p, z, Q):
         shutil.copytree(tmp, z, dirs_exist_ok=True)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-    zur_beschreibung = (RUECKWEG.format(z="index.html").replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Beschreibung")
+    if methode_datei:                                                  # vor dem Versionieren (?v= hängt am Inhalt der Pakete)
+        methode_in_zips(z, methode_datei)
+    zur_beschreibung = (rueckweg("index.html", methode).replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Beschreibung")
                         .replace("Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab", "Zurück zur Beschreibung · Back to the description"))
     for f in sorted(os.listdir(z)):
         if not f.endswith(".html"):
@@ -145,7 +162,7 @@ def lernbereich(p, z, Q):
             t = open(pfad, encoding="utf-8").read()
             if "ef-zurueck" not in t:
                 open(pfad, "w", encoding="utf-8").write(re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + zur_beschreibung, t, count=1))
-        lokal(pfad, zur_wurzel)
+        lokal(pfad, zur_wurzel, methode)
 
 
 def seite(vorlage, pfad, main, base, titel, seite_, alt):
@@ -202,6 +219,122 @@ def webapps(pfad, base):
     return t + f'<a class="mono alle" href="{sim}">→ {zwei("Alle Frühen Simulationen", "All Early Simulations")}</a></aside>'
 
 
+def md_html(md):
+    """Kleines Markdown → HTML für die Methodenbeschreibungen (METHODE.md): Überschriften, Absätze, Listen (auch verschachtelt und
+    nummeriert), Tabellen, Code, fett/kursiv, Links. Kein externes Paket (auf dem Rechner nicht installiert)."""
+    def inline(s):
+        codes = []
+        s = re.sub(r"`([^`]+)`", lambda m: codes.append(m.group(1)) or f"\x00{len(codes) - 1}\x00", s)
+        s = html.escape(s, quote=False)
+        s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", lambda m: f'<a href="{html.escape(m.group(2))}">{m.group(1)}</a>', s)
+        s = re.sub(r"(?<![\"'=>])(https?://[^\s<)]+[^\s<).,;:])", r'<a href="\1">\1</a>', s)
+        s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
+        s = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<em>\1</em>", s)
+        return re.sub(r"\x00(\d+)\x00", lambda m: f"<code>{html.escape(codes[int(m.group(1))])}</code>", s)
+    out, absatz, i = [], [], 0
+    zeilen = md.replace("\r\n", "\n").split("\n")
+    def fertig():
+        if absatz:
+            out.append("<p>" + inline(" ".join(absatz)) + "</p>"); absatz.clear()
+    while i < len(zeilen):
+        z = zeilen[i]
+        if z.startswith("```"):
+            fertig(); j = i + 1
+            while j < len(zeilen) and not zeilen[j].startswith("```"):
+                j += 1
+            out.append("<pre><code>" + html.escape("\n".join(zeilen[i + 1:j])) + "</code></pre>"); i = j + 1; continue
+        m = re.match(r"(#{1,6})\s+(.*)", z)
+        if m:
+            fertig(); n = max(2, len(m.group(1)))                       # # und ## → h2: das h1 ist der Titel in der Seitenleiste
+            out.append(f"<h{n}>{inline(m.group(2).strip())}</h{n}>"); i += 1; continue
+        if z.lstrip().startswith("|") and i + 1 < len(zeilen) and re.match(r"^\s*\|?\s*:?-{2,}", zeilen[i + 1]):
+            fertig(); zellen = lambda r: [c.strip() for c in r.strip().strip("|").split("|")]
+            kopf = zellen(z); j = i + 2; reihen = []
+            while j < len(zeilen) and zeilen[j].lstrip().startswith("|"):
+                reihen.append(zellen(zeilen[j])); j += 1
+            out.append('<div class="tabelle"><table><thead><tr>' + "".join(f"<th>{inline(c)}</th>" for c in kopf) + "</tr></thead><tbody>"
+                       + "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in reihen) + "</tbody></table></div>")
+            i = j; continue
+        if re.match(r"^\s*([-*]|\d+\.)\s+", z):
+            fertig(); stapel = []                                     # [(tiefe, tag)]
+            while i < len(zeilen) and (re.match(r"^\s*([-*]|\d+\.)\s+", zeilen[i]) or (zeilen[i].startswith("  ") and zeilen[i].strip() and stapel)):
+                m = re.match(r"^(\s*)([-*]|\d+\.)\s+(.*)", zeilen[i])
+                if not m:                                              # Fortsetzungszeile eines Listenpunkts
+                    out[-1] = out[-1][:-5] + " " + inline(zeilen[i].strip()) + "</li>"; i += 1; continue
+                tiefe, tag = len(m.group(1).replace("\t", "  ")) // 2, "ol" if m.group(2)[0].isdigit() else "ul"
+                while stapel and stapel[-1][0] > tiefe:
+                    out.append(f"</{stapel.pop()[1]}>")
+                if not stapel or stapel[-1][0] < tiefe:
+                    out.append(f"<{tag}>"); stapel.append((tiefe, tag))
+                out.append(f"<li>{inline(m.group(3))}</li>"); i += 1
+            while stapel:
+                out.append(f"</{stapel.pop()[1]}>")
+            continue
+        if not z.strip():
+            fertig()
+        elif z.startswith(">"):
+            fertig(); out.append(f"<blockquote><p>{inline(z.lstrip('> '))}</p></blockquote>")
+        elif re.match(r"^\s*(-{3,}|\*{3,})\s*$", z):
+            fertig(); out.append("<hr>")
+        else:
+            absatz.append(z.strip())
+        i += 1
+    fertig()
+    return "\n".join(out)
+
+
+def methode_quelle(p, Q):
+    """Pfad der METHODE.md eines Projekts: „methode“ in projekte.json, relativ zu diesem Repo oder zu quelle_basis."""
+    m = p.get("methode")
+    if not m:
+        return None
+    for basis in (HIER, Q):
+        if os.path.isfile(os.path.join(basis, m)):
+            return os.path.join(basis, m)
+    sys.exit(f"{p['id']}: METHODE.md nicht gefunden ({m})")
+
+
+def methode_in_zips(ordner, quelle, namen=None):
+    """METHODE.md in die Quellcode-Pakete eines Projektordners legen (Nutzer 23.11.2026: jedes Projekt bringt seine Methode mit)."""
+    import zipfile
+    for f in sorted(namen if namen is not None else os.listdir(ordner)):
+        pfad = os.path.join(ordner, f)
+        if f.lower().endswith(".zip") and ("quellcode" in f.lower() or "source" in f.lower()) and os.path.isfile(pfad):
+            with zipfile.ZipFile(pfad, "a", zipfile.ZIP_DEFLATED) as zf:
+                if not any(n.rsplit("/", 1)[-1] == "METHODE.md" for n in zf.namelist()):
+                    zf.write(quelle, "METHODE.md")
+
+
+def methode_seite(vorlage, alt, pid, titel, quelle, zurueck_href, autoren, jahr):
+    """lab/methode/<pid>/: METHODE.md als lesbare Seite (Gestaltung des Archivs) und als Rohdatei daneben (für Agenten)."""
+    d = os.path.join(SITE, "lab", "methode", pid); os.makedirs(d, exist_ok=True)
+    shutil.copy(quelle, os.path.join(d, "METHODE.md"))
+    text = open(quelle, encoding="utf-8").read()
+    text = re.sub(r"\A#\s+[^\n]*\n", "", text)                        # Titel steht in der Seitenleiste
+    kasten = (f'<aside class="webapps"><div class="mono">{zwei("Methode", "Method")}</div>'
+              f'<p>{zwei("Wie das Projekt arbeitet: Frage, Vorbilder und Quellen, Darstellung, Korpus, Generator, Prüfer, Grenzen. Die Datei liegt auch im Quellcode-Paket.", "How the project works: question, precedents and sources, representation, corpus, generator, checks, limits (in German). The file is also part of the source package.")}</p>'
+              f'<ul><li><a href="METHODE.md">METHODE.md</a> · {zwei("Rohtext für Agenten", "raw text for agents")}</li>'
+              f'<li><a href="{zurueck_href}">→ {zwei(titel["de"], titel.get("en"))}</a></li>'
+              f'<li><a href="../">→ {zwei("Alle Methoden", "All methods")}</a></li></ul></aside>')
+    e = {"titel": {"de": "Methode: " + titel["de"], "en": "Method: " + titel.get("en", titel["de"])}, "kategorie": {"de": "Methode", "en": "Method"},
+         "jahr": jahr, "autoren": autoren}
+    seite(vorlage, os.path.join(d, "index.html"),
+          artikel(e, md_html(text), "../../../", eltern=(titel["de"], titel.get("en")), eltern_href=zurueck_href, kasten=kasten),
+          "../../../", f"Methode: {titel['de']} · Entwurfsforschung", "lab", alt)
+    open(os.path.join(SITE, "lab", "methode", ".htaccess"), "w", encoding="utf-8").write('AddType "text/plain; charset=utf-8" .md\n')
+
+
+def methoden_uebersicht(vorlage, alt, liste):
+    """lab/methode/: alle Methodenbeschreibungen mit Link zur Seite, zur Rohdatei und zum Projekt."""
+    zeilen = "".join(f'<li><a href="{pid}/">{zwei(t["de"], t.get("en"))}</a> · <a class="mono" href="{pid}/METHODE.md">METHODE.md</a> · '
+                     f'<a class="mono" href="{z}">{zwei("Projekt", "Project")}</a></li>' for pid, t, z in liste)
+    inhalt = (f'<p>{zwei("Jedes Projekt im KI Lab beschreibt seine Methode nach demselben Raster: Frage, Vorbild und Quellen, Darstellung, Korpus, Generator, Prüfer und was offen ist. Die Beschreibungen sind für Menschen und für Coding-Agenten geschrieben, die an einem Projekt weiterarbeiten.", "Every project in the AI Lab describes its method along the same outline: question, precedents and sources, representation, corpus, generator, checks and open points. The descriptions (in German) are written for people and for coding agents who continue a project.")}</p>'
+              f"<ul>{zeilen}</ul>")
+    e = {"titel": {"de": "Methoden", "en": "Methods"}, "kategorie": {"de": "Methode", "en": "Method"}, "jahr": "2026", "autoren": "R. König · Claude"}
+    seite(vorlage, os.path.join(SITE, "lab", "methode", "index.html"),
+          artikel(e, inhalt, "../../", eltern=("KI Lab", "AI Lab"), eltern_href="../../"), "../../", "Methoden · Entwurfsforschung", "lab", alt)
+
+
 def artikel(e, inhalt, base, unterseiten=None, eltern=None, zu_unter="", eltern_href="../", inhalt_en=None, kasten=""):
     """unterseiten: Liste, die in der Seitenleiste steht; zu_unter: Weg von dieser Seite zu den Unterseiten-Ordnern ("" oder "../");
     eltern/eltern_href: Rückweg zur übergeordneten Seite (Eintrag oder Unterseite). inhalt_en: englische Fassung (archiv_uebersetzung/)."""
@@ -238,7 +371,7 @@ def bauen(alt="/"):
         "Geist und Geist Mono: Copyright Vercel, SIL Open Font License 1.1 – https://openfontlicense.org\n")
 
     # ---------------------------------------------------------------- Lab
-    lab = []
+    lab, methoden = [], []
     for p in cfg["projekte"]:
         eigen = os.path.join(HIER, "bilder", p["id"] + ".png")         # Kachelbild aus kachelbilder.py (dunkel), sonst Bild aus projekte.json
         if os.path.exists(eigen) or p.get("bild"):
@@ -246,6 +379,11 @@ def bauen(alt="/"):
         else:                                                          # noch kein Kachelbild (z. B. Frühe Simulationen vor pruefe_apps.py)
             w, h = titelbild(p["titel"]["de"], os.path.join(SITE, "bilder", p["id"] + ".webp"))
         z = os.path.join(SITE, p["ziel"])
+        zur_wurzel = "../" * p["ziel"].strip("/").count("/") + "../"
+        mq = methode_quelle(p, Q)                                      # Methodenbeschreibung (Nutzer 23.11.2026: jedes Projekt bekommt eine)
+        mhref = f"{zur_wurzel}lab/methode/{p['id']}/" if mq else None
+        if mq:
+            methoden.append((p, mq))
         if p.get("nur_kachel"):                                        # nur Kachel, Inhalt pflegt ein anderes Werkzeug (Design Explorer: sync.py).
             if os.path.exists(z):                                      # Kein Ordner in site/, sonst ersetzt deploy.py den Ordner auf dem Server.
                 sys.exit(f"{p['ziel']}: Projekt ist nur_kachel, darf in site/ nicht vorkommen")
@@ -253,19 +391,25 @@ def bauen(alt="/"):
             continue
         os.makedirs(z, exist_ok=True)
         if p.get("lernbereich"):                                       # Lernbereich des KI Lernlabors als eigene Seite (Konzeptstudie, Nutzer 23.11.2026)
-            lernbereich(p, z, Q)
+            lernbereich(p, z, Q, mhref, mq)
         for ziel, quelle in p.get("dateien", {}).items():
             shutil.copy(os.path.join(Q, quelle), os.path.join(z, ziel))
         for ziel, quelle in p.get("ordner", {}).items():
             shutil.copytree(os.path.join(Q, quelle), os.path.join(z, ziel))
+        if mq and p.get("dateien"):                                    # Methode ins Quellcode-Paket, vor dem Versionieren
+            methode_in_zips(z, mq, list(p["dateien"]))
         for ziel in p.get("dateien", {}):                              # erst alles kopieren, dann versionieren (?v= braucht die Zieldateien)
             if ziel.endswith(".html"):
-                lokal(os.path.join(z, ziel), "../" * p["ziel"].strip("/").count("/") + "../")
+                lokal(os.path.join(z, ziel), zur_wurzel, mhref)
         if p["start"] != "index.html":
             open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"], q=(f'<link rel="code-repository" href="{p["quellcode"]}"><link rel="license" href="https://creativecommons.org/licenses/by/4.0/">' if p.get("quellcode") else "")))
         lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
     seite(vorlage, os.path.join(SITE, "index.html"), FILTER.format(id="lab", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": lab}, ensure_ascii=False)) + "\n" + UEBER,
           "", "Entwurfsforschung · KI Lab", "lab", alt)
+    for p, mq in methoden:                                             # lab/methode/<id>/ und die Übersicht lab/methode/
+        methode_seite(vorlage, alt, p["id"], p["titel"], mq, f"../../../{p['ziel']}", p["autoren"], p["jahr"])
+    methoden_uebersicht(vorlage, alt, [(p["id"], p["titel"], f"../../{p['ziel']}") for p, _ in methoden])
+    METHODEN.clear(); METHODEN.update({p["id"]: mq for p, mq in methoden})   # für Simulationen und Katalog
 
     # ---------------------------------------------------------------- Archiv
     arch = json.load(open(os.path.join(HIER, "archiv.json"), encoding="utf-8"))
@@ -334,6 +478,7 @@ def bauen(alt="/"):
     print(f"site/ gebaut: {len(lab)} Projekte, {len(karten)} Archiveinträge, {nsim} Simulationen, {nkat} Katalog-Apps, {n} Dateien")
 
 
+METHODEN = {}                       # Projekt-id → Pfad der METHODE.md (bauen() füllt es für simulationen() und katalog())
 SIM = os.path.join(HIER, "simulationen")
 SIM_NICHT_MUSTER = ("node_modules", ".git", "__pycache__", "_pruefung", "*.local.*", "quellcode.zip")
 SIM_NICHT = shutil.ignore_patterns(*SIM_NICHT_MUSTER)
@@ -368,6 +513,8 @@ def simulationen(vorlage, alt):
                     for f in sorted(dateien):
                         if f != "quellcode.zip" and ".local." not in f:
                             zf.write(os.path.join(wurzel, f), os.path.join(name, os.path.relpath(os.path.join(wurzel, f), basis)).replace(os.sep, "/"))
+            if METHODEN.get("simulationen"):                           # Methode der Sammlung (23.11.2026)
+                zf.write(METHODEN["simulationen"], "METHODE.md")
         bild = os.path.join(q, "vorschau.png")
         if os.path.exists(bild):
             w, h = kachelbild(bild, os.path.join(ziel, "bilder", aid + ".webp"))
@@ -385,7 +532,9 @@ def simulationen(vorlage, alt):
                   f'<div><p class="nur-de">{html.escape(de[1])}</p><p class="nur-en">{html.escape(en[1])}</p>'
                   f'<p class="nur-de">{len(karten)} von {n_alle} Programmen sind umgesetzt. {html.escape(de[2])}</p>'
                   f'<p class="nur-en">{len(karten)} of {n_alle} programs are done. {html.escape(en[2])}</p>'
-                  f'<p><a href="../../archiv/raumprozesse/simulationsprogramme/"><span class="nur-de">Originale im Archiv</span><span class="nur-en">Originals in the archive</span></a></p></div></section>')
+                  f'<p><a href="../../archiv/raumprozesse/simulationsprogramme/"><span class="nur-de">Originale im Archiv</span><span class="nur-en">Originals in the archive</span></a>'
+                  + (' · <a href="../../lab/methode/simulationen/"><span class="nur-de">Methode</span><span class="nur-en">Method</span></a>' if METHODEN.get("simulationen") else "")
+                  + '</p></div></section>')
     seite(vorlage, os.path.join(ziel, "index.html"),
           FILTER.format(id="simulationen", folge="", daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
           "../../", "Frühe Simulationen · Entwurfsforschung", "lab", alt)
