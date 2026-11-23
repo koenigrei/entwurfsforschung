@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isovist von einem Punkt · Parametric Planning Catalogue · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Was man von einem Standpunkt aus sieht: Strahlen bis zum ersten Hindernis bilden das Isovist-Polygon, daraus folgen 17 Kenngrößen wie Fläche, Kompaktheit und Drift. Neuumsetzung des Moduls „Isovist Single Point“ aus dem Parametric Planning Catalogue (DeCodingSpaces, Bauhaus-Universität Weimar) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← Parametric Planning Catalogue</a>
+  <h1><span lang="de">Isovist von einem Punkt</span><span lang="en">Isovist Single Point</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Klick oder Ziehen: Standpunkt setzen · Rechtsklick oder Umschalt-Klick: Blickrichtung · Start dreht den Blick</span><span lang="en">Click or drag: set viewpoint · right-click or shift-click: view direction · Start rotates the view</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Isovist Single Point · Grasshopper · DeCodingSpaces – Martin Bielik, Ekaterina Fuchkina</div>
+    <a href="https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistSinglePoint/"><span lang="de">Eintrag im Parametric Planning Catalogue</span><span lang="en">Entry in the Parametric Planning Catalogue</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Was man von einem Standpunkt aus sieht: Strahlen bis zum ersten Hindernis bilden das Isovist-Polygon, daraus folgen 17 Kenngrößen wie Fläche, Kompaktheit und Drift.</p>
+      <p>Ein <em>Isovist</em> ist die Fläche, die von einem Standpunkt aus sichtbar ist (Benedikt 1979). Vom Standpunkt gehen Strahlen gleichmäßig über den Blickwinkel um die Blickrichtung aus; jeder Strahl endet am ersten Hindernis – hier den Gebäudekanten – oder an der Reichweite. Die Endpunkte bilden das Isovist-Polygon.</p>
+      <p>Wie im Grasshopper-Modul lassen sich Blickwinkel (0–360°), Blickrichtung (0–6,28 rad; 0 = Norden, gegen den Uhrzeigersinn wie „Unit Y“ mit „Rotate“ in der Datei), Reichweite (1–200 m) und die Zahl der Strahlen (1–720) einstellen: Weniger Strahlen rechnen schneller, mehr Strahlen sind genauer. Rechts stehen die 17 Kenngrößen der Komponente, etwa <code>Fläche</code>, <code>Umfang</code>, <code>Kompaktheit = 4π·Fläche / Umfang²</code>, die Verteilung der Strahllängen (kleinster, größter, mittlerer Radius, Streuung, Schiefe) und die <code>Drift</code> – Abstand und Richtung vom Standpunkt zum Schwerpunkt des Isovists, also wohin der Raum „zieht“.</p>
+      <p>Probieren: den Standpunkt über den Platz und in die Gassen ziehen und beobachten, wie Fläche und Kompaktheit springen; den Blickwinkel auf 60° stellen und mit Start den Blick kreisen lassen.</p>
+      <p>Die App setzt das Modul „Isovist Single Point“ aus dem <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT-Lizenz) neu im Browser um. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>An <em>isovist</em> is the area visible from a viewpoint (Benedikt 1979). Rays leave the viewpoint evenly across the viewing angle around the view direction; each ray ends at the first obstacle – here the building edges – or at the viewing range. The end points form the isovist polygon.</p>
+      <p>As in the Grasshopper module, you can set the viewing angle (0–360°), the angle direction (0–6.28 rad; 0 = north, counter-clockwise like “Unit Y” with “Rotate” in the file), the viewing range (1–200 m) and the number of rays (1–720): fewer rays compute faster, more rays are more precise. The panel lists the 17 properties of the component, such as <code>area</code>, <code>perimeter</code>, <code>compactness = 4π·area / perimeter²</code>, the distribution of ray lengths (min, max, mean radial, deviation, skewness) and the <code>drift</code> – distance and direction from the viewpoint to the centroid of the isovist, i.e. where the space “pulls”.</p>
+      <p>Try: drag the viewpoint across the square and into the lanes and watch area and compactness jump; set the viewing angle to 60° and press Start to let the view circle.</p>
+      <p>The app re-implements the module “Isovist Single Point” of the <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT license) in the browser. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

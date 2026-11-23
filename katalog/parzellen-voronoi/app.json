@@ -1,0 +1,16 @@
+{
+  "id": "parzellen-voronoi",
+  "titel": {"de": "Parzellierung mit Voronoi", "en": "Parcellation via Voronoi"},
+  "vorschau": {"de": "Parzellen aus Voronoi-Zellen: Punkte in gleichem Abstand auf dem Blockrand erzeugen Zellen, die alle an der Straße liegen; kurze Zellgrenzen werden zu ruhigeren Grenzen zusammengezogen.", "en": "Parcels from Voronoi cells: points at equal distance on the block edge generate cells that all touch the street; short cell borders are snapped together into calmer borders."},
+  "original": "Parcellation via Voronoi",
+  "katalog": "ParcellationVoronoi",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcellationVoronoi/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 200,
+  "vorschau_param": {"abstand": 40, "roh": false},
+  "pruef_ausdruck": "Modell.fertig(SIM.zustand, SIM.param) && SIM.zustand.bloecke.every(b => b.zellen.length >= 2 && b.zellen.every(q => Modell.strassenfront(q, b.poly) > 1) && Math.abs(b.zellen.reduce((s, q) => s + Geo.flaeche(q), 0) - b.A) < b.A * 1e-6)"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "regenwasser-raster",
+  "titel": {"de": "Regenwasserabfluss (Raster)", "en": "Rainwater Rundown (Raster)"},
+  "vorschau": {"de": "Wohin fließt der Regen? Jeder Rasterpunkt gibt sein Wasser an den steilsten Nachbarn ab; Fließwege mit gleichem Endpunkt bilden ein Einzugsgebiet.", "en": "Where does the rain flow? Every grid point passes its water to its steepest neighbour; flow paths sharing an end point form one watershed."},
+  "original": "Rainwater Rundown (Raster)",
+  "katalog": "RainwaterRundownRaster",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/RainwaterRundownRaster/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.gruppiert && SIM.zustand.aktiv === 0 && SIM.zustand.anzahlGebiete >= 2 && SIM.zustand.anzahlGebiete <= SIM.zustand.senken.length && Math.max(...SIM.zustand.durch) > 50"
+}

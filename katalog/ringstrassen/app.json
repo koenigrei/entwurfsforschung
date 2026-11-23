@@ -1,0 +1,22 @@
+{
+  "id": "ringstrassen",
+  "titel": {
+    "de": "Ringstraßen",
+    "en": "Ring Roads"
+  },
+  "vorschau": {
+    "de": "Ringstraßen für eine wachsende Siedlung: Rasterzellen werden nach Neigung, Höhe, Straßen- und Zentrumsabstand bewertet und bis zur benötigten Fläche gesammelt; ihr Umriss ist die Ringstraße.",
+    "en": "Ring roads for a growing settlement: grid cells are scored by slope, height, distance to road and center and collected up to the needed area; their outline is the ring road."
+  },
+  "original": "Ring Roads",
+  "katalog": "RingRoads",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/RingRoads/",
+  "autoren": "DeCodingSpaces – Ondřej Veselý, Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 800,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.n === SIM.zustand.nMax && Math.abs(Modell.flaecheBis(SIM.zustand, SIM.zustand.nMax) - 1175109) < 2 * Math.max(...SIM.zustand.Z.flaeche) && SIM.zustand.ringe.every(r => r.linien.length >= 1 && r.laenge > 0) && SIM.zustand.ringe[1].laenge > SIM.zustand.ringe[0].laenge"
+}

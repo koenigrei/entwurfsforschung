@@ -1,0 +1,8 @@
+{
+  "name": "kuerzester-weg",
+  "private": true,
+  "type": "commonjs",
+  "description": "Kürzester Weg im Straßennetz – Neuumsetzung des Grasshopper-Moduls Street Network Shortest Path (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

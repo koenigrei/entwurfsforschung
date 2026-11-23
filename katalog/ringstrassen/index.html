@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ringstraßen · Parametric Planning Catalogue · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Ringstraßen für eine wachsende Siedlung: Jede Rasterzelle des Geländes wird nach Hangneigung, Höhenunterschied, Abstand zur Straße und zum Zentrum bewertet; die besten Zellen bis zur benötigten Fläche bekommen eine Umrisslinie – die Ringstraße. Neuumsetzung des Moduls „Ring Roads“ aus dem Parametric Planning Catalogue (DeCodingSpaces, Bauhaus-Universität Weimar) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← Parametric Planning Catalogue</a>
+  <h1><span lang="de">Ringstraßen</span><span lang="en">Ring Roads</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Klick oder Ziehen: Zentrum setzen · Start lässt die Fläche Zelle für Zelle wachsen</span><span lang="en">Click or drag: set the center · Start grows the area cell by cell</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Ring Roads · Grasshopper · DeCodingSpaces – Ondřej Veselý, Martin Dennemark</div>
+    <a href="https://infar-buw.github.io/parametric-planning-catalogue/docs/RingRoads/"><span lang="de">Eintrag im Parametric Planning Catalogue</span><span lang="en">Entry in the Parametric Planning Catalogue</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Ringstraßen für eine wachsende Siedlung: Jede Rasterzelle des Geländes wird nach Hangneigung, Höhenunterschied, Abstand zur Straße und zum Zentrum bewertet; die besten Zellen bis zur benötigten Fläche bekommen eine Umrisslinie – die Ringstraße.</p>
+      <p>Das Gelände wird in Zellen geteilt (<em>Grid Resolution</em>, Voreinstellung 50 × 50). Für jede Zelle werden vier Werte berechnet: die Neigung des leicht geglätteten Geländes, der Höhenunterschied zum Zentrum, der Abstand zur nächsten bestehenden Straße und der Abstand zum Zentrum. Jeder Wert wird über seine Spannweite auf 0…1 abgebildet; der <code>Score = (wT·Neigung + wT·Höhe + wR·Straße + wC·Zentrum) / (2wT + wR + wC)</code> ist das gewichtete Mittel. Kleine Werte sind gut.</p>
+      <p>Die Zellen werden nach Score sortiert und in dieser Reihenfolge aufgesammelt, bis die <em>Needed Area</em> erreicht ist – das Original hat zwei Flächen (38,7 ha und 117,5 ha) und damit zwei Ringe. Um die gewählten Zellmitten wird eine Alpha-Hülle gelegt (Radius = 2 × Zellbreite), geglättet und auf das Gelände projiziert: das ist die Ringstraße. „Start“ zeigt das Wachsen Zelle für Zelle.</p>
+      <p>Probieren: das Zentrum an eine andere Stelle klicken; <em>WeightRoad</em> auf 0 setzen – die Ringe werden rund um das Zentrum; <em>WeightTerrain</em> erhöhen – die Ringe weichen steilen Hängen und großen Höhenunterschieden aus; mit „Bewertung zeigen“ die Score-Karte einblenden.</p>
+      <p>Die App setzt das Modul „Ring Roads“ aus dem <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT-Lizenz) neu im Browser um. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>Ring roads for a growing settlement: every grid cell of the terrain is scored by slope, height difference, distance to the road and to the center; the best cells up to the needed area get an outline – the ring road.</p>
+      <p>The terrain is divided into cells (<em>Grid Resolution</em>, 50 × 50 by default). Four values are computed for each cell: the slope of the slightly smoothed terrain, the height difference to the center, the distance to the nearest existing road and the distance to the center. Each value is remapped over its range to 0…1; the <code>score = (wT·slope + wT·height + wR·road + wC·center) / (2wT + wR + wC)</code> is the weighted average. Small values are good.</p>
+      <p>The cells are sorted by score and collected in this order until the <em>Needed Area</em> is reached – the original has two areas (38.7 ha and 117.5 ha) and thus two rings. An alpha shape is drawn around the picked cell centers (radius = 2 × cell width), smoothed and projected onto the terrain: that is the ring road. “Start” shows the growth cell by cell.</p>
+      <p>Try: click the center to another place; set <em>WeightRoad</em> to 0 – the rings become round around the center; raise <em>WeightTerrain</em> – the rings avoid steep slopes and large height differences; turn on “Show score” to see the score map.</p>
+      <p>The app re-implements the module “Ring Roads” of the <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT license) in the browser. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

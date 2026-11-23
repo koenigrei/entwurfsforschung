@@ -1,0 +1,16 @@
+{
+  "id": "isovist-punkt",
+  "titel": {"de": "Isovist von einem Punkt", "en": "Isovist Single Point"},
+  "vorschau": {"de": "Was man von einem Standpunkt aus sieht: Strahlen bis zum ersten Hindernis bilden das Isovist-Polygon, daraus folgen 17 Kenngrößen wie Fläche, Kompaktheit und Drift.", "en": "What is visible from one viewpoint: rays up to the first obstacle form the isovist polygon, from which 17 properties such as area, compactness and drift follow."},
+  "original": "Isovist Single Point",
+  "katalog": "IsovistSinglePoint",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistSinglePoint/",
+  "autoren": "DeCodingSpaces – Martin Bielik, Ekaterina Fuchkina",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 10,
+  "vorschau_param": {"winkel": 360},
+  "pruef_ausdruck": "SIM.zustand.masse.area > 1000 && SIM.zustand.masse.area < Math.PI * 100 * 100 && SIM.zustand.iso.punkte.length === 360"
+}

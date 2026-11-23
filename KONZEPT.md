@@ -34,6 +34,7 @@ entwurfsforschung.de wird das KI Lab für Reinhard Königs KI-Experimente: eine 
 | `deploy.py` | lädt `site/` per SSH (tar) in den Web-Ordner; `--ziel neu` für die Durchsicht, später `--ziel start`; ersetzt nur Pfade, die das Lab verwaltet, nie WordPress |
 | `pruefe.py` | prüft den Bau: jede Kachel hat Bild und Ziel, jedes Ziel existiert, keine externen Schriften |
 | `simulationen/` | Frühe Simulationen (21.11.2026): alte Programme (Delphi, NetLogo, AutoCAD-VBA, Flash) als Web-Apps; Bestandsliste `bestand.json`, Rahmen `_gemeinsam/`, Vorlage `_vorlage/`, Anleitung `REZEPT.md`; gebaut nach `lab/simulationen/` mit `quellcode.zip` je App |
+| `katalog/` | Parametric Planning Catalogue (23.11.2026): Grasshopper-Module des Katalogs (InfAR, Bauhaus-Universität Weimar, 2020, MIT) als Web-Apps; `bestand.json` mit Stand aller 27 Module, `_gemeinsam/` (Geometrie, Szenen, Zeichenhilfen), Anleitung `REZEPT.md`; gebaut nach `lab/parametric-planning-catalogue/`. Lab-Kachel mit `vorletzt: true` steht immer direkt vor „Frühe Simulationen“ |
 
 ## Gestaltung
 

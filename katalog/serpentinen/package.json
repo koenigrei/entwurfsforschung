@@ -1,0 +1,8 @@
+{
+  "name": "serpentinen",
+  "private": true,
+  "type": "commonjs",
+  "description": "Serpentinen – Neuumsetzung des Grasshopper-Moduls Serpentine Roads (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

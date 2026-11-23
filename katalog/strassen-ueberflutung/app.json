@@ -1,0 +1,22 @@
+{
+  "id": "strassen-ueberflutung",
+  "titel": {
+    "de": "Straßen und Starkregen",
+    "en": "Street Flood Risk"
+  },
+  "vorschau": {
+    "de": "Wie stark trifft Starkregen eine Straße? Rot: steiler Hang und Straße quer zur Fließrichtung, blau: flach oder in Fließrichtung; graue Pfeile zeigen, wohin das Wasser läuft.",
+    "en": "How strongly does heavy rain affect a street? Red: steep slope and street across the flow, blue: flat or along the flow; grey arrows show where the water runs."
+  },
+  "original": "Street Flood Risk",
+  "katalog": "StreetFloodRisk",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/StreetFloodRisk/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.k === SIM.zustand.strassen.length && (a => a.stark > 0.1 && a.stark < 0.6 && a.kaum > 0.15 && a.segmente > 300)(Modell.auswertung(SIM.zustand, SIM.param))"
+}

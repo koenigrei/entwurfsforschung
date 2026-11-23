@@ -1,0 +1,8 @@
+{
+  "name": "parzellen-voronoi",
+  "private": true,
+  "type": "commonjs",
+  "description": "Parzellierung mit Voronoi – Neuumsetzung des Grasshopper-Moduls Parcellation via Voronoi (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

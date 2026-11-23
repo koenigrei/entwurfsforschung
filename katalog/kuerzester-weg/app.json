@@ -1,0 +1,24 @@
+{
+  "id": "kuerzester-weg",
+  "titel": {
+    "de": "Kürzester Weg im Straßennetz",
+    "en": "Street Network Shortest Path"
+  },
+  "vorschau": {
+    "de": "Drei Wege zum kürzesten Weg im Straßennetz: einfache Suche, Dijkstra und Floyd–Warshall – mit metrischen oder winkelbasierten Kosten, gemessener Rechenzeit und wachsender Suchfront.",
+    "en": "Three ways to the shortest path in a street network: simple search, Dijkstra and Floyd–Warshall – with metric or angular costs, measured computing time and a growing search front."
+  },
+  "original": "Street Network Shortest Path",
+  "katalog": "NetworkShortestPath",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/NetworkShortestPath/",
+  "autoren": "DeCodingSpaces – Reinhard König, Martin Bielik, Ekaterina Fuchkina",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {
+    "betweenness": true
+  },
+  "pruef_ausdruck": "SIM.zustand.suche.fertig && SIM.zustand.suche.weg.length > 2 && SIM.zustand.suche.weg[0] === SIM.zustand.so && SIM.zustand.suche.weg.join() === Modell.kuerzesterWeg(SIM.zustand.G, 'floyd', SIM.zustand.so, SIM.zustand.sd).join() && SIM.zustand.suche.weg.join() === Modell.kuerzesterWeg(SIM.zustand.G, 'einfach', SIM.zustand.so, SIM.zustand.sd).join()"
+}

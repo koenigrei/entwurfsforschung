@@ -1,0 +1,8 @@
+{
+  "name": "regenwasser-raster",
+  "private": true,
+  "type": "commonjs",
+  "description": "Regenwasserabfluss (Raster) – Neuumsetzung des Grasshopper-Moduls Rainwater Rundown (Raster) (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

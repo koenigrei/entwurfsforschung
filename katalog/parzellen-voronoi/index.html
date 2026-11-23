@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parzellierung mit Voronoi · Parametric Planning Catalogue · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Parzellen aus Voronoi-Zellen: Punkte in gleichem Abstand auf dem Blockrand erzeugen Zellen, die alle an der Straße liegen; kurze Zellgrenzen werden zu ruhigeren Grenzen zusammengezogen. Neuumsetzung des Moduls „Parcellation via Voronoi“ aus dem Parametric Planning Catalogue (DeCodingSpaces, Bauhaus-Universität Weimar) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← Parametric Planning Catalogue</a>
+  <h1><span lang="de">Parzellierung mit Voronoi</span><span lang="en">Parcellation via Voronoi</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Start: Block für Block – Punkte, Zellen, Glätten · Klick in einen Block: Parzellenflächen zeigen</span><span lang="en">Start: block by block – points, cells, smoothing · click a block: show parcel areas</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Parcellation via Voronoi · Grasshopper · DeCodingSpaces – Martin Dennemark</div>
+    <a href="https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcellationVoronoi/"><span lang="de">Eintrag im Parametric Planning Catalogue</span><span lang="en">Entry in the Parametric Planning Catalogue</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Parzellen aus Voronoi-Zellen: Punkte in gleichem Abstand auf dem Blockrand erzeugen Zellen, die alle an der Straße liegen; kurze Zellgrenzen werden zu ruhigeren Grenzen zusammengezogen.</p>
+      <p>Das Verfahren hat drei Phasen, die hier je ein Schritt sind. <em>Divide Distance</em> setzt ab der ersten Blockecke Punkte auf den Blockrand, jeder im geraden Abstand <code>Cell Distance</code> zum vorigen. <em>Voronoi</em> teilt den Block so, dass jede Stelle zum nächstgelegenen Punkt gehört; <em>Trim with Region</em> schneidet die Zellen am Block ab. Weil alle Punkte auf dem Rand liegen, berührt jede Zelle die Straße – „Keeps each parcel connected to the street“.</p>
+      <p>Voronoi-Zellen haben oft kurze, unruhige Grenzstücke. <em>Network Smooth</em> zieht sie zusammen: Innere Ecken, die näher als <code>Schwelle = Cell Distance × Snapping</code> beieinanderliegen, werden zu einer Ecke; liegt eine Ecke so nahe an einem Anker – einer Blockecke oder einem Punkt, an dem eine Zellgrenze den Rand trifft –, springt sie auf den Anker. Die Randecken bleiben fest, deshalb behält jede Parzelle ihren Straßenanschluss.</p>
+      <p>Probieren: <code>Cell Distance</code> zwischen 10 und 100 m verändern – kleine Werte ergeben schmale, tiefe Parzellen, große Werte wenige große. <code>Snapping</code> auf 0,5 stellen und die gestrichelten ungeglätteten Zellen mit den geglätteten vergleichen; das Glätten ausschalten.</p>
+      <p>Die App setzt das Modul „Parcellation via Voronoi“ aus dem <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT-Lizenz) neu im Browser um. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>Parcels from Voronoi cells: points at equal distance on the block edge generate cells that all touch the street; short cell borders are snapped together into calmer borders.</p>
+      <p>The method has three phases, each one step here. <em>Divide Distance</em> places points on the block edge starting at the first corner, each at the straight distance <code>Cell Distance</code> from the previous one. <em>Voronoi</em> divides the block so that every location belongs to the nearest point; <em>Trim with Region</em> clips the cells to the block. Since all points lie on the edge, every cell touches the street – “Keeps each parcel connected to the street”.</p>
+      <p>Voronoi cells often have short, ragged border pieces. <em>Network Smooth</em> pulls them together: inner vertices closer than <code>threshold = Cell Distance × Snapping</code> to each other become one vertex; if a vertex is that close to an anchor – a block corner or a point where a cell border meets the edge – it jumps onto the anchor. Edge vertices stay fixed, so every parcel keeps its street access.</p>
+      <p>Try: change <code>Cell Distance</code> between 10 and 100 m – small values give narrow, deep parcels, large values few big ones. Set <code>Snapping</code> to 0.5 and compare the dashed unsmoothed cells with the smoothed ones; switch smoothing off.</p>
+      <p>The app re-implements the module “Parcellation via Voronoi” of the <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT license) in the browser. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
