@@ -237,7 +237,7 @@ def pruefe_simulationen(site=SITE, tests=True):
         if os.path.exists(os.path.join(d, "index.html")):
             t = open(os.path.join(d, "index.html"), encoding="utf-8").read()
             for muss, was in (('rel="help" href="AGENTS.md"', "<link rel=help>"), ('name="source" content="quellcode.zip"', "<meta name=source>"),
-                              ('href="quellcode.zip"', "Link quellcode.zip"), ('href="AGENTS.md"', "Link AGENTS.md"), ("Weiterentwickeln", "„Quellcode · Weiterentwickeln“"),
+                              ('href="quellcode.zip', "Link quellcode.zip"), ('href="AGENTS.md"', "Link AGENTS.md"), ("Weiterentwickeln", "„Quellcode · Weiterentwickeln“"),   # quellcode.zip auch mit ?v= (23.11.2026)
                               ("Prof. Dr. Reinhard König", "Namensnennung"), ("../_gemeinsam/sim.js", "gemeinsamer Rahmen")):
                 if muss not in t:
                     b.append(f"simulationen/{aid}/index.html: {was} fehlt")

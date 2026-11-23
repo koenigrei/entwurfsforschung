@@ -562,6 +562,10 @@ def simulationen(vorlage, alt):
                             zf.write(os.path.join(wurzel, f), os.path.join(name, os.path.relpath(os.path.join(wurzel, f), basis)).replace(os.sep, "/"))
             if METHODEN.get("simulationen"):                           # Methode der Sammlung (23.11.2026)
                 zf.write(METHODEN["simulationen"], "METHODE.md")
+        ih = os.path.join(d, "index.html")                             # ?v= an app.js, modell.js, sim.js, sim.css … gegen den Cloudflare-Cache
+        if os.path.isfile(ih):                                         # (23.11.2026: geänderte app.js kam 4 h lang nicht an); erst lesen, dann schreiben
+            h_ = versionieren(open(ih, encoding="utf-8").read(), d)
+            open(ih, "w", encoding="utf-8").write(h_)
         bild = os.path.join(q, "vorschau.png")
         if os.path.exists(bild):
             w, h = kachelbild(bild, os.path.join(ziel, "bilder", aid + ".webp"))
