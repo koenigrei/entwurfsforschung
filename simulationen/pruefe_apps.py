@@ -3,6 +3,7 @@
 Aufruf (Playwright nur unter py -3.14):
     py -3.14 simulationen/pruefe_apps.py                  alle Apps mit Status „umgesetzt“ in bestand.json, danach Mosaik bilder/simulationen.png
     py -3.14 simulationen/pruefe_apps.py <id> [<id> …]    nur diese Apps (auch wenn noch „in_arbeit“), ohne Mosaik
+    py -3.14 simulationen/pruefe_apps.py kremlas          eigenes Lab-Projekt im selben Rahmen (EIGENE: kremlas/ → lab/kremlas/)
 
 Braucht keinen Bau: ein kleiner Server liefert /lab/simulationen/… direkt aus simulationen/ und die Schrift Geist aus den
 installierten Windows-Schriften (wie bauen.py). Mehrere Agenten können so gleichzeitig prüfen, ohne site/ anzufassen.
@@ -19,6 +20,8 @@ import functools, http.server, json, os, sys, threading, time, urllib.parse
 HIER = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HIER)
 AUS = os.path.join(HIER, "_pruefung")
+# Eigene Lab-Projekte im Rahmen der Frühen Simulationen (KREMLAS, eigene Kachel seit 23.11.2026): Quellordner, Adresse, Archivpräfix
+EIGENE = {"kremlas": (os.path.join(REPO, "kremlas"), "/lab/kremlas/", "../../archiv/")}
 sys.path.insert(0, REPO)
 import bauen  # noqa: E402  (Schrift-Quellen und geist.css wie im Bau)
 
@@ -31,6 +34,9 @@ class Server(http.server.SimpleHTTPRequestHandler):
         p = urllib.parse.unquote(urllib.parse.urlsplit(pfad).path)
         if p.startswith("/lab/simulationen/"):
             return os.path.join(HIER, *p[len("/lab/simulationen/"):].split("/"))
+        for ordner, adresse, _ in EIGENE.values():
+            if p.startswith(adresse):
+                return os.path.join(ordner, *p[len(adresse):].split("/"))
         if p.startswith("/schrift/") and p.endswith(".ttf"):
             try:
                 return bauen.schrift(os.path.basename(p))
@@ -53,7 +59,8 @@ def apps_aus_bestand():
 
 def pruefe_app(browser, basis, aid):
     befunde = []
-    meta = json.load(open(os.path.join(HIER, aid, "app.json"), encoding="utf-8"))
+    ordner, adresse, archiv = EIGENE.get(aid, (os.path.join(HIER, aid), f"/lab/simulationen/{aid}/", "../../../archiv/"))
+    meta = json.load(open(os.path.join(ordner, "app.json"), encoding="utf-8"))
     for thema in ("dark", "light"):
         for breite in (1440, 390):
             ctx = browser.new_context(viewport={"width": breite, "height": 900}, color_scheme=thema, device_scale_factor=1)
@@ -63,7 +70,7 @@ def pruefe_app(browser, basis, aid):
             pg.on("console", lambda m: fehler.append(f"console: {m.text}") if m.type == "error" else None)
             pg.on("requestfailed", lambda r: None if "/schrift/" in r.url else fehler.append(f"Anfrage fehlgeschlagen: {r.url}"))
             pg.on("response", lambda r: fehler.append(f"HTTP {r.status}: {r.url}") if r.status >= 400 and "/schrift/" not in r.url and not r.url.endswith("quellcode.zip") else None)
-            pg.goto(f"{basis}/lab/simulationen/{aid}/", wait_until="load")
+            pg.goto(f"{basis}{adresse}", wait_until="load")
             pg.wait_for_function("window.SIM && window.SIM.zustand", timeout=15000)
             ort = f"{aid} {thema} {breite}px"
             t0 = pg.evaluate("SIM.zustand.t")
@@ -85,7 +92,7 @@ def pruefe_app(browser, basis, aid):
             if thema == "dark" and breite == 1440:
                 kopf = pg.evaluate("""[!!document.querySelector('link[rel=help][href="AGENTS.md"]'), !!document.querySelector('meta[name=source][content="quellcode.zip"]'),
                                        !!document.querySelector('a[href="quellcode.zip"]'), !!document.querySelector('a[href="AGENTS.md"]'),
-                                       !!document.querySelector('a[href^="../../../archiv/"]'), getComputedStyle(document.body).backgroundColor]""")
+                                       !!document.querySelector('a[href^="ARCHIV"]'), getComputedStyle(document.body).backgroundColor]""".replace("ARCHIV", archiv))
                 for ok, was in zip(kopf[:5], ("<link rel=help href=AGENTS.md>", "<meta name=source content=quellcode.zip>", "Link quellcode.zip", "Link AGENTS.md", "Link zur Archivseite")):
                     if not ok:
                         befunde.append(f"{aid}: {was} fehlt")
@@ -102,7 +109,7 @@ def pruefe_app(browser, basis, aid):
                     m = min(n, 200); pg.evaluate(f"SIM.schritt({m})"); n -= m
                 if meta.get("pruef_ausdruck") and not pg.evaluate(meta["pruef_ausdruck"]):
                     befunde.append(f"{aid}: pruef_ausdruck nicht erfüllt: {meta['pruef_ausdruck']}")
-                pg.locator("#leinwand").screenshot(path=os.path.join(HIER, aid, "vorschau.png"))
+                pg.locator("#leinwand").screenshot(path=os.path.join(ordner, "vorschau.png"))
             befunde += [f"{ort}: {f}" for f in fehler]
             ctx.close()
     return befunde

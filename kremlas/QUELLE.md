@@ -9,7 +9,7 @@
 | Herkunft | Öffentliches Repository `cpg_all` (https://bitbucket.org/koenigr/cpg_all), Ordner `Source/Kremlas/`, mit dem Import nach CPlan am 28.06.2013 eingecheckt (abgerufen am 21.11.2026, letzter Commit 14.09.2017). Dort unter GNU LGPL 3.0. Diese Neufassung stammt vom ursprünglichen Autor und steht unter CC BY 4.0. Zum Vergleich gelesen: `Source/UrbanPattern/XOldEinpassung/`. Nur Quelltext gelesen: nichts gebaut, keine .exe/.dll ausgeführt. |
 | Beschreibung | D. Donath, R. König, F. Petzold (Hrsg.): *KREMLAS. Entwicklung einer kreativen evolutionären Entwurfsmethode für Layoutprobleme in Architektur und Städtebau.* Weimar: Verlag der Bauhaus-Universität 2012, Kapitel 5 („Layouts mittels Dichter Packung“) und 9; Videos „Computational Floorplan Synthesis“ (Vimeo 42206895, 2012) und „GrundrissPackingEvaluation“ (Vimeo 24671938, 2011) |
 | Seite der alten Website | Architektur › Floor Plans – https://entwurfsforschung.de/layout/ |
-| Archivseite | [Floor Plans](../../../archiv/floor-plans/) |
+| Archivseite | [Floor Plans](../../archiv/floor-plans/) |
 
 ## Übernommen
 
