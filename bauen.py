@@ -575,6 +575,8 @@ def katalog(vorlage, alt):
                     for f in sorted(dateien):
                         if f != "quellcode.zip" and ".local." not in f:
                             zf.write(os.path.join(wurzel, f), name + "/" + os.path.relpath(os.path.join(wurzel, f), basis).replace(os.sep, "/"))
+            if METHODEN.get("parametric-planning-catalogue"):            # Methode des Bereichs (23.11.2026)
+                zf.write(METHODEN["parametric-planning-catalogue"], "METHODE.md")
         ih = os.path.join(d, "index.html")
         h_ = versionieren(open(ih, encoding="utf-8").read(), d)       # ?v= gegen den Cloudflare-Cache (erst lesen, dann schreiben)
         open(ih, "w", encoding="utf-8").write(h_)
@@ -608,7 +610,9 @@ def katalog(vorlage, alt):
                   f'<p class="nur-en">The Parametric Planning Catalogue (2020) collects Grasshopper modules for integrated planning strategies – parcellation, visibility, street networks, water, terrain – developed at DecodingSpaces, ECL-AA and the Chair for Informatics in Architecture and Urbanism (InfAR) at Bauhaus-Universität Weimar. Here the modules run as standalone web apps in the browser: procedures, parameters and terms follow the Grasshopper files; every app names its original and can be downloaded as source code to develop further.</p>'
                   f'<p class="nur-de">{n_um} von {n_alle} Modulen sind umgesetzt; die übrigen stehen unten mit Begründung.</p><p class="nur-en">{n_um} of {n_alle} modules are done; the others are listed below with reasons.</p>'
                   f'<p><a href="{html.escape(K["url"])}">{zwei("Original: Parametric Planning Catalogue", "Original: Parametric Planning Catalogue")}</a> · '
-                  f'<a href="{html.escape(K["repo"])}">GitHub infar-buw/parametric-planning-catalogue</a> · {zwei("Lizenz des Katalogs: MIT", "Catalogue license: MIT")}</p></div></section>'
+                  f'<a href="{html.escape(K["repo"])}">GitHub infar-buw/parametric-planning-catalogue</a> · {zwei("Lizenz des Katalogs: MIT", "Catalogue license: MIT")}'
+                  + (f' · <a href="../../lab/methode/parametric-planning-catalogue/">{zwei("Methode", "Method")}</a>' if METHODEN.get("parametric-planning-catalogue") else "")
+                  + '</p></div></section>'
                   f'<section class="ueber" id="bestand"><div><h2>{zwei("Alle Module", "All modules")}</h2></div><div><ul class="bestand">{"".join(zeilen)}</ul></div></section>')
     seite(vorlage, os.path.join(ziel, "index.html"),
           FILTER.format(id="katalog", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
