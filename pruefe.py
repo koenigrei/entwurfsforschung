@@ -43,6 +43,12 @@ def pruefe(site=SITE, projekte=None):
         for f in ["index.html", p["start"], *p.get("dateien", {})]:
             if not os.path.exists(os.path.join(z, f)):
                 b.append(f"{p['id']}: {p['ziel']}{f} fehlt")
+        if p.get("lernbereich"):                                       # Lernbereich als eigene Seite: DE, EN, Bilder und mindestens eine App daneben
+            for f in ("en.html", "img"):
+                if not os.path.exists(os.path.join(z, f)):
+                    b.append(f"{p['id']}: Lernbereich ohne {p['ziel']}{f}")
+            if not [f for f in os.listdir(z) if f.endswith(".html") and f not in ("index.html", "en.html")]:
+                b.append(f"{p['id']}: Lernbereich ohne App-Datei neben index.html")
         for o in p.get("ordner", {}):
             if not os.path.isdir(os.path.join(z, o)) or not os.listdir(os.path.join(z, o)):
                 b.append(f"{p['id']}: Ordner {p['ziel']}{o}/ fehlt oder leer")
@@ -73,8 +79,12 @@ def pruefe(site=SITE, projekte=None):
         for f in dateien:
             if f.endswith(".html"):
                 t = open(os.path.join(wurzel, f), encoding="utf-8", errors="replace").read()
+                # Lernbereich-Seiten (Vorlage des KI Lernlabors) enthalten Code für Videos und eingebettete Demo-Apps; er bleibt
+                # stumm, solange die Daten weder Video (provider) noch eingebettete App (app_of/"app": {) enthalten (23.11.2026)
+                lb = "LERNLABOR_EINZELN" in t or ('class="brand"' in t and "const DATA" in t)
+                stumm = lb and '"provider":' not in t and '"app": {"src"' not in t
                 for host in ("fonts.googleapis", "fonts.gstatic", "cdnjs.cloudflare", "cdn.jsdelivr", "<iframe"):
-                    if host in t:
+                    if host in t and not (host == "<iframe" and stumm):
                         b.append(f"{os.path.relpath(os.path.join(wurzel, f), site)}: {host}")
     b += pruefe_simulationen(site)
     imp = os.path.join(site, "impressum", "index.html")

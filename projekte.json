@@ -42,13 +42,8 @@
     "en": "Thousands of variants of a garden studio from form principles, roofs, plans, facades and construction systems – checked, compared and bred on in generations."
    },
    "ziel": "lab/gartenatelier/",
-   "start": "konzeptstudie.html",
-   "dateien": {
-    "konzeptstudie.html": "Apps/konzeptstudie/dist/konzeptstudie.html"
-   },
-   "ordner": {
-    "texturen": "Apps/gartenatelier/konzeptstudie/texturen"
-   }
+   "start": "index.html",
+   "lernbereich": "konzeptstudie"
   },
   {
    "id": "campus",

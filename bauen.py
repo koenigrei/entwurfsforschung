@@ -119,6 +119,35 @@ def lokal(pfad, zur_wurzel):
     open(pfad, "w", encoding="utf-8").write(t)
 
 
+def lernbereich(p, z, Q):
+    """Baut einen Lernbereich des KI Lernlabors (Planungsgrundlagen/Apps/<p["lernbereich"]>) mit dessen eigenem Werkzeug
+    (Apps/_werkzeuge/build_apps.py, Modus LERNLABOR_EINZELN) nach z: index.html, en.html, img/ und die App-Dateien daneben.
+    Die App-Dateien bekommen den Rückweg zur Beschreibung, die Beschreibung den Rückweg ins Lab (Nutzer 23.11.2026)."""
+    import subprocess, tempfile
+    zur_wurzel = "../" * p["ziel"].strip("/").count("/") + "../"
+    tmp = tempfile.mkdtemp(prefix="lernbereich_")
+    try:
+        umg = dict(os.environ, LERNLABOR_EINZELN=p["lernbereich"], LERNLABOR_OUT=tmp, LERNLABOR_ZURUECK=zur_wurzel, PYTHONIOENCODING="utf-8")
+        r = subprocess.run([sys.executable, os.path.join(Q, "Apps", "_werkzeuge", "build_apps.py")], env=umg,
+                           capture_output=True, text=True, encoding="utf-8", errors="replace")
+        if r.returncode or not os.path.isfile(os.path.join(tmp, "index.html")):
+            sys.exit(f"{p['id']}: Lernbereich {p['lernbereich']} nicht gebaut\n{(r.stdout + r.stderr)[-1500:]}")
+        shutil.copytree(tmp, z, dirs_exist_ok=True)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    zur_beschreibung = (RUECKWEG.format(z="index.html").replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Beschreibung")
+                        .replace("Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab", "Zurück zur Beschreibung · Back to the description"))
+    for f in sorted(os.listdir(z)):
+        if not f.endswith(".html"):
+            continue
+        pfad = os.path.join(z, f)
+        if f not in ("index.html", "en.html"):                         # App und Programmversionen: Rückweg zur Beschreibung
+            t = open(pfad, encoding="utf-8").read()
+            if "ef-zurueck" not in t:
+                open(pfad, "w", encoding="utf-8").write(re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + zur_beschreibung, t, count=1))
+        lokal(pfad, zur_wurzel)
+
+
 def seite(vorlage, pfad, main, base, titel, seite_, alt):
     h = (vorlage.replace("{{MAIN}}", main).replace("{{BASE}}", base).replace("{{ALT}}", alt)
          .replace("{{TITEL}}", html.escape(titel)).replace("{{SEITE}}", seite_))
@@ -223,6 +252,8 @@ def bauen(alt="/"):
             lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
             continue
         os.makedirs(z, exist_ok=True)
+        if p.get("lernbereich"):                                       # Lernbereich des KI Lernlabors als eigene Seite (Konzeptstudie, Nutzer 23.11.2026)
+            lernbereich(p, z, Q)
         for ziel, quelle in p.get("dateien", {}).items():
             shutil.copy(os.path.join(Q, quelle), os.path.join(z, ziel))
         for ziel, quelle in p.get("ordner", {}).items():
