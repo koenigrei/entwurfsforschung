@@ -545,8 +545,7 @@ def simulationen(vorlage, alt):
             open(os.path.join(d, "index.html"), "w", encoding="utf-8").write(
                 f'<!doctype html><meta charset="utf-8"><title>{html.escape(e["titel"])}</title><link rel="canonical" href="{neu}">'
                 f'<script>location.replace("{neu}" + location.hash)</script><meta http-equiv="refresh" content="0; url={neu}">'
-                f'<a href="{neu}">{html.escape(e["titel"])} · {zwei("jetzt eigenes Projekt im KI Lab", "now a project of its own in the AI Lab")}</a>
-')
+                f'<a href="{neu}">{html.escape(e["titel"])} · jetzt eigenes Projekt im KI Lab · now a project of its own in the AI Lab</a>\n')
             continue
         if e.get("status") != "umgesetzt":
             continue
@@ -606,9 +605,7 @@ def kremlas():
     import zipfile
     d = os.path.join(SITE, "lab", "kremlas")
     shutil.copytree(KREM, d, ignore=SIM_NICHT, dirs_exist_ok=True)
-    open(os.path.join(d, ".htaccess"), "w", encoding="utf-8").write('AddType "text/plain; charset=utf-8" .md
-AddType "text/javascript; charset=utf-8" .mjs
-')
+    open(os.path.join(d, ".htaccess"), "w", encoding="utf-8").write('AddType "text/plain; charset=utf-8" .md\nAddType "text/javascript; charset=utf-8" .mjs\n')
     with zipfile.ZipFile(os.path.join(d, "quellcode.zip"), "w", zipfile.ZIP_DEFLATED) as zf:
         for basis, name in ((KREM, "kremlas"), (os.path.join(SIM, "_gemeinsam"), "simulationen/_gemeinsam")):
             for wurzel, ordner, dateien in os.walk(basis):
@@ -618,7 +615,8 @@ AddType "text/javascript; charset=utf-8" .mjs
                         zf.write(os.path.join(wurzel, f), (name + "/" + os.path.relpath(os.path.join(wurzel, f), basis)).replace(os.sep, "/"))
     for f in os.listdir(d):                                            # alle Seiten des Projekts (später Tabs Palladio, Siza)
         if f.endswith(".html"):
-            p_ = os.path.join(d, f); open(p_, "w", encoding="utf-8").write(versionieren(open(p_, encoding="utf-8").read(), d))
+            p_ = os.path.join(d, f); t_ = versionieren(open(p_, encoding="utf-8").read(), d)   # erst lesen, dann schreiben
+            open(p_, "w", encoding="utf-8").write(t_)
 
 
 KAT = os.path.join(HIER, "katalog")

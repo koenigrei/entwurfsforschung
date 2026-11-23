@@ -189,7 +189,7 @@ def pruefe_archivlinks(site=SITE):
 
 
 SIM_PFLICHT =["index.html", "modell.js", "app.js", "app.json", "README.md", "AGENTS.md", "QUELLE.md", "LICENSE.md", "quellcode.zip"]
-SIM_STATUS = {"umgesetzt", "in_arbeit", "geplant", "aufgenommen", "nur_beschreibung", "nur_bilder", "zurueckgestellt"}
+SIM_STATUS = {"umgesetzt", "in_arbeit", "geplant", "aufgenommen", "nur_beschreibung", "nur_bilder", "zurueckgestellt", "verschoben"}   # verschoben: eigenes Lab-Projekt mit Feld „neu“ (KREMLAS, 23.11.2026)
 
 
 def pruefe_simulationen(site=SITE, tests=True):
