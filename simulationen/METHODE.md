@@ -38,7 +38,7 @@ Gemeinsam: Zufall nur mit Saat (`_gemeinsam/zufall.js`, mulberry32), ein Schritt
 
 Treue zum Original und erwartetes Verhalten, nicht Echtheit gegen reale Beispiele:
 
-- **`node --test` je App** (`test/*.test.mjs`): je Regel ein nachgerechnetes Beispiel, Grenzfälle, gleiche Saat → gleicher Lauf, ein Verhalten aus der Beschreibung (z. B. „Segregationsgrad steigt“, „Ringfolge A–C–B“). Stand 23.11.2026: 50 Apps, 576 Tests, alle grün (KREMLAS im Arbeitsstand einer parallelen Sitzung).
+- **`node --test` je App** (`test/*.test.mjs`): je Regel ein nachgerechnetes Beispiel, Grenzfälle, gleiche Saat → gleicher Lauf, ein Verhalten aus der Beschreibung (z. B. „Segregationsgrad steigt“, „Ringfolge A–C–B“). Stand 23.11.2026: 50 Apps, 576 Tests, alle grün.
 - **`pruef_ausdruck`** in `app.json`: Kennzahl im erwarteten Bereich nach n Schritten; **`pruefe_apps.py`**: Browser, hell/dunkel, 1440/390 px, Bildschirmfotos zur Durchsicht; **`pruefe.py`**: Pflichtdateien, Pflichtlinks, kein DOM in `modell.js`.
 - **Messung über viele Saaten** bei Änderungen am Modell (KREMLAS: Anteil vollständig gelöster Läufe nach 100 … 2000 Generationen, `kremlas-dichte-packung/QUELLE.md`).
 
@@ -59,7 +59,7 @@ Die Modelle erfassen Prozess und Struktur, nicht Stil. Form entsteht aus lokalen
 
 - **Zufall mit Uhrzeit** (`Randomize`, `new Random(...)` je Objekt): durch feste Saat ersetzt; das Original hatte z. B. höchstens 1000 verschiedene Startindividuen (`kremlas-dichte-packung/QUELLE.md`).
 - **Zahlen wie im Original:** Delphis Rundung (12,5 → 12), Single statt Double (`Math.fround`, `Float32Array`), Gleichstände, die im Original die letzte x87-Stelle entschied (`wachstumssimulation/QUELLE.md`); nicht stabile Sortierung in C# (`kremlas-dichte-packung/QUELLE.md`).
-- **Eigenheiten wörtlich übernehmen kann das Modell lähmen:** In KREMLAS zog im Stern rund die Hälfte der Federn in die falsche Richtung, die erste Fassung hatte das wörtlich übernommen; behoben 22./23.11.2026, Wirkung über viele Saaten gemessen (`kremlas-dichte-packung/QUELLE.md`). Programmfehler beheben und benennen, Eigenheiten behalten (`REZEPT.md`, „Grundsätze“).
+- **Eigenheiten wörtlich übernehmen kann das Modell lähmen:** In KREMLAS zog im Stern rund die Hälfte der Federn in die falsche Richtung, und zwischen Räumen, die sich berührten, wirkte gar keine Feder; die erste Fassung hatte beides wörtlich übernommen. Behoben 22./23.11.2026, dazu mehrere Federrunden je Kind (Regler, Original 2), Wirkung über viele Saaten gemessen (`kremlas-dichte-packung/QUELLE.md`). Programmfehler beheben und benennen, Eigenheiten behalten (`REZEPT.md`, „Grundsätze“).
 - **Quellen lückenhaft** (`bestand.json`, Feld `hinweis`): fehlende ZIPs von der alten Website nachgeladen; Beschreibung nur in der Dissertation oder knapp → Regeln aus dem Quellcode erschließen; nur SWF ohne Beschreibung oder nur Bilder → zurückstellen statt Regeln erraten.
 - **Delphi-Quellen in cp1252** (`iconv -f cp1252 -t utf-8`); keine .exe ausführen (`REZEPT.md`).
 - **`bauen.py` parallel** stört sich, weil es `site/` löscht: nur der Koordinator baut; `pruefe_apps.py` braucht keinen Bau (`REZEPT.md`).
