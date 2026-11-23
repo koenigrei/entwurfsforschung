@@ -20,8 +20,49 @@
 ## Bewusst geändert
 
 - **Beispielszene statt Rhino-Geometrie**: Die .gh-Datei arbeitet mit Geometrie aus einer Rhino-Datei. Die App erzeugt eine vergleichbare Szene mit fester Saat (`../_gemeinsam/szenen.js`); eine andere Saat ergibt eine andere Szene.
-- **Kenngrößen nach veröffentlichten Definitionen**: Die Komponente ist kompiliert; ihre Formeln liegen nicht offen. Die App rechnet nach Benedikt (1979), Batty (2001) und Turner et al. (2001): Kompaktheit `4πA/U²`, Kreisähnlichkeit `U²/(4πA)`, Konvexitätsdefizit `(A_Hülle − A)/A_Hülle`, Dispersion `σ/μ` der Strahllängen, Verdeckung = Summe der radialen Sprünge zwischen Nachbarstrahlen (Sprung > max(1 m, 10 %)), Drift = Vektor Standpunkt → Schwerpunkt, Streckung = Verhältnis der Hauptachsen der Endpunktverteilung, abstandsgewichtete Fläche = Summe der Strahlsektoren × mittlerer Abstand (in m³). Einzelne Werte können daher von Grasshopper abweichen.
+- **Kenngrößen nach den Definitionen der Toolbox v2**: Die 2020 benutzte Komponente ist nur noch als Binärdatei erhalten; der rekonstruierte Quelltext der DeCodingSpaces-Toolbox legt die Definitionen offen (siehe „Abgleich mit dem Quelltext“). Zwölf der 17 Werte rechnet die App nach diesen Definitionen (mit Strahlen statt exakt); fünf – abstandsgewichtete Fläche, Kreisähnlichkeit, Konvexitätsdefizit, Dispersion, Streckung – hat die Toolbox mangels prüfbarer Definition gestrichen, die App rechnet sie nach eigenen Definitionen in Anlehnung an Benedikt (1979) und Batty (2001): Kreisähnlichkeit `U²/(4πA)`, Konvexitätsdefizit `(A_Hülle − A)/A_Hülle`, Dispersion `σ/μ`, Streckung = Verhältnis der Hauptachsen der Endpunktverteilung, abstandsgewichtete Fläche = Summe der Strahlsektoren × mittlerer Abstand (in m³). Werte der alten Grasshopper-Komponente weichen ab, auch weil diese Fehler hatte.
 - **Abspielen**: Grasshopper hat keinen Zeitablauf. „Start“ dreht die Blickrichtung um „Drehung je Schritt“ weiter (sichtbar bei Blickwinkel < 360°); Klick setzt den Standpunkt (statt ihn in Rhino zu verschieben), Rechtsklick die Blickrichtung.
+
+## Abgleich mit dem Quelltext
+
+Abgleich mit dem Quelltext; kein Code übernommen. Gelesen (23.11.2026) wurde die DeCodingSpaces-Toolbox, GitHub Bauhaus-InfAU/decoding-spaces-toolbox, Lizenz **GPL-3.0**. Aus dem Quelltext und der Doku wurden nur Definitionen, Formeln, Parameter und Randfälle abgelesen und in eigenem Code umgesetzt (diese App steht unter CC BY 4.0).
+
+Wichtig zur Einordnung: Der Quelltext der Komponenten von 2020, die das Katalogmodul benutzt (Legacy „Isovist“ mit Strahlenzahl *Precision*, Legacy „Analysis Grid“), ist verloren. Die Toolbox ist eine Neufassung von 2026 („v2“), aus den alten Binärdateien rekonstruiert. Sie rechnet den Isovist exakt mit einem Winkel-Sweep statt mit Strahlen und gibt die alten Zahlen absichtlich nicht wieder. In `docs/migration.md` und `docs/review-2026-11.md` sind die Fehler der alten Fassung beschrieben: „StdDev“ war eine Summe absoluter Abweichungen, Varianz und Schiefe wurden nicht durch *n* geteilt, `AreaDistWeight` gab die Fläche aus. Die App behält das Verfahren des Moduls (Strahlen, Regler *Precision*) und rechnet die Kenngrößen nach den Definitionen der Toolbox v2; die Fehler der alten Fassung übernimmt sie nicht.
+
+Gelesene Dateien:
+- `src/DecodingSpaces.Core/Visibility/Isovist.cs` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/src/DecodingSpaces.Core/Visibility/Isovist.cs)
+- `src/DecodingSpaces.Grasshopper/Components/Visibility/VisibilityComponents.cs` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/src/DecodingSpaces.Grasshopper/Components/Visibility/VisibilityComponents.cs)
+- `src/DecodingSpaces.Grasshopper/Components/Legacy/LegacyVisibilityComponents.cs` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/src/DecodingSpaces.Grasshopper/Components/Legacy/LegacyVisibilityComponents.cs)
+- `docs/visibility.md` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/visibility.md)
+- `docs/migration.md` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/migration.md)
+- `docs/review-2026-11.md` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/review-2026-11.md)
+
+Kenngrößen (Isovist.cs, docs/visibility.md §2) – alt → jetzt:
+
+| Kenngröße | Toolbox v2 | App bisher | App jetzt |
+|---|---|---|---|
+| Area | ½∫r² dθ exakt | Fläche des Strahlpolygons | unverändert (nähert ½∫r² dθ mit der Strahlenzahl an) |
+| Area (Dist Weighted) | entfallen; alt: gab die Fläche aus (Fehler) | eigene Definition (Sektorfläche × mittlerer Abstand, m³) | unverändert, als eigene Definition gekennzeichnet |
+| Perimeter | Hinderniskanten + Bögen + verdeckende Kanten + zwei Seitenkanten bei Blickwinkel < 360° | Umfang des Strahlpolygons | unverändert – das Polygon enthält genau diese Teile (Bögen als Sehnen) |
+| Compactness | 4πA/P² | 4πA/U² | unverändert, stimmt überein |
+| Circularity | entfallen (alt: „zwei Varianten der Kompaktheit“) | U²/(4πA) | unverändert, eigene Definition |
+| ConvexDeficiency | entfallen | (A_Hülle − A)/A_Hülle | unverändert, eigene Definition |
+| Occlusivity | Summe der Sprünge in r(θ), wo etwas endet und dahinter mehr sichtbar ist; Seitenränder zählen nicht; Schwelle 1e-7 m | Summe der Sprünge zwischen Nachbarstrahlen größer als max(1 m, 10 %) | **geändert**: Sprung zwischen Nachbarstrahlen, die verschiedene, nicht zusammenhängende Hindernisse treffen oder von denen einer frei bis zur Reichweite geht (Schwelle 1e-7 m); dazu die Zahl der Sprünge (`occlusions`, wie „Occlusions“ der Toolbox) |
+| Min / Max Radial | kleinstes / größtes r(θ), exakt | kürzester / längster Strahl | unverändert (Strahlnäherung) |
+| Mean Radial | (1/Θ)∫r dθ | Mittel der Strahllängen | **angepasst**: Mittel über die Richtungen, bei Blickwinkel < 360° die beiden Randstrahlen halb gewichtet (Trapezregel) |
+| Variance | (1/Θ)∫r² dθ − μ² | Mittel der Quadrate − μ² | wie Mean Radial gewichtet; stimmt überein |
+| Standard Deviation | √σ² | √σ² | unverändert, stimmt überein |
+| Skewness | (1/Θ)∫(r − μ)³ dθ / σ³, 0 bei σ = 0 | dritter Moment / σ³, 0 bei σ ≈ 0 | **angepasst**: konstant, wenn σ² ≤ 1e-12 · (1/Θ)∫r² dθ – dann Varianz, Abweichung und Schiefe 0, wie in der Toolbox |
+| Dispersion | entfallen | σ/μ | unverändert, eigene Definition |
+| Elongation | entfallen | Verhältnis der Hauptachsen der Endpunkte | unverändert, eigene Definition |
+| Drift Magnitude | Abstand Standpunkt → Schwerpunkt | ebenso | unverändert |
+| Drift Angle | Grad ab +x, gegen den Uhrzeigersinn (Rhino, y nach oben), 0…360, 0 bei Drift < 1e-9 | Winkel in den Koordinaten der Szene (y nach unten), also im Uhrzeigersinn | **korrigiert**: wie in Rhino gegen den Uhrzeigersinn (Norden = 90°), 0 ohne Drift |
+
+Strahlen und Richtung: Bei Blickwinkel < 360° reicht das Blickfeld wie im Sweep der Toolbox von *Richtung − Winkel/2* bis *Richtung + Winkel/2*; die App legt die Strahlen gleichmäßig über dieses Feld, beide Ränder eingeschlossen (wie die alte Komponente die Strahlen verteilte, ist nicht mehr nachzulesen). Die Blickrichtung ist Unit Y (Norden) wie in der .gh-Datei und wie die Voreinstellung „+Y“ der Toolbox.
+
+Bewusst noch abweichend: die App rechnet weiter mit Strahlen statt exakt, weil das Modul die Strahlenzahl als Regler hat und die Strahlen zeigt; einen Standpunkt *auf* einer Wand (Toolbox: „OnObstacle“, die Wand verdeckt dann nichts) lässt die App nicht zu (Standpunkte in Gebäuden sind gesperrt); der Blickwinkel 0° ist wie im Regler der .gh-Datei möglich, die Toolbox verlangt mehr als 0°.
+
+Auch Grafit (GitHub Bauhaus-InfAU/Grafit, MIT) wurde geprüft: `examples/rhino/Python F13 Isovist 3D.py` ruft nur die kompilierte Bibliothek auf (3D-Isovist, Strahlen je Hindernis) und enthält keine Formeln für die 2D-Kenngrößen.
 
 ## Literatur
 

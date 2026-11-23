@@ -3,9 +3,10 @@
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0
 
    Verdrahtung der .gh-Datei: Divide Distance (Blockkurve, Abstand = Cell Distance) → Voronoi → Trim with Region (Block) →
-   Network Smooth (Ankerpunkte = Blockecken und Schnittpunkte der Zellgrenzen mit dem Blockrand, Snap threshold =
-   Cell Distance × Snapping) → Polygons from lines. Weil alle Erzeugerpunkte auf dem Blockrand liegen, berührt jede Zelle den
-   Rand: „Keeps each parcel connected to the street.“ Ein Schritt ist eine Phase eines Blocks (Punkte → Zellen → Glätten). */
+   Network to Segments (mit der Blockkurve) → Network Smooth (Ankerpunkte = Blockecken und Schnittpunkte der Zellgrenzen mit
+   dem Blockrand, Snap threshold = Cell Distance × Snapping). Die Blöcke selbst kommen in der Datei aus „Polygons from lines“
+   (Straßennetz → geschlossene Flächen). Weil alle Erzeugerpunkte auf dem Blockrand liegen, berührt jede Zelle den Rand:
+   „Keeps each parcel connected to the street.“ Das Glätten kann sehr kurze Straßenfronten zusammenlegen. Ein Schritt ist eine Phase eines Blocks (Punkte → Zellen → Glätten). */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
   const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
@@ -14,8 +15,8 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
   "use strict";
 
-  /** Voreinstellungen der .gh-Datei: Cell Distance 59 [10..100], Snapping 0,3 [0,1..0,5]; glaetten = Network Smooth an */
-  const STANDARD = { abstand: 59, snapping: 0.3, glaetten: true };
+  /** Voreinstellungen der .gh-Datei: Cell Distance 59 [10..100], Snapping 0,3 [0,1..0,5]; Network Smooth an, „Snap to anchor points only“ = false */
+  const STANDARD = { abstand: 59, snapping: 0.3, glaetten: true, nurAnker: false };
   const TOL = 1e-6;
 
   /** Beispielquartier: verzogenes Straßenraster, nur Blöcke (Gebäude und Platz aus) */
@@ -80,26 +81,29 @@
     return A;
   }
 
-  /** Network Smooth (nachgebildet): Innere Ecken, die näher als die Schwelle beieinanderliegen, werden zu ihrem Mittel
-      zusammengezogen (kurze Zellgrenzen verschwinden); liegt eine Ecke einer solchen Gruppe näher als die Schwelle an einem Anker,
-      springt die Gruppe auf den nächsten Anker. Randecken bleiben fest. → {zellen, bewegt: Anzahl verschobener Ecken, ziele} */
-  function glaette(Z, block, schwelle) {
+  /** Network Smooth wie im Quelltext beschrieben (legacy-generation/migration.md der Toolbox; eigene Umsetzung):
+      JEDE Ecke des Netzes (innere Voronoi-Ecken, Randpunkte, Blockecken), die näher als die Schwelle an einer anderen liegt,
+      wird mit ihr zusammengelegt, auch in einer Kette (A nahe B, B nahe C). Eine Gruppe springt auf den Anker, der einem ihrer
+      Mitglieder am nächsten liegt, wenn er näher als die Schwelle ist (bei Gleichstand der erste Anker: Blockecken vor den
+      Randpunkten), sonst – bei mehr als einem Mitglied – auf ihren Mittelpunkt. nurAnker („Snap to anchor points only“):
+      keine Gruppen, jede Ecke springt einzeln auf den nächsten Anker innerhalb der Schwelle oder bleibt.
+      → {zellen, bewegt: Anzahl verschobener Ecken, anker} */
+  function glaette(Z, block, schwelle, nurAnker = false) {
     const netz = netzAusZellen(Z, block), E = netz.ecken, A = anker(block, netz), n = E.length;
     const vater = E.map((_, i) => i), finde = i => vater[i] === i ? i : (vater[i] = finde(vater[i]));
-    const innen = E.map((e, i) => e.rand ? -1 : i).filter(i => i >= 0);
-    for (let a = 0; a < innen.length; a++) for (let b = a + 1; b < innen.length; b++)
-      if (Geo.abstand(E[innen[a]].p, E[innen[b]].p) < schwelle) vater[finde(innen[a])] = finde(innen[b]);
+    if (!nurAnker) for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++)
+      if (Geo.abstand(E[a].p, E[b].p) < schwelle) vater[finde(a)] = finde(b);
     const gruppen = new Map();
-    for (const i of innen) { const r = finde(i); if (!gruppen.has(r)) gruppen.set(r, []); gruppen.get(r).push(i); }
+    for (let i = 0; i < n; i++) { const r = finde(i); if (!gruppen.has(r)) gruppen.set(r, []); gruppen.get(r).push(i); }
     const ziel = E.map(e => e.p);
-    let bewegt = 0;
     for (const g of gruppen.values()) {
       let best = null, bd = schwelle;
-      for (const i of g) for (const a of A) { const d = Geo.abstand(E[i].p, a); if (d < bd) { bd = d; best = a; } }
+      for (const a of A) for (const i of g) { const d = Geo.abstand(E[i].p, a); if (d < bd) { bd = d; best = a; } }
       let q = best;
-      if (!q) { q = [0, 0]; for (const i of g) { q[0] += E[i].p[0] / g.length; q[1] += E[i].p[1] / g.length; } }
-      if (best || g.length > 1) { for (const i of g) ziel[i] = q; bewegt += g.length; }
+      if (!q && g.length > 1) { q = [0, 0]; for (const i of g) { q[0] += E[i].p[0] / g.length; q[1] += E[i].p[1] / g.length; } }
+      if (q) for (const i of g) ziel[i] = q;
     }
+    const bewegt = E.filter((e, i) => Geo.abstand(e.p, ziel[i]) > TOL).length;
     const neu = netz.idx.map(z => {
       const P = [];
       for (const i of z) { const q = ziel[i]; if (!P.length || Geo.abstand(P[P.length - 1], q) > TOL) P.push(q); }
@@ -123,7 +127,7 @@
   function parzelliere(block, param) {
     const p = Object.assign({}, STANDARD, param);
     const punkte = teileDistanz(block, p.abstand), roh = zellen(punkte, block);
-    const g = p.glaetten ? glaette(roh, block, p.abstand * p.snapping) : { zellen: roh, bewegt: 0, anker: [] };
+    const g = p.glaetten ? glaette(roh, block, p.abstand * p.snapping, p.nurAnker) : { zellen: roh, bewegt: 0, anker: [] };
     return { punkte, roh, zellen: g.zellen, bewegt: g.bewegt, anker: g.anker };
   }
 
@@ -141,7 +145,7 @@
     b.phase++;
     if (b.phase === 1) b.punkte = teileDistanz(b.poly, p.abstand);
     else if (b.phase === 2) { b.roh = zellen(b.punkte, b.poly); b.zellen = b.roh; }
-    else if (b.phase === 3) { const g = glaette(b.roh, b.poly, p.abstand * p.snapping); b.zellen = g.zellen; b.anker = g.anker; b.bewegt = g.bewegt; }
+    else if (b.phase === 3) { const g = glaette(b.roh, b.poly, p.abstand * p.snapping, p.nurAnker); b.zellen = g.zellen; b.anker = g.anker; b.bewegt = g.bewegt; }
   }
 
   /** Ein Schritt = eine Phase im nächsten Block, der noch nicht fertig ist */
@@ -161,11 +165,11 @@
   /** Snapping ändern ohne Neustart: geglättete Blöcke neu glätten; Glätten aus → rohe Zellen */
   function aendere(z, param, id) {
     const p = Object.assign({}, STANDARD, param);
-    if (id !== "snapping" && id !== "glaetten") return;
+    if (id !== "snapping" && id !== "glaetten" && id !== "nurAnker") return;
     for (const b of z.bloecke) {
       if (b.phase < 2) continue;
       if (!p.glaetten) { b.zellen = b.roh; b.anker = null; b.bewegt = 0; if (b.phase > 2) b.phase = 2; continue; }
-      if (b.phase >= 3) { const g = glaette(b.roh, b.poly, p.abstand * p.snapping); b.zellen = g.zellen; b.anker = g.anker; b.bewegt = g.bewegt; }
+      if (b.phase >= 3) { const g = glaette(b.roh, b.poly, p.abstand * p.snapping, p.nurAnker); b.zellen = g.zellen; b.anker = g.anker; b.bewegt = g.bewegt; }
     }
   }
 

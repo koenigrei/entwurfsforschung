@@ -17,6 +17,7 @@
       { id: "abstand", gruppe: { de: "Voronoi", en: "Voronoi" }, name: { de: "Zellabstand (Cell Distance) m", en: "Cell distance (m)" }, min: 10, max: 100, schritt: 1, wert: S.abstand, neustart: true },
       { id: "snapping", name: { de: "Fangen (Snapping) × Zellabstand", en: "Snapping × cell distance" }, min: 0.1, max: 0.5, schritt: 0.1, wert: S.snapping },
       { id: "glaetten", art: "schalter", name: { de: "Glätten (Network Smooth)", en: "Smooth (Network Smooth)" }, wert: S.glaetten },
+      { id: "nurAnker", art: "schalter", name: { de: "Nur an Ankern fangen (Snap to anchor points only)", en: "Snap to anchor points only" }, wert: S.nurAnker },
       { id: "roh", gruppe: { de: "Darstellung", en: "Display" }, art: "schalter", name: { de: "ungeglättete Zellen zeigen", en: "Show unsmoothed cells" }, wert: true }
     ],
     groesse: z => ({ b: z.b, h: z.h }),

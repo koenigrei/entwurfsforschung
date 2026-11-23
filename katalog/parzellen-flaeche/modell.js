@@ -27,7 +27,7 @@
     ["liste", "Inidividual Area - cut by minimal distance"]
   ];
 
-  /** Beispielquartier: verzogenes Straßenraster, nur Blöcke (Gebäude und Platz aus) */
+  /** Beispielquartier: verzogenes Straßenraster, nur Blöcke (Gebäude und Platz aus) – an Stelle von „Polygons from lines“ der .gh-Datei */
   function quartier(zufall) {
     const s = Szenen.stadt(zufall, { b: 720, h: 500, nx: 7, ny: 6, strasse: 14, gebaeude: false, platz: false, kirche: false });
     s.bloecke = s.bloecke.map(b => Geo.flaecheS(b) < 0 ? b.slice().reverse() : b);

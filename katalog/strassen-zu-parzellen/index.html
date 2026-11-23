@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vom Straßennetz zu Grundstücken · Parametric Planning Catalogue · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Aus einem Straßennetz auf bewegtem Gelände werden Grundstücke: Die geschlossenen Flächen zwischen den Straßen sind die Plots, Plots auf zu steilem Gelände fallen heraus. Neuumsetzung des Moduls „Streets to Plots“ aus dem Parametric Planning Catalogue (DeCodingSpaces, Bauhaus-Universität Weimar) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← Parametric Planning Catalogue</a>
+  <h1><span lang="de">Vom Straßennetz zu Grundstücken</span><span lang="en">Streets to Plots</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Start bestimmt die Neigung eines Plots je Schritt · Klick auf einen Plot: seine Werte, noch einmal: abwählen · orange Ringe: Straßen, die knapp vor der Kreuzung enden · „5. Bake“ speichert die behaltenen Plots als GeoJSON</span><span lang="en">Start computes the slope of one plot per step · click a plot: its values, click again: deselect · orange rings: streets that end just short of the junction · “5. Bake” saves the kept plots as GeoJSON</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Streets to Plots · Grasshopper · DeCodingSpaces – Martin Dennemark</div>
+    <a href="https://infar-buw.github.io/parametric-planning-catalogue/docs/StreetsToPlots/"><span lang="de">Eintrag im Parametric Planning Catalogue</span><span lang="en">Entry in the Parametric Planning Catalogue</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Aus einem Straßennetz auf bewegtem Gelände werden Grundstücke: Die geschlossenen Flächen zwischen den Straßen sind die Plots, Plots auf zu steilem Gelände fallen heraus.</p>
+      <p>Das Modul folgt fünf Schritten: 1. Gelände zuweisen, 2. Straßen zuweisen, 3. prüfen, ob die Teilung in Plots stimmt, 4. eine Schwelle für die Neigung setzen, 5. die Plots auf eine Ebene übernehmen (<em>Bake</em>). Für die Teilung (<em>Plot Division</em>) gibt es zwei Verfahren. <em>DeCodingSpaces</em> (schnell) sucht mit „Polygons from lines“ die kleinsten geschlossenen Flächen im Liniennetz – dafür müssen sich die Straßen in ihren Endpunkten genau treffen. <em>GH Split Surface</em> (langsam, vielleicht genauer) teilt die Fläche geometrisch mit allen Straßen und überbrückt dabei kleine Lücken bis zur Toleranz. Endet eine Straße knapp vor der Kreuzung (orange Ringe), trennt sie im schnellen Verfahren keine Plots – dann das andere Verfahren wählen.</p>
+      <p>Für jeden Plot wird im Mittelpunkt seiner Ecken (<em>Polygon Center</em>) ein Strahl von unten auf das Gelände geschickt (<em>Mesh | Ray</em>); der Winkel zwischen der Geländenormalen und der Senkrechten ist die Neigung (<em>CellSlope</em>). Die Neigungen aller Plots werden auf 0…1 umgerechnet (<code>(Neigung − min) / (max − min)</code>); ein Plot bleibt, wenn dieser Wert kleiner ist als <em>WeightSlope</em>. Bei 1 fällt also nur der steilste Plot heraus, bei 0 alle.</p>
+      <p>Probieren: Start drücken und zusehen, wie die Plots am Hang nach und nach aussortiert werden (schraffiert); WeightSlope auf 0,5 senken. Dann das Verfahren auf „GH Split Surface“ stellen – die Plots an den orangen Ringen teilen sich – und die Toleranz unter 0,3 m senken. Mit „Anteil ungenauer Anschlüsse“ 0 stimmen beide Verfahren überein.</p>
+      <p>Die App setzt das Modul „Streets to Plots“ aus dem <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT-Lizenz) neu im Browser um. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>A street network on hilly terrain becomes plots: the closed faces between the streets are the plots, plots on too steep ground are culled.</p>
+      <p>The module follows five steps: 1. assign the terrain, 2. assign the streets, 3. check whether the plot division works properly, 4. set a threshold for the slope, 5. bake the plots to a layer. There are two methods for the <em>plot division</em>. <em>DeCodingSpaces</em> (fast) finds the smallest closed faces of the line network with “Polygons from lines” – the streets must meet exactly at their end points. <em>GH Split Surface</em> (slow, maybe more accurate) splits the area geometrically with all streets and bridges small gaps up to the tolerance. If a street ends just short of the junction (orange rings), it does not separate plots in the fast method – then try the alternative method.</p>
+      <p>For each plot a ray is cast from below onto the terrain at the average of its corners (<em>Polygon Center</em>, <em>Mesh | Ray</em>); the angle between the terrain normal and the vertical is the slope (<em>CellSlope</em>). The slopes of all plots are remapped to 0…1 (<code>(slope − min) / (max − min)</code>); a plot is kept if this value is smaller than <em>WeightSlope</em>. At 1 only the steepest plot is culled, at 0 all of them.</p>
+      <p>Try: press Start and watch the plots on the hillside being culled one by one (hatched); lower WeightSlope to 0.5. Then switch the method to “GH Split Surface” – the plots at the orange rings split – and lower the tolerance below 0.3 m. With “share of imprecise junctions” 0 both methods agree.</p>
+      <p>The app re-implements the module “Streets to Plots” of the <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT license) in the browser. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

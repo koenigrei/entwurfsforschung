@@ -41,7 +41,7 @@ katalog/isovist-feld/
 | `erzeuge(param, zufall)` | neuer Zustand `z` (enthält `t` = Schrittzahl) |
 | `schritt(z, param)` | ein Schritt; erhöht `z.t` |
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
-| `analyseRaster(rahmen, hindernisse, cs, fuell, frei)` | Analysis Grid: gesperrte Zellen (Kante schneidet), Flutfüllung vom Füllpunkt → `aktiv`, `zeilen`, `anzahl`, `start` |
+| `analyseRaster(hindernisse, cs, fuell, R)`, `blockiert(a, b, hindernisse, R)` | Analysis Grid wie docs/visibility.md §3 der Toolbox: Gitter durch den Füllpunkt, Flutung in vier Richtungen, Schritt gesperrt, wenn er ein Hindernis berührt → `aktiv`, `zeilen` (von Süden nach Norden), `anzahl`, `start` |
 | `zellMitte(G, k)`, `zelleBei(G, q)` | Mitte der Zelle k (Analysis Point), Zelle unter dem Punkt q |
 | `segmentRaster(hindernisse, g)`, `isovistRaster(o, hindernisse, R, opt)` | schneller Isovist mit Segmentraster – gleiches Ergebnis wie `Geo.isovist` (Vorschlag für `_gemeinsam/geo.js`) |
 | `segmentRechteck(a, b, x0, y0, x1, y1, rand)` | schneidet ein Segment ein Rechteck? (Liang–Barsky) |

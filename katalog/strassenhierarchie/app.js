@@ -19,7 +19,11 @@
     saat: 1,
     tempo: { min: 1, max: 20, wert: 1 },
     parameter: [
-      { id: "fang", gruppe: { de: "Netz (Network Smooth, 2. BuildGraph)", en: "Network (Network Smooth, 2. BuildGraph)" }, name: { de: "Fangabstand (Snap threshold) m", en: "Snap threshold (m)" }, min: 0, max: 10, schritt: 0.1, wert: S.fang },
+      { id: "definition", gruppe: { de: "Netz (Network Smooth, 2. BuildGraph)", en: "Network (Network Smooth, 2. BuildGraph)" }, art: "auswahl",
+        name: { de: "Definition", en: "Definition" }, wert: S.definition,
+        optionen: [{ wert: "dcs2020", name: { de: "DeCodingSpaces 2020 (Original)", en: "DeCodingSpaces 2020 (original)" } },
+                   { wert: "standard", name: { de: "Standard (Toolbox v2)", en: "standard (toolbox v2)" } }] },
+      { id: "fang", name: { de: "Fangabstand (Snap threshold) m", en: "Snap threshold (m)" }, min: 0, max: 10, schritt: 0.1, wert: S.fang },
       { id: "kL", name: { de: "Längenkoeffizient (Length Coefficient)", en: "Length coefficient" }, min: 0, max: 1, schritt: 0.1, wert: S.kL },
       { id: "kW", name: { de: "Winkelkoeffizient (Angular Coefficient)", en: "Angular coefficient" }, min: 0, max: 1, schritt: 0.1, wert: S.kW },
       { id: "grund", gruppe: { de: "Gewichte (Custom edge weights)", en: "Weights (Custom edge weights)" }, name: { de: "Grundgewicht je Segment (0/1)", en: "Base weight per segment (0/1)" }, min: 0, max: 1, schritt: 1, wert: S.grund },

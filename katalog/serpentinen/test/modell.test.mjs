@@ -78,9 +78,9 @@ test("Profil: Länge, Höhenunterschied und größte Steigung", () => {
 
 test("Katalog: höhere Schwelle (Degree Steepness) → Weg ohne zu steile Kanten, länger als die Luftlinie (Serpentine)", () => {
   const z = M.erzeuge(P, zufall(1));
-  M.aendere(z, mit({ grad: 12 }), "grad");
+  M.aendere(z, mit({ grad: 5 }), "grad");
   assert.equal(z.ueber, 0);
-  assert.ok(z.profGitter.maxSteigung <= Math.tan(12 * Math.PI / 180) + 1e-9);
+  assert.ok(z.profGitter.maxSteigung <= Math.tan(5 * Math.PI / 180) + 1e-9);
   const luft = Math.hypot(z.ziel[0] - z.start[0], z.ziel[1] - z.start[1]);
   assert.ok(z.prof.laenge > 1.2 * luft, `Länge ${z.prof.laenge} vs. Luftlinie ${luft}`);
   M.aendere(z, mit({ grad: 1 }), "grad");                 // fast alle Kanten „zu steil“: möglichst wenige Kanten, kürzer
@@ -102,7 +102,7 @@ test("Ziehen versetzt den näheren Punkt und rechnet sofort; Teilung ändert das
   const z = M.erzeuge(P, zufall(4)), alt = z.ziel.slice();
   M.ziehe(z, P, [z.start[0] + 30, z.start[1] + 5], "unten");
   assert.deepEqual(z.ziel, alt); assert.ok(M.fertig(z));
-  M.ziehe(z, P, [-50, 2000], "ziehen"); assert.deepEqual(z.start, [0, 1000]);   // in den Rand geklemmt
+  M.ziehe(z, P, [-50, 2000], "ziehen"); assert.deepEqual(z.start, [0, 2000]);   // in den Rand geklemmt
   M.aendere(z, mit({ teilung: 20 }), "teilung"); assert.equal(z.N.m, 21); assert.ok(M.fertig(z));
   M.abspielen(z, P); assert.equal(z.t, 0); assert.equal(z.weg, null);
 });

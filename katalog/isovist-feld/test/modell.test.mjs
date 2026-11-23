@@ -38,31 +38,36 @@ test("segmentRechteck: schneiden, berühren, verfehlen", () => {
   assert.equal(M.segmentRechteck([0, -1], [0, 2], 0, 0, 1, 1, -1e-6), false, "mit Rand nach innen zählt Berühren nicht");
 });
 
-test("Analysis Grid: Flutfüllung vom Füllpunkt, Wand trennt, Zellen an Kanten gesperrt", () => {
-  // Rahmen 10 × 4, Zellgröße 1, senkrechte Wand bei x = 5.5 über die ganze Höhe
-  const rahmen = { x0: 0, y0: 0, b: 10, h: 4 }, wand = [[[5.5, 0], [5.5, 4]]];
-  const G = M.analyseRaster(rahmen, wand, 1, [1.5, 1.5]);
-  assert.equal(G.nx, 10); assert.equal(G.ny, 4);
-  // Spalte 5 (x 5…6) ist gesperrt, links bleiben 5 Spalten × 4 Zeilen erreichbar
-  assert.equal(G.anzahl, 20); assert.equal(G.zeilen.length, 4); assert.deepEqual(G.zeilen[0], [0, 1, 2, 3, 4]);
-  for (let j = 0; j < 4; j++) assert.equal(G.gesperrt[j * 10 + 5], 1);
-  // Wand mit Lücke: rechts wird erreichbar
-  const G2 = M.analyseRaster(rahmen, [[[5.5, 0], [5.5, 2.5]]], 1, [1.5, 1.5]);
-  assert.equal(G2.anzahl, 40 - 3);
-  // Füllpunkt auf gesperrter Zelle → ohne Prüffunktion kein Feld, mit Prüffunktion die nächste freie Zelle als Start
-  assert.equal(M.analyseRaster(rahmen, wand, 1, [5.6, 1.5]).anzahl, 0);
-  const G3 = M.analyseRaster(rahmen, wand, 1, [5.6, 1.5], q => true);
-  assert.equal(G3.start, 1 * 10 + 6); assert.equal(G3.anzahl, 16);
-  assert.deepEqual(M.zellMitte(G, 13), [3.5, 1.5]); assert.equal(M.zelleBei(G, [3.2, 1.9]), 13); assert.equal(M.zelleBei(G, [-1, 1]), -1);
+test("Analysis Grid wie docs/visibility.md §3: Gitter durch den Füllpunkt, Schritt gesperrt, wenn er ein Hindernis berührt", () => {
+  // Rahmen 10 × 4 (als Hindernisse), Zellgröße 1, Füllpunkt (1, 1); senkrechte Wand bei x = 5,5 über die ganze Höhe
+  const rahmen = Geo.kanten([[0, 0], [10, 0], [10, 4], [0, 4]]), wand = [[[5.5, 0], [5.5, 4]]];
+  const G = M.analyseRaster(rahmen.concat(wand), 1, [1, 1]);
+  // Zellmitten x = 0…10, y = 0…4 (im Rechteck der Hindernisse); Mitten auf dem Rahmen liegen auf einem Hindernis und fallen weg
+  assert.equal(G.nx, 11); assert.equal(G.ny, 5);
+  assert.deepEqual(M.zellMitte(G, G.start), [1, 1]);
+  // erreichbar: x = 1…5, y = 1…3 → 15 Zellen; die Wand trennt x = 5 von x = 6
+  assert.equal(G.anzahl, 15); assert.equal(G.zeilen.length, 3);
+  // Zeilen von unten (größtes y = Süden) nach oben, wie „row by row from the lowest“
+  assert.deepEqual(G.zeilen[0].map(k => M.zellMitte(G, k)), [[1, 3], [2, 3], [3, 3], [4, 3], [5, 3]]);
+  // Wand mit Lücke: rechts wird erreichbar (x = 6…9, y = 1…3 → 12 weitere)
+  assert.equal(M.analyseRaster(rahmen.concat([[[5.5, 0], [5.5, 2.5]]]), 1, [1, 1]).anzahl, 27);
+  // Zellgröße 2: Gitter durch den Füllpunkt (1, 1) → Mitten x = 1, 3, 5 (links der Wand), y = 1, 3
+  const G2 = M.analyseRaster(rahmen.concat(wand), 2, [1, 1]);
+  assert.equal(G2.anzahl, 6); assert.equal(M.zelleBei(G2, [3.2, 2.9]), G2.zeilen[0][1]);
+  // Füllpunkt außerhalb des Rechtecks der Hindernisse → kein Feld
+  assert.equal(M.analyseRaster(rahmen, 1, [20, 1]).anzahl, 0);
+  // blockiert: Berühren zählt
+  const R = M.segmentRaster(wand, 5);
+  assert.equal(M.blockiert([5, 1], [6, 1], wand, R), true); assert.equal(M.blockiert([4, 1], [5.5 - 2e-6, 1], wand, R), false);
+  assert.equal(M.blockiert([4, 1], [5.5 - 1e-7, 1], wand, R), true);
 });
 
-test("Beispielstadt: keine aktive Zelle in einem Gebäude, Rahmenkanten sperren nicht", () => {
+test("Beispielstadt: keine aktive Zellmitte in einem Gebäude, jede Zelle einmal", () => {
   const z = M.erzeuge(P, zufall(1)), G = z.raster;
   assert.ok(G.anzahl > 2000, "genug Freiraum");
   for (let k = 0; k < G.nx * G.ny; k++) if (G.aktiv[k]) assert.ok(!M.imGebaeude(z, M.zellMitte(G, k)));
-  assert.ok(G.zeilen[0].length > 0 || G.zeilen.length > 0);
-  // Kein Zellindex doppelt, Zeilen von oben nach unten
   const alle = G.zeilen.flat(); assert.equal(new Set(alle).size, G.anzahl);
+  assert.deepEqual(M.zellMitte(G, G.start), z.fuell, "Füllpunkt ist eine Zellmitte");
 });
 
 test("Schritt rechnet genau eine Zeile; Zellwerte = Isovist der Zellmitte", () => {
@@ -110,10 +115,10 @@ test("Katalog: hohe Werte auf dem Platz, niedrige in engen Lagen – große Zell
   }
 });
 
-test("grobe Zellen passen nicht mehr durch die Straßen: das erreichbare Feld schrumpft", () => {
+test("grobe Zellen: das Gitter durch den Füllpunkt erreicht weiter denselben Freiraum", () => {
   const n = zelle => M.erzeuge(Object.assign({}, P, { zelle }), zufall(1)).raster.anzahl * zelle * zelle;
-  assert.ok(n(2) > 0.65 * n(1), "2 m deckt den größten Teil des Freiraums von 1 m");
-  assert.ok(n(8) < 0.25 * n(2), "8-m-Zellen erreichen nur noch die Umgebung des Platzes");
+  assert.ok(Math.abs(n(2) / n(1) - 1) < 0.1, "2 m deckt dieselbe Fläche wie 1 m");
+  assert.ok(n(8) > 0.7 * n(2), "auch 8-m-Zellen kommen durch die 10 m breiten Straßen");
 });
 
 test("Auswahl und Füllpunkt", () => {

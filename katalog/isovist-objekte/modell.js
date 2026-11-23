@@ -17,8 +17,9 @@
   "use strict";
 
   /** Voreinstellungen der .gh-Datei: Angle Direction 0 (0…6,28 rad), Viewing Range 100 (1…200), Viewing Angle 360 (0…360), Rays 360 (1…720);
-      bezug: Teiler der Treffersumme je Gebäude („flaeche“ wie in der Datei oder „umfang“); schrittweite: Weg je Schritt (nur in der App) */
-  const STANDARD = { richtung: 0, reichweite: 100, winkel: 360, strahlen: 360, bezug: "flaeche", schrittweite: 0.004 };
+      bezug: Teiler der Treffersumme je Gebäude („flaeche“ wie in der Datei oder „umfang“); mass: „strahlen“ (Strahltreffer wie die
+      Legacy-Komponente der Datei) oder „laenge“ (sichtbare Länge wie die Toolbox v2); schrittweite: Weg je Schritt (nur in der App) */
+  const STANDARD = { richtung: 0, reichweite: 100, winkel: 360, strahlen: 360, bezug: "flaeche", mass: "strahlen", schrittweite: 0.004 };
   /** Farbverlauf beider Gradient-Komponenten der .gh-Datei (Farbe, Lage des Griffs) – stark gestaucht: schon ein Viertel des
       größten Werts ist gelb, ab 56 % rot */
   const VERLAUF = { farben: [[0, 0, 139], [50, 178, 206], [87, 166, 31], [255, 215, 0], [255, 0, 0]], faktoren: [0, 0.0341, 0.0977, 0.1977, 0.5614] };
@@ -49,18 +50,28 @@
     gebaeude.forEach((g, gi) => { for (let i = 0; i < g.length; i++) { const s = [g[i], g[(i + 1) % g.length]]; segmente.push(s); segGeb.push(gi); laenge.push(Geo.abstand(s[0], s[1])); } });
     return { segmente, segGeb: Int32Array.from(segGeb), laenge: Float64Array.from(laenge), flaeche: Float64Array.from(gebaeude.map(Geo.flaeche)), umfang: Float64Array.from(gebaeude.map(Geo.umfang)) };
   }
-  /** Sichtbarkeit aus einem Isovist: Treffer je Kante (Obstacle Visibility), je Kante ÷ Länge, Summe je Gebäude (Mass Addition)
-      und Summe ÷ Fläche bzw. ÷ Umfang. → {kante, kanteN, geb, gebN, maxK, maxG, frei} */
-  function sichtbarkeit(iso, O, bezug = "flaeche") {
-    const nk = O.segGeb.length, ng = O.flaeche.length;
-    const kante = new Int32Array(nk), geb = new Int32Array(ng), kanteN = new Float64Array(nk), gebN = new Float64Array(ng);
+  /** Sichtbarkeit aus einem Isovist. mass „strahlen“ (Legacy-Komponente von 2020, die das Modul benutzt): Obstacle Visibility =
+      Zahl der Strahlen je Kante. mass „laenge“ (Isovist Analysis der Toolbox v2, docs/visibility.md): sichtbare Länge je Kante in m –
+      hier aus den Strahlen: zwei Nachbarstrahlen auf derselben Kante tragen den Abstand ihrer Trefferpunkte bei.
+      Je Kante ÷ Länge, Summe je Gebäude (Mass Addition) und Summe ÷ Fläche bzw. ÷ Umfang.
+      → {kante (Strahlen), kanteL (m), geb (Strahlen), gebL (m), kanteN, gebN, maxK, maxG, frei, mass} */
+  function sichtbarkeit(iso, O, bezug = "flaeche", mass = "strahlen") {
+    const nk = O.segGeb.length, ng = O.flaeche.length, n = iso.treffer.length;
+    const kante = new Int32Array(nk), geb = new Int32Array(ng), kanteL = new Float64Array(nk), gebL = new Float64Array(ng);
+    const kanteN = new Float64Array(nk), gebN = new Float64Array(ng);
     let frei = 0;
-    for (let i = 0; i < iso.treffer.length; i++) { const k = iso.treffer[i]; if (k < 0) { frei++; continue; } kante[k]++; geb[O.segGeb[k]]++; }
+    for (let i = 0; i < n; i++) { const k = iso.treffer[i]; if (k < 0) { frei++; continue; } kante[k]++; geb[O.segGeb[k]]++; }
+    const paare = iso.voll ? n : n - 1;
+    for (let i = 0; i < paare && n > 1; i++) {
+      const j = (i + 1) % n, k = iso.treffer[i];
+      if (k >= 0 && iso.treffer[j] === k) { const d = Geo.abstand(iso.punkte[i], iso.punkte[j]); kanteL[k] += d; gebL[O.segGeb[k]] += d; }
+    }
+    const K = mass === "laenge" ? kanteL : kante, G = mass === "laenge" ? gebL : geb;
     let maxK = 0, maxG = 0;
-    for (let k = 0; k < nk; k++) { kanteN[k] = O.laenge[k] > 0 ? kante[k] / O.laenge[k] : 0; if (kanteN[k] > maxK) maxK = kanteN[k]; }
+    for (let k = 0; k < nk; k++) { kanteN[k] = O.laenge[k] > 0 ? K[k] / O.laenge[k] : 0; if (kanteN[k] > maxK) maxK = kanteN[k]; }
     const teiler = bezug === "umfang" ? O.umfang : O.flaeche;
-    for (let g = 0; g < ng; g++) { gebN[g] = teiler[g] > 0 ? geb[g] / teiler[g] : 0; if (gebN[g] > maxG) maxG = gebN[g]; }
-    return { kante, geb, kanteN, gebN, maxK, maxG, frei };
+    for (let g = 0; g < ng; g++) { gebN[g] = teiler[g] > 0 ? G[g] / teiler[g] : 0; if (gebN[g] > maxG) maxG = gebN[g]; }
+    return { kante, geb, kanteL, gebL, kanteN, gebN, maxK, maxG, frei, mass };
   }
 
   /* ---------------------------------------------------------------- Weg für den wandernden Standpunkt */
@@ -125,7 +136,7 @@
   /** Isovist und Sichtbarkeit neu berechnen */
   function rechne(z, p) {
     z.iso = Geo.isovist(z.o, z.O.segmente, { winkel: p.winkel, reichweite: p.reichweite, strahlen: p.strahlen, richtung: blick(p.richtung) });
-    z.s = sichtbarkeit(z.iso, z.O, p.bezug);
+    z.s = sichtbarkeit(z.iso, z.O, p.bezug, p.mass);
     return z;
   }
   /** Ein Schritt: der Standpunkt wandert um „schrittweite“ den Rundweg entlang (am Ende von vorn); erhöht z.t */

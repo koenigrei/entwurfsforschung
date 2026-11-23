@@ -20,11 +20,12 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
   "use strict";
 
-  /** Voreinstellungen der .gh-Datei: Number Slider (U/V-Teilung) 50 [0..100], Weight Steepness 0 [0..1], Degree Steepness 1 [0..100],
-      Smooth 2 [1..10]; nur in der App: expansionen = Dijkstra-Schritte je Schritt (Suchfront sichtbar) */
-  const STANDARD = { teilung: 50, gewicht: 0, grad: 1, glaetten: 2, expansionen: 25 };
-  /** Gelände der Beispielszene (Meter) */
-  const GELAENDE = { n: 101, groesse: 1000, hoehe: 170 };
+  /** Voreinstellungen der .gh-Datei: Number Slider (U/V-Teilung) 50 [0..100], Weight Steepness 0 [0..1], Smooth 2 [1..10];
+      Degree Steepness [0..100] mit Startwert 5° (≈ 8,7 %) statt 1° der Datei – nächste ganze Gradzahl zur Höchstlängsneigung 8 %
+      von Landstraßen (RAL, FGSV 2012), siehe QUELLE.md; nur in der App: expansionen = Dijkstra-Schritte je Schritt (Suchfront sichtbar) */
+  const STANDARD = { teilung: 50, gewicht: 0, grad: 5, glaetten: 2, expansionen: 25 };
+  /** Gelände der Beispielszene (Meter): 2 km × 2 km, Berg rund 160 m hoch – Hänge bis etwa 20°, auf denen Kehren mit 5° möglich sind */
+  const GELAENDE = { n: 101, groesse: 2000, hoehe: 160 };
 
   /* ---------------------------------------------------------------- 1. Gitter und Graph */
   /** Punktgitter (U+1)×(U+1) auf dem Gelände (Divide Surface) → {U, x, y, z: Float64Array, pos(k)} ; Index k = j·(U+1) + i */

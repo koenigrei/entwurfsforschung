@@ -41,6 +41,20 @@ test("Obstacle Visibility nachgerechnet: zwei Gebäude, Treffer je Kante und je 
   assert.equal(s.maxG, s.gebN[0]); assert.equal(s.maxK, s.kanteN[3]);
 });
 
+test("Maß „sichtbare Länge“ wie Isovist Analysis der Toolbox v2: sichtbarer Teil jeder Kante in m", () => {
+  const A = [[10, -5], [20, -5], [20, 5], [10, 5]], O = M.objekte([A]);
+  const iso = Geo.isovist([0, 0], O.segmente, { winkel: 360, reichweite: 100, strahlen: 3600 });
+  const s = M.sichtbarkeit(iso, O, "umfang", "laenge");
+  // nur die Westseite (Segment 3, 10 m) ist sichtbar; aus Strahlen fehlt höchstens ein Strahlabstand an jedem Ende
+  assert.ok(s.kanteL[3] > 9.9 && s.kanteL[3] <= 10 + 1e-9, String(s.kanteL[3]));
+  assert.equal(s.kanteL[0] + s.kanteL[1] + s.kanteL[2], 0);
+  assert.ok(Math.abs(s.gebN[0] - s.kanteL[3] / 40) < 1e-12, "÷ Umfang");
+  assert.ok(Math.abs(s.kanteN[3] - s.kanteL[3] / 10) < 1e-12, "Anteil der Kante");
+  assert.equal(s.mass, "laenge");
+  // Strahltreffer bleiben daneben verfügbar
+  assert.ok(s.kante[3] > 0 && s.geb[0] === s.kante[3]);
+});
+
 test("Stadt: Summe der Treffer = Strahlen, die ein Gebäude treffen; Kanten = Gebäudekanten der Szene", () => {
   const z = M.erzeuge(P, zufall(2));
   assert.equal(z.O.segmente.length, z.szene.hindernisse.length);

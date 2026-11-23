@@ -3,10 +3,12 @@
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0
 
    Verfahren wie die Schaltung der .gh-Datei: Straßensegmente (Network Smooth → Network to Segments → 1. ProcessGeometry)
-   werden zum dualen Graphen (2. BuildGraph: Knoten = Segmente, Kosten aus Längen- und Winkelkoeffizient). Von jedem Segment
-   zu jedem Segment werden die kürzesten Wege gesucht (3. ShortestFloydWarshal, 4. FWGetPaths) und gezählt, wie oft ein Segment
-   auf ihnen liegt – gewichtet mit Ursprungs- und Zielgewichten (Betweenness Centrality weighted). Segmente, die einem
-   Stadteingang oder einem Point of Interest am nächsten liegen, bekommen ein Zusatzgewicht (Cluster „Custom edge weights“).
+   werden zum gerichteten Segmentgraphen (2. BuildGraph: je Segment zwei Fahrtrichtungen, Kosten aus Längen- und Winkelkoeffizient,
+   Geo.richtungsGraph). Von jedem Segment zu jedem Segment werden die kürzesten Wege gesucht (3. ShortestFloydWarshal, 4. FWGetPaths)
+   und gezählt, wie oft ein Segment auf ihnen liegt – gewichtet mit Ursprungs- und Zielgewichten (Betweenness Centrality weighted).
+   Segmente, die einem Stadteingang oder einem Point of Interest am nächsten liegen, bekommen statt des Grundgewichts das Gewicht
+   „Weight × Anzahl Segmente“ (Cluster „Custom edge weights“, dessen C#-Skript in der .gh-Datei steht).
+   Definitionen abgeglichen mit der DeCodingSpaces-Toolbox (GPL-3.0, docs/measures.md, docs/review-2026-11.md; kein Code übernommen).
    Danach: Logarithmus → Remap auf 0…1 → Einteilung in drei Bereiche (Consecutive Domains aus den Gewichten für Tertiary,
    Secondary, Primary, Find Domain) → Tertiary / Secondary / Primary Street. Ein Schritt = ein Ursprungssegment. */
 (function (wurzel, fabrik) {
@@ -21,8 +23,10 @@
       fang: Snap threshold 2 [0..10] (Network Smooth) · kL, kW: Length/Angular Coefficient 0.5 [0..1] (2. BuildGraph)
       grund: Grundgewicht jedes Segments 1 [0..1], ganzzahlig (Number Slider in „Custom edge weights“)
       wEingang: Weight City Entrance 1 [0..1] · wPoi: Weight Point Of Interest 0.5 [0..1] (beide × Anzahl Segmente)
-      wTertiaer, wSekundaer, wPrimaer: Weight Tertiary/Secondary/Primary Road 1 [0..1] · faktor: 1.001 [0..10] (Multiplication vor Consecutive Domains) */
-  const STANDARD = { fang: 2, kL: 0.5, kW: 0.5, grund: 1, wEingang: 1, wPoi: 0.5, wTertiaer: 1, wSekundaer: 1, wPrimaer: 1, faktor: 1.001,
+      wTertiaer, wSekundaer, wPrimaer: Weight Tertiary/Secondary/Primary Road 1 [0..1] · faktor: 1.001 [0..10] (Multiplication vor Consecutive Domains)
+      definition: "dcs2020" = Legacy-Komponenten des Originals (Kosten kL·m/l_max + kW·θ/180°, Start- und Zielsegment zählen mit),
+                  "standard" = DeCodingSpaces-Toolbox v2 (kL·m + kW·θ/90°, Start und Ziel zählen nicht; docs/measures.md) */
+  const STANDARD = { definition: "dcs2020", fang: 2, kL: 0.5, kW: 0.5, grund: 1, wEingang: 1, wPoi: 0.5, wTertiaer: 1, wSekundaer: 1, wPrimaer: 1, faktor: 1.001,
                      darstellung: "hierarchie", gebaeude: true };
   const KLASSEN = ["tertiary", "secondary", "primary"];
 
@@ -50,36 +54,33 @@
     return { szene, segmente, zufahrten, b: o.b, h: o.h };
   }
 
-  /** Index des Segments, das dem Punkt q am nächsten liegt (wie „closest“ im Cluster „Custom edge weights“) */
-  function naechstesSegment(N, q) {
-    let best = -1, bd = Infinity;
-    N.kanten.forEach((e, k) => { const d = Geo.abstandSegment(q, N.knoten[e.a], N.knoten[e.b]).d; if (d < bd) { bd = d; best = k; } });
-    return best;
-  }
+  /** Index des Segments, das dem Punkt q am nächsten liegt (wie Curve Closest Point + Sort List im Cluster „Custom edge weights“) */
+  const naechstesSegment = (N, q) => Geo.naechstesSegment(N, q);
 
-  /** Ursprungs- und Zielgewichte je Segment (Custom edge weights → Addition):
-      jeder der beiden Cluster liefert das Grundgewicht für alle Segmente plus das Zusatzgewicht (Gewicht × Anzahl Segmente)
-      für das Segment, das einem seiner Punkte am nächsten liegt; die Addition summiert beide Listen. */
-  function gewichte(N, poi, eingang, p) {
-    const m = N.kanten.length, w = new Float64Array(m).fill(2 * p.grund);
-    for (const q of eingang) { const k = naechstesSegment(N, q); if (k >= 0) w[k] += p.wEingang * m; }
-    for (const q of poi) { const k = naechstesSegment(N, q); if (k >= 0) w[k] += p.wPoi * m; }
+  /** eine Liste des Clusters „Custom edge weights“: Grundgewicht (general_weight) für jedes Segment, das Gewicht für die Segmente,
+      die einem der Punkte am nächsten liegen, ersetzt es (C#-Skript im Cluster; je Segment zwei Einträge für beide Richtungen,
+      die „Cull Nth“ mit Frequenz 2 nach der Addition wieder auf einen je Segment kürzt) */
+  function clusterListe(N, punkte, gewicht, grund) {
+    const w = new Float64Array(N.kanten.length).fill(grund);
+    for (const q of punkte) { const k = naechstesSegment(N, q); if (k >= 0) w[k] = gewicht; }
     return w;
   }
-
-  /** Beitrag eines Ursprungssegments s zur gewichteten Betweenness (Brandes, Geo.betweennessVon) – Start- und Zielsegment
-      eines Weges zählen mit (ein Weg „benutzt“ auch die Segmente, auf denen er beginnt und endet; so werden die Zufahrten
-      an den Stadteingängen wie im Katalogbild zu Hauptstraßen). */
-  function betweennessVon(G, s, gQ, gZ, bc) {
-    const ws = gQ[s];
-    if (ws === 0) return null;
-    const dist = Geo.betweennessVon(G.n, i => G.adj[i], s, gQ, gZ, bc);
-    for (let t = 0; t < G.n; t++) {
-      if (t === s || dist[t] === Infinity) continue;
-      bc[s] += ws * gZ[t]; bc[t] += ws * gZ[t];
-    }
-    return dist;
+  /** Ursprungs- und Zielgewichte je Segment: Addition der beiden Cluster-Listen (Stadteingänge mit Weight City Entrance × Anzahl
+      Segmente, PoI mit Weight Point Of Interest × Anzahl Segmente) */
+  function gewichte(N, poi, eingang, p) {
+    const m = N.kanten.length, a = clusterListe(N, eingang, p.wEingang * m, p.grund), b = clusterListe(N, poi, p.wPoi * m, p.grund);
+    for (let i = 0; i < m; i++) a[i] += b[i];
+    return a;
   }
+
+  /** Beitrag eines Ursprungssegments s zur gewichteten Betweenness (Geo.segmentBetweennessVon, Brandes über beide Fahrtrichtungen).
+      enden = true (Legacy, Voreinstellung): Start- und Zielsegment eines Weges zählen mit – so werden die Zufahrten an den
+      Stadteingängen wie im Katalogbild zu Hauptstraßen; laut Toolbox-Doku (review-2026-11.md) zählte die alte Komponente so. */
+  function betweennessVon(G, s, gQ, gZ, bc, enden = true) {
+    if (gQ[s] === 0) return null;
+    return Geo.segmentBetweennessVon(G, s, gQ, gZ, bc, { enden });
+  }
+  const mitEnden = p => p.definition !== "standard";
 
   /** Grenzen der drei Bereiche: Merge(0, Tertiary, Secondary, Primary) / Summe × faktor → Consecutive Domains (additiv).
       → [[a0, b0], [a1, b1], [a2, b2]] für Tertiary, Secondary, Primary; null, wenn alle Gewichte 0 sind (Division durch 0). */
@@ -127,7 +128,7 @@
     baueGraph(z, p);
   }
   function baueGraph(z, p) {
-    z.G = Geo.segmentGraph(z.N, p.kL, p.kW);
+    z.G = Geo.richtungsGraph(z.N, { kL: p.kL, kW: p.kW, norm: p.definition === "standard" ? "standard" : "dcs2020" });
     neueGewichte(z, p);
   }
   function neueGewichte(z, p) {
@@ -145,7 +146,7 @@
   function schritt(z, p) {
     if (z.fertig < z.G.n) {
       const s = z.fertig++;
-      betweennessVon(z.G, s, z.gQ, z.gQ, z.bc);              // Origins = Destinations, Weights Origin = Weights Destination
+      betweennessVon(z.G, s, z.gQ, z.gQ, z.bc, mitEnden(p)); // Origins = Destinations, Weights Origin = Weights Destination
       z.letzter = s;
       z.K = klassifiziere(z.bc, p);
     }
@@ -157,7 +158,7 @@
   /** ganze Analyse auf einmal (nach einer Änderung, wenn schon gerechnet wurde) */
   function rechneAlles(z, p) {
     z.bc = new Float64Array(z.G.n);
-    for (let s = 0; s < z.G.n; s++) betweennessVon(z.G, s, z.gQ, z.gQ, z.bc);
+    for (let s = 0; s < z.G.n; s++) betweennessVon(z.G, s, z.gQ, z.gQ, z.bc, mitEnden(p));
     z.fertig = z.G.n; z.t = Math.max(z.t, z.G.n); z.letzter = -1;
     z.K = klassifiziere(z.bc, p);
   }
@@ -166,7 +167,7 @@
   function aendere(z, p, id) {
     const lief = z.t > 0;
     if (id === "fang") baueNetz(z, p);
-    else if (id === "kL" || id === "kW") baueGraph(z, p);
+    else if (id === "kL" || id === "kW" || id === "definition") baueGraph(z, p);
     else if (id === "grund" || id === "wEingang" || id === "wPoi") neueGewichte(z, p);
     else { z.K = klassifiziere(z.bc, p); return; }        // Klassengewichte, Faktor, Darstellung
     if (lief) rechneAlles(z, p);
@@ -193,6 +194,6 @@
     return { anz, len };
   }
 
-  return { STANDARD, KLASSEN, strassennetz, naechstesSegment, gewichte, betweennessVon, bereiche, findeBereich, klassifiziere,
+  return { STANDARD, KLASSEN, strassennetz, naechstesSegment, clusterListe, gewichte, mitEnden, betweennessVon, bereiche, findeBereich, klassifiziere,
            erzeuge, baueNetz, leere, schritt, fertig, rechneAlles, aendere, punkteGeaendert, punktBei, bilanz };
 });

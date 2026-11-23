@@ -9,7 +9,9 @@
    senkrecht und diagonal im Raster). Ein Abschnitt Punkt → Nachbar ist ein kurzer Fließweg („Flow Paths (Short)“), die Kette
    bis zur Senke oder zum Rand ein langer („Flow Paths (Long)“). „End Points“ + „Point Groups“ (Distance 0,1) fassen lange
    Fließwege mit gleichem Endpunkt zusammen: Sie gehören zum selben Einzugsgebiet (water shed). „Local Analysis“: an einem
-   verschiebbaren Punkt zeigt der Pfeil (Normale in die Ebene projiziert, × 300) die Fließrichtung = negativer Gradient. */
+   verschiebbaren Punkt zeigt der Pfeil (Normale in die Ebene projiziert, × 300) die Fließrichtung = negativer Gradient.
+   Die Komponente ist DeCodingSpaces „FlowPaths.FlowPathsComponent“ (Hydrology); ihr Quelltext ist nicht verfügbar. Laut Durchsicht
+   der Toolbox (docs/review-2026-11.md) aktualisiert sie beim Suchen des Nachbarn das laufende Maximum nicht – hier behoben. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
   const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);

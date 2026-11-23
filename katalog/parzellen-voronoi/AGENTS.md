@@ -45,7 +45,7 @@ katalog/parzellen-voronoi/
 | `teileDistanz(poly, d)` | Divide Distance: Punkte im geraden Abstand d auf der geschlossenen Blockkurve |
 | `zellen(punkte, block)` | Voronoi + Trim with Region (`Geo.voronoi`) |
 | `netzAusZellen(Z, block)`, `anker(block, netz)` | gemeinsame Ecken (Rand/innen), Ankerpunkte (Blockecken + Randpunkte der Zellen) |
-| `glaette(Z, block, schwelle)` | Network Smooth (nachgebildet): innere Ecken zusammenziehen, an Anker fangen |
+| `glaette(Z, block, schwelle, nurAnker)` | Network Smooth: alle Ecken in Ketten näher als die Schwelle zusammenlegen, Gruppe auf den nächsten Anker oder ihren Mittelpunkt; `nurAnker` = „Snap to anchor points only“ |
 | `strassenfront(zelle, block)` | Länge der Zellkanten auf dem Blockrand |
 | `parzelliere(block, p)` | alle Phasen für einen Block (Tests) |
 | `phase(b, p)`, `phasen(p)` | eine Phase eines Blocks; 3 mit, 2 ohne Glätten |
@@ -61,6 +61,6 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 
 ## Ideen für Weiterentwicklung
 
-- Network Smooth genauer nachbilden, sobald die Komponente offenliegt (z. B. iteratives Glätten statt einmaligem Fangen).
+- Wahlweise „Merge Junctions“ der neuen Toolbox zeigen (nur Kreuzungen und Enden werden zusammengelegt, Blockecken bleiben).
 - Zusätzliche Erzeugerpunkte im Blockinneren (Hinterlieger), Mindestfläche je Parzelle durch Zusammenlegen kleiner Zellen.
 - Punkte auf dem Rand ziehen können; Abstand je Blockseite (z. B. Hauptstraße schmaler parzelliert).

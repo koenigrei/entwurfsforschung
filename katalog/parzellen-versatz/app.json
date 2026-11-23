@@ -1,0 +1,16 @@
+{
+  "id": "parzellen-versatz",
+  "titel": {"de": "Parzellen mit eigenem Kantenversatz", "en": "Parcel Custom Offset"},
+  "vorschau": {"de": "Jede Plotkante rückt um ihren eigenen Wert von der Straße ab: Die Betweenness der Wege bestimmt den Versatz – wichtige Wege bekommen breitere Straßenräume.", "en": "Each plot edge moves back from the street by its own value: the betweenness of the paths sets the offset – important paths get wider street spaces."},
+  "original": "Parcel Custom Offset",
+  "katalog": "ParcelCustomOffset",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcelCustomOffset/",
+  "autoren": "DeCodingSpaces – Martin Bielik",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 60,
+  "vorschau_param": {},
+  "pruef_ausdruck": "(b => b.fertig === b.plots && b.plots >= 15 && b.weg === 0 && b.nach < 0.8 * b.vor && b.nach > 0.3 * b.vor)(Modell.bilanz(SIM.zustand))"
+}

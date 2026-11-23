@@ -8,7 +8,8 @@ const Geo = require("../../_gemeinsam/geo.js");
 const { zufall } = require("../../../simulationen/_gemeinsam/zufall.js");
 const nah = (a, b, tol = 1e-6) => assert.ok(Math.abs(a - b) <= tol, `${a} ≠ ${b}`);
 const BLOCK = [[0, 0], [120, 0], [120, 90], [0, 90]];
-const P0 = Object.assign({}, M.STANDARD, { streuung: 0 });      // ohne Zufall im Teilungsverhältnis
+const P = Object.assign({}, M.STANDARD);
+const W = M.kantenVon(BLOCK);
 
 test("erzeuge: t = 0, Schnittreihenfolge nach Ebenen, gewählt ist der größte Block", () => {
   const z = M.erzeuge({}, zufall(1));
@@ -17,56 +18,56 @@ test("erzeuge: t = 0, Schnittreihenfolge nach Ebenen, gewählt ist der größte 
   assert.ok(z.bloecke.every(b => b.A <= z.bloecke[z.wahl].A));
 });
 
-test("Straßenkanten: im Block alle vier Kanten, in der Hälfte drei", () => {
-  assert.equal(M.strassenkanten(BLOCK, BLOCK).length, 4);
-  const halb = [[0, 0], [120, 0], [120, 45], [0, 45]];
-  assert.equal(M.strassenkanten(halb, BLOCK).length, 3);
-  nah(M.front(halb, BLOCK), 120 + 45 + 45);
+test("Customized Parameters: alle 18 Werte der .gh-Datei, Bedeutung der nicht gelesenen dokumentiert", () => {
+  assert.equal(Object.keys(M.CUSTOMIZED).length, 18);
+  for (const k of Object.keys(M.CUSTOMIZED)) if (!["scalingFactor", "minDistance", "parcelWidth", "splitRate"].includes(k)) assert.ok(M.BEDEUTUNG[k], k);
+  assert.equal(M.STANDARD.breite, M.CUSTOMIZED.parcelWidth); assert.equal(M.STANDARD.teilung, M.CUSTOMIZED.splitRate);
 });
 
-test("Regel längs: 90 m tiefer Block (Schwelle 60) wird in zwei 45 m tiefe Reihen geteilt", () => {
-  const r = M.regel(BLOCK, BLOCK, P0, zufall(1), 0);
-  assert.equal(r.art, "laengs");
-  r.kinder.forEach(q => nah(Geo.flaeche(q), 5400, 1e-6));
-  nah(r.linie[0][1], 45); nah(r.linie[1][1], 45);
+test("Drehung: lange Seite des kleinsten Rechtecks wird waagrecht", () => {
+  const w = 0.6, R = BLOCK.map(p => [Math.cos(w) * p[0] - Math.sin(w) * p[1], Math.sin(w) * p[0] + Math.cos(w) * p[1]]);
+  const d = M.rechteckWinkel(R), Q = R.map(p => [Math.cos(d) * p[0] - Math.sin(d) * p[1], Math.sin(d) * p[0] + Math.cos(d) * p[1]]);
+  const bb = Geo.bbox(Q); nah(bb.b, 120, 1e-6); nah(bb.h, 90, 1e-6);
 });
 
-test("Regel quer: Reihe 120 m bei parcelWidth 31 → k = 4, Schnitt bei 2/4 = 60 m, senkrecht zur Straßenkante", () => {
-  const reihe = [[0, 0], [120, 0], [120, 45], [0, 45]];
-  const r = M.regel(reihe, BLOCK, P0, zufall(1), 1);
-  assert.equal(r.art, "quer"); assert.equal(r.k, 4); nah(r.anteil, 0.5);
-  nah(r.linie[0][0], 60); nah(r.linie[1][0], 60);
+test("Straßenkanten: quasi-kollinear mit einer Blockkante (Winkel < 0,01 rad, Abstand < scalingFactor)", () => {
+  const halb = [[0, 0], [60, 0], [60, 90], [0, 90]];
+  const { strasse, innen } = M.teileKanten(halb, W, 1);
+  assert.equal(strasse.length, 3); assert.equal(innen.length, 1);
+  assert.deepEqual(strasse.map(k => k.l), [90, 60, 60]);            // längste zuerst
+  assert.equal(M.istStrasse({ a: [0, 0.5], b: [50, 0.5], l: 50 }, W, 1), true);
+  assert.equal(M.istStrasse({ a: [0, 2], b: [50, 2], l: 50 }, W, 1), false);
 });
 
-test("Längsteilung nur einmal: im 130 × 220 m Block entstehen zwei Reihen, kein innerer Streifen ohne Langseite", () => {
-  const B = [[0, 0], [130, 0], [130, 220], [0, 220]], K = M.baum(B, P0, zufall(1));
-  assert.equal(K[0].art, "laengs");
-  K[0].kinder.forEach(c => assert.equal(K[c].art, "quer"));
-  for (const k of M.blaetter(K)) assert.ok(Math.max(...M.strassenkanten(k.poly, B).map(e => e.l)) > 20);
+test("Regel: Schnitt senkrecht zur längsten Straßenkante bei bbox.min + splitRate · Größe", () => {
+  const r = M.regel(BLOCK, W, P);
+  assert.equal(r.op, "V"); nah(r.x, 60);                            // Kante 120 waagrecht → senkrechter Schnitt
+  const r2 = M.regel([[0, 0], [60, 0], [60, 90], [0, 90]], W, P);
+  assert.equal(r2.op, "H"); nah(r2.y, 45);                         // längste Straßenkante 90 senkrecht → waagrechter Schnitt
+  const r3 = M.regel(BLOCK, W, Object.assign({}, P, { teilung: 0.3 }));
+  nah(r3.x, 36);                                                    // 0,3 · 120 = 36 > 31 → Schnitt bei 30 %
 });
 
-test("Blatt: weniger als zwei Parzellenbreiten, Baumtiefe erreicht, Block unter minBlockArea", () => {
-  const schmal = [[0, 0], [40, 0], [40, 45], [0, 45]];      // round(45/31) = 1
-  assert.equal(M.regel(schmal, BLOCK, P0, zufall(1), 2), null);
-  assert.equal(M.regel(BLOCK, BLOCK, Object.assign({}, P0, { baumtiefe: 1 }), zufall(1), 1), null);
-  const klein = [[0, 0], [25, 0], [25, 25], [0, 25]];       // 625 m² < 800 m²
-  assert.equal(M.baum(klein, P0, zufall(1)).length, 1);
+test("Blatt: keine Straßenkante mit splitRate · |e| > parcelWidth; Teil ohne Straße", () => {
+  assert.equal(M.regel([[0, 0], [60, 0], [60, 45], [0, 45]], W, P), null);         // 0,5 · 60 = 30 < 31
+  assert.equal(M.regel([[20, 20], [100, 20], [100, 70], [20, 70]], W, P), null);   // innen, ohne Straße
 });
 
-test("Baum des Rechteckblocks ohne Streuung: 8 Parzellen 30 × 45 m, 7 Schnitte, Tiefe 3", () => {
-  const K = M.baum(BLOCK, P0, zufall(1)), B = M.blaetter(K);
-  assert.equal(B.length, 8); assert.equal(K.filter(k => k.kinder).length, 7);
-  B.forEach(k => nah(Geo.flaeche(k.poly), 1350, 1e-6));
-  assert.equal(Math.max(...K.map(k => k.ebene)), 3);
-  K.filter(k => k.kinder).forEach(k => assert.equal(k.kinder.length, 2));    // binärer Baum
+test("Rechteckblock 120 × 90 m: 4 Parzellen 60 × 45 m, Straßenfront in [parcelWidth, 2 · parcelWidth)", () => {
+  const K = M.baum(BLOCK, P), B = M.blaetter(K);
+  assert.equal(B.length, 4); assert.equal(K.filter(k => k.kinder).length, 3);
+  B.forEach(k => nah(Geo.flaeche(k.poly), 2700, 1e-6));
+  K.filter(k => k.kinder).forEach(k => assert.equal(k.kinder.length, 2));          // binärer Baum
+  const S = M.blaetter(M.baum([[0, 0], [200, 0], [200, 30], [0, 30]], P));
+  S.forEach(k => { const w = Geo.bbox(k.poly).b; assert.ok(w >= 31 && w < 62, `Breite ${w}`); });
 });
 
-test("Baumtiefe begrenzt die Zahl der Schnitte (höchstens 2^Tiefe Blätter)", () => {
-  for (const d of [1, 2, 3]) {
-    const K = M.baum(BLOCK, Object.assign({}, P0, { breite: 10, baumtiefe: d }), zufall(1));
-    assert.ok(M.blaetter(K).length <= 2 ** d);
-    assert.ok(Math.max(...K.map(k => k.ebene)) <= d);
-  }
+test("Rücken an Rücken: durchgehender Streifen wird quer zur langen Innenkante geteilt", () => {
+  // Streifen 40 × 120 m quer durch einen Block, Straße nur an den kurzen Enden
+  const Wurzel = M.kantenVon([[0, 0], [40, 0], [40, 120], [0, 120]]).filter(k => k.a[1] === k.b[1]);
+  const r = M.regel([[0, 0], [40, 0], [40, 120], [0, 120]], Wurzel, P);
+  assert.ok(r && r.ruecken); assert.equal(r.op, "H"); nah(r.y, 60);
+  assert.equal(M.regel([[0, 0], [40, 0], [40, 120], [0, 120]], Wurzel, Object.assign({}, P, { minAbstand: 200 })), null);
 });
 
 test("Katalog: jede Parzelle bleibt an der Straße, die Teilung ist lückenlos", () => {
@@ -78,18 +79,9 @@ test("Katalog: jede Parzelle bleibt an der Straße, die Teilung ist lückenlos",
   }
 });
 
-test("Parzellenbreite: größere Breite → weniger Parzellen; Straßenfront der Parzellen etwa parcelWidth", () => {
+test("Parzellenbreite: größere Breite → weniger Parzellen", () => {
   const n = w => M.erzeuge({ breite: w }, zufall(3)).bloecke.reduce((s, b) => s + M.blaetter(b.knoten).length, 0);
-  assert.ok(n(20) > n(31) && n(31) > n(60));
-  const z = M.erzeuge(P0, zufall(3)), B = z.bloecke.flatMap(b => M.blaetter(b.knoten));
-  const breiten = [];
-  for (const b of z.bloecke) for (const k of M.blaetter(b.knoten)) {
-    const K = M.strassenkanten(k.poly, b.poly); breiten.push(Math.max(...K.map(e => e.l)));
-  }
-  breiten.sort((a, b) => a - b);
-  const median = breiten[Math.floor(breiten.length / 2)];
-  assert.ok(median > 31 * 0.6 && median < 31 * 1.6, `Median ${median}`);
-  assert.ok(B.length > 50);
+  assert.ok(n(15) > n(31) && n(31) > n(60));
 });
 
 test("Ablauf: Schritt = ein Schnitt; Teile zur Zeit t = Blöcke + t", () => {
@@ -98,20 +90,20 @@ test("Ablauf: Schritt = ein Schnitt; Teile zur Zeit t = Blöcke + t", () => {
   M.schritt(z); assert.equal(z.t, 1); assert.equal(teile(), z.bloecke.length + 1);
   assert.equal(M.letzter(z).knoten.nr, 0);
   while (!M.fertig(z)) M.schritt(z);
-  assert.equal(teile(), z.bloecke.length + z.schnitte.length);
   assert.equal(teile(), z.bloecke.reduce((s, b) => s + M.blaetter(b.knoten).length, 0));
 });
 
 test("Baumlayout: Blätter in [0, 1], Eltern zwischen ihren Kindern", () => {
-  const K = M.baum(BLOCK, P0, zufall(1)), pos = M.baumLayout(K);
+  const K = M.baum(BLOCK, P), pos = M.baumLayout(K);
   for (const k of K) {
     assert.ok(pos[k.id][0] > 0 && pos[k.id][0] < 1); assert.equal(pos[k.id][1], k.ebene);
     if (k.kinder) { const xs = k.kinder.map(c => pos[c][0]); assert.ok(pos[k.id][0] >= Math.min(...xs) && pos[k.id][0] <= Math.max(...xs)); }
   }
 });
 
-test("Wiederholbarkeit: gleiche Saat gleiches Ergebnis, andere Saat anderes", () => {
+test("deterministisch wie das Original: gleicher Block gleicher Baum; andere Saat = anderes Quartier", () => {
   const lauf = s => M.erzeuge({}, zufall(s)).bloecke.map(b => b.knoten.map(k => k.linie));
   assert.deepEqual(lauf(5), lauf(5));
   assert.notDeepEqual(lauf(5), lauf(6));
+  assert.deepEqual(M.baum(BLOCK, P).map(k => k.linie), M.baum(BLOCK, P).map(k => k.linie));
 });

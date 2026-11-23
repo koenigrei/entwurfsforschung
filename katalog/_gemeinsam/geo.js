@@ -148,9 +148,11 @@
   }
 
   /* ---------------------------------------------------------------- Isovist (2D) */
-  /** Isovist von o aus: Strahlen gleichmäßig im Blickwinkel um die Richtung (Bogenmaß, 0 = +x, gegen den Uhrzeigersinn),
-      begrenzt durch die Reichweite. hindernisse: Liste von Segmenten. Ergebnis: Endpunkte, Längen, getroffenes Segment je Strahl (−1 = frei).
-      Wie die DeCodingSpaces-Komponente „Isovist“: Strahlenzahl, Blickwinkel (Grad), Richtung, Reichweite. */
+  /** Isovist von o aus: Strahlen gleichmäßig im Blickwinkel um die Richtung (Bogenmaß im Koordinatensystem der Szene: 0 = +x,
+      Winkel wächst von +x nach +y – bei y nach unten also im Uhrzeigersinn auf dem Bildschirm), begrenzt durch die Reichweite.
+      hindernisse: Liste von Segmenten. Ergebnis: Endpunkte, Längen, getroffenes Segment je Strahl (−1 = frei), dazu die Hindernisliste.
+      Wie die Legacy-Komponente „Isovist“ von DeCodingSpaces (Strahlenzahl „Precision“, Blickwinkel in Grad, Richtung, Reichweite);
+      bei Blickwinkel < 360° liegen die Strahlen von Richtung − Winkel/2 bis Richtung + Winkel/2 (wie der Sweep in Isovist.cs der Toolbox). */
   function isovist(o, hindernisse, opt) {
     const winkel = Math.max(0, Math.min(360, opt.winkel == null ? 360 : opt.winkel)) * Math.PI / 180;
     const n = Math.max(1, Math.round(opt.strahlen || 360)), r = opt.reichweite || 100, dir = opt.richtung || 0;
@@ -167,13 +169,18 @@
       laengen[i] = tmin; treffer[i] = hit; winkelListe[i] = a;
       punkte.push([o[0] + d[0] * tmin, o[1] + d[1] * tmin]);
     }
-    return { o, punkte, laengen, treffer, winkel: winkelListe, voll, reichweite: r };
+    return { o, punkte, laengen, treffer, winkel: winkelListe, voll, reichweite: r, hindernisse };
   }
   /** Polygon des Isovists (bei Blickwinkel < 360° mit dem Standpunkt als Ecke) */
   function isovistPolygon(iso) { return iso.voll ? iso.punkte.slice() : [iso.o].concat(iso.punkte); }
 
   /** Kenngrößen eines Isovists – die 17 Werte der DeCodingSpaces-Komponente (Liste „Isovist Properties“).
-      Definitionen nach Benedikt (1979), Batty (2001) und Turner et al. (2001); siehe QUELLE.md der Isovist-Apps. */
+      Abgeglichen mit docs/visibility.md und src/DecodingSpaces.Core/Visibility/Isovist.cs der DeCodingSpaces-Toolbox
+      (GPL-3.0; Definitionen abgelesen, kein Code übernommen): Fläche, Umfang, Kompaktheit 4πA/U², Verdeckung (Länge der
+      verdeckenden Kanten), kleinster/größter/mittlerer Radius, Varianz, Standardabweichung und Schiefe der Strahllänge über alle
+      Richtungen gleich gewichtet, Drift und Drift-Winkel (Grad ab +x, gegen den Uhrzeigersinn wie in Rhino, 0…360).
+      Ohne prüfbare Definition in der Toolbox (dort entfallen) und daher eigene Definitionen nach Benedikt (1979) und Batty (2001):
+      Fläche (abstandsgewichtet), Kreisähnlichkeit, Konvexitätsdefizit, Dispersion, Streckung. Siehe QUELLE.md der Isovist-Apps. */
   const ISOVIST_MASSE = [
     ["area", "Area", "Fläche"], ["areaDist", "Area (Dist Weighted)", "Fläche (abstandsgewichtet)"], ["perimeter", "Perimeter", "Umfang"],
     ["compactness", "Compactness", "Kompaktheit"], ["circularity", "Circularity", "Kreisähnlichkeit"], ["convexDeficiency", "ConvexDeficiency", "Konvexitätsdefizit"],
@@ -182,14 +189,27 @@
     ["skewness", "Skewness", "Schiefe"], ["dispersion", "Dispersion", "Dispersion"], ["elongation", "Elongation", "Streckung"],
     ["driftMagnitude", "Drift Magnitude", "Drift (Betrag)"], ["driftAngle", "Drift Angle", "Drift (Winkel)"]
   ];
+  /** Hängen zwei Hindernissegmente zusammen (gemeinsamer Endpunkt oder Endpunkt auf dem anderen Segment)? */
+  function verbunden(s, t, tol = 1e-6) {
+    return abstandSegment(s[0], t[0], t[1]).d <= tol || abstandSegment(s[1], t[0], t[1]).d <= tol ||
+           abstandSegment(t[0], s[0], s[1]).d <= tol || abstandSegment(t[1], s[0], s[1]).d <= tol;
+  }
   function isovistMasse(iso) {
     const P = isovistPolygon(iso), L = iso.laengen, n = L.length;
     const A = flaeche(P), U = umfang(P);
-    let s = 0, s2 = 0, mn = Infinity, mx = 0;
-    for (let i = 0; i < n; i++) { s += L[i]; s2 += L[i] * L[i]; if (L[i] < mn) mn = L[i]; if (L[i] > mx) mx = L[i]; }
-    const mean = s / n, varz = Math.max(0, s2 / n - mean * mean), sd = Math.sqrt(varz);
-    let s3 = 0; for (let i = 0; i < n; i++) s3 += Math.pow(L[i] - mean, 3);
-    const skew = sd > EPS ? (s3 / n) / Math.pow(sd, 3) : 0;
+    // Strahlstatistik: jede Richtung gleich gewichtet, (1/Θ)∫r dθ usw. (Toolbox: Isovist.cs); bei Blickwinkel < 360° liegen die
+    // äußeren Strahlen auf dem Rand des Blickfelds und zählen nach der Trapezregel halb
+    let W = 0, s = 0, s2 = 0, mn = Infinity, mx = 0;
+    for (let i = 0; i < n; i++) {
+      const w = !iso.voll && n > 1 && (i === 0 || i === n - 1) ? 0.5 : 1;
+      W += w; s += w * L[i]; s2 += w * L[i] * L[i]; if (L[i] < mn) mn = L[i]; if (L[i] > mx) mx = L[i];
+    }
+    const mean = s / W, quadrat = s2 / W, varRoh = Math.max(0, quadrat - mean * mean);
+    let s3 = 0;
+    for (let i = 0; i < n; i++) { const w = !iso.voll && n > 1 && (i === 0 || i === n - 1) ? 0.5 : 1; s3 += w * Math.pow(L[i] - mean, 3); }
+    // konstante Strahllänge (Rundungsrest): Varianz, Abweichung und Schiefe 0 – wie in der Toolbox
+    const konstant = varRoh <= 1e-12 * quadrat, varz = konstant ? 0 : varRoh, sd = Math.sqrt(varz);
+    const skew = konstant ? 0 : (s3 / W) / Math.pow(sd, 3);
     // abstandsgewichtete Fläche: Summe der Dreiecksflächen je Strahlsektor, gewichtet mit dem mittleren Abstand ihres Schwerpunkts (2/3 r)
     let aw = 0;
     const m = iso.voll ? n : n - 1;
@@ -197,11 +217,22 @@
       const a = iso.punkte[i], b = iso.punkte[(i + 1) % n], f = Math.abs(kreuz(sub(a, iso.o), sub(b, iso.o))) / 2;
       aw += f * (L[i] + L[(i + 1) % n]) / 3;
     }
-    // Verdeckung: Länge der Strahlsprünge (radiale Ränder, an denen ein Hindernis den Blick verdeckt)
-    let occ = 0;
-    for (let i = 0; i < m; i++) { const j = (i + 1) % n; if (Math.abs(L[i] - L[j]) > Math.max(1, 0.1 * Math.max(L[i], L[j]))) occ += Math.abs(L[i] - L[j]); }
+    // Verdeckung (Toolbox: Summe der Sprünge in r(θ), wo etwas endet und dahinter mehr sichtbar ist; die Seitenränder eines
+    // begrenzten Blickfelds zählen nicht). Mit Strahlen: ein Sprung liegt zwischen zwei Nachbarstrahlen, die verschiedene,
+    // nicht zusammenhängende Hindernisse treffen oder von denen einer frei bis zur Reichweite geht; Länge = Unterschied der Strahllängen.
+    let occ = 0, occN = 0;
+    const H0 = iso.hindernisse;
+    for (let i = 0; i < m; i++) {
+      const j = (i + 1) % n, a = iso.treffer[i], b = iso.treffer[j], sprung = Math.abs(L[i] - L[j]);
+      if (a === b || sprung <= 1e-7) continue;
+      if (H0 ? (a >= 0 && b >= 0 && verbunden(H0[a], H0[b])) : sprung <= Math.max(1, 0.1 * Math.max(L[i], L[j]))) continue;
+      occ += sprung; occN++;
+    }
     const H = konvexeHuelle(P), AH = flaeche(H);
-    const sp = schwerpunkt(P), drift = sub(sp, iso.o);
+    const sp = schwerpunkt(P), drift = sub(sp, iso.o), dl = laenge(drift);
+    // Drift-Winkel wie in Rhino (y nach oben): Grad ab +x gegen den Uhrzeigersinn; die Szene hat y nach unten, daher −dy
+    let dw = Math.atan2(-drift[1], drift[0]) * 180 / Math.PI; if (dw < 0) dw += 360;
+    if (dl < 1e-9 || dw > 360 - 1e-9) dw = 0;
     // Streckung: Verhältnis der Hauptachsen (Wurzel der Eigenwerte der Flächenträgheit über die Strahlendpunkte)
     let cxx = 0, cyy = 0, cxy = 0;
     for (const p of iso.punkte) { const dx = p[0] - sp[0], dy = p[1] - sp[1]; cxx += dx * dx; cyy += dy * dy; cxy += dx * dy; }
@@ -212,10 +243,10 @@
       compactness: U > EPS ? 4 * Math.PI * A / (U * U) : 0,
       circularity: A > EPS ? U * U / (4 * Math.PI * A) : 0,
       convexDeficiency: AH > EPS ? (AH - A) / AH : 0,
-      occlusivity: occ, minRadial: mn, maxRadial: mx, meanRadial: mean, stdDev: sd, variance: varz, skewness: skew,
+      occlusivity: occ, occlusions: occN, minRadial: mn, maxRadial: mx, meanRadial: mean, stdDev: sd, variance: varz, skewness: skew,
       dispersion: mean > EPS ? sd / mean : 0,
       elongation: Math.sqrt(l1 / l2),
-      driftMagnitude: laenge(drift), driftAngle: (Math.atan2(drift[1], drift[0]) * 180 / Math.PI + 360) % 360
+      driftMagnitude: dl, driftAngle: dw
     };
   }
 
@@ -262,19 +293,25 @@
     return adj;
   }
 
-  /** binärer Heap für Dijkstra (Schlüssel Float64, Werte Ganzzahl) */
-  function Heap() { this.k = []; this.v = []; }
-  Heap.prototype.push = function (key, val) {
-    const k = this.k, v = this.v; let i = k.length; k.push(key); v.push(val);
-    while (i > 0) { const p = (i - 1) >> 1; if (k[p] <= key) break; k[i] = k[p]; v[i] = v[p]; i = p; }
-    k[i] = key; v[i] = val;
+  /** binärer Heap für Dijkstra (Schlüssel Float64, Werte Ganzzahl). Optional ein zweiter Schlüssel key2 (Rangfolge erst key,
+      dann key2 – z. B. Kosten, dann Schrittzahl); ohne key2 verhält er sich wie bisher. */
+  function Heap() { this.k = []; this.k2 = []; this.v = []; }
+  Heap.prototype.push = function (key, val, key2 = 0) {
+    const k = this.k, k2 = this.k2, v = this.v; let i = k.length; k.push(key); k2.push(key2); v.push(val);
+    while (i > 0) { const p = (i - 1) >> 1; if (k[p] < key || (k[p] === key && k2[p] <= key2)) break; k[i] = k[p]; k2[i] = k2[p]; v[i] = v[p]; i = p; }
+    k[i] = key; k2[i] = key2; v[i] = val;
   };
   Heap.prototype.pop = function () {
-    const k = this.k, v = this.v, top = v[0], tk = k[0], lk = k.pop(), lv = v.pop();
+    const k = this.k, k2 = this.k2, v = this.v, top = v[0], tk = k[0], lk = k.pop(), lk2 = k2.pop(), lv = v.pop();
     if (k.length) {
       let i = 0; const n = k.length;
-      while (true) { let c = 2 * i + 1; if (c >= n) break; if (c + 1 < n && k[c + 1] < k[c]) c++; if (k[c] >= lk) break; k[i] = k[c]; v[i] = v[c]; i = c; }
-      k[i] = lk; v[i] = lv;
+      const kl = (a, b) => k[a] < k[b] || (k[a] === k[b] && k2[a] < k2[b]);
+      while (true) {
+        let c = 2 * i + 1; if (c >= n) break; if (c + 1 < n && kl(c + 1, c)) c++;
+        if (k[c] > lk || (k[c] === lk && k2[c] >= lk2)) break;
+        k[i] = k[c]; k2[i] = k2[c]; v[i] = v[c]; i = c;
+      }
+      k[i] = lk; k2[i] = lk2; v[i] = lv;
     }
     this.letzterSchluessel = tk;
     return top;
@@ -300,12 +337,14 @@
   /** Weg aus einem Vorgängerfeld */
   function weg(vor, ziel) { const w = []; for (let i = ziel; i !== -1; i = vor[i]) { w.push(i); if (w.length > vor.length) break; } return w.reverse(); }
 
-  /** Floyd–Warshall: kosten(i, j) über Kantenliste [{a, b, c}] (ungerichtet). → {dist, next} als Float64Array/Int32Array n·n */
-  function floydWarshall(n, kantenListe) {
+  /** Floyd–Warshall: kosten(i, j) über Kantenliste [{a, b, c}] (ungerichtet; gerichtet = true: nur a → b, z. B. für richtungsGraph).
+      → {dist, next} als Float64Array/Int32Array n·n */
+  function floydWarshall(n, kantenListe, gerichtet = false) {
     const D = new Float64Array(n * n).fill(Infinity), NX = new Int32Array(n * n).fill(-1);
     for (let i = 0; i < n; i++) { D[i * n + i] = 0; NX[i * n + i] = i; }
     for (const e of kantenListe) {
-      if (e.c < D[e.a * n + e.b]) { D[e.a * n + e.b] = D[e.b * n + e.a] = e.c; NX[e.a * n + e.b] = e.b; NX[e.b * n + e.a] = e.a; }
+      if (e.c < D[e.a * n + e.b]) { D[e.a * n + e.b] = e.c; NX[e.a * n + e.b] = e.b; }
+      if (!gerichtet && e.c < D[e.b * n + e.a]) { D[e.b * n + e.a] = e.c; NX[e.b * n + e.a] = e.a; }
     }
     for (let k = 0; k < n; k++) floydSchritt(n, D, NX, k);
     return { dist: D, next: NX };
@@ -343,8 +382,11 @@
     return dist;
   }
 
-  /** Segmentgraph (dualer Graph) eines Netzes wie DeCodingSpaces „BuildGraph“: Knoten = Straßensegmente, Kanten = gemeinsame Endpunkte.
-      Kosten = kL · (l_i + l_j) / 2 / l_mittel + kW · Richtungsänderung / 90°.  → {n, adj: [[j, kosten]], mitte: [[x, y]]} */
+  /** Segmentgraph (ungerichteter dualer Graph): Knoten = Straßensegmente, Kanten = gemeinsame Endpunkte.
+      Kosten = kL · (l_i + l_j) / 2 / l_mittel + kW · Richtungsänderung / 90°.  → {n, adj: [[j, kosten, grad]], mitte: [[x, y]], lm}
+      Vereinfachte Fassung (bleibt für ältere Apps): ohne Fahrtrichtung kann ein Weg an einem Knoten „über“ ein Nachbarsegment
+      abbiegen, ohne es zu durchfahren, und die Normierung (mittlere Länge) ist eine eigene. Abgleich mit der DeCodingSpaces-Toolbox
+      (Bauhaus-InfAU/decoding-spaces-toolbox, GPL-3.0, kein Code übernommen): dort ist der Segmentgraph gerichtet – siehe richtungsGraph. */
   function segmentGraph(N, kL = 0.5, kW = 0.5) {
     const m = N.kanten.length, adjK = adjazenz(N);
     const lm = N.kanten.reduce((s, e) => s + e.l, 0) / Math.max(1, m);
@@ -365,8 +407,141 @@
     return { n: m, adj, mitte, lm };
   }
 
+  /* ---------------------------------------------------------------- Segmentgraph mit Fahrtrichtung
+     Abgleich mit der DeCodingSpaces-Toolbox (github.com/Bauhaus-InfAU/decoding-spaces-toolbox, GPL-3.0; Definitionen aus
+     docs/measures.md, docs/review-2026-11.md, src/DecodingSpaces.Core/Network/SegmentNetwork.cs, NetworkAnalysis.cs abgelesen,
+     kein Code übernommen) und Grafit (github.com/Bauhaus-InfAU/Grafit, MIT: „dual directed graph“, Winkel in Grad). */
+
+  /** Segment, das dem Punkt q am nächsten liegt (Index in N.kanten, −1 bei leerem Netz) */
+  function naechstesSegment(N, q) {
+    let best = -1, bd = Infinity;
+    for (let k = 0; k < N.kanten.length; k++) { const e = N.kanten[k], d = abstandSegment(q, N.knoten[e.a], N.knoten[e.b]).d; if (d < bd) { bd = d; best = k; } }
+    return best;
+  }
+
+  /** Gerichteter Segmentgraph: Segment s hat die Zustände 2s (gefahren von knoten a nach b) und 2s+1 (b → a). Ein Schritt führt vom
+      Ausgangsknoten eines Zustands zu einem Zustand eines anderen Segments, der dort beginnt; Wenden auf demselben Segment gibt es nicht,
+      eine Sackgasse ist ein Endpunkt. Anteile je Schritt: meter = (l_i + l_j) / 2 (Mitte zu Mitte), grad = Richtungsänderung 0…180°,
+      eigen = (w_i + w_j) / 2 (eigene Gewichte je Zustand: opt.vor für a → b, opt.rueck für b → a, Voreinstellung 0).
+      Kosten je Schritt nach opt.norm:
+        "standard" (Toolbox v2, measures.md §2):         kL · meter          + kW · grad / 90  + kC · eigen
+        "dcs2020"  (Legacy-Komponenten 2020/21, review-2026-11.md): kL · meter / l_max + kW · grad / 180 + kC · eigen
+      → {n: Segmente, z: Zustände, nb[zustand] = [[zielzustand, kosten, meter, grad, eigen]], laenge, mitte, lmax, norm, kL, kW, kC} */
+  function richtungsGraph(N, opt = {}) {
+    const o = Object.assign({ kL: 1, kW: 0, kC: 0, norm: "standard", vor: null, rueck: null }, opt);
+    const m = N.kanten.length, L = N.kanten.map(e => e.l);
+    let lmax = 0; for (const l of L) if (l > lmax) lmax = l;
+    const w = new Float64Array(2 * m);
+    for (let s = 0; s < m; s++) { w[2 * s] = o.vor ? o.vor[s] : 0; w[2 * s + 1] = o.rueck ? o.rueck[s] : w[2 * s]; }
+    const ein = N.knoten.map(() => []);
+    N.kanten.forEach((e, s) => { ein[e.a].push(2 * s); ein[e.b].push(2 * s + 1); });
+    const richtung = st => { const e = N.kanten[st >> 1], d = norm(sub(N.knoten[e.b], N.knoten[e.a])); return st & 1 ? mul(d, -1) : d; };
+    const ausgang = st => { const e = N.kanten[st >> 1]; return st & 1 ? e.a : e.b; };
+    const legacy = o.norm === "dcs2020";
+    const fL = legacy ? o.kL / Math.max(lmax, 1e-12) : o.kL, fW = legacy ? o.kW / 180 : o.kW / 90;
+    const nb = [];
+    for (let st = 0; st < 2 * m; st++) {
+      const liste = [], s = st >> 1, r = richtung(st);
+      for (const nx of ein[ausgang(st)]) {
+        const t = nx >> 1; if (t === s) continue;
+        const grad = Math.acos(Math.max(-1, Math.min(1, dot(r, richtung(nx))))) * 180 / Math.PI;
+        const meter = (L[s] + L[t]) / 2, eigen = (w[st] + w[nx]) / 2;
+        liste.push([nx, fL * meter + fW * grad + o.kC * eigen, meter, grad, eigen]);
+      }
+      nb.push(liste);
+    }
+    const mitte = N.kanten.map(e => lerp(N.knoten[e.a], N.knoten[e.b], 0.5));
+    return { n: m, z: 2 * m, nb, laenge: L, mitte, lmax, norm: o.norm, kL: o.kL, kW: o.kW, kC: o.kC };
+  }
+
+  /** Auflösung der Kosten: jeder Schritt wird einmal auf ein Vielfaches gerundet, Wegkosten sind dann exakte Summen (measures.md §3) */
+  const KOSTEN_AUFLOESUNG = 1e-7;
+
+  /** Kürzeste Wege im gerichteten Segmentgraphen vom Segment s aus (beide Zustände mit Kosten 0). Rangfolge (Kosten, Schritte):
+      unter gleich teuren Wegen gewinnt der mit weniger Schritten; gleichrangige Wege werden gezählt (σ). opt.ziel: Abbruch, sobald
+      ein Zustand dieses Segments fest ist. → {s, U (Kosten in Auflösungseinheiten), T (Schritte), meter (kürzeste Länge unter den
+      optimalen Wegen), sigma, P (Vorgänger je Zustand), S (Zustände in fester Reihenfolge)} */
+  function zustandsSuche(G, s, opt = {}) {
+    const z = G.z, U = new Float64Array(z).fill(Infinity), T = new Int32Array(z).fill(0x7fffffff), Lm = new Float64Array(z).fill(Infinity);
+    const sigma = new Float64Array(z), P = new Array(z), fest = new Uint8Array(z), S = [], H = new Heap();
+    for (const st of [2 * s, 2 * s + 1]) { U[st] = 0; T[st] = 0; Lm[st] = 0; sigma[st] = 1; P[st] = []; H.push(0, st, 0); }
+    while (!H.leer) {
+      const v = H.pop(); if (fest[v]) continue; fest[v] = 1; S.push(v);
+      if (opt.ziel != null && (v >> 1) === opt.ziel) break;
+      for (const [w, c, meter] of G.nb[v]) {
+        if (fest[w]) continue;
+        const u = U[v] + Math.round(c / KOSTEN_AUFLOESUNG), t = T[v] + 1, l = Lm[v] + meter;
+        if (u < U[w] || (u === U[w] && t < T[w])) { U[w] = u; T[w] = t; Lm[w] = l; sigma[w] = sigma[v]; P[w] = [v]; H.push(u, w, t); }
+        else if (u === U[w] && t === T[w]) { sigma[w] += sigma[v]; P[w].push(v); if (l < Lm[w]) Lm[w] = l; }
+      }
+    }
+    return { s, U, T, meter: Lm, sigma, P, S, fest };
+  }
+  /** beste Zustände eines Segments t in einer Suche (gleichrangig beste, beide wenn gleich) */
+  function besteZustaende(R, t) {
+    const a = 2 * t, b = a + 1, ua = R.U[a], ub = R.U[b];
+    if (ua === Infinity && ub === Infinity) return [];
+    if (ua < ub || (ua === ub && R.T[a] < R.T[b])) return [a];
+    if (ub < ua || (ua === ub && R.T[b] < R.T[a])) return [b];
+    return [a, b];
+  }
+  /** je Segment: Kosten (min über beide Zustände), metrische Länge (Mitte zu Mitte) und Schritte → {kosten, meter, schritte} */
+  function segmentAbstaende(G, R) {
+    const kosten = new Float64Array(G.n).fill(Infinity), meter = new Float64Array(G.n).fill(Infinity), schritte = new Int32Array(G.n).fill(-1);
+    for (let t = 0; t < G.n; t++) {
+      const B = besteZustaende(R, t); if (!B.length) continue;
+      kosten[t] = R.U[B[0]] * KOSTEN_AUFLOESUNG; schritte[t] = R.T[B[0]];
+      meter[t] = Math.min(...B.map(b => R.meter[b]));
+    }
+    return { kosten, meter, schritte };
+  }
+  /** ein optimaler Weg von R.s zum Segment t als Liste der Segmente (leer, wenn nicht erreichbar) */
+  function zustandsWeg(R, t) {
+    const B = besteZustaende(R, t); if (!B.length) return [];
+    const w = []; let v = B[0];
+    while (v != null) { w.push(v >> 1); const p = R.P[v]; v = p && p.length ? p[0] : null; if (w.length > R.U.length) return []; }
+    return w.reverse();
+  }
+
+  /** Betweenness (Choice) im gerichteten Segmentgraphen für das Ursprungssegment s, gewichtet mit gQ (Ursprung) und gZ (Ziel) je
+      Segment, addiert in bc (je Segment). Brandes-Verfahren über die Zustände; gleichrangige Wege teilen sich den Durchgang (σ).
+      opt.enden = false (Toolbox v2, measures.md §4: Start- und Zielsegment zählen nicht) oder true (Legacy 2020/21,
+      review-2026-11.md: „both endpoints count“ – jedes Paar zählt auch für Start- und Zielsegment). → Ergebnis der zustandsSuche */
+  function segmentBetweennessVon(G, s, gQ, gZ, bc, opt = {}) {
+    const R = zustandsSuche(G, s), ws = gQ ? gQ[s] : 1;
+    if (ws === 0) return R;
+    const ende = new Float64Array(G.z), delta = new Float64Array(G.z);
+    for (let t = 0; t < G.n; t++) {
+      if (t === s) continue;
+      const B = besteZustaende(R, t); if (!B.length) continue;
+      const gt = gZ ? gZ[t] : 1; let sig = 0; for (const b of B) sig += R.sigma[b];
+      for (const b of B) ende[b] = gt * R.sigma[b] / sig;
+      if (opt.enden) { bc[s] += ws * gt; bc[t] += ws * gt; }
+    }
+    for (let i = R.S.length - 1; i >= 0; i--) {
+      const w = R.S[i];
+      for (const v of R.P[w]) delta[v] += R.sigma[v] / R.sigma[w] * (ende[w] + delta[w]);
+      if ((w >> 1) !== s) bc[w >> 1] += ws * delta[w];
+    }
+    return R;
+  }
+
+  /** Nähe-Maße (Closeness) des Segments s (Toolbox v2, measures.md §4, ohne Radius): NC = erreichte Segmente + 1, TD = Σ Kosten,
+      MD = TD / (NC − 1), Integration = NC² / TD, NAIN = NC^1.2 / (TD + 2), harmonisch = Σ 1 / Länge (Mitte zu Mitte);
+      dazu dcs2020 = (NC − 1) / TD („n/Σd“ der Legacy-Komponenten, review-2026-11.md) */
+  function segmentClosenessVon(G, s) {
+    const A = segmentAbstaende(G, zustandsSuche(G, s));
+    let n = 0, td = 0, h = 0;
+    for (let t = 0; t < G.n; t++) { if (t === s || A.kosten[t] === Infinity) continue; n++; td += A.kosten[t]; if (A.meter[t] > 0) h += 1 / A.meter[t]; }
+    const nc = n + 1;
+    return { nc, td, md: n ? td / n : NaN, integration: td > 0 ? nc * nc / td : NaN, nain: Math.pow(nc, 1.2) / (td + 2), harmonisch: h,
+             dcs2020: td > 0 ? n / td : NaN };
+  }
+
   return { EPS, sub, add, mul, dot, kreuz, laenge, abstand, lerp, norm, abstandSegment,
            flaecheS, flaeche, umfang, schwerpunkt, punktInPoly, kanten, bbox, bereinige, konvexeHuelle, schneideHalbebene, teilePolygon, geradeSchnittPoly, versetze,
            strahlSegment, segmentSchnitt, isovist, isovistPolygon, ISOVIST_MASSE, isovistMasse, voronoi,
-           netz, adjazenz, Heap, dijkstra, weg, floydWarshall, floydSchritt, floydWeg, betweennessVon, segmentGraph };
+           netz, adjazenz, Heap, dijkstra, weg, floydWarshall, floydSchritt, floydWeg, betweennessVon, segmentGraph,
+           naechstesSegment, richtungsGraph, KOSTEN_AUFLOESUNG, zustandsSuche, besteZustaende, segmentAbstaende, zustandsWeg,
+           segmentBetweennessVon, segmentClosenessVon };
 });

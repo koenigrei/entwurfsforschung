@@ -19,10 +19,9 @@
     tempo: { min: 1, max: 20, wert: 2 },
     parameter: [
       { id: "breite", gruppe: { de: "Slicing Tree", en: "Slicing tree" }, name: { de: "Parzellenbreite (parcelWidth) m", en: "Parcel width (parcelWidth) m" }, min: 10, max: 100, schritt: 1, wert: S.breite, neustart: true },
-      { id: "baumtiefe", name: { de: "Baumtiefe (treeDepth)", en: "Tree depth (treeDepth)" }, min: 1, max: 10, schritt: 1, wert: S.baumtiefe, neustart: true },
       { id: "teilung", name: { de: "Teilungsverhältnis (splitRate)", en: "Split rate (splitRate)" }, min: 0.1, max: 0.9, schritt: 0.05, wert: S.teilung, neustart: true },
-      { id: "streuung", name: { de: "Streuung des Teilungsverhältnisses", en: "Variation of the split rate" }, min: 0, max: 0.8, schritt: 0.05, wert: S.streuung, neustart: true },
-      { id: "laengsAb", name: { de: "Längsteilung ab Blocktiefe m", en: "Lengthwise split from block depth (m)" }, min: 20, max: 200, schritt: 5, wert: S.laengsAb, neustart: true },
+      { id: "skalierung", gruppe: { de: "Toleranzen (Customized Parameters)", en: "Tolerances (Customized Parameters)" }, name: { de: "Kollinearität (scalingFactor) m", en: "Collinearity (scalingFactor) m" }, min: 0.1, max: 5, schritt: 0.1, wert: S.skalierung, neustart: true },
+      { id: "minAbstand", name: { de: "Mindestabstand Gegenseite (minDistance) m", en: "Opposite side distance (minDistance) m" }, min: 0, max: 50, schritt: 1, wert: S.minAbstand, neustart: true },
       { id: "nummern", gruppe: { de: "Darstellung", en: "Display" }, art: "schalter", name: { de: "Schnittreihenfolge im gewählten Block", en: "Cut order in the selected block" }, wert: true }
     ],
     groesse: z => ({ b: z.b, h: z.h + PANEL }),
@@ -46,7 +45,7 @@
       const w = z.bloecke[z.wahl];
       if (!w) return;
       Karte.poly(ctx, w.poly, null, F.akzent, px * 3.5);
-      const gross = Geo.bbox(w.poly).b / px > 160;
+      const gross = Geo.bbox(w.poly).b / px > 110;
       if (p.nummern && gross) for (const k of w.knoten) if (Modell.geschnitten(k, t)) {
         const m = Geo.lerp(k.linie[0], k.linie[1], 0.5);
         Karte.punkt(ctx, m, 7 * px, F.dunkel ? "#000" : "#fff", ebeneFarbe(F, k.ebene), px * 1.4);
@@ -76,17 +75,18 @@
     },
     legende: F => [[violett(F), { de: "Parzellengrenze (Schnitt)", en: "Parcel border (cut)" }], [ebeneFarbe(F, 0), { de: "Baumebene 0, 1, 2 … im gewählten Block", en: "Tree level 0, 1, 2 … in the selected block" }], [ORANGE, { de: "letzter Schnitt", en: "last cut" }]],
     kennzahlen(z, p) {
-      let teile = 0, fertigBl = 0, fr = 0, A = 0;
+      let teile = 0, fertigBl = 0, fr = 0, A = 0, anschluss = 0;
       for (const b of z.bloecke) {
         const T = Modell.teileZurZeit(b, z.t); teile += T.length;
-        for (const k of T) if (!k.kinder) { fertigBl++; fr += k.front; A += k.A; }
+        for (const k of T) if (!k.kinder) { fertigBl++; fr += k.front; A += k.A; if (k.front > 0.01) anschluss++; }
       }
       const w = z.bloecke[z.wahl], k = [
         [{ de: "Schnitte", en: "Cuts" }, `${Math.min(z.t, z.schnitte.length)} / ${z.schnitte.length}`],
         [{ de: "Teile", en: "Parts" }, String(teile)],
         [{ de: "fertige Parzellen", en: "Finished parcels" }, String(fertigBl)],
         [{ de: "mittlere Straßenfront", en: "Mean street frontage" }, fertigBl ? zahl(fr / fertigBl, 1) + " m" : "–"],
-        [{ de: "mittlere Parzellenfläche", en: "Mean parcel area" }, fertigBl ? zahl(A / fertigBl) + " m²" : "–"]
+        [{ de: "mittlere Parzellenfläche", en: "Mean parcel area" }, fertigBl ? zahl(A / fertigBl) + " m²" : "–"],
+        [{ de: "mit Straßenanschluss", en: "Connected to street" }, fertigBl ? zahl(100 * anschluss / fertigBl) + " %" : "–"]
       ];
       if (w) {
         const bl = Modell.blaetter(w.knoten);

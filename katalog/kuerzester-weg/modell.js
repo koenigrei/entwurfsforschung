@@ -3,12 +3,14 @@
    (DeCodingSpaces – Reinhard König, Martin Bielik, Ekaterina Fuchkina).
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0
 
-   Wie in der .gh-Datei: Straßensegmente werden zum dualen Graphen (2. BuildGraph: Knoten = Segmente, Kosten aus Längen- und
-   Winkelkoeffizient). Ursprung und Ziel sind Punkte; es zählt das jeweils nächste Segment. Der kürzeste Weg wird auf drei Arten
-   gesucht: „1. Shortest Path Simple“ (CityGraph – hier Dijkstra mit linearer Suche des nächsten Knotens, ohne Vorrangwarteschlange),
+   Wie in der .gh-Datei: Straßensegmente werden zum gerichteten Segmentgraphen (2. BuildGraph: je Segment zwei Fahrtrichtungen,
+   Schritte zwischen Segmenten an gemeinsamen Knoten, keine Wende auf demselben Segment; Kosten aus Längen- und Winkelkoeffizient –
+   Geo.richtungsGraph, abgeglichen mit der DeCodingSpaces-Toolbox, GPL-3.0, kein Code übernommen). Ursprung und Ziel sind Punkte;
+   es zählt das jeweils nächste Segment, beide Fahrtrichtungen. Der kürzeste Weg wird auf drei Arten gesucht:
+   „1. Shortest Path Simple“ (CityGraph – hier Dijkstra mit linearer Suche des nächsten Zustands, ohne Vorrangwarteschlange),
    „2. Shortest Path Dijkstra“ (3. ShortestDijkstra – mit Vorrangwarteschlange, bricht am Ziel ab) und „3. Floyd Warshal“
-   (3. ShortestFloydWarshal + 4. FWGetPaths – alle Paare vorab, danach ist jeder Weg sofort ablesbar). Ein Schritt = ein
-   Expansionsschritt: bei Dijkstra wird der nächste Knoten fest, bei Floyd–Warshall eine Runde k (Geo.floydSchritt).
+   (3. ShortestFloydWarshal + 4. FWGetPaths – alle Paare von Zuständen vorab, danach ist jeder Weg sofort ablesbar).
+   Ein Schritt = ein Expansionsschritt: bei Dijkstra wird der nächste Zustand fest, bei Floyd–Warshall eine Runde k (Geo.floydSchritt).
    „Run Calculation“ rechnet zusätzlich die Betweenness Centrality aller Segmente. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
@@ -19,8 +21,9 @@
   "use strict";
 
   /** Voreinstellungen der .gh-Datei: Length Coefficient 0, Angular Coefficient 1 [0..1] (beide BuildGraph und CityGraph),
-      Werteliste „shortest path segment IDs“, Toggle „Run Calculation“ = false. verfahren: 1./2./3. der Datei. */
-  const STANDARD = { verfahren: "dijkstra", kosten: "winkel", kL: 0, kW: 1, betweenness: false, gebaeude: true };
+      Werteliste „shortest path segment IDs“, Toggle „Run Calculation“ = false. verfahren: 1./2./3. der Datei.
+      definition: "dcs2020" = Kosten der Legacy-Komponenten (kL·m/l_max + kW·θ/180°), "standard" = Toolbox v2 (kL·m + kW·θ/90°). */
+  const STANDARD = { verfahren: "dijkstra", kosten: "winkel", kL: 0, kW: 1, definition: "dcs2020", betweenness: false, gebaeude: true };
   const VERFAHREN = ["einfach", "dijkstra", "floyd"];
   /** kleiner Längenanteil, der gleich teure Wege eindeutig macht (sonst wählen die Verfahren unter Gleichstand verschiedene Wege) */
   const GLEICHSTAND = 1e-6;
@@ -32,49 +35,55 @@
     return { szene, segmente: szene.strassen, b: o.b, h: o.h };
   }
 
-  /** dualer Graph mit Kosten (Geo.segmentGraph wie 2. BuildGraph) und den Anteilen je Kante:
-      nb[i] = [[j, kosten, meter, grad]] – meter = (l_i + l_j) / 2 (von Segmentmitte zu Segmentmitte), grad = Richtungsänderung */
-  function graph(N, kL, kW) {
-    const G = Geo.segmentGraph(N, kL, kW), L = N.kanten.map(e => e.l);
-    const nb = G.adj.map((liste, i) => liste.map(([j, c, wink]) => {
-      const m = (L[i] + L[j]) / 2;
-      return [j, c + GLEICHSTAND * m / G.lm, m, wink];
-    }));
-    return { n: G.n, nb, mitte: G.mitte, lm: G.lm, laenge: L };
+  /** gerichteter Segmentgraph (Geo.richtungsGraph wie 2. BuildGraph) für die Suche: nb[zustand] = [[ziel, kosten, meter, grad]],
+      Kosten mit kleinem Gleichstandsanteil; roh = Graph ohne diesen Anteil (für die Betweenness) */
+  function graph(N, kL, kW, definition = "dcs2020") {
+    const roh = Geo.richtungsGraph(N, { kL, kW, norm: definition === "standard" ? "standard" : "dcs2020" });
+    const lm = roh.laenge.reduce((s, l) => s + l, 0) / Math.max(1, roh.n);
+    const nb = roh.nb.map(liste => liste.map(([j, c, meter, grad]) => [j, c + GLEICHSTAND * meter / lm, meter, grad]));
+    return { n: roh.n, z: roh.z, nb, roh, mitte: roh.mitte, laenge: roh.laenge, lm, lmax: roh.lmax, norm: roh.norm };
   }
 
-  /** Kantenliste für Floyd–Warshall (ungerichtet, jede Kante einmal) */
+  /** gerichtete Kantenliste der Zustände für Floyd–Warshall */
   function kantenListe(G) {
     const K = [];
-    G.nb.forEach((liste, a) => liste.forEach(([b, c]) => { if (a < b) K.push({ a, b, c }); }));
+    G.nb.forEach((liste, a) => liste.forEach(([b, c]) => K.push({ a, b, c })));
     return K;
   }
 
-  /* ---------------------------------------------------------------- Suchen, schrittweise */
-  /** neue Suche von Segment a nach b. Für Floyd–Warshall wird die Matrix fw (alle Paare) benutzt und nur bei Bedarf neu angelegt. */
+  /* ---------------------------------------------------------------- Suchen, schrittweise (auf Zuständen) */
+  /** neue Suche von Segment a nach b. Für Floyd–Warshall wird die Matrix fw (alle Paare von Zuständen) benutzt und nur bei Bedarf neu angelegt. */
   function neueSuche(G, art, a, b, fw) {
-    const n = G.n, S = { art, a, b, n, fertig: false, schritte: 0, weg: [] };
+    const n = G.z, S = { art, a, b, n, fertig: false, schritte: 0, weg: [], zustaende: [] };
     if (art === "floyd") {
       S.fw = fw && fw.n === n ? fw : neueMatrix(G);
       if (S.fw.k >= n) beende(G, S);
       return S;
     }
     S.dist = new Float64Array(n).fill(Infinity); S.vor = new Int32Array(n).fill(-1); S.fest = new Uint8Array(n);
-    S.dist[a] = 0;
-    if (art === "dijkstra") { S.H = new Geo.Heap(); S.H.push(0, a); }
+    S.dist[2 * a] = S.dist[2 * a + 1] = 0;
+    if (art === "dijkstra") { S.H = new Geo.Heap(); S.H.push(0, 2 * a); S.H.push(0, 2 * a + 1); }
     return S;
   }
-  /** Floyd–Warshall-Matrix vor der ersten Runde (Kantenkosten, Diagonale 0) */
+  /** Floyd–Warshall-Matrix vor der ersten Runde (gerichtete Schrittkosten, Diagonale 0) */
   function neueMatrix(G) {
-    const n = G.n, D = new Float64Array(n * n).fill(Infinity), NX = new Int32Array(n * n).fill(-1);
+    const n = G.z, D = new Float64Array(n * n).fill(Infinity), NX = new Int32Array(n * n).fill(-1);
     for (let i = 0; i < n; i++) { D[i * n + i] = 0; NX[i * n + i] = i; }
-    for (const e of kantenListe(G)) if (e.c < D[e.a * n + e.b]) { D[e.a * n + e.b] = D[e.b * n + e.a] = e.c; NX[e.a * n + e.b] = e.b; NX[e.b * n + e.a] = e.a; }
+    for (const e of kantenListe(G)) if (e.c < D[e.a * n + e.b]) { D[e.a * n + e.b] = e.c; NX[e.a * n + e.b] = e.b; }
     return { n, D, NX, k: 0 };
   }
-  function beende(G, S) {
+  /** bester Zustandsweg aus der fertigen Floyd–Warshall-Matrix: Minimum über die zwei Richtungen von Start und Ziel */
+  function floydBeste(S) {
+    const n = S.n, D = S.fw.D; let best = null, bd = Infinity;
+    for (const i of [2 * S.a, 2 * S.a + 1]) for (const j of [2 * S.b, 2 * S.b + 1]) if (D[i * n + j] < bd) { bd = D[i * n + j]; best = [i, j]; }
+    return best;
+  }
+  function beende(G, S, ziel) {
     S.fertig = true;
-    if (S.art === "floyd") S.weg = Geo.floydWeg(S.n, S.fw.NX, S.a, S.b);
-    else S.weg = S.dist[S.b] < Infinity ? Geo.weg(S.vor, S.b) : [];
+    if (S.a === S.b) { S.zustaende = [2 * S.a]; S.weg = [S.a]; return; }
+    if (S.art === "floyd") { const B = floydBeste(S); S.zustaende = B ? Geo.floydWeg(S.n, S.fw.NX, B[0], B[1]) : []; }
+    else S.zustaende = ziel != null ? Geo.weg(S.vor, ziel) : [];
+    S.weg = S.zustaende.map(st => st >> 1);
   }
   /** ein Expansionsschritt; true, wenn die Suche danach fertig ist */
   function sucheSchritt(G, S) {
@@ -92,9 +101,9 @@
       let bd = Infinity;
       for (let i = 0; i < S.n; i++) if (!S.fest[i] && S.dist[i] < bd) { bd = S.dist[i]; v = i; }
     }
-    if (v < 0) { beende(G, S); return true; }                 // Ziel nicht erreichbar
-    S.fest[v] = 1; S.zuletzt = v;
-    if (v === S.b) { beende(G, S); return true; }
+    if (v < 0) { beende(G, S, null); return true; }           // Ziel nicht erreichbar
+    S.fest[v] = 1; S.zuletzt = v >> 1; S.zuletztZustand = v;
+    if ((v >> 1) === S.b) { beende(G, S, v); return true; }  // erster fester Zustand des Zielsegments ist optimal
     for (const [j, c] of G.nb[v]) {
       const d = S.dist[v] + c;
       if (d < S.dist[j]) { S.dist[j] = d; S.vor[j] = v; if (S.H) S.H.push(d, j); }
@@ -106,29 +115,26 @@
   /** Weg von a nach b mit einem Verfahren auf einmal → Liste der Segment-IDs („shortest path segment IDs“) */
   function kuerzesterWeg(G, art, a, b, fw) { return loese(G, neueSuche(G, art, a, b, fw)).weg; }
 
-  /** Kosten eines Weges: custom costs (Summe der Graphkosten ohne Gleichstandsanteil), metric costs (m, Mitte zu Mitte), Summe der Richtungsänderungen (°) */
-  function wegKosten(G, weg, kL, kW) {
-    let meter = 0, grad = 0;
-    for (let i = 0; i + 1 < weg.length; i++) {
-      const e = G.nb[weg[i]].find(x => x[0] === weg[i + 1]);
-      meter += e[2]; grad += e[3];
+  /** Kosten eines Zustandsweges: custom costs (Graphkosten ohne Gleichstandsanteil), metric costs (m, Mitte zu Mitte), Summe der Richtungsänderungen (°) */
+  function wegKosten(G, zustaende) {
+    let kosten = 0, meter = 0, grad = 0;
+    for (let i = 0; i + 1 < zustaende.length; i++) {
+      const e = G.roh.nb[zustaende[i]].find(x => x[0] === zustaende[i + 1]);
+      kosten += e[1]; meter += e[2]; grad += e[3];
     }
-    return { kosten: kL * meter / G.lm + kW * grad / 90, meter, grad, segmente: weg.length };
+    return { kosten, meter, grad, segmente: zustaende.length };
   }
 
-  /** Betweenness Centrality aller Segmente (Brandes über alle Ursprünge, „Run Calculation“) */
+  /** Betweenness Centrality aller Segmente (Brandes über beide Fahrtrichtungen, „Run Calculation“). dcs2020: Start- und Zielsegment
+      zählen mit wie in den Legacy-Komponenten; standard: nur Segmente dazwischen (Toolbox v2, Choice). */
   function betweenness(G) {
-    const bc = new Float64Array(G.n), nb = i => G.nb[i];
-    for (let s = 0; s < G.n; s++) Geo.betweennessVon(G.n, nb, s, null, null, bc);
+    const bc = new Float64Array(G.n), enden = G.norm === "dcs2020";
+    for (let s = 0; s < G.n; s++) Geo.segmentBetweennessVon(G.roh, s, null, null, bc, { enden });
     return bc;
   }
 
   /* ---------------------------------------------------------------- Zustand */
-  function naechstesSegment(N, q) {
-    let best = -1, bd = Infinity;
-    N.kanten.forEach((e, k) => { const d = Geo.abstandSegment(q, N.knoten[e.a], N.knoten[e.b]).d; if (d < bd) { bd = d; best = k; } });
-    return best;
-  }
+  const naechstesSegment = (N, q) => Geo.naechstesSegment(N, q);
 
   /** Neuer Zustand: Ursprung unten links, Ziel oben rechts; Suche noch nicht begonnen */
   function erzeuge(param, zufall) {
@@ -140,7 +146,7 @@
     return z;
   }
   function baueGraph(z, p) {
-    z.G = graph(z.N, p.kL, p.kW);
+    z.G = graph(z.N, p.kL, p.kW, p.definition);
     z.fw = null;
     z.bc = p.betweenness ? betweenness(z.G) : null;
     z.so = naechstesSegment(z.N, z.o); z.sd = naechstesSegment(z.N, z.d);
@@ -172,9 +178,9 @@
   }
   const fertig = z => z.suche.fertig;
 
-  /** Parameter ohne Neustart; Verfahren und Kosten rechnen den Weg gleich ganz (wie Grasshopper), Start zeigt ihn dann nach „Zurück“ oder „Suche zeigen“ schrittweise */
+  /** Parameter ohne Neustart; Verfahren und Kosten rechnen den Weg gleich ganz (wie Grasshopper), Start zeigt ihn dann nach „Zurück“ oder „Suchen“ schrittweise */
   function aendere(z, p, id) {
-    if (id === "kL" || id === "kW" || id === "kosten") { baueGraph(z, p); sofort(z, p); }
+    if (id === "kL" || id === "kW" || id === "kosten" || id === "definition") { baueGraph(z, p); sofort(z, p); }
     else if (id === "verfahren") sofort(z, p);
     else if (id === "betweenness") z.bc = p.betweenness ? betweenness(z.G) : null;
   }
@@ -186,11 +192,19 @@
     return sofort(z, p);
   }
 
-  /** Abstände vom Ursprung, so weit die Suche sie kennt (Dijkstra: dist; Floyd–Warshall: Zeile des Ursprungs nach k Runden) */
+  /** Was die Suche je Segment schon weiß: dist = kleinster bekannter Abstand vom Ursprung (min über beide Richtungen; Floyd–Warshall:
+      Zeilen der Ursprungszustände nach k Runden), fest = Segment mit festem Zustand (nur Dijkstra/Simple, sonst null) */
   function bekannt(z) {
-    const S = z.suche;
-    if (S.art !== "floyd") return S.dist;
-    const n = S.n; return S.fw.D.subarray(S.a * n, S.a * n + n);
+    const S = z.suche, m = z.G.n, dist = new Float64Array(m).fill(Infinity);
+    let fest = null;
+    if (S.art === "floyd") {
+      const n = S.n, D = S.fw.D;
+      for (const i of [2 * S.a, 2 * S.a + 1]) for (let j = 0; j < n; j++) { const d = D[i * n + j]; if (d < dist[j >> 1]) dist[j >> 1] = d; }
+    } else {
+      fest = new Uint8Array(m);
+      for (let j = 0; j < S.n; j++) { if (S.dist[j] < dist[j >> 1]) dist[j >> 1] = S.dist[j]; if (S.fest[j]) fest[j >> 1] = 1; }
+    }
+    return { dist, fest };
   }
 
   return { STANDARD, VERFAHREN, GLEICHSTAND, strassennetz, graph, kantenListe, neueSuche, neueMatrix, sucheSchritt, loese, kuerzesterWeg, wegKosten,
