@@ -72,6 +72,7 @@
     "spielwiese.html": "Apps/campus/dist/spielwiese.html"
    }
   },
+  {"id": "kremlas", "titel": {"de": "KREMLAS · Dichte Packung", "en": "KREMLAS · Dense packing"}, "autoren": "R. König · Claude", "kategorie": {"de": "Evolutionäre Layouts", "en": "Evolutionary layouts"}, "jahr": "2011–2026", "datum": "2026-11-23", "bild": null, "vorschau": {"de": "Grundrisse durch dichte Packung: Eine Evolutionsstrategie mit Kollisionserkennung und virtuellen Federn ordnet Räume fester Fläche an und sucht Grundrisse mit Türen und Mindestmaßen, auch mit L-förmigen Räumen. Aus dem DFG-Projekt KREMLAS (2009–2011).", "en": "Floor plans by dense packing: an evolution strategy with collision detection and virtual springs arranges rooms of fixed area and searches for floor plans with doors and minimum dimensions, including L-shaped rooms. From the DFG project KREMLAS (2009–2011)."}, "ziel": "lab/kremlas/", "start": "index.html", "methode": "kremlas/METHODE.md"},
   {
    "id": "duarte-siza",
    "titel": {
