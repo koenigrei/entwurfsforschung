@@ -18,7 +18,7 @@
       { id: "reichweite", name: { de: "Reichweite (Viewing Range) m", en: "Viewing range (m)" }, min: 1, max: 200, schritt: 1, wert: S.reichweite },
       { id: "strahlen", name: { de: "Strahlen (Isovist Rays)", en: "Isovist rays" }, min: 1, max: 720, schritt: 1, wert: S.strahlen },
       { id: "kenngroesse", art: "auswahl", name: { de: "Kenngröße", en: "Property" }, wert: S.kenngroesse,
-        optionen: Geo.ISOVIST_MASSE.map(([k, en, de]) => ({ wert: k, name: { de: `${de} (${en})`, en } })) },
+        optionen: Geo.ISOVIST_MASSE.map(([k]) => Modell.kenngroesseOption(k)) },
       { id: "drehung", gruppe: { de: "Abspielen", en: "Playback" }, name: { de: "Drehung je Schritt °", en: "Rotation per step °" }, min: 0, max: 10, schritt: 0.5, wert: S.drehung },
       { id: "zeigeStrahlen", gruppe: { de: "Darstellung", en: "Display" }, art: "schalter", name: { de: "Strahlen zeigen", en: "Show rays" }, wert: true },
       { id: "zeigePolygon", art: "schalter", name: { de: "Isovist-Polygon zeigen", en: "Show isovist polygon" }, wert: true }
@@ -41,11 +41,11 @@
       const r = Modell.richtung(z, p);
       if (p.winkel < 360) Karte.pfeil(ctx, z.o, [Math.cos(r), Math.sin(r)], 14 * px * 2, F.tinte, px * 1.5);
       Karte.punkt(ctx, z.o, 4 * px, F.akzent, F.tinte, px * 1.2);
-      const k = p.kenngroesse, e = Geo.ISOVIST_MASSE.find(m => m[0] === k), de = document.documentElement.lang !== "en";
-      Karte.text(ctx, `${de ? e[2] : e[1]}: ${wert(k, z.masse[k])}`, [z.o[0] + 9 * px, z.o[1] - 10 * px], F.tinte, px, 12);
+      const k = p.kenngroesse, nm = Modell.kenngroesseName(k), de = document.documentElement.lang !== "en";
+      Karte.text(ctx, `${de ? nm.de : nm.en}: ${wert(k, z.masse[k])}`, [z.o[0] + 9 * px, z.o[1] - 10 * px], F.tinte, px, 12);
     },
-    legende: (F) => [[F.dunkel ? "#2c2c31" : "#d9d9de", { de: "Gebäude (Hindernisse)", en: "Buildings (obstacles)" }], ["rgba(245,163,0,0.6)", { de: "Isovist", en: "Isovist" }], [F.akzent, { de: "Standpunkt", en: "Viewpoint" }]],
-    kennzahlen: (z, p) => Geo.ISOVIST_MASSE.map(([k, en, de]) => [{ de, en }, (k === p.kenngroesse ? "▸ " : "") + wert(k, z.masse[k])])
-      .concat([[{ de: "Blickrichtung", en: "View direction" }, zahl(((Modell.winkelGH(z, p) * 180 / Math.PI) % 360 + 360) % 360, 0) + "° " + (document.documentElement.lang === "en" ? "(0 = north, counter-clockwise)" : "(0 = Nord, gegen Uhrzeiger)")]])
+    legende: (F, p) => [[F.dunkel ? "#2c2c31" : "#d9d9de", { de: "Gebäude (Hindernisse)", en: "Buildings (obstacles)" }], ["rgba(245,163,0,0.6)", { de: "Isovist", en: "Isovist" }], [F.akzent, { de: "Standpunkt", en: "Viewpoint" }]].concat((Modell.EIGENE_DEFINITION.includes(p.kenngroesse) ? [["transparent", Modell.FUSSNOTE]] : [])),
+    kennzahlen: (z, p) => Geo.ISOVIST_MASSE.map(([k]) => [Modell.kenngroesseName(k), (k === p.kenngroesse ? "▸ " : "") + wert(k, z.masse[k])])
+      .concat([[{ de: "Blickrichtung", en: "View direction" }, zahl(((Modell.winkelGH(z, p) * 180 / Math.PI) % 360 + 360) % 360, 0) + "° " + (document.documentElement.lang === "en" ? "(0 = north, counter-clockwise)" : "(0 = Nord, gegen Uhrzeiger)")], [{ de: "*", en: "*" }, { de: "eigene Definition (in Toolbox v2 gestrichen)", en: "own definition (dropped in toolbox v2)" }]])
   });
 })();

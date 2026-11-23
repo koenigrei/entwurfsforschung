@@ -97,11 +97,25 @@ test("Custom offset: kurze Kante verschwindet, zu großer Versatz lässt den Plo
   assert.equal(M.versetzeKanten([[0, 0], [10, 0], [10, 4], [0, 4]], [-3, -3, -3, -3]), null);
 });
 
-test("Remap: Betweenness → Offset Min … Max, Vorzeichen aus Negative Offset", () => {
+test("Remap: Betweenness → Offset Min … Max, Abstände nach innen", () => {
   nahe(M.remap(5, 0, 10, -7, -18), -12.5);
   nahe(M.remap(3, 3, 3, -7, -18), -7);
-  assert.deepEqual(M.zielbereich(mit({})), [-7, -18]);
-  assert.deepEqual(M.zielbereich(mit({ negativ: false, versatzMin: 2, versatzMax: 9 })), [2, 9]);
+  assert.deepEqual(M.zielbereich(mit({})), [7, 18]);
+  assert.deepEqual(M.zielbereich(mit({ versatzMin: 2, versatzMax: 9 })), [2, 9]);
+});
+
+test("Kein negativer Versatz: Werte unter 0 (auch aus der Adresse) werden 0, Plots wachsen nie", () => {
+  assert.deepEqual(M.zielbereich(mit({ versatzMin: -5, versatzMax: "-12" })), [0, 0]);
+  assert.deepEqual(M.zielbereich(mit({ versatzMin: "abc", versatzMax: "4" })), [0, 4]);
+  assert.equal(M.abstandM(-0.1), 0); assert.equal(M.abstandM(NaN), 0); assert.equal(M.abstandM(3), 3);
+  assert.equal(M.STANDARD.negativ, undefined);
+  for (const o of [{ versatzMin: -10, versatzMax: -20 }, { versatzMin: -3, versatzMax: 12 }, { negativ: false }]) {
+    const p = mit(o), z = M.erzeuge(p, zufall(3)); M.rechneAlles(z, p);
+    z.werte.forEach(w => w.forEach(d => assert.ok(d >= 0, "Versatz " + d)));
+    z.plots.forEach((Q, i) => { if (z.erg[i]) assert.ok(Geo.flaeche(z.erg[i]) <= Geo.flaeche(Q.poly) + 1e-6); });
+  }
+  const Q = [[0, 0], [10, 0], [10, 10], [0, 10]];
+  assert.ok(Geo.flaeche(M.versetzeNachInnen(Q, [-1, -1, -1, -1])) === 100);          // negativer Wert → 0, nicht nach außen
 });
 
 test("Schritt: ein Plot je Schritt, danach Ende; t läuft weiter", () => {
@@ -127,7 +141,7 @@ test("Katalog: Werte der Netzanalyse bestimmen den Versatz – wichtige Wege rü
         const b = Q.poly[(j + 1) % Q.poly.length]; if (Geo.abstand(a, b) < 30) return;   // kurze Kanten: Ecken stören die Messung
         const m = Geo.lerp(a, b, 0.5); let d = Infinity;
         for (let r = 0; r < R.length; r++) d = Math.min(d, Geo.abstandSegment(m, R[r], R[(r + 1) % R.length]).d);
-        pkt.push([z.bc[Q.kanten[j]], d, -z.werte[i][j]]);
+        pkt.push([z.bc[Q.kanten[j]], d, z.werte[i][j]]);
       }); });
     pkt.sort((x, y) => x[0] - y[0]);
     const q = Math.floor(pkt.length / 4), mittel = L => L.reduce((s, x) => s + x[1], 0) / L.length;
@@ -144,8 +158,8 @@ test("aendere: Versatzwerte und Richtung wirken auf schon versetzte Plots", () =
   const vor = M.bilanz(z).nach;
   const p2 = mit({ versatzMax: 30 }); M.aendere(z, p2, "versatzMax");
   assert.ok(M.bilanz(z).nach < vor);
-  const p3 = mit({ negativ: false }); M.aendere(z, p3, "negativ");
-  const b = M.bilanz(z); assert.ok(b.nach > b.vor);
+  const p3 = mit({ versatzMin: 0, versatzMax: 0 }); M.aendere(z, p3, "versatzMax");
+  const b = M.bilanz(z); assert.ok(Math.abs(b.nach - b.vor) < 1e-6);
   const p4 = mit({ fang: 40 }); M.aendere(z, p4, "fang");
   assert.ok(M.fertig(z)); assert.equal(kreuzungen(z.N), 0);
 });

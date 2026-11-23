@@ -26,6 +26,7 @@
 - **Zeitablauf**: Grasshopper rechnet alle Zellen auf einmal. In der App rechnet ein Schritt eine Gitterzeile (von Süden nach Norden, in der Ausgabereihenfolge der Komponente), damit man das Feld entstehen sieht; die Kenngröße umzuschalten färbt ohne Neuberechnung um (alle 17 Werte je Zelle werden gespeichert).
 - **Zelle anklicken** zeigt ihren Isovist und ihre Werte (im Original: Isovist-Komponente mit einem einzelnen Punkt); Rechtsklick versetzt den Füllpunkt (im Original ein Punkt in Rhino).
 - **Blickrichtung Norden**: Unit Y der .gh-Datei; in Bildschirmkoordinaten (y nach unten) −90°. Sie wirkt nur bei Blickwinkel < 360°; das Original hat dafür keinen Regler, die App auch nicht.
+- **Kennzeichnung „*“**: Die fünf Kenngrößen, die die Toolbox v2 mangels prüfbarer Definition gestrichen hat – Fläche (abstandsgewichtet), Kreisähnlichkeit, Konvexitätsdefizit, Dispersion, Streckung –, bleiben sichtbar. Sie sind in der Auswahlliste, in den Kennzahlen und in der Beschriftung der Zeichnung mit „*“ markiert; dazu kommt die Fußnote „* eigene Definition (in Toolbox v2 gestrichen)“ in den Kennzahlen und, solange eine solche Kenngröße gewählt ist, in der Legende. Die Formeln stehen in der Tabelle des Abgleichs und in QUELLE.md der App „Isovist von einem Punkt“.
 
 ## Abgleich mit dem Quelltext
 

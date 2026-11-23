@@ -41,6 +41,7 @@ katalog/nutzungsverteilung/
 | `erzeuge(param, zufall)` | neuer Zustand `z` (enthält `t` = Schrittzahl) |
 | `schritt(z, param)` | ein Schritt; erhöht `z.t` |
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
+| `matrixAusText(s)`, `matrixAlsText(M)`, `setzeMatrix(s, i, n, v)` | Gewichtsmatrix Nutzung × Nutzung (Relations, Zeile = Nutzung, Spalte = Bezug) ↔ Text der Adresse `m=…`; Grenzen −1…1, Raster 0.05, ungültig = Original. In `app.js` ersetzt eine Tabelle die (versteckte) Auswahl des Parameters `m`; Änderungen gehen über `SIM.setze("m", text)` |
 | `szene(zufall)` | Beispielstadt (`Szenen.stadt`, 16 × 12 Knoten), Blöcke = Parzellen, Hierarchie der Straßen (1 = Rand, mittlere Zeile/Spalte; sonst 2), Gelände |
 | `netzGraph(strassen, hierarchie, p)` | `Geo.netz` → `Geo.segmentGraph(kL, kW)`, Kosten + `kH · (h_i + h_j) / 2` (Additional Edge Weight) |
 | `segmentJeParzelle(mitten, schwerpunkte)` | Segment, dessen Mitte dem Parzellenschwerpunkt am nächsten liegt (Closest Point) |

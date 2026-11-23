@@ -21,11 +21,24 @@ test("erzeuge: t = 0, Phase „wege“, Blöcke als Verbraucher, Hochbehälter a
   for (const c of [0, 1, 2]) assert.ok(z.Sz.klasse.some(k => k === c), "Klasse " + c);
 });
 
-test("Bedarf je Block: DemandPerHousehold × Fläche / AreaPerHousehold × 0.00005787 (von Hand)", () => {
-  nah(M.bedarfBlock(10000, P), 20 * 10 * 0.00005787, 1e-12);
-  nah(M.bedarfBlock(10000, mit({ flaecheHaushalt: 100 })), 20 * 100 * 0.00005787, 1e-12);
+test("Bedarf je Block: DemandPerHousehold [L/Tag] × Fläche / AreaPerHousehold / 86 400 × Spitzenfaktor (von Hand)", () => {
+  nah(M.bedarfBlock(10000, P), 20 * 10 / 86400 * 5, 1e-15);
+  nah(M.bedarfBlock(10000, mit({ flaecheHaushalt: 100 })), 20 * 100 / 86400 * 5, 1e-15);
+  nah(M.bedarfBlock(10000, mit({ spitzenfaktor: 1 })), 20 * 10 / 86400, 1e-15);
+  nah(M.bedarfBlock(10000, mit({ spitzenfaktor: 10 })) / M.bedarfBlock(10000, mit({ spitzenfaktor: 2 })), 5, 1e-12);
   assert.equal(M.bedarfBlock(5000, mit({ bedarfHaushalt: 0 })), 0);
   assert.equal(M.kantenGewicht(2, P), 1); assert.equal(M.kantenGewicht(1, P), 2); assert.equal(M.kantenGewicht(0, P), 3); assert.equal(M.kantenGewicht(-1, P), 3);
+});
+
+test("Spitzenfaktor 5 (Voreinstellung) ergibt den festen Faktor 0.00005787 der .gh-Datei", () => {
+  assert.equal(P.spitzenfaktor, 5);
+  const alt = 20 * (10000 / 1000) * M.UMRECHNUNG, neu = M.bedarfBlock(10000, P);
+  assert.ok(Math.abs(neu - alt) / alt < 1e-5, `${neu} ≠ ${alt}`);
+  // ganzes Netz: Gesamtbedarf mit Spitzenfaktor 5 wie mit dem alten Faktor, doppelter Spitzenfaktor → doppelter Bedarf
+  const b5 = M.bilanz(Z1, P).bedarf, altGesamt = Z1.verbraucher.reduce((s, v) => s + 20 * v.A / 1000 * M.UMRECHNUNG, 0);
+  assert.ok(Math.abs(b5 - altGesamt) / altGesamt < 1e-5);
+  const z10 = M.erzeuge(mit({ spitzenfaktor: 10 }), zufall(1));
+  nah(M.bilanz(z10, mit({ spitzenfaktor: 10 })).bedarf, 2 * b5, 1e-9);
 });
 
 test("Kombinieren (nachgerechnet): Hierarchiewege ganz, Zusatzkanten der Längenwege nur bis zur Schwelle", () => {

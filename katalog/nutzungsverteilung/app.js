@@ -11,22 +11,50 @@
   const RECHTS = 380, UNTEN = 360, LUECKE = 24;
   const quer = () => window.innerWidth > 900;
 
-  /** Parameter je Profil: Max Population, Gewichte der drei Kriterien, Beziehungen zu den drei Profilen */
+  /** Parameter je Profil: Max Population, Gewichte der drei Kriterien (die Beziehungen stehen in der Gewichtsmatrix) */
   const profilParameter = (a, i) => {
     const g = { de: NAMEN[i].de + " (" + NAMEN[i].en + ")", en: NAMEN[i].en };
     return [
       { id: "pop" + a, gruppe: g, name: { de: "Max. Bevölkerung/Arbeitsplätze (Max Population)", en: "Max population" }, min: 0, max: 20000, schritt: 100, wert: S["pop" + a] },
       { id: "w" + a + "0", gruppe: g, name: { de: "Gewicht Zentralität (Centrality, Closeness)", en: "Weight centrality (closeness)" }, min: -1, max: 1, schritt: 0.05, wert: S["w" + a + "0"] },
       { id: "w" + a + "1", gruppe: g, name: { de: "Gewicht Erreichbarkeit (Accessibility, Betweeness)", en: "Weight accessibility (betweenness)" }, min: -1, max: 1, schritt: 0.05, wert: S["w" + a + "1"] },
-      { id: "w" + a + "2", gruppe: g, name: { de: "Gewicht flache Lage (Flat Area, Slope)", en: "Weight flat area (slope)" }, min: -1, max: 1, schritt: 0.05, wert: S["w" + a + "2"] },
-      ...Modell.PROFILE.map((b, k) => ({ id: "r" + a + b, gruppe: g, name: { de: "Beziehung zu " + NAMEN[k].de + " (To " + NAMEN[k].en + ")", en: "Relation to " + NAMEN[k].en.toLowerCase() },
-                                          min: -1, max: 1, schritt: 0.05, wert: S["r" + a + b] }))
+      { id: "w" + a + "2", gruppe: g, name: { de: "Gewicht flache Lage (Flat Area, Slope)", en: "Weight flat area (slope)" }, min: -1, max: 1, schritt: 0.05, wert: S["w" + a + "2"] }
     ];
   };
   const SIMU = { de: "Simulation (Land Use Simulation Iterations)", en: "Simulation (iterations)" };
   const WAHR = { de: "Wahrgenommene Entfernung (Perceived Distance)", en: "Perceived distance" };
   const NETZ = { de: "Straßennetz (2. BuildGraph)", en: "Street network (2. BuildGraph)" };
   const DARST = { de: "Darstellung (Visualisation)", en: "Display (visualisation)" };
+  const MATRIX = { de: "Gewichtsmatrix Nutzung × Nutzung (Relations)", en: "Weight matrix land use × land use (relations)" };
+  const KURZ = [{ de: "Wohnen", en: "Resid." }, { de: "Gewerbe", en: "Comm." }, { de: "Industrie", en: "Industry" }];
+  const zw = t => `<span lang="de">${t.de}</span><span lang="en">${t.en}</span>`;
+
+  /** Gewichtsmatrix als Tabelle: Zeile = Nutzung, Spalte = Bezug (wie wichtig ist die Spalten-Nutzung für die Zeilen-Nutzung?).
+      Sie steht statt der (versteckten) Zeile des Parameters „m“ (Text der Matrix, den sim.js in der Adresse speichert), Werte −1…1 in Schritten von 0.05. */
+  function matrixTabelle() {
+    const sel = document.getElementById("p-m"); if (!sel) return;
+    const zeile = sel.closest(".zeile");
+    const box = document.createElement("div"); box.className = "matrix";
+    const kopf = `<tr><th class="mono"><span lang="de">Nutzung ↓ · Bezug →</span><span lang="en">use ↓ · relation to →</span></th>${KURZ.map(k => `<th class="mono">${zw(k)}</th>`).join("")}</tr>`;
+    const zeilen = [0, 1, 2].map(i => `<tr><th>${zw(KURZ[i])}</th>${[0, 1, 2].map(n => `<td><input type="number" min="-1" max="1" step="${Modell.RASTER_MATRIX}" data-i="${i}" data-n="${n}" aria-label="${NAMEN[i].de} → ${NAMEN[n].de}"></td>`).join("")}</tr>`).join("");
+    box.innerHTML = `<table>${kopf}${zeilen}</table><div class="knoepfe"><button class="knopf" type="button" id="m-zurueck">${zw({ de: "Zurücksetzen (Original)", en: "Reset (original)" })}</button></div>`;
+    zeile.after(box); zeile.hidden = true; zeile.style.display = "none";   // Auswahlliste bleibt (unsichtbar) für sim.js (Sprache, Adresse)
+    const felder = [...box.querySelectorAll("input")];
+    const zeige = () => { const M = Modell.matrixAusText(SIM.param.m); felder.forEach(f => { const v = M[+f.dataset.i][+f.dataset.n]; f.value = v; f.dataset.vz = v > 0 ? "plus" : v < 0 ? "minus" : "null"; }); };
+    felder.forEach(f => f.addEventListener("change", () => { SIM.setze("m", Modell.setzeMatrix(SIM.param.m, +f.dataset.i, +f.dataset.n, f.value)); zeige(); }));
+    box.querySelector("#m-zurueck").addEventListener("click", () => { SIM.setze("m", S.m); zeige(); });
+    zeige();
+    // Gestaltung der Tabelle (nur Farben aus sim.css-Variablen)
+    const st = document.createElement("style");
+    st.textContent = `.matrix table { width: 100%; border-collapse: collapse; margin: 4px 0 6px; table-layout: fixed; }
+      .matrix th { font-weight: 400; font-size: 11px; color: var(--ink-2); text-align: left; padding: 3px 2px; overflow-wrap: anywhere; }
+      .matrix tr:first-child th { color: var(--muted); }
+      .matrix tr:first-child th:first-child { font-size: 9px; }
+      .matrix td { padding: 2px; }
+      .matrix input { width: 100%; box-sizing: border-box; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 3px 4px; font-family: var(--mono); font-size: 12px; }
+      .matrix input[data-vz="plus"] { border-color: #3b9d5d; } .matrix input[data-vz="minus"] { border-color: #d9534f; }`;
+    document.head.appendChild(st);
+  }
 
   /** Kreisdiagramm einer Parzelle (Arc mit Consecutive Domains der Anteile, Radius √(Fläche · Radius Factor / π)) */
   function torte(ctx, z, j, r, F) {
@@ -91,6 +119,7 @@
       { id: "leer", gruppe: SIMU, name: { de: "Anteil frei (Percent Cells not filled)", en: "Percent cells not filled" }, min: 0, max: 0.9, schritt: 0.1, wert: S.leer },
       { id: "det", gruppe: SIMU, art: "schalter", name: { de: "deterministisch (deterministic)", en: "Deterministic" }, wert: S.det },
       ...Modell.PROFILE.flatMap(profilParameter),
+      { id: "m", gruppe: MATRIX, art: "auswahl", name: { de: "Matrix", en: "Matrix" }, wert: S.m, optionen: [{ wert: S.m, name: S.m }] },
       { id: "funktion", gruppe: WAHR, art: "auswahl", name: { de: "Funktion (Perceived Distance Function)", en: "Perceived distance function" }, wert: S.funktion,
         optionen: [{ wert: "linear", name: { de: "Linear", en: "Linear" } }, { wert: "exponential", name: { de: "Exponentiell (Exponential)", en: "Exponential" } }] },
       { id: "wichtig", gruppe: WAHR, art: "auswahl", name: { de: "Wichtig ist (Distance Importance)", en: "Distance importance" }, wert: S.wichtig,
@@ -209,4 +238,5 @@
       return K;
     }
   });
+  matrixTabelle();
 })();

@@ -34,7 +34,8 @@
   /** Voreinstellungen der .gh-Datei:
       popR/popC/popI: Max Population 10000/5000/5000 (Panels „Residential“, „Commercial“, „Industry“)
       wR0, wR1 …: Criteria Weights (Prefer > 0, Avoid < 0): Residential 0.5/−0.25, Commercial 1/1, Industry −1/1; Flat Area 0 (nur als Hinweis in der Datei)
-      rRR, rRC, rRI …: Relations „To Residential/To Commercial/To Industry“: Residential 1/0.5/−0.75, Commercial 0.5/0.5/0.25, Industry −0.5/0/1
+      m: Gewichtsmatrix Nutzung × Nutzung = Relations „To Residential/To Commercial/To Industry“ zeilenweise als Text
+         (Zeile = Nutzung, Spalte = Bezug): Residential 1/0.5/−0.75, Commercial 0.5/0.5/0.25, Industry −0.5/0/1
       funktion: Perceived Distance Function Exponential [Linear, Exponential] · wichtig: Distance Importance Close [Close, Far]
       falloff: Falloff Value 1 [0..1] · exponent: Exponent 2 [2..6]
       iterationen: Iterations 30 [0..1000] · leer: Percent Cells not filled 0.3 [0..1] · det: deterministic false (Toggle)
@@ -43,21 +44,40 @@
   const STANDARD = {
     popR: 10000, popC: 5000, popI: 5000,
     wR0: 0.5, wR1: -0.25, wR2: 0, wC0: 1, wC1: 1, wC2: 0, wI0: -1, wI1: 1, wI2: 0,
-    rRR: 1, rRC: 0.5, rRI: -0.75, rCR: 0.5, rCC: 0.5, rCI: 0.25, rIR: -0.5, rIC: 0, rII: 1,
+    m: "1,0.5,-0.75,0.5,0.5,0.25,-0.5,0,1",
     funktion: "exponential", wichtig: "close", falloff: 1, exponent: 2,
     iterationen: 30, leer: 0.3, det: false,
     kL: 0.5, kW: 0.5, kH: 0.5, variante: "direkt",
     radius: 0.5, darstellung: "verteilung", profil: 0, diagramme: true, gelaende: true
   };
+  const STANDARD_M = STANDARD.m;
   /** Parameter, die nur die Darstellung betreffen (ohne Neuberechnung) */
   const DARSTELLUNG = new Set(["radius", "darstellung", "profil", "diagramme", "gelaende"]);
 
-  /** Profile aus den Parametern → {maxPop[3], w[3][3] (Profil × Kriterium), rel[3][3] (Profil → Profil)} */
+  /** Gewichtsmatrix der Relations (Zeile = Nutzung, Spalte = Bezug) aus dem Text der Adresse („1,0.5,-0.75,…“):
+      neun Zahlen, auf −1…1 begrenzt und auf 0.05 gerundet; fehlende oder ungültige Einträge nehmen den Wert des Originals. */
+  const RASTER_MATRIX = 0.05;
+  function matrixAusText(s) {
+    const roh = String(s == null ? "" : s).split(","), std = String(STANDARD_M).split(",").map(Number);
+    const M = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    for (let k = 0; k < 9; k++) {
+      const v = roh[k] != null && roh[k].trim() !== "" ? Number(roh[k]) : NaN;
+      M[Math.floor(k / 3)][k % 3] = Number.isFinite(v) ? rundeMatrix(v) : std[k];
+    }
+    return M;
+  }
+  /** Matrix → kompakter Text für die Adresse (ohne überflüssige Nullen) */
+  const matrixAlsText = M => M.flat().map(v => String(rundeMatrix(v))).join(",");
+  function rundeMatrix(v) { const r = Math.round(Math.max(-1, Math.min(1, v)) / RASTER_MATRIX) * RASTER_MATRIX; return Math.round(r * 100) / 100 || 0; }
+  /** Matrix mit einem geänderten Eintrag (Zeile i, Spalte n) als Text */
+  function setzeMatrix(s, i, n, v) { const M = matrixAusText(s); M[i][n] = rundeMatrix(Number(v) || 0); return matrixAlsText(M); }
+
+  /** Profile aus den Parametern → {maxPop[3], w[3][3] (Profil × Kriterium), rel[3][3] (Profil → Profil, aus der Matrix)} */
   function profile(p) {
     return {
       maxPop: PROFILE.map(a => Math.max(0, Number(p["pop" + a]) || 0)),
       w: PROFILE.map(a => [0, 1, 2].map(c => Number(p["w" + a + c]) || 0)),
-      rel: PROFILE.map(a => PROFILE.map(b => Number(p["r" + a + b]) || 0))
+      rel: matrixAusText(p.m)
     };
   }
 
@@ -364,6 +384,7 @@
     else if (id === "variante") baueAbstaende(z, p);
     else if (id === "funktion" || id === "wichtig" || id === "falloff" || id === "exponent") baueWahrnehmung(z, p);
     else if (id === "det") neuerLauf(z, p);
+    else if (id === "m") { z.pr = profile(p); neuerLauf(z, p); }   // Gewichtsmatrix: nur die Relations
     else baueGewichte(z, p);                              // Profile, Iterations, Percent Cells not filled
     if (k > 0) rechneBis(z, p, k);
   }
@@ -395,7 +416,7 @@
     return { summe, parzellen, flaeche, zentral, erreichbar, voll: volleParz, gemischt, wege: v.wege, gleich: v.gleich, verhaeltnis: v.gleich > 0 ? v.wege / v.gleich : NaN };
   }
 
-  return { PROFILE, NAMEN, KRITERIEN, STANDARD, DARSTELLUNG, profile, szene, netzGraph, segmentJeParzelle, netzKennwerte, remap, kriterien,
+  return { PROFILE, NAMEN, KRITERIEN, STANDARD, DARSTELLUNG, RASTER_MATRIX, matrixAusText, matrixAlsText, setzeMatrix, profile, szene, netzGraph, segmentJeParzelle, netzKennwerte, remap, kriterien,
            gewichteteWerte, ersteVerteilung, distanzen, formel, wahrnehmung, attraktivitaet, jeIteration, maxDichte, verteile,
            wegeSchaetzung, wegeGleich, erzeuge, baueNetz, neuerLauf, schritt, fertig, rechneBis, aendere, parzelleBei, bilanz };
 });

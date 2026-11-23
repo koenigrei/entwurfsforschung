@@ -199,8 +199,43 @@ test("Katalog: die Nutzungen beeinflussen sich – Anziehung statt Abstoßung zw
     let s = 0; for (let j = 0; j < n; j++) s += R[j] * I[j]; return s / (sR * sI) * n; };
   let mehr = 0;
   for (const saat of [1, 2, 3]) {
-    const a = ueber(lauf(P, saat, 30)), b = ueber(lauf(mit({ rRI: 1, rIR: 1 }), saat, 30));
+    const a = ueber(lauf(P, saat, 30)), b = ueber(lauf(mit({ m: M.setzeMatrix(M.setzeMatrix(P.m, 0, 2, 1), 2, 0, 1) }), saat, 30));
     if (b > a) mehr++;
   }
   assert.ok(mehr >= 3);
+});
+
+test("Gewichtsmatrix ↔ Modell: Voreinstellung = Relations des Originals, Zeile = Nutzung, Spalte = Bezug", () => {
+  assert.deepEqual(M.profile(P).rel, [[1, 0.5, -0.75], [0.5, 0.5, 0.25], [-0.5, 0, 1]]);
+  const m = M.setzeMatrix(P.m, 0, 2, 0.4);                         // Wohnen → Industrie
+  assert.deepEqual(M.profile(mit({ m })).rel[0], [1, 0.5, 0.4]);
+  // der Eintrag wirkt als Relation(i → n) in der Attraktivität: z.pr.rel nach aendere gleich der Matrix
+  const z = lauf(P, 1, 3); M.aendere(z, mit({ m }), "m");
+  assert.deepEqual(z.pr.rel, M.matrixAusText(m)); assert.equal(z.iter, 3);
+  assert.deepEqual(z.D.map(x => [...x]), lauf(mit({ m }), 1, 3).D.map(x => [...x]));
+  assert.notDeepEqual(z.D.map(x => [...x]), lauf(P, 1, 3).D.map(x => [...x]));
+});
+
+test("Gewichtsmatrix: Grenzen −1…1, Raster 0.05, ungültige Einträge = Original", () => {
+  assert.deepEqual(M.matrixAusText("2,-3,0.333,,x"), [[1, -1, 0.35], [0.5, 0.5, 0.25], [-0.5, 0, 1]]);
+  assert.deepEqual(M.matrixAusText(undefined), M.profile(P).rel);
+  assert.equal(M.setzeMatrix(P.m, 1, 1, -0.02), "1,0.5,-0.75,0.5,0,0.25,-0.5,0,1");
+});
+
+test("Gewichtsmatrix in der Adresse: hin und zurück (URLSearchParams wie sim.js), kompakt", () => {
+  const m = M.setzeMatrix(M.setzeMatrix(P.m, 2, 0, 0.85), 1, 2, -1);
+  const q = new URLSearchParams(); q.set("saat", 3); q.set("m", m);
+  const h = new URLSearchParams(q.toString());
+  assert.equal(h.get("m"), m);
+  assert.deepEqual(M.matrixAusText(h.get("m")), M.matrixAusText(m));
+  assert.equal(M.matrixAlsText(M.matrixAusText(m)), m);
+  assert.ok(q.toString().length < 70, q.toString());
+});
+
+test("Gewichtsmatrix zurücksetzen: Originalwerte ergeben wieder den Lauf des Originals", () => {
+  const z = lauf(mit({ m: "0,0,0,0,0,0,0,0,0" }), 2, 5);
+  M.aendere(z, P, "m");
+  assert.equal(z.iter, 5);
+  assert.deepEqual(z.pr.rel, [[1, 0.5, -0.75], [0.5, 0.5, 0.25], [-0.5, 0, 1]]);
+  assert.deepEqual(z.D.map(x => [...x]), lauf(P, 2, 5).D.map(x => [...x]));
 });

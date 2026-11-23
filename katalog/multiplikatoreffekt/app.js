@@ -11,6 +11,9 @@
   // Diagramme: auf breiten Bildschirmen rechts neben dem Plan, sonst darunter (Modelleinheiten = m)
   const RECHTS = 560, UNTEN = 700, LUECKE = 50;
   const quer = () => window.innerWidth > 900;
+  /** Hinweis zur Closeness-Formel in den Kennzahlen */
+  const legacyHinweis = p => p.closeness !== "legacy" ? { de: "Gl. 4", en: "eq. 4" }
+    : p.radius === "rn" ? { de: "Legacy = Gl. 4", en: "legacy = eq. 4" } : { de: "Legacy · Paper", en: "legacy · paper" };
   /** Zahl als tiefgestellte Ziffern (MPC₂₉) */
   const tief = n => String(n).replace(/\d/g, c => "₀₁₂₃₄₅₆₇₈₉"[c]);
 
@@ -100,6 +103,9 @@
       { id: "iterationen", gruppe: SIMU, name: { de: "Iterationen (Loop Start, Repeat)", en: "Iterations (loop start, repeat)" }, min: 0, max: 100, schritt: 1, wert: S.iterationen },
       { id: "mass", gruppe: SIMU, art: "auswahl", name: { de: "Zentralität MPC (List)", en: "Centrality MPC (list)" }, wert: S.mass,
         optionen: [{ wert: "closeness", name: { de: "Closeness (Closennes)", en: "Closeness" } }, { wert: "betweenness", name: { de: "Betweenness", en: "Betweenness" } }] },
+      { id: "closeness", gruppe: SIMU, art: "auswahl", name: { de: "Closeness-Formel", en: "Closeness formula" }, wert: S.closeness,
+        optionen: [{ wert: "gl4", name: { de: "Paper Gl. 4: Σw / Σd·w (Standard)", en: "Paper eq. 4: Σw / Σd·w (standard)" } },
+                   { wert: "legacy", name: { de: "Legacy 2019 (n^2,5/Σd mit Radius)", en: "Legacy 2019 (n^2.5/Σd with radius)" } }] },
       { id: "radius", gruppe: SIMU, art: "auswahl", name: { de: "Radius (List)", en: "Radius (list)" }, wert: S.radius,
         optionen: [{ wert: "r600", name: { de: "Fußgänger R600 m (Pedestrian radius R600m)", en: "Pedestrian radius R600m" } },
                    { wert: "rn", name: { de: "Global Rn (Global radius N)", en: "Global radius N" } }] },
@@ -187,7 +193,7 @@
         [{ de: "Ne natürliche Bewegung", en: "Ne natural movement" }, zahl(K.ne, 3)],
         [{ de: "Nutzungen auf Top 10 %", en: "Land use on top 10 %" }, zahl(100 * K.top10, 1) + " %"],
         [{ de: "Nutzungen an Disruptoren", en: "Land use at disruptors" }, z.dSeg.length ? zahl(100 * K.disruptorAnteil, 1) + " %" : "–"]
-      ];
+      ].concat(p.mass === "closeness" ? [[{ de: "Closeness-Formel", en: "Closeness formula" }, legacyHinweis(p)]] : []);
     }
   });
 })();

@@ -173,3 +173,33 @@ test("E.2 und Ne: temporäre Störung wird ausgeglichen (global Closeness: Ne ho
   assert.ok(kt.me < kt.ne, "Me im gestörten Netz kleiner als Ne");
   nah(kd.disruptorAnteil, d.dSeg.length * 300 / M.summe(d.gew[0]), 1e-9);
 });
+
+// ---------------------------------------------------------------- Legacy-Closeness (Option, review-2026-11.md: n^2,5/Σd mit Radius)
+test("Legacy-Closeness: (Σw)^2,5 / Σ d·w, nachgerechnet am T-Stoß", () => {
+  const { N, G } = winkelGraph([[[0, 0], [100, 0]], [[100, 0], [200, 0]], [[100, 0], [100, 100]]]);
+  const a = seg(N, [0, 0], [100, 0]), c = seg(N, [100, 0], [100, 100]);
+  const w = new Float64Array(3).fill(1);
+  assert.equal(M.LEGACY_EXPONENT, 2.5);
+  nah(M.closenessVon(G, M.suche(G, a), w, true), Math.pow(2, 2.5) / 0.5, 1e-6);   // ungewichtet: n^2,5 / Σd mit n = 2
+  w[c] = 3;
+  nah(M.closenessVon(G, M.suche(G, a), w, true), Math.pow(4, 2.5) / 1.5, 1e-6);   // Σw = 4 statt n
+  const L = winkelGraph([[[0, 0], [100, 0]], [[100, 0], [200, 0]]]);
+  assert.equal(M.closenessVon(L.G, M.suche(L.G, 0), null, true), 0);
+});
+
+test("Legacy-Closeness wirkt nur mit Radius: Rn gleich Gl. 4, R600 anders", () => {
+  const p = Object.assign({}, M.STANDARD), z = M.erzeuge(p, zufall(1)), w = z.w0;
+  const rn = q => M.bewegungspotenzial(z.G, w, w, Object.assign({}, p, q));
+  assert.deepEqual(Array.from(rn({ radius: "rn", closeness: "legacy" })), Array.from(rn({ radius: "rn", closeness: "gl4" })));
+  assert.notDeepEqual(Array.from(rn({ closeness: "legacy" })), Array.from(rn({ closeness: "gl4" })));
+});
+
+test("Legacy-Closeness R600: stärkere Rückkopplung als Gl. 4 (Me kleiner, Nutzungen konzentrierter); Umschalten startet neu", () => {
+  const g = lauf({}, 29, 1, true).z, l = lauf({ closeness: "legacy" }, 29, 1, true).z;
+  const kg = M.kennwerte(g), kl = M.kennwerte(l);
+  assert.ok(kl.me < kg.me - 0.05, "Me Legacy " + kl.me + " / Gl. 4 " + kg.me);
+  assert.ok(kl.top10 > kg.top10 + 0.05, "Top 10 % Legacy " + kl.top10 + " / Gl. 4 " + kg.top10);
+  const p = Object.assign({}, M.STANDARD, { closeness: "legacy" });
+  M.aendere(l, p, "closeness");
+  assert.equal(l.iter, 0); assert.equal(l.t, 0);
+});

@@ -43,7 +43,7 @@ katalog/multiplikatoreffekt/
 | `aendere(z, param, id)` | Parameter ohne Neustart: Definition → neuer Graph; Maß/Radius → neue Referenz (gleich belastet); Modus, Störung, k, d → Rückkopplung ab Iteration 0; Disruptoren bleiben |
 | `strassennetz(zufall, opt)` | Beispielnetz: `Szenen.stadt` + Diagonalen vom Zentrum + nach innen gerückte Randknoten → `{segmente, b, h, szene}` |
 | `suche(G, s, r)` | kürzeste Wege im gerichteten Segmentgraphen mit Radius r in m (Suche wird beschnitten), Rangfolge Kosten, dann Schritte |
-| `closenessVon(G, R, w)` | gewichtete Closeness Gl. 4: Σ w_k / Σ d_sk · w_k (0, wenn Σ d·w = 0) |
+| `closenessVon(G, R, w, legacy)` | gewichtete Closeness Gl. 4: Σ w_k / Σ d_sk · w_k; `legacy` (Option „Closeness-Formel“, nur mit Radius): (Σ w_k)^2,5 / Σ d_sk · w_k (`LEGACY_EXPONENT`); 0, wenn Σ d·w = 0 |
 | `betweennessVon(G, R, gQ, gZ, bc, enden)` | Beitrag eines Ursprungs zur gewichteten Betweenness Gl. 5 (Brandes, gleich kurze Wege geteilt; `enden` = Legacy) |
 | `bewegungspotenzial(G, gQ, gZ, p)` | MPC aller Segmente (4. FWGetPaths, Ausgang CW oder BW) |
 | `anfangsGewichte(n, dSeg, k, d)` | Cluster „Custom OD weights“ |
@@ -71,6 +71,6 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 
 - Das Weimarer Netz der Skripte (1327 Linien) als Datei laden und die Experimente E.1/E.2 des Papers nachrechnen; mit Web Worker, weil Rn dann deutlich länger dauert.
 - Disruptoren mit eigener Stärke je Punkt (das Paper nutzt zwei unterschiedlich große), Ziehen der Punkte.
-- Die Legacy-Closeness mit Radius (`n^2.5/Σd`, siehe `QUELLE.md`) als dritte Definition, um die Abweichung bei Closeness R600 zu prüfen.
+- Ein großes Netz (≈ 1300 Segmente wie Weimar) als Auswahl, mit Web Worker: Mit der Legacy-Closeness kommt R600 dort näher an die Werte des Papers (Tabelle in `QUELLE.md`).
 - Kapazitätsgrenze je Segment (Ausblick des Papers), weitere Zentralitäten (Gravity mit Distanzabfall, NAIN/NACH), Sensitivitätsanalyse über k, d und Lage der Disruptoren.
 - Streudiagramm Ne (MPC₁ gleich belastet gegen MPC_N gestört) als zweite Ansicht, CSV-Ausgabe wie die Vollversion.

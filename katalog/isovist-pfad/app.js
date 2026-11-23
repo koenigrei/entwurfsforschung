@@ -10,7 +10,7 @@
   const zahl = (v, n = 1) => isFinite(v) ? v.toLocaleString(de() ? "de" : "en", { minimumFractionDigits: n, maximumFractionDigits: n }) : "–";
   const EINHEIT = { area: " m²", areaDist: " m³", perimeter: " m", occlusivity: " m", minRadial: " m", maxRadial: " m", meanRadial: " m", stdDev: " m", variance: " m²", driftMagnitude: " m", driftAngle: "°" };
   const wert = (k, v) => zahl(v, ["area", "areaDist", "variance"].includes(k) ? 0 : ["compactness", "circularity", "convexDeficiency", "skewness", "dispersion", "elongation"].includes(k) ? 3 : 1) + (isFinite(v) ? EINHEIT[k] || "" : "");
-  const name = k => { const e = Geo.ISOVIST_MASSE.find(m => m[0] === k); return { de: e[2], en: e[1] }; };
+  const name = k => Modell.kenngroesseName(k);   // mit „ *“ bei eigener Definition
 
   /** Verlauf der gewählten Kenngröße entlang des Weges (wie das Katalogbild „Isovist Statistics“) */
   function diagramm(ctx, z, p, F, x0, y0, w, h) {
@@ -51,7 +51,7 @@
       { id: "reichweite", name: { de: "Reichweite (Viewing Range) m", en: "Viewing range (m)" }, min: 1, max: 200, schritt: 1, wert: S.reichweite },
       { id: "strahlen", name: { de: "Strahlen (Isovist Rays)", en: "Isovist rays" }, min: 1, max: 720, schritt: 1, wert: S.strahlen },
       { id: "kenngroesse", art: "auswahl", name: { de: "Kenngröße (Isovist Properties)", en: "Isovist property" }, wert: S.kenngroesse,
-        optionen: Geo.ISOVIST_MASSE.map(([k, en, d]) => ({ wert: k, name: { de: `${d} (${en})`, en } })) },
+        optionen: Geo.ISOVIST_MASSE.map(([k]) => Modell.kenngroesseOption(k)) },
       { id: "schrittweite", gruppe: { de: "Abspielen", en: "Playback" }, name: { de: "Weg je Schritt (Anteil)", en: "Path per step (fraction)" }, min: 0.001, max: 0.02, schritt: 0.001, wert: S.schrittweite },
       { id: "amEnde", art: "auswahl", name: { de: "Am Ende des Weges", en: "At the end of the path" }, wert: S.amEnde,
         optionen: [{ wert: "anhalten", name: { de: "anhalten", en: "stop" } }, { wert: "vonVorn", name: { de: "von vorn", en: "start over" } }] },
@@ -92,10 +92,11 @@
       ctx.beginPath(); ctx.moveTo(0, z.h); ctx.lineTo(z.b, z.h); ctx.strokeStyle = F.linie; ctx.lineWidth = px; ctx.stroke();
       diagramm(ctx, z, p, F, 8, z.h + 6, z.b - 16, DIAG - 12);
     },
-    legende: F => [[F.dunkel ? "#2c2c31" : "#d9d9de", { de: "Gebäude", en: "Buildings" }], [ROT, { de: "Weg", en: "Path" }], ["rgba(245,163,0,0.7)", { de: "Isovist", en: "Isovist" }], [F.akzent, { de: "Standpunkt", en: "Viewpoint" }]],
+    legende: (F, p) => [[F.dunkel ? "#2c2c31" : "#d9d9de", { de: "Gebäude", en: "Buildings" }], [ROT, { de: "Weg", en: "Path" }], ["rgba(245,163,0,0.7)", { de: "Isovist", en: "Isovist" }], [F.akzent, { de: "Standpunkt", en: "Viewpoint" }]].concat((Modell.EIGENE_DEFINITION.includes(p.kenngroesse) ? [["transparent", Modell.FUSSNOTE]] : [])),
     kennzahlen: (z, p) => [
       [{ de: "Punkt auf dem Weg", en: "Point on path" }, `${zahl(z.anteil, 3)} · ${zahl(z.anteil * z.laenge, 0)} m ${de() ? "von" : "of"} ${zahl(z.laenge, 0)} m`],
       [{ de: "Blickrichtung", en: "View direction" }, zahl(((z.richtung * 180 / Math.PI) % 360 + 360) % 360, 0) + "°"]
-    ].concat(Geo.ISOVIST_MASSE.map(([k, en, d]) => [{ de: d, en }, (k === p.kenngroesse ? "▸ " : "") + wert(k, z.masse[k])]))
+    ].concat(Geo.ISOVIST_MASSE.map(([k]) => [name(k), (k === p.kenngroesse ? "▸ " : "") + wert(k, z.masse[k])]))
+      .concat([[{ de: "*", en: "*" }, { de: "eigene Definition (in Toolbox v2 gestrichen)", en: "own definition (dropped in toolbox v2)" }]])
   });
 })();

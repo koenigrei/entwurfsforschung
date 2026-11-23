@@ -142,3 +142,14 @@ test("gleiche Saat → gleiches Feld, andere Saat → anderes", () => {
   assert.deepEqual(Array.from(a.werte.area), Array.from(b.werte.area));
   assert.notDeepEqual(Array.from(a.werte.area), Array.from(c.werte.area));
 });
+
+test("fünf Kenngrößen mit eigener Definition (in Toolbox v2 gestrichen) sind mit „*“ gekennzeichnet", () => {
+  const G = require("../../_gemeinsam/geo.js");
+  assert.deepEqual(M.EIGENE_DEFINITION, ["areaDist", "circularity", "convexDeficiency", "dispersion", "elongation"]);
+  for (const k of M.EIGENE_DEFINITION) assert.ok(G.ISOVIST_MASSE.some(m => m[0] === k), k);
+  assert.deepEqual(M.kenngroesseName("circularity"), { de: "Kreisähnlichkeit *", en: "Circularity *" });
+  assert.deepEqual(M.kenngroesseName("area"), { de: "Fläche", en: "Area" });
+  assert.deepEqual(M.kenngroesseOption("elongation").name, { de: "Streckung (Elongation) *", en: "Elongation *" });
+  assert.equal(G.ISOVIST_MASSE.filter(([k]) => M.kenngroesseName(k).de.endsWith(" *")).length, 5);
+  assert.ok(M.FUSSNOTE.de.startsWith("* eigene Definition"));
+});

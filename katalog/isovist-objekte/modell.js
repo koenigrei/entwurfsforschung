@@ -24,6 +24,12 @@
       größten Werts ist gelb, ab 56 % rot */
   const VERLAUF = { farben: [[0, 0, 139], [50, 178, 206], [87, 166, 31], [255, 215, 0], [255, 0, 0]], faktoren: [0, 0.0341, 0.0977, 0.1977, 0.5614] };
 
+  /** Dieselben Farben mit gleichmäßig verteilten Griffen (wie der Gradient im Modul „Isovist Field“) – für das Maß „sichtbare Länge“,
+      dessen Werte (bezogen auf den größten Wert am Standpunkt) gleichmäßig verteilt sind; Kennzahlen der Verteilung in QUELLE.md */
+  const VERLAUF_LINEAR = { farben: VERLAUF.farben, faktoren: [0, 0.25, 0.5, 0.75, 1] };
+  /** Farbverlauf je Maß: Strahltreffer → gestauchter Verlauf des Originals, sichtbare Länge → linear */
+  const verlaufFuer = mass => mass === "laenge" ? VERLAUF_LINEAR : VERLAUF;
+
   /** Farbe des Verlaufs bei t ∈ [0, 1] → [r, g, b] (linear zwischen den Griffen, jenseits des letzten Griffs dessen Farbe) */
   function verlauf(t, V = VERLAUF) {
     const f = V.faktoren, c = V.farben;
@@ -166,6 +172,6 @@
     return { sichtbar: n, gebaeude: s.geb.length, kanten: nk, treffer: summe, frei: s.frei, bester: s.geb[best] > 0 ? best : -1 };
   }
 
-  return { STANDARD, VERLAUF, verlauf, blick, richtungZu, objekte, sichtbarkeit, rundeEcken, rundweg, naechsterAnteil,
+  return { STANDARD, VERLAUF, VERLAUF_LINEAR, verlaufFuer, verlauf, blick, richtungZu, objekte, sichtbarkeit, rundeEcken, rundweg, naechsterAnteil,
            erzeuge, rechne, schritt, aendere, imGebaeude, setzeStandpunkt, auswertung };
 });

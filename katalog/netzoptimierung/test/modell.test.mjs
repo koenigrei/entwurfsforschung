@@ -192,3 +192,32 @@ test("Show Variant, Auswahl per Klick und Verschieben eines Randpunkts", () => {
   M.verschiebe(z, P, g, [100, 420]);
   assert.deepEqual(z.S.rand[0], [100, 420]); assert.equal(z.gen, 0); assert.equal(z.alle.length, 10);
 });
+
+test("Lesart f₂ „mittlere Weglänge“ Σd / n (nachgerechnet): größter Wert, minimiert", () => {
+  const segs = [[[0, 0], [10, 0]], [[10, 0], [20, 0]], [[20, 0], [30, 0]]];
+  const G = Geo.richtungsGraph(Geo.netz(segs), { kL: 1, kW: 0, norm: "dcs2020" });
+  const md = M.naehe(G, "weglaenge");
+  nah(md[0], 1.5); nah(md[1], 1); nah(md[2], 1.5);                  // Enden: (1 + 2) / 2, Mitte: (1 + 1) / 2
+  const B = M.bewerte(segs, mit({ kL: 1, kW: 0, ziel2: "weglaenge" }));
+  nah(B.f2, 1.5); nah(B.f1, 10000 / (30 + 0.000001));
+  assert.ok(Number.isNaN(M.naehe(Geo.richtungsGraph(Geo.netz([[[0, 0], [10, 0]]]), { norm: "dcs2020" }), "weglaenge")[0]), "isoliert → NaN");
+  // die gezeigten Werte je Segment folgen der Lesart; Lauf mit der zweiten Lesart: Archiv wird besser als Generation 0
+  const p = mit({ ziel2: "weglaenge" }), z = M.erzeuge(p, zufall(1)), g0 = z.alle.slice();
+  for (let i = 0; i < 6; i++) M.schritt(z, p);
+  assert.ok(z.alle.every(x => x.f2 > 1), "mittlere Weglänge in Kosteneinheiten > 1 erwartet");
+  assert.ok(Math.min(...z.archiv.map(x => x.f2)) < Math.min(...g0.map(x => x.f2)));
+});
+
+test("Ziele: bei n / Σd ziehen Länge und Zentralität gleich, bei Σd / n stehen sie gegeneinander (Korrelation über Zufallsnetze)", () => {
+  const S = M.szene(), r = zufall(5), f1 = [], c = [], w = [];
+  for (let i = 0; i < 40; i++) {
+    const ph = M.wachse(M.baum(r, 15, P), S, P);
+    f1.push(M.bewerte(ph.segmente, P).f1); c.push(M.bewerte(ph.segmente, P).f2); w.push(M.bewerte(ph.segmente, mit({ ziel2: "weglaenge" })).f2);
+  }
+  const mw = a => a.reduce((s, x) => s + x, 0) / a.length;
+  const korr = (a, b) => { const ma = mw(a), mb = mw(b); let s = 0, sa = 0, sb = 0; a.forEach((x, i) => { s += (x - ma) * (b[i] - mb); sa += (x - ma) ** 2; sb += (b[i] - mb) ** 2; }); return s / Math.sqrt(sa * sb); };
+  const rc = korr(f1, c), rw = korr(f1, w);
+  assert.ok(rc > 0.3, "n/Σd: Korrelation f₁–f₂ = " + rc.toFixed(2));
+  // Saat 5, 40 Netze: r(n/Σd) ≈ +0,47, r(Σd/n) ≈ −0,41
+  assert.ok(rw < -0.3, "Σd/n: Korrelation f₁–f₂ = " + rw.toFixed(2));
+});
