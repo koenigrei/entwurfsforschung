@@ -1,0 +1,41 @@
+# Quelle · Wasserleitung: Druck und Durchfluss
+
+| | |
+|---|---|
+| Original | Grasshopper-Modul „Water Network Analysis“ (`WaterNetworkAnalysis.gh`) |
+| Katalog | Parametric Planning Catalogue – DeCodingSpaces, ECL-AA, InfAR, Bauhaus-Universität Weimar, 2020 |
+| Autorinnen und Autoren | DeCodingSpaces – Martin Dennemark |
+| Katalogeintrag | https://infar-buw.github.io/parametric-planning-catalogue/docs/WaterNetworkAnalysis/ |
+| Quellen | https://github.com/infar-buw/parametric-planning-catalogue (Ordner `docs/WaterNetworkAnalysis/`) |
+| Lizenz des Originals | MIT (Copyright (c) 2020 infar-buw); diese Neuumsetzung: CC BY 4.0 |
+| Gelesen | `.gh` mit GH_IO in XML gewandelt, Komponenten, Verdrahtung, Schieberegler (Wert, Bereich), Wertelisten, alle Panels gelesen; `Testnet.inp`/`.rpt` (vom Modul geschriebenes EPANET-Netz; die .rpt-Datei enthält keine Ergebnisse) und das GIF ausgewertet; nichts ausgeführt |
+| Komponenten | „Write/Analyse/Read Hydrology Network“ (DeCodingSpaces, kompiliert, rufen `epanet2.dll` auf). Im rekonstruierten Quelltext der Toolbox (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox, GPL-3.0) sind sie nur in `docs/inventory.md` mit Ein- und Ausgängen verzeichnet (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/inventory.md), Quelltext liegt dort nicht vor. Abgleich mit dieser Liste; kein Code übernommen. |
+
+## Übernommen
+
+- **Ablauf der Schaltung**: Range (Steps = NetworkSegments) → Graph Mapper (Bezier mit den vier Stützpunkten der Datei) → Cluster (Punkte und Linien des Profils über NetworkLength und NetworkHeight) → „Write Hydrology Network“ (Name, Lines, Line Diameter (m), Line Roughness, Pumps = `Round.Floor(NetworkSegments × Pump Index)`, Pump Power (kW), Consumers, Consumer Demand (LPS), Tanks, Tank Height (m), Tank Volume (m³)) → „Analyse Hydrology Network“ (Pipe Values, Node Values) → Value Lists „Pipe values“ (Flow rate, Flow velocity, Head loss, Actual link status, Roughness, Energy expended) und „Node values“ (Actual demand, Hydraulic head, Pressure) → Bounds/Remap/Gradient für die Farbe der Leitungen → Smaller Than (Min Pressure) → Replace Items: Verbraucher unter dem Mindestdruck pink.
+- **Netz wie Testnet.inp**: Behälter am ersten Punkt (Elevation 0, Wasserstand = Tank Height, Durchmesser aus `V = π d² / 4 · h`, in Testnet.inp 395 m³ / 5 m → 10.029 m), jeder weitere Punkt ein Verbraucher mit Demand, Rohrlänge im Raum (`√(Δx² + Δz²)`, wie die Längen in Testnet.inp), Durchmesser in m (Testnet.inp: 900 mm), eine Pumpe „POWER“ an der Linie Floor(10 × 0.99) = 9, Optionen LPS, H-W, Accuracy 0.001, Trials 40, Global Efficiency 75 %.
+- **Parameter und Voreinstellungen** der Schieberegler: NetworkSegments 10 [0..100], NetworkLength 100 [0..1000], NetworkHeight 30 [0..100], TankHeight 6 [0..10], TankVolume 395 [0..1000], Demand (Liter per Second) 100 [0..1000], LineDiameter 0.9 [0..10], Min Pressure 1 [0..100], LineRoughness 120 [120..160], Pump Power in kilowatt 1 [1..20], Pump Index 0.99 [0..0.99]; Value Lists mit Voreinstellung Flow rate und Pressure.
+- **Rechnung wie EPANET** (eigener Löser in `hydraulik.js`, siehe Literatur): stationärer Zustand, Hazen-Williams-Verlust, Pumpe konstanter Leistung (`h = P / (ρ g Q)`), Behälter als Knoten mit festem Wasserspiegel, Gradientenverfahren nach Todini & Pilati, Abbruch bei Σ|ΔQ| / Σ|Q| ≤ 0.001. Ausgaben in den Einheiten von EPANET (L/s, m/s, Verlust in m/km bzw. −Förderhöhe bei Pumpen, Druck in m, Energie in kW). Geprüft an Handrechnungen (ein Rohr, zwei parallele Rohre, Masche mit Hardy-Cross-Vergleich, Pumpe) und an `Testnet.inp` (liegt als Prüfdatei in `test/`, aus dem Katalog, MIT).
+- **Panel „Example“**: „Pink nodes have too less pressure to get water. As you can see even nodes that follow these, can still have enough pressure, which is physically impossible. This is, because Epanet calculates values for each node, but not iteratively. This might be changed in a later version.“ – mit den Voreinstellungen zu sehen (Kuppe pink, die Knoten dahinter wieder grün; als Test festgehalten).
+- **Darstellung** wie im GIF: Höhenprofil mit Hochbehälter („Water Tank“), Pumpe als Kegel, Leitungen in Gradientfarben (hoher Wert blau, niedriger rot), Werte der Leitungen lila, der Knoten cyan, Verbraucher grün bzw. pink.
+
+## Bewusst geändert
+
+- **Cluster nachgebildet**: Der Inhalt des Clusters (Profil aus Graph Mapper, Range, NetworkLength, NetworkHeight) ist in der Datei nicht lesbar. Nachgebildet: `x = i / N · NetworkLength`, Höhe so umgerechnet, dass der Behälter auf 0 liegt und höchster und tiefster Punkt NetworkHeight auseinanderliegen. Das deckt sich mit Testnet.inp (Behälter auf 0, tiefster Punkt genau auf −50 bei NetworkHeight 50); der genaue Rechenweg des Clusters ist nicht bekannt.
+- **Graph Mapper in der Zeichenfläche**: Statt der Grasshopper-Komponente ein kleiner Graph Mapper unten rechts; die vier Bezier-Stützpunkte lassen sich ziehen (innere Punkte frei, Endpunkte nur senkrecht). „Kurve ↺“ stellt die Kurve der Datei wieder her.
+- **Schrittweise**: Grasshopper zeigt nur das Ergebnis. Hier ist ein Schritt eine Iteration des Gradientenverfahrens; das Balkenbild zeigt die relative Änderung je Iteration. In einer unverzweigten Leitung folgen die Durchflüsse schon aus der ersten Massenbilanz – nach zwei Iterationen ist das Verfahren fertig (so rechnet auch EPANET). Nach dem ersten Rechnen wirken Regler sofort.
+- **Senkrechte Überhöhung**: Die Zeichnung ist maßstäblich, solange das Profil in die Fläche passt und nicht zu flach wird; sonst wird senkrecht überhöht (angezeigt als „Überhöhung ×…“).
+- **Grenzfälle abgefangen**: Länge oder Durchmesser 0 rechnen mit 1 mm, eine Pumpe ohne Durchfluss mit mindestens 0.1 L/s (sonst unendliche Förderhöhe), NetworkSegments 0 ergibt „keine Leitung“. Eine Pumpe fördert nicht rückwärts.
+- **Werte nur einer Liste**: Analyse Hydrology Network gibt alle Werte als Baum aus; die App rechnet alle und zeigt den gewählten – Wertelisten wechseln ohne neue Rechnung. Die Rauheit einer Pumpe ist nicht definiert („–“), ihre Geschwindigkeit 0 (wie in EPANET).
+- **Erweiterung „Versorgung iterativ prüfen“** (nicht im Original, aus dem Hinweis „might be changed in a later version“): Nach einer Rechnung entnehmen Verbraucher unter dem Mindestdruck nichts; am ersten Knoten mit negativem Druck reißt die Leitung ab, dahinter kommt kein Wasser an. Neu gerechnet wird, bis sich nichts mehr ändert (einmal abgehängte Knoten bleiben abgehängt). Voreinstellung aus.
+- **Kein Dateiumweg**: Das Original schreibt eine .inp-Datei neben die .gh-Datei und liest den Bericht; die App rechnet im Speicher. Zeitreihen (Analyse „Steps“) entfallen – das Original schreibt ohnehin keine Zeitsteuerung. Das Tankvolumen wirkt in der stationären Rechnung nicht (wie in EPANET bei Duration 0), es bestimmt nur den Durchmesser in der Zeichnung.
+
+## Literatur und Verfahren
+
+- Todini, E.; Pilati, S. (1988): A gradient algorithm for the analysis of pipe networks. In: Coulbeck, B.; Orr, C.-H. (Hg.): *Computer Applications in Water Supply*, Vol. 1, Research Studies Press, Letchworth, 1–20. (Gradientenverfahren, wie in EPANET; ohne DOI)
+- Rossman, L. A. (2000): *EPANET 2 Users Manual*. EPA/600/R-00/057, U.S. Environmental Protection Agency, Cincinnati. https://nepis.epa.gov/Adobe/PDF/P1007WWU.pdf (Anhang D: Analysis Algorithms; vom Panel „Description“ der .gh-Datei verlinkt)
+- Rossman, L. A. u. a. (2020): *EPANET 2.2 User Manual*. EPA/600/R-20/133, U.S. EPA. https://epanet22.readthedocs.io/
+- Todini, E.; Rossman, L. A. (2013): Unified framework for deriving simultaneous equation algorithms for water distribution networks. *Journal of Hydraulic Engineering* 139(5), 511–526. https://doi.org/10.1061/(ASCE)HY.1943-7900.0000703 (Herleitung des Gradientenverfahrens)
+- EPANET – Quelltext: https://github.com/OpenWaterAnalytics/EPANET (MIT-Lizenz, Open Water Analytics / US EPA). Am Verfahren orientiert (Hazen-Williams in US-Einheiten 4.727, Pumpe konstanter Leistung 8.814 · PS / q, Grenzsteigung RQtol 1e-7, Accuracy 0.001, Trials 40, Energie Δh · q · γ / Wirkungsgrad, Ausgabegrößen und ihre Einheiten); kein Code übernommen.
+- Williams, G. S.; Hazen, A. (1905): *Hydraulic Tables*. Wiley, New York (Hazen-Williams-Formel).

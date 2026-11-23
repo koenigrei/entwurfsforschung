@@ -29,6 +29,10 @@
 - **Schrittweite als Regler** (0,1–20 m), weil die Komponente sie als Eingang hat, die .gh-Datei aber nur die Voreinstellung 1 nutzt.
 - **Abspielen**: Gismo rechnet alle Wege auf einmal. „Start“ lässt alle Linien gleichzeitig wachsen, ein Schritt der App = ein Schritt jedes laufenden Wegs; ein Klick setzt weitere Regentropfen (statt Punkte in Rhino zu ändern). Der Schalter `_runIt` entfällt.
 
+## Abgleich mit dem Quelltext
+
+Abgleich mit dem Quelltext der DeCodingSpaces-Toolbox (Bauhaus-InfAU/decoding-spaces-toolbox, GPL-3.0); kein Code übernommen. Die Toolbox enthält zu diesem Modul nichts: Es verwendet keine DeCodingSpaces-Komponente, sondern nur „Gismo_Gismo“ und „Gismo_Flow Paths“ aus Gismo. Weder `src/` noch die Doku (`docs/inventory.md`, https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/inventory.md) nennen Gismo; die DeCodingSpaces-Komponente „Flow Paths“ (Kategorie Hydrology, `FlowPaths.FlowPathsComponent`) ist eine andere, rasterbasierte Komponente – sie gehört zur App „Regenwasserabfluss (Raster)“. Maßgeblich bleibt der Quelltext der Gismo-Komponente (siehe oben).
+
 ## Literatur
 
 - Spasić, D. (2019): Gismo – Plugin for GIS Environmental Analysis, Komponente „Flow Paths“, VER 0.0.3. https://github.com/stgeorges/gismo (GPL-3.0-or-later)

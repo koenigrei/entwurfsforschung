@@ -42,15 +42,15 @@ katalog/kuerzester-weg/
 | `schritt(z, param)` | ein Schritt; erhöht `z.t` |
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
 | `strassennetz(zufall, opt)` | Beispielnetz: verzogenes Raster aus `Szenen.stadt` |
-| `graph(N, kL, kW)` | dualer Graph (`Geo.segmentGraph`); `nb[i] = [[j, kosten, meter, grad]]`, Kosten mit kleinem Gleichstandsanteil (Länge) |
-| `neueSuche(G, art, a, b, fw)` | Suche „einfach“, „dijkstra“ oder „floyd“ von Segment a nach b (Floyd–Warshall nutzt die Matrix `fw`, falls vorhanden) |
+| `graph(N, kL, kW, definition)` | gerichteter Segmentgraph (`Geo.richtungsGraph`, Zustand 2s = a → b, 2s+1 = b → a); `nb[zustand] = [[ziel, kosten, meter, grad]]`, Kosten mit kleinem Gleichstandsanteil (Länge); `roh` ohne ihn |
+| `neueSuche(G, art, a, b, fw)` | Suche „einfach“, „dijkstra“ oder „floyd“ von Segment a nach b über die Zustände (Floyd–Warshall nutzt die Matrix `fw` aller Zustandspaare, falls vorhanden); Ergebnis `weg` (Segmente) und `zustaende` |
 | `sucheSchritt(G, S)`, `loese(G, S)` | ein Expansionsschritt (Knoten fest bzw. Runde k); bis zum Ende |
 | `kuerzesterWeg(G, art, a, b, fw)` | Segment-IDs des Weges („shortest path segment IDs“) |
-| `wegKosten(G, weg, kL, kW)` | custom costs, metric costs (m, Mitte zu Mitte), Summe der Richtungsänderungen |
+| `wegKosten(G, zustaende)` | custom costs, metric costs (m, Mitte zu Mitte), Summe der Richtungsänderungen |
 | `neueMatrix(G)` | Floyd–Warshall-Matrix vor der ersten Runde |
-| `betweenness(G)` | Betweenness aller Segmente („Run Calculation“) |
+| `betweenness(G)` | Betweenness aller Segmente („Run Calculation“, `Geo.segmentBetweennessVon`; dcs2020 mit Start- und Zielsegment) |
 | `setzePunkt(z, p, art, q)` (art "o" oder "d"), `sofort(z, p)` | Ursprung/Ziel versetzen und sofort rechnen |
-| `starteSuche(z, p, neueMatrix)`, `bekannt(z)`, `fertig(z)` | Suche neu (t = 0); Abstände vom Ursprung, so weit bekannt; Weg gefunden? |
+| `starteSuche(z, p, neueMatrix)`, `bekannt(z)`, `fertig(z)` | Suche neu (t = 0); `{dist, fest}` je Segment, so weit die Suche sie kennt; Weg gefunden? |
 
 Zustand `z`: `N`, `G`, `o`, `d` (Punkte), `so`, `sd` (Segmente), `suche` (`art`, `weg`, `fertig`, `schritte`, `dist`/`fest` bzw. `fw`), `fw` (Matrix, bleibt beim Versetzen erhalten), `bc`.
 Rechenzeiten misst nur `app.js` (`performance.now()`), das Modell bleibt zeitfrei und testbar.

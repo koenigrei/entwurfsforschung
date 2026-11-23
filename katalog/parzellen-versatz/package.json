@@ -1,0 +1,8 @@
+{
+  "name": "parzellen-versatz",
+  "private": true,
+  "type": "commonjs",
+  "description": "Parzellen mit eigenem Kantenversatz – Neuumsetzung des Grasshopper-Moduls Parcel Custom Offset (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

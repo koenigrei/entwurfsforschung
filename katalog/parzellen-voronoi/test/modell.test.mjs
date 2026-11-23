@@ -36,18 +36,15 @@ test("Voronoi: vier Punkte in den Kantenmitten → vier Dreiecke zu je 2500 m²"
   Z.forEach(q => nah(Geo.flaeche(q), 2500, 1e-6));
 });
 
-test("Glätten: zwei nahe innere Ecken werden zu einer, Randecken bleiben, Fläche bleibt", () => {
-  // Punkte so, dass die Voronoi-Mitte in zwei nahe Ecken zerfällt
+test("Glätten: zwei nahe innere Ecken werden zu einer, Randpunkte nahe den Ecken springen auf die Ecken, Fläche bleibt", () => {
+  // Punkte so, dass die Voronoi-Mitte in zwei nahe Ecken zerfällt; die Zellgrenzen treffen den Rand 1,96 m neben den Blockecken
   const pk = [[50, 0], [100, 52], [50, 100], [0, 48]], Z = M.zellen(pk, QUADRAT);
-  const n0 = M.netzAusZellen(Z, QUADRAT);
-  const innen0 = n0.ecken.filter(e => !e.rand).length;
-  assert.equal(innen0, 2);
-  const g = M.glaette(Z, QUADRAT, 10);
-  const n1 = M.netzAusZellen(g.zellen, QUADRAT);
+  assert.equal(M.netzAusZellen(Z, QUADRAT).ecken.filter(e => !e.rand).length, 2);
+  const g = M.glaette(Z, QUADRAT, 10), n1 = M.netzAusZellen(g.zellen, QUADRAT);
   assert.equal(n1.ecken.filter(e => !e.rand).length, 1);
-  assert.equal(g.bewegt, 2);
+  assert.equal(g.bewegt, 6);                                  // 2 innere Ecken + 4 Randpunkte
+  assert.deepEqual(n1.ecken.filter(e => e.rand).map(e => e.p).sort(), QUADRAT.slice().sort());
   nah(summe(g.zellen), 10000, 1e-6);
-  for (const e of n0.ecken.filter(e => e.rand)) assert.ok(n1.ecken.some(f => Geo.abstand(e.p, f.p) < 1e-6), "Randecke verschwunden");
 });
 
 test("Glätten: innere Ecke nahe einem Anker springt auf den Anker", () => {
@@ -64,7 +61,7 @@ test("Ankerpunkte: Blockecken und Randpunkte der Zellen, ohne Dopplung", () => {
 });
 
 test("Ablauf: drei Phasen je Block, jede Parzelle an der Straße, lückenlos (Katalog: keeps each parcel connected to the street)", () => {
-  const p = Object.assign({}, M.STANDARD), z = M.erzeuge(p, zufall(2));
+  const p = Object.assign({}, M.STANDARD), z = M.erzeuge(p, zufall(1));
   M.schritt(z, p); assert.equal(z.bloecke[0].phase, 1); assert.ok(z.bloecke[0].punkte.length > 2);
   M.schritt(z, p); assert.equal(z.bloecke[0].phase, 2); assert.equal(z.bloecke[0].zellen.length, z.bloecke[0].punkte.length);
   M.schritt(z, p); assert.equal(z.bloecke[0].phase, 3); assert.equal(z.t, 3);
@@ -75,6 +72,23 @@ test("Ablauf: drei Phasen je Block, jede Parzelle an der Straße, lückenlos (Ka
     assert.ok(b.zellen.every(q => Geo.flaecheS(q) > 0));
     assert.ok(b.zellen.every(q => M.strassenfront(q, b.poly) > 1), "Parzelle ohne Straßenanschluss");
   }
+});
+
+test("Network Smooth: auch Randpunkte nahe einer Blockecke springen auf die Ecke (jede Ecke des Netzes wird gefangen)", () => {
+  // Zellgrenze trifft den unteren Rand 3 m neben der Ecke (0, 0)
+  const Z = [[[0, 0], [3, 0], [50, 50], [0, 100]], [[3, 0], [100, 0], [100, 100], [0, 100], [50, 50]]];
+  const g = M.glaette(Z, QUADRAT, 6);
+  assert.ok(g.zellen.every(q => !q.some(p => p[0] === 3 && p[1] === 0)), "Randpunkt (3, 0) nicht gefangen");
+  nah(summe(g.zellen), 10000, 1e-6);
+  const g0 = M.glaette(Z, QUADRAT, 2);                                         // Schwelle kleiner als der Abstand: bleibt
+  assert.ok(g0.zellen.some(q => q.some(p => p[0] === 3 && p[1] === 0)));
+});
+
+test("Snap to anchor points only: nahe innere Ecken fern von Ankern bleiben getrennt", () => {
+  const Z = M.zellen([[50, 0], [100, 52], [50, 100], [0, 48]], QUADRAT);
+  const g = M.glaette(Z, QUADRAT, 10, true);
+  assert.equal(M.netzAusZellen(g.zellen, QUADRAT).ecken.filter(e => !e.rand).length, 2);
+  assert.equal(g.bewegt, 0);
 });
 
 test("Zellabstand: kleinerer Abstand → mehr, kleinere Parzellen", () => {

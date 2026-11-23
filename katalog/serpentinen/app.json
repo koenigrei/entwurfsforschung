@@ -16,9 +16,7 @@
   "repo": null,
   "schritt_pflicht": true,
   "vorschau_saat": 1,
-  "vorschau_schritte": 0,
-  "vorschau_param": {
-    "grad": 12
-  },
-  "pruef_ausdruck": "SIM.zustand.weg !== null && SIM.zustand.ueber === 0 && SIM.zustand.profGitter.maxSteigung <= Math.tan(12 * Math.PI / 180) + 1e-9 && SIM.zustand.prof.laenge > 1.2 * Math.hypot(SIM.zustand.ziel[0] - SIM.zustand.start[0], SIM.zustand.ziel[1] - SIM.zustand.start[1])"
+  "vorschau_schritte": 200,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.weg !== null && SIM.zustand.ueber === 0 && SIM.zustand.profGitter.maxSteigung <= Math.tan(5 * Math.PI / 180) + 1e-9 && SIM.zustand.prof.laenge > 1.2 * Math.hypot(SIM.zustand.ziel[0] - SIM.zustand.start[0], SIM.zustand.ziel[1] - SIM.zustand.start[1])"
 }

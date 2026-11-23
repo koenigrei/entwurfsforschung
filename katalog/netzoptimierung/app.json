@@ -1,0 +1,19 @@
+{
+  "id": "netzoptimierung",
+  "titel": {"de": "Straßennetz-Optimierung", "en": "Street Network Optimization"},
+  "vorschau": {
+    "de": "Ein genetischer Algorithmus erzeugt viele abwechselnde Straßennetze für ein Baufeld und optimiert sie nach Gesamtlänge und Closeness-Zentralität – mit Pareto-Diagramm und den zehn besten Varianten.",
+    "en": "A genetic algorithm generates many alternating street layouts for a site and optimizes them for overall length and closeness centrality – with a Pareto chart and the ten best variants."
+  },
+  "original": "Street Network Optimization",
+  "katalog": "NetworkOptimization",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/NetworkOptimization/",
+  "autoren": "DeCodingSpaces – Reinhard König, Martin Bielik, Ekaterina Fuchkina",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 12,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.gen === 12 && SIM.zustand.alle.length === 10 + 12 * 30 && SIM.zustand.front.length >= 2 && Math.min(...SIM.zustand.archiv.map(x => x.f1)) < Math.min(...SIM.zustand.alle.filter(x => x.g === 0).map(x => x.f1))"
+}

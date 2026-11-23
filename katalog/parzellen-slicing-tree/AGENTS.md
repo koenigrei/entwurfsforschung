@@ -42,15 +42,16 @@ katalog/parzellen-slicing-tree/
 | `schritt(z, param)` | ein Schritt; erhöht `z.t` |
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
 | `quartier(zufall)` | Beispielquartier aus `Szenen.stadt` (nur Blöcke, gegen den Uhrzeigersinn) |
-| `strassenkanten(poly, block)`, `front(poly, block)` | Kanten eines Teils auf dem Blockrand, ihre Gesamtlänge |
-| `tiefeQuer(poly, a, b)` | Tiefe quer zur Kante a→b und Innennormale |
-| `teile(poly, p, d)` | echte Zweiteilung an einer Geraden → {kinder, linie} oder null |
-| `regel(poly, block, p, zufall, ebene)` | Teilungsregel eines Knotens: längs, quer oder Blatt |
-| `baum(block, p, zufall)` | Slicing Tree eines Blocks → Knotenliste {id, poly, ebene, eltern, kinder, art, linie} |
+| `rechteckWinkel(poly)` | Drehwinkel, der die lange Seite des kleinsten umschließenden Rechtecks waagrecht legt |
+| `kantenVon(poly)`, `istStrasse(k, wurzel, skal)`, `teileKanten(poly, wurzel, skal)` | Kanten; Straßenkante = quasi-kollinear (< 0,01 rad, Abstand < scalingFactor) mit einer Blockkante; Straßen- und Innenkanten, längste zuerst |
+| `front(poly, block, skal)` | Länge der Straßenkanten eines Teils |
+| `regel(poly, wurzel, p)` | Teilungsregel: längste Straßenkante mit splitRate·|e| > parcelWidth → Schnitt „V“ oder „H“; Rücken-an-Rücken-Regel; sonst Blatt |
+| `teile(poly, r)` | Zweiteilung an der achsparallelen Geraden → {kinder, linie} oder null |
+| `baum(block, p)` | Slicing Tree eines Blocks (gedrehter Rahmen, Ergebnis in Weltkoordinaten) → Knoten {id, poly, ebene, eltern, kinder, op, linie, ruecken} |
 | `blaetter(K)` | Parzellen (Blätter) |
 | `teileZurZeit(b, t)`, `geschnitten(k, t)`, `letzter(z)` | Zustand zur Schrittzahl t |
 | `baumLayout(K)` | Lage der Knoten im Baumdiagramm |
-| `CUSTOMIZED` | die festen Werte der Komponente „Customized Parameters“ aus der .gh-Datei |
+| `CUSTOMIZED`, `BEDEUTUNG` | die 18 Werte der Komponente „Customized Parameters“ und wofür die vom Slicing Tree nicht gelesenen da sind |
 
 Im Browser steht `window.SIM` bereit: `SIM.schritt(100)`, `SIM.zuruecksetzen(7)`, `SIM.setze("<parameter>", wert)`, `SIM.zustand`.
 Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`).
@@ -62,6 +63,6 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 
 ## Ideen für Weiterentwicklung
 
-- Weitere Werte der Komponente deuten und anbinden (maxArea, parcelDepth, minLength/maxLength, angleRange), sobald die Toolbox offenliegt.
-- Eckparzellen gesondert behandeln (Mindestbreite an beiden Straßen), Hinterlieger mit Zufahrt.
-- Baumdiagramm anklickbar: Teilbaum neu würfeln.
+- Wahlweise das Verfahren der neuen Toolbox (Parcels, Methode `recursive`: Schnitt an der Flächenmitte ± Unregelmäßigkeit, Ziel-Fläche) daneben zeigen.
+- NoStreets und StreetOffset der Komponente „Parcels“ ergänzen (Blockkanten ohne Straße, Versatz).
+- Restflächen ohne Straße einem Nachbarn mit Straßenfront zuschlagen.

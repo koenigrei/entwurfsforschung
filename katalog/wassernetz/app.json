@@ -1,0 +1,24 @@
+{
+  "id": "wassernetz",
+  "titel": {
+    "de": "Wassernetz: Erzeugung und Analyse",
+    "en": "Water Network Generation and Analysis"
+  },
+  "vorschau": {
+    "de": "Kürzeste Wege vom Hochbehälter zu allen Blöcken – nach Länge und über die Hauptstraßen – ergeben ein vermaschtes Wassernetz; eine Rohrnetzberechnung wie EPANET prüft den Druck und dimensioniert die Rohre.",
+    "en": "Shortest paths from the water tank to all blocks – by length and along the main streets – form a looped water network; a pipe network computation as in EPANET checks the pressure and sizes the pipes."
+  },
+  "original": "Water Network Generation and Analysis",
+  "katalog": "WaterNetworkGenerationAndAnalysis",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WaterNetworkGenerationAndAnalysis/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 200,
+  "vorschau_param": {
+    "flaecheHaushalt": 100
+  },
+  "pruef_ausdruck": "SIM.zustand.fertig && Modell.bilanz(SIM.zustand, SIM.param).maschen > 0 && Math.abs(Modell.bilanz(SIM.zustand, SIM.param).zufluss - Modell.bilanz(SIM.zustand, SIM.param).bedarfNetz) < 1e-6 && Hydraulik.bilanzfehler(SIM.zustand.netz, SIM.zustand.S) < 1e-9 && Modell.bilanz(SIM.zustand, SIM.param).durchmesser[1] > 0 && SIM.zustand.erg.leitungen.every((l, r) => l.v <= SIM.param.vMax * 1.6 || SIM.zustand.dIdx[r] === 4)"
+}

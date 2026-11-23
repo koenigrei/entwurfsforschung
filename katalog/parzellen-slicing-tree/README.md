@@ -1,6 +1,6 @@
 # Parzellierung mit Slicing Tree
 
-Ein Slicing Tree zerlegt jeden Baublock mit geraden Schnitten in zwei Teile, dann wieder in zwei, bis Parzellen von etwa der gewünschten Breite entstehen – jede behält ihre Straßenkante. Neuumsetzung des Grasshopper-Moduls „Parcellation Slicing Tree“ aus dem [Parametric Planning Catalogue](https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcellationSlicingTree/) (DeCodingSpaces – Martin Dennemark).
+Ein Slicing Tree zerlegt jeden Baublock mit geraden Schnitten in zwei Teile, dann wieder in zwei, solange die Straßenfront eines Teils breiter ist als die Parzellenbreite – Schnitt für Schnitt, als binärer Baum. Neuumsetzung des Grasshopper-Moduls „Parcellation Slicing Tree“ aus dem [Parametric Planning Catalogue](https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcellationSlicingTree/) (DeCodingSpaces – Martin Dennemark).
 
 Online: https://entwurfsforschung.de/lab/parametric-planning-catalogue/parzellen-slicing-tree/
 

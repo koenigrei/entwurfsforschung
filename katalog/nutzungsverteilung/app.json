@@ -1,0 +1,24 @@
+{
+  "id": "nutzungsverteilung",
+  "titel": {
+    "de": "Nutzungsverteilung",
+    "en": "Land Use Distribution"
+  },
+  "vorschau": {
+    "de": "Wo siedeln sich Wohnen, Gewerbe und Industrie an? Jede Nutzung hat ein Profil – Vorlieben für zentrale und gut erreichbare Lagen, Anziehung und Abstoßung der anderen Nutzungen –, nach dem sie Iteration für Iteration Parzellen wählt; die Nutzungen beeinflussen sich dabei gegenseitig.",
+    "en": "Where do residential, commercial and industrial uses settle? Each land use has a profile – preferences for central and accessible locations, attraction to or repulsion from the other uses – by which it chooses plots iteration by iteration; the land uses influence each other."
+  },
+  "original": "Land Use Distribution",
+  "katalog": "LandUseDistribution",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/LandUseDistribution/",
+  "autoren": "DeCodingSpaces – Reinhard König, Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 30,
+  "vorschau_param": {
+    "diagramme": false
+  },
+  "pruef_ausdruck": "SIM.zustand.iter === 30 && (b => b.zentral[2] < b.zentral[0] && b.zentral[2] < b.zentral[1] && b.summe.every(s => s > 4000) && b.verhaeltnis < 1)(Modell.bilanz(SIM.zustand))"
+}

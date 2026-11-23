@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nutzungsverteilung · Parametric Planning Catalogue · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Wo siedeln sich Wohnen, Gewerbe und Industrie an? Jede Nutzung hat ein Profil – Vorlieben für zentrale und gut erreichbare Lagen, Anziehung und Abstoßung der anderen Nutzungen –, nach dem sie Iteration für Iteration Parzellen wählt; die Nutzungen beeinflussen sich dabei gegenseitig. Neuumsetzung des Moduls „Land Use Distribution“ aus dem Parametric Planning Catalogue (DeCodingSpaces, Bauhaus-Universität Weimar) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← Parametric Planning Catalogue</a>
+  <h1><span lang="de">Nutzungsverteilung</span><span lang="en">Land Use Distribution</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Start verteilt die Nutzungen, eine Iteration je Schritt · Klick auf eine Parzelle: ihre Werte in den Kennzahlen · Rechtsklick oder Umschalt-Klick: Auswahl aufheben · Darstellung: Verteilung, Attraktivität, gewichtete Werte, Netzkennwerte</span><span lang="en">Start distributes the land uses, one iteration per step · click a plot: its values in the measures · right-click or shift-click: clear the selection · display: distribution, attractivity, weighted values, network measures</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Land Use Distribution · Grasshopper · DeCodingSpaces – Reinhard König, Martin Dennemark</div>
+    <a href="https://infar-buw.github.io/parametric-planning-catalogue/docs/LandUseDistribution/"><span lang="de">Eintrag im Parametric Planning Catalogue</span><span lang="en">Entry in the Parametric Planning Catalogue</span></a>
+    <a href="https://vimeo.com/425083106"><span lang="de">Video zum Modul (Vimeo)</span><span lang="en">Video of the module (Vimeo)</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Wo siedeln sich Wohnen, Gewerbe und Industrie an? Jede Nutzung hat ein Profil – Vorlieben für zentrale und gut erreichbare Lagen, Anziehung und Abstoßung der anderen Nutzungen –, nach dem sie Iteration für Iteration Parzellen wählt; die Nutzungen beeinflussen sich dabei gegenseitig.</p>
+      <p>Grundlage ist das Straßennetz als <em>dualer Graph</em> (Knoten = Straßensegmente, Kosten aus Längen- und Winkelkoeffizient und der Straßenhierarchie, wie „2. BuildGraph“). Jede Parzelle gehört zu dem Segment, dessen Mitte ihrem Schwerpunkt am nächsten liegt. Für diese Segmente werden <em>Zentralität</em> (Closeness) und <em>Erreichbarkeit</em> (Betweenness, logarithmiert) berechnet und je Parzelle auf 0…1 gebracht. Jedes Profil gewichtet diese Kriterien (Prefer &gt; 0, Avoid &lt; 0) zu <em>gewichteten Werten</em>; zu Beginn bekommt jede Nutzung eine Einheit auf ihrer besten Parzelle.</p>
+      <p>Dann wiederholt sich die Schleife „Iterations“-mal: Die <em>Attraktivität</em> einer Parzelle j für eine Nutzung i ist die Summe über alle Parzellen m und Nutzungen n von <code>Beziehung(i → n) · gewichteter Wert_n(j) · wahrgenommene Nähe(j, m) · Verteilung_n(m)</code> – so wie die beiden C#-Skripte der Datei rechnen. Die Abstände sind auf 0…1 normiert und gehen durch die <em>Wahrnehmungsfunktion</em> (voreingestellt <code>If(dist &gt; 1, 0, Pow(1-dist, 2))</code>: Nähe zählt, quadratisch abnehmend). Ein Glücksrad setzt je Iteration <code>Max Population / Iterations</code> Einheiten jeder Nutzung, attraktive Parzellen haben größere Felder. Volle Parzellen (Fläche anteilig an der Gesamtbevölkerung, 30 % Reserve) nehmen nichts mehr auf.</p>
+      <p>Probieren: Start drücken und die Kreisdiagramme wachsen sehen; dann unter „Industrie“ die Beziehung zu Wohnen auf +1 stellen – die Nutzungen mischen sich stärker, die Wegeschätzung sinkt. „Ferne (Far)“ kehrt die Wahrnehmung um, die Darstellung „Attraktivität“ zeigt, wohin die nächste Iteration eine Nutzung zieht, „Gewicht flache Lage“ holt das Gelände dazu. Ein Klick auf eine Parzelle zeigt ihre Werte.</p>
+      <p>Die App setzt das Modul „Land Use Distribution“ aus dem <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT-Lizenz) neu im Browser um. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>Where do residential, commercial and industrial uses settle? Each land use has a profile – preferences for central and accessible locations, attraction to or repulsion from the other uses – by which it chooses plots iteration by iteration; the land uses influence each other.</p>
+      <p>The basis is the street network as a <em>dual graph</em> (nodes = street segments, costs from length and angular coefficient and the street hierarchy, as in “2. BuildGraph”). Each plot belongs to the segment whose midpoint is closest to its centroid. For these segments <em>centrality</em> (closeness) and <em>accessibility</em> (betweenness, log-transformed) are computed and remapped to 0…1 per plot. Each profile weights these criteria (prefer &gt; 0, avoid &lt; 0) into <em>weighted values</em>; at the start each land use gets one unit on its best plot.</p>
+      <p>Then the loop runs “Iterations” times: the <em>attractivity</em> of plot j for land use i is the sum over all plots m and land uses n of <code>relation(i → n) · weighted value_n(j) · perceived closeness(j, m) · distribution_n(m)</code> – as the two C# scripts of the file compute it. Distances are normalised to 0…1 and pass through the <em>perceived distance function</em> (default <code>If(dist &gt; 1, 0, Pow(1-dist, 2))</code>: closeness matters, decreasing quadratically). A roulette wheel places <code>max population / iterations</code> units of each land use per iteration; attractive plots get larger slots. Full plots (area share of the total population, 30 % reserve) take nothing more.</p>
+      <p>Try: press Start and watch the pie charts grow; then set the relation of “Industry” to residential to +1 – the uses mix more and the trip estimate drops. “Far” inverts the perception, the display “Plot attractivity” shows where the next iteration pulls a land use, “weight flat area” brings in the terrain. Clicking a plot shows its values.</p>
+      <p>The app re-implements the module “Land Use Distribution” of the <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT license) in the browser. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "wasserleitung",
+  "private": true,
+  "type": "commonjs",
+  "description": "Wasserleitung: Druck und Durchfluss – Neuumsetzung des Grasshopper-Moduls Water Network Analysis (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

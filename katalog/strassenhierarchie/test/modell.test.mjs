@@ -12,7 +12,7 @@ const mit = o => Object.assign({}, P, o);
 /** kleines Netz: Kette A–B–C–D (drei Segmente in einer Linie) und ein Abzweig an B */
 function kleinesNetz() {
   const N = Geo.netz([[[0, 0], [10, 0]], [[10, 0], [20, 0]], [[20, 0], [30, 0]], [[10, 0], [10, 10]]]);
-  return { N, G: Geo.segmentGraph(N, 1, 0) };
+  return { N, G: Geo.richtungsGraph(N, { kL: 1, kW: 0 }) };
 }
 
 test("erzeuge: t = 0, nichts klassifiziert, zwei Stadteingänge und ein PoI", () => {
@@ -25,22 +25,25 @@ test("erzeuge: t = 0, nichts klassifiziert, zwei Stadteingänge und ein PoI", ()
 
 test("Netz: jedes Segment ist mit allen anderen verbunden (Zufahrten hängen am Raster)", () => {
   const z = M.erzeuge(P, zufall(2));
-  const d = Geo.dijkstra(z.G.n, i => z.G.adj[i], 0).dist;
-  assert.ok([...d].every(Number.isFinite));
+  const A = Geo.segmentAbstaende(z.G, Geo.zustandsSuche(z.G, 0));
+  assert.ok([...A.kosten].every(Number.isFinite));
 });
 
-test("Gewichte: Grundgewicht aus beiden Clustern, Zusatzgewicht = Gewicht × Anzahl Segmente am nächsten Segment", () => {
+test("Gewichte wie das C#-Skript im Cluster: Gewicht × Anzahl Segmente ersetzt das Grundgewicht am nächsten Segment, beide Listen addiert", () => {
   const { N } = kleinesNetz(), m = N.kanten.length;
   const w = M.gewichte(N, [[25, 1]], [[0.5, 0.2]], mit({ grund: 1, wEingang: 1, wPoi: 0.5 }));
   assert.equal(M.naechstesSegment(N, [25, 1]), 2); assert.equal(M.naechstesSegment(N, [0.5, 0.2]), 0);
-  assert.deepEqual([...w], [2 + 1 * m, 2, 2 + 0.5 * m, 2]);
+  assert.deepEqual([...w], [1 * m + 1, 2, 1 + 0.5 * m, 2]);
+  // zwei Punkte am selben Segment: ersetzt, nicht summiert; Eingang und PoI am selben Segment: beide Zusatzgewichte
+  assert.deepEqual([...M.clusterListe(N, [[1, 0], [2, 0]], 7, 1)], [7, 1, 1, 1]);
+  assert.deepEqual([...M.gewichte(N, [[1, 0]], [[2, 0]], mit({ grund: 1, wEingang: 1, wPoi: 0.5 }))], [1.5 * m, 2, 2, 2]);
   const w0 = M.gewichte(N, [], [], mit({ grund: 0 }));
   assert.deepEqual([...w0], [0, 0, 0, 0]);
 });
 
 test("Betweenness (nachgerechnet): Kette mit Abzweig, Gewichte 1, Start- und Zielsegment zählen mit", () => {
   const { G } = kleinesNetz(), g = new Float64Array(4).fill(1), bc = new Float64Array(4);
-  for (let s = 0; s < 4; s++) M.betweennessVon(G, s, g, g, bc);
+  for (let s = 0; s < 4; s++) M.betweennessVon(G, s, g, g, bc, true);
   // Segmente 0 (A–B), 1 (B–C), 2 (C–D), 3 (B–Abzweig). Geordnete Paare: 12, jedes Segment ist Endpunkt in 6 Paaren.
   // Dazwischen: Segment 1 liegt auf 0↔2 und 3↔2 (4 geordnete Paare); die übrigen liegen nie dazwischen.
   assert.deepEqual([...bc], [6, 10, 6, 6]);
@@ -111,7 +114,7 @@ test("aendere: vor dem Start nur Eingaben, danach ganze Analyse; Punkte verschie
   const alt = z.poiSeg[0];
   z.poi[0] = z.eingang[0].slice(); M.punkteGeaendert(z, P);
   assert.equal(z.poiSeg[0], z.eingangSeg[0]); assert.notEqual(z.poiSeg[0], alt);
-  assert.equal(z.gQ[z.eingangSeg[0]], 2 + (1 + 0.5) * z.G.n);
+  assert.equal(z.gQ[z.eingangSeg[0]], (1 + 0.5) * z.G.n);
 });
 
 test("punktBei findet den nächsten Punkt im Fangradius", () => {
@@ -127,4 +130,17 @@ test("gleiche Saat → gleiches Netz und gleiche Hierarchie; andere Saat → and
   assert.deepEqual([...a.K.klasse], [...b.K.klasse]);
   assert.deepEqual(a.N.knoten, b.N.knoten);
   assert.notDeepEqual(a.N.knoten, c.N.knoten);
+});
+
+test("Definition: dcs2020 (Original) mit Legacy-Kosten und Endsegmenten, standard (Toolbox v2) ohne", () => {
+  const z = M.erzeuge(P, zufall(13));
+  assert.equal(z.G.norm, "dcs2020"); assert.ok(M.mitEnden(P));
+  const e = z.G.nb[0][0], l = z.G.laenge;                    // erster Schritt aus Zustand 0 (Segment 0, a → b)
+  const s = 0, t = e[0] >> 1;
+  assert.ok(Math.abs(e[1] - (0.5 * (l[s] + l[t]) / 2 / z.G.lmax + 0.5 * e[3] / 180)) < 1e-12);
+  M.rechneAlles(z, P); const alt = z.bc.slice();
+  const p2 = mit({ definition: "standard" }); M.aendere(z, p2, "definition");
+  assert.equal(z.G.norm, "standard"); assert.equal(M.mitEnden(p2), false);
+  assert.ok(Math.abs(z.G.nb[0][0][1] - (0.5 * (l[s] + l[t]) / 2 + 0.5 * z.G.nb[0][0][3] / 90)) < 1e-12);
+  assert.ok(z.bc[z.eingangSeg[0]] < alt[z.eingangSeg[0]], "ohne Endsegmente trägt die Zufahrt weniger");
 });

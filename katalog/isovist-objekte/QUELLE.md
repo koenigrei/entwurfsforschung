@@ -28,6 +28,29 @@
 - **Zeitablauf**: Grasshopper hat keinen Zeitablauf; im GIF wird der Standpunkt mit der Maus verschoben. In der App wandert der Standpunkt bei „Start“ einen geschlossenen Rundweg um den Platz entlang (`rundweg`, Straßenmitten ohne Randstraßen, Ecken mit 4 m gerundet); Klick oder Ziehen setzt ihn frei, der nächste Schritt geht vom nächsten Wegpunkt weiter. Rechtsklick stellt die Blickrichtung ein (im Original der Regler).
 - **Dunkle Darstellung**: Das Dunkelblau des untersten Griffs ist auf Schwarz kaum zu sehen; dort wird es leicht aufgehellt. Gesehene Kanten bekommen bei gefärbten Gebäuden einen Rand in der Hintergrundfarbe.
 
+## Abgleich mit dem Quelltext
+
+Abgleich mit dem Quelltext; kein Code übernommen. Gelesen (23.11.2026) wurde die DeCodingSpaces-Toolbox, GitHub Bauhaus-InfAU/decoding-spaces-toolbox, Lizenz **GPL-3.0**. Aus dem Quelltext und der Doku wurden nur Definitionen, Formeln, Parameter und Randfälle abgelesen und in eigenem Code umgesetzt (diese App steht unter CC BY 4.0).
+
+Wichtig zur Einordnung: Der Quelltext der Komponenten von 2020, die das Katalogmodul benutzt (Legacy „Isovist“ mit Strahlenzahl *Precision*, Legacy „Analysis Grid“), ist verloren. Die Toolbox ist eine Neufassung von 2026 („v2“), aus den alten Binärdateien rekonstruiert. Sie rechnet den Isovist exakt mit einem Winkel-Sweep statt mit Strahlen und gibt die alten Zahlen absichtlich nicht wieder. In `docs/migration.md` und `docs/review-2026-11.md` sind die Fehler der alten Fassung beschrieben: „StdDev“ war eine Summe absoluter Abweichungen, Varianz und Schiefe wurden nicht durch *n* geteilt, `AreaDistWeight` gab die Fläche aus. Die App behält das Verfahren des Moduls (Strahlen, Regler *Precision*) und rechnet die Kenngrößen nach den Definitionen der Toolbox v2; die Fehler der alten Fassung übernimmt sie nicht.
+
+Gelesene Dateien:
+- `src/DecodingSpaces.Core/Visibility/Isovist.cs` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/src/DecodingSpaces.Core/Visibility/Isovist.cs)
+- `src/DecodingSpaces.Core/Visibility/ObstacleField.cs` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/src/DecodingSpaces.Core/Visibility/ObstacleField.cs)
+- `src/DecodingSpaces.Grasshopper/Components/Visibility/VisibilityComponents.cs` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/src/DecodingSpaces.Grasshopper/Components/Visibility/VisibilityComponents.cs)
+- `src/DecodingSpaces.Grasshopper/Components/Legacy/LegacyVisibilityComponents.cs` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/src/DecodingSpaces.Grasshopper/Components/Legacy/LegacyVisibilityComponents.cs)
+- `docs/visibility.md` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/visibility.md)
+- `docs/migration.md` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/migration.md)
+- `docs/review-2026-11.md` (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/review-2026-11.md)
+
+Obstacle Visibility (LegacyVisibilityComponents.cs, VisibilityComponents.cs, docs/migration.md) – alt → jetzt:
+
+- **Strahlen zählen**: Die Legacy-Komponente „Isovist“, die die .gh-Datei benutzt, zählte je Hinderniskante die Strahlen, die auf ihr enden; das bleibt die Voreinstellung (Maß „Strahltreffer (Original)“).
+- **Neues Maß in der Toolbox v2**: Sie gibt stattdessen die sichtbare Länge jeder Kante in Metern aus („Obstacle Visibility is now the visible length of each obstacle in metres, not a number of rays“). Die App bietet das jetzt als zweites Maß an („sichtbare Länge (Toolbox v2)“). Mit Strahlen genähert: Zwei Nachbarstrahlen auf derselben Kante tragen den Abstand ihrer Trefferpunkte bei.
+- **Normierung**: Mit diesem Maß wird „÷ Länge“ zum sichtbaren Anteil der Kante (0–1), „÷ Umfang“ zum sichtbaren Anteil der Fassade.
+- **Strahlstatistik**: Kenngrößen wie in der App „Isovist von einem Punkt“; hier zeigt die App nur die Fläche.
+- **Grafit** (GitHub Bauhaus-InfAU/Grafit, MIT): `examples/rhino/Python F13 Isovist 3D.py` zählt beim 3D-Isovist ebenfalls Strahlen je Hindernis (`SumRaysPerObstacle`). Das stützt die Zählung der alten Komponente; für den 2D-Isovist enthält das Beispiel keine weiteren Definitionen.
+
 ## Literatur
 
 - Benedikt, M. L. (1979): To take hold of space: isovists and isovist fields. *Environment and Planning B* 6(1), 47–65. https://doi.org/10.1068/b060047

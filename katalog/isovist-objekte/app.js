@@ -18,7 +18,9 @@
       { id: "reichweite", name: { de: "Reichweite (Viewing Range) m", en: "Viewing range (m)" }, min: 1, max: 200, schritt: 1, wert: S.reichweite },
       { id: "winkel", name: { de: "Blickwinkel (Viewing Angle) °", en: "Viewing angle °" }, min: 0, max: 360, schritt: 1, wert: S.winkel },
       { id: "strahlen", name: { de: "Strahlen (Isovist Rays)", en: "Isovist rays" }, min: 1, max: 720, schritt: 1, wert: S.strahlen },
-      { id: "bezug", gruppe: { de: "Sichtbarkeit je Gebäude", en: "Visibility per building" }, art: "auswahl", name: { de: "Treffer geteilt durch", en: "Hits divided by" }, wert: S.bezug,
+      { id: "mass", gruppe: { de: "Sichtbarkeit je Gebäude", en: "Visibility per building" }, art: "auswahl", name: { de: "Maß (Obstacle Visibility)", en: "Measure (obstacle visibility)" }, wert: S.mass,
+        optionen: [{ wert: "strahlen", name: { de: "Strahltreffer (Original)", en: "ray hits (original)" } }, { wert: "laenge", name: { de: "sichtbare Länge (Toolbox v2)", en: "visible length (toolbox v2)" } }] },
+      { id: "bezug", art: "auswahl", name: { de: "geteilt durch", en: "divided by" }, wert: S.bezug,
         optionen: [{ wert: "flaeche", name: { de: "Grundfläche (Original)", en: "footprint (original)" } }, { wert: "umfang", name: { de: "Umfang", en: "perimeter" } }] },
       { id: "schrittweite", gruppe: { de: "Abspielen", en: "Playback" }, name: { de: "Weg je Schritt (Anteil)", en: "Path per step (fraction)" }, min: 0.001, max: 0.02, schritt: 0.001, wert: S.schrittweite },
       { id: "faerbeGebaeude", gruppe: { de: "Darstellung", en: "Display" }, art: "schalter", name: { de: "Gebäude färben", en: "Colour buildings" }, wert: true },
@@ -72,7 +74,11 @@
       if (b >= 0) L.push(
         [{ de: "sichtbarstes Gebäude", en: "Most visible building" }, (b === z.szene.gebaeude.length - 1 && z.szene.kirche ? (de() ? "Kirche" : "church") : "#" + (b + 1))],
         [{ de: "… Treffer", en: "… hits" }, String(s.geb[b])],
-        [p.bezug === "umfang" ? { de: "… Treffer je m Umfang", en: "… hits per m perimeter" } : { de: "… Treffer je 100 m² Fläche", en: "… hits per 100 m² area" }, zahl(p.bezug === "umfang" ? s.gebN[b] : s.gebN[b] * 100, 2)],
+        [{ de: "… sichtbare Länge", en: "… visible length" }, zahl(s.gebL[b], 1) + " m"],
+        [p.mass === "laenge"
+          ? (p.bezug === "umfang" ? { de: "… sichtbarer Anteil des Umfangs", en: "… visible share of perimeter" } : { de: "… sichtbare m je 100 m² Fläche", en: "… visible m per 100 m² area" })
+          : (p.bezug === "umfang" ? { de: "… Treffer je m Umfang", en: "… hits per m perimeter" } : { de: "… Treffer je 100 m² Fläche", en: "… hits per 100 m² area" }),
+         zahl(p.bezug === "umfang" ? s.gebN[b] : s.gebN[b] * 100, 2)],
         [{ de: "… Grundfläche", en: "… footprint" }, zahl(z.O.flaeche[b], 0) + " m²"]
       );
       if (z.szene.kirche) { const k = z.szene.gebaeude.length - 1; L.push([{ de: "Kirche: Treffer", en: "Church: hits" }, String(s.geb[k])]); }

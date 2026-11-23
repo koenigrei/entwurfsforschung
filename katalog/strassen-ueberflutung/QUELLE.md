@@ -27,3 +27,11 @@
 - **Ablauf**: Grasshopper rechnet sofort. Hier färbt ein Schritt die nächste Straße ein – in der Reihenfolge ihrer Höhe von oben nach unten, wie das Wasser läuft; nach der letzten hält der Lauf an. Regler rechnen sofort zu Ende; „Bewertung abspielen“ zeigt es erneut. Klick auf eine Straße zeigt Abweichung, Neigung und Risiko des Segments.
 - **Max Degrees** beginnt bei 1° statt 0° (0 ergäbe eine Division durch null); die Farbskala ist `Karte.farbe(…, "spektral")` (blau – grün – gelb – rot) statt des Grasshopper-Gradienten der Datei.
 - **Kennzahlen** (Anteil stark betroffener Straßenlänge = obere Hälfte der Farbskala, kaum betroffen = unter 0,2, mittleres Risiko, Neigungen) sind hinzugefügt.
+
+## Abgleich mit dem Quelltext
+
+Abgleich mit dem Quelltext der DeCodingSpaces-Toolbox (https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox, GPL-3.0; durchgesehen: `docs/inventory.md`, `docs/status.md`, `docs/review-2026-11.md`, `docs/decompiling.md`, `src/`) und von Grafit (https://github.com/Bauhaus-InfAU/Grafit, MIT); kein Code übernommen.
+
+- **Keine DeCodingSpaces-Komponente im Modul.** Die .gh-Datei nutzt nur Grasshopper-Standardkomponenten (*Project*, *Explode*, *Evaluate Curve*, *Surface Closest Point*, *Evaluate Surface*, *Angle*, *Evaluate*, *Remap Numbers*, *Radians*, *Pi*, *Multiplication*, *Gradient*, *Vector Display Ex*, *Contour*, *Colour HSL*), dazu *Custom Preview Lineweights* aus *Human* und *Document Info* aus *MetaHopper*. Nichts davon steht in der Toolbox.
+- Verwandt, aber nicht benutzt: die Toolbox-Komponente *Flow Paths* (Hydrology, „Analyse Flow Paths of Terrain“, Eingänge Terrain, Smooth, U/V Count; `docs/inventory.md`, https://github.com/Bauhaus-InfAU/decoding-spaces-toolbox/blob/main/docs/inventory.md). Ihr Quelltext ist noch nicht neu aufgebaut (`docs/status.md`, „Next“ Punkt 1; `docs/review-2026-11.md`: „rework: metric grid, mesh/DGM input, sink filling, flow accumulation“). Dieses Modul bestimmt die Fließrichtung nicht über Fließwege, sondern lokal aus der waagerechten Komponente der Geländenormale – so ist es in der .gh-Datei verdrahtet. Keine Abweichung zu korrigieren.
+- Die Hydrologie-Komponenten der Toolbox (*Analyse/Read/Write Hydrology Network*, EPANET) betreffen Leitungsnetze und spielen hier keine Rolle.

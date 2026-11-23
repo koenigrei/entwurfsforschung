@@ -42,10 +42,10 @@ katalog/strassenhierarchie/
 | `schritt(z, param)` | ein Schritt; erhöht `z.t` |
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
 | `strassennetz(zufall, opt)` | Beispielnetz: verzogenes Raster aus `Szenen.stadt` mit Rand und vier Zufahrten vom Bildrand |
-| `baueNetz(z, p)` | `Geo.netz` (Fangabstand = Snap threshold) → `Geo.segmentGraph` (Length/Angular Coefficient) → Gewichte; Analyse leer |
-| `naechstesSegment(N, q)` | Segment, das dem Punkt am nächsten liegt |
-| `gewichte(N, poi, eingang, p)` | Ursprungs- = Zielgewichte je Segment (2 × Grundgewicht + Zusatzgewichte × Anzahl Segmente) |
-| `betweennessVon(G, s, gQ, gZ, bc)` | Beitrag eines Ursprungssegments (Brandes über `Geo.betweennessVon`, Start- und Zielsegment zählen mit) |
+| `baueNetz(z, p)` | `Geo.netz` (Fangabstand = Snap threshold) → `Geo.richtungsGraph` (gerichteter Segmentgraph, Length/Angular Coefficient, Definition dcs2020/standard) → Gewichte; Analyse leer |
+| `naechstesSegment(N, q)`, `clusterListe(N, punkte, gewicht, grund)` | nächstes Segment (`Geo.naechstesSegment`); eine Liste des Clusters „Custom edge weights“ (Gewicht ersetzt das Grundgewicht) |
+| `gewichte(N, poi, eingang, p)` | Ursprungs- = Zielgewichte je Segment (Summe der beiden Cluster-Listen: Eingänge, PoI) |
+| `betweennessVon(G, s, gQ, gZ, bc, enden)`, `mitEnden(p)` | Beitrag eines Ursprungssegments (`Geo.segmentBetweennessVon`, Brandes über beide Fahrtrichtungen; bei Definition dcs2020 zählen Start- und Zielsegment mit) |
 | `bereiche(p)`, `findeBereich(B, x)` | Consecutive Domains aus den Klassengewichten × Faktor; Find Domain (nicht strikt) |
 | `klassifiziere(bc, p)` | Logarithmus → Remap 0…1 → Klasse 0 Tertiary, 1 Secondary, 2 Primary (−1 keine) |
 | `rechneAlles(z, p)`, `leere(z, p)`, `fertig(z)` | ganze Analyse auf einmal; Analyse leeren (t = 0, Punkte bleiben); alle Ursprünge gerechnet? |

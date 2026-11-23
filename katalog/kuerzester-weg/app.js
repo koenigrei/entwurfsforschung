@@ -45,7 +45,10 @@
         optionen: [{ wert: "einfach", name: { de: "1. Shortest Path Simple – langsam", en: "1. Shortest Path Simple – slow" } },
                    { wert: "dijkstra", name: { de: "2. Shortest Path Dijkstra – schnell für wenige Wege", en: "2. Shortest Path Dijkstra – fast for few paths" } },
                    { wert: "floyd", name: { de: "3. Floyd Warshal – langsame Vorbereitung, dann schnell", en: "3. Floyd Warshal – slow preparation, then fast" } }] },
-      { id: "kosten", gruppe: { de: "Kosten (2. BuildGraph)", en: "Costs (2. BuildGraph)" }, art: "auswahl", name: { de: "Kostenart", en: "Cost type" }, wert: S.kosten,
+      { id: "definition", gruppe: { de: "Kosten (2. BuildGraph)", en: "Costs (2. BuildGraph)" }, art: "auswahl", name: { de: "Definition", en: "Definition" }, wert: S.definition,
+        optionen: [{ wert: "dcs2020", name: { de: "DeCodingSpaces 2020 (Original)", en: "DeCodingSpaces 2020 (original)" } },
+                   { wert: "standard", name: { de: "Standard (Toolbox v2)", en: "standard (toolbox v2)" } }] },
+      { id: "kosten", art: "auswahl", name: { de: "Kostenart", en: "Cost type" }, wert: S.kosten,
         optionen: [{ wert: "winkel", name: { de: "winkelbasiert (Angular)", en: "angular" } }, { wert: "metrisch", name: { de: "metrisch (Length)", en: "metric (length)" } },
                    { wert: "gemischt", name: { de: "gemischt", en: "mixed" } }],
         folgen: { winkel: { kL: 0, kW: 1 }, metrisch: { kL: 1, kW: 0 }, gemischt: { kL: 0.5, kW: 0.5 } } },
@@ -84,7 +87,7 @@
       // Suchfront: feste Knoten (Dijkstra) bzw. vom Ursprung schon erreichbare Segmente (Floyd–Warshall nach k Runden)
       // (nach dem Ende nur, wenn keine Betweenness gezeigt wird)
       if (!(z.bc && Su.fertig)) {
-        const D = Modell.bekannt(z), fest = Su.fest;
+        const { dist: D, fest } = Modell.bekannt(z);
         ctx.globalAlpha = Su.fertig ? 0.55 : 0.9;
         for (let k = 0; k < N.kanten.length; k++) {
           if (D[k] === Infinity) continue;
@@ -93,7 +96,7 @@
         }
         ctx.globalAlpha = 1;
       }
-      if (!Su.fertig && Su.art === "floyd" && Su.fw.k > 0) kante(Su.fw.k - 1, F.tinte, px * 4.5);
+      if (!Su.fertig && Su.art === "floyd" && Su.fw.k > 0) kante((Su.fw.k - 1) >> 1, F.tinte, px * 4.5);
       if (!Su.fertig && Su.zuletzt != null) kante(Su.zuletzt, F.tinte, px * 4.5);
       // Weg: Verlauf von Cyan (Ursprung) nach Lila (Ziel) wie im Katalogbild
       const W = Su.weg;
@@ -116,7 +119,7 @@
     legende: (F, p, z) => [[Sim.css(Sim.mische(CYAN, LILA, 0.5)), { de: "kürzester Weg", en: "shortest path" }], [F.akzent, { de: "Suche: fest", en: "search: settled" }],
       [FRONT, { de: "Suchfront", en: "search front" }]].concat(z && z.bc ? Karte.skalenLegende("spektral", { de: "Betweenness gering", en: "low betweenness" }, { de: "hoch", en: "high" }) : []),
     kennzahlen(z, p) {
-      const Su = z.suche, K = Su.fertig && Su.weg.length ? Modell.wegKosten(z.G, Su.weg, p.kL, p.kW) : null, V = z.vergleich;
+      const Su = z.suche, K = Su.fertig && Su.weg.length ? Modell.wegKosten(z.G, Su.zustaende) : null, V = z.vergleich;
       const ids = Su.weg.length > 8 ? Su.weg.slice(0, 4).join(", ") + ", …, " + Su.weg.slice(-2).join(", ") : Su.weg.join(", ");
       const zeilen = [
         [{ de: "Verfahren", en: "Method" }, NAME[Su.art]],

@@ -1,0 +1,16 @@
+{
+  "id": "strassen-zu-parzellen",
+  "titel": {"de": "Vom Straßennetz zu Grundstücken", "en": "Streets to Plots"},
+  "vorschau": {"de": "Aus einem Straßennetz auf bewegtem Gelände werden Grundstücke: Die geschlossenen Flächen zwischen den Straßen sind die Plots, zu steile Plots fallen heraus.", "en": "A street network on hilly terrain becomes plots: the closed faces between the streets are the plots, plots on too steep ground are culled."},
+  "original": "Streets to Plots",
+  "katalog": "StreetsToPlots",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/StreetsToPlots/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 200,
+  "vorschau_param": {"weightSlope": 0.6},
+  "pruef_ausdruck": "(b => b.fertig === b.plots && b.plots > 80 && b.behalten > 0.4 * b.plots && b.aussortiert > 5 && b.maxBehalten < b.minAussortiert)(Modell.bilanz(SIM.zustand)) && SIM.zustand.offen.length > 0"
+}

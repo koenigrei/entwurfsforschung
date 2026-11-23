@@ -1,0 +1,8 @@
+{
+  "name": "netzoptimierung",
+  "private": true,
+  "type": "commonjs",
+  "description": "Straßennetz-Optimierung – Neuumsetzung des Grasshopper-Moduls Street Network Optimization (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

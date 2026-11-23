@@ -42,7 +42,7 @@ katalog/isovist-objekte/
 | `schritt(z, param)` | ein Schritt; erhöht `z.t` |
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
 | `objekte(gebaeude)` | Obstacle Lines: Segmente, Gebäude je Segment, Längen; Fläche und Umfang je Gebäude |
-| `sichtbarkeit(iso, O, bezug)` | Treffer je Kante (Obstacle Visibility) und je Gebäude, Kante ÷ Länge, Summe ÷ Fläche oder ÷ Umfang, Höchstwerte |
+| `sichtbarkeit(iso, O, bezug, mass)` | Obstacle Visibility je Kante: Strahltreffer (`mass` „strahlen“, Legacy 2020) oder sichtbare Länge (`mass` „laenge“, Toolbox v2); je Kante ÷ Länge, Summe je Gebäude ÷ Fläche oder ÷ Umfang, Höchstwerte |
 | `auswertung(z)` | sichtbare Gebäude und Kanten, Treffer, freie Strahlen, sichtbarstes Gebäude |
 | `rechne(z, p)` | Isovist (`Geo.isovist`) und Sichtbarkeit neu |
 | `blick(a)`, `richtungZu(o, q)` | Angle Direction (Unit Y gegen den Uhrzeigersinn) → Bildschirmwinkel; Angle Direction zu einem Punkt |

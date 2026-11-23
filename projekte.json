@@ -203,6 +203,7 @@
    },
    "ziel": "lab/parametric-planning-catalogue/",
    "start": "index.html",
+   "methode": "katalog/METHODE.md",
    "vorletzt": true
   },
   {

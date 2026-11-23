@@ -1,0 +1,22 @@
+{
+  "id": "wasserleitung",
+  "titel": {
+    "de": "Wasserleitung: Druck und Durchfluss",
+    "en": "Water Network Analysis"
+  },
+  "vorschau": {
+    "de": "Wie viel Druck kommt am Wasserhahn an? Eine Leitung mit Hochbehälter, Pumpe und Verbrauchern, gerechnet wie mit EPANET: Hazen-Williams-Verlust und Gradientenverfahren zeigen Durchfluss und Druck je Abschnitt.",
+    "en": "How much pressure reaches the tap? A pipeline with water tank, pump and consumers, computed as in EPANET: Hazen–Williams head loss and the gradient method show flow and pressure for every section."
+  },
+  "original": "Water Network Analysis",
+  "katalog": "WaterNetworkAnalysis",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WaterNetworkAnalysis/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 20,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig && SIM.zustand.S.fehler <= 0.001 && Math.abs(SIM.zustand.erg.leitungen[0].q - 1000) < 0.01 && Math.abs(SIM.zustand.erg.leitungen[8].q - 200) < 0.01 && Modell.zuWenigDruck(SIM.zustand, SIM.param).length >= 1 && Hydraulik.bilanzfehler(SIM.zustand.netz, SIM.zustand.S) < 1e-6"
+}

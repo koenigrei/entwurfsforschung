@@ -1,0 +1,8 @@
+{
+  "name": "wassernetz",
+  "private": true,
+  "type": "commonjs",
+  "description": "Wassernetz: Erzeugung und Analyse – Neuumsetzung des Grasshopper-Moduls Water Network Generation and Analysis (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

@@ -86,7 +86,7 @@
       laengen[s] = tmin; treffer[s] = hit; winkelListe[s] = a;
       punkte.push([o[0] + d[0] * tmin, o[1] + d[1] * tmin]);
     }
-    return { o, punkte, laengen, treffer, winkel: winkelListe, voll, reichweite: r };
+    return { o, punkte, laengen, treffer, winkel: winkelListe, voll, reichweite: r, hindernisse };
   }
 
   /* ---------------------------------------------------------------- Weg durch die Stadt (Vorschlag für _gemeinsam/szenen.js) */

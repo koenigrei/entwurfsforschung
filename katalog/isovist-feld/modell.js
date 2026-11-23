@@ -2,9 +2,10 @@
    Neuumsetzung des Grasshopper-Moduls „Isovist Field“ aus dem Parametric Planning Catalogue (DeCodingSpaces – Martin Bielik, Ekaterina Fuchkina).
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0
 
-   Verfahren wie in der .gh-Datei: Die Komponente „Analysis Grid“ legt über den Analyserahmen (Rectangle „Analysis boundary“)
-   ein Raster mit der Zellgröße (Cell Size, 1…10, Voreinstellung 2). Vom Füllpunkt (Fill Point) aus werden die Zellen
-   gesammelt, die man ohne Hindernis erreicht; Zellen, die eine Gebäudekante schneiden, entfallen. Die Komponente „Isovist“
+   Verfahren wie in der .gh-Datei: Die Komponente „Analysis Grid“ legt ein Gitter mit der Zellgröße (Cell Size, 1…10,
+   Voreinstellung 2) durch den Füllpunkt (Fill Point) und flutet von dort in vier Richtungen; ein Schritt zwischen zwei Zellmitten
+   ist gesperrt, wenn er ein Hindernis berührt (Gebäudekanten und Kanten des Analyserahmens „Analysis boundary“), so wie in
+   docs/visibility.md §3 der DeCodingSpaces-Toolbox beschrieben (GPL-3.0; Definition abgelesen, kein Code übernommen). Die Komponente „Isovist“
    rechnet für jede Zellmitte (Analysis Points) einen Isovist – Blickrichtung Unit Y, Blickwinkel (Viewing Angle 0…360),
    Reichweite (Viewing Range 1…200), Strahlen (Precision 1…720); Hindernisse sind die Gebäudekanten und der Analyserahmen.
    „List Item“ wählt eine der 17 Kenngrößen, „Bounds“ und „Gradient“ färben die Zellen vom kleinsten zum größten Wert. */
@@ -101,53 +102,59 @@
       laengen[s] = tmin; treffer[s] = hit; winkelListe[s] = a;
       punkte.push([o[0] + d[0] * tmin, o[1] + d[1] * tmin]);
     }
-    return { o, punkte, laengen, treffer, winkel: winkelListe, voll, reichweite: r };
+    return { o, punkte, laengen, treffer, winkel: winkelListe, voll, reichweite: r, hindernisse };
   }
 
   /* ---------------------------------------------------------------- Analysis Grid */
-  /** Raster über dem Rahmen {x0, y0, b, h} mit Zellgröße cs; gesperrt = Zelle schneidet ein Hindernissegment (Rand leicht nach innen,
-      damit Kanten, die eine Zelle nur berühren – etwa der Analyserahmen –, nicht sperren). Vom Füllpunkt aus Flutfüllung über die
-      vier Nachbarn: aktiv = erreichbar. frei(q): optional, ob ein Punkt im Freien liegt (für die Suche nach einer Startzelle,
-      wenn die Zelle des Füllpunkts gesperrt ist; höchstens „suche“ Ringe).
-      → {cs, nx, ny, x0, y0, gesperrt, aktiv, zeilen: [[Zellindex …] je Rasterzeile mit Zellen], anzahl, start} */
-  function analyseRaster(rahmen, hindernisse, cs, fuell, frei = null, suche = 4) {
-    const nx = Math.max(1, Math.floor(rahmen.b / cs + 1e-9)), ny = Math.max(1, Math.floor(rahmen.h / cs + 1e-9)), x0 = rahmen.x0, y0 = rahmen.y0;
-    const gesperrt = new Uint8Array(nx * ny), aktiv = new Uint8Array(nx * ny);
-    for (const s of hindernisse) {
-      const i0 = Math.max(0, Math.floor((Math.min(s[0][0], s[1][0]) - x0) / cs)), i1 = Math.min(nx - 1, Math.floor((Math.max(s[0][0], s[1][0]) - x0) / cs));
-      const j0 = Math.max(0, Math.floor((Math.min(s[0][1], s[1][1]) - y0) / cs)), j1 = Math.min(ny - 1, Math.floor((Math.max(s[0][1], s[1][1]) - y0) / cs));
-      for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
-        const k = j * nx + i;
-        if (!gesperrt[k] && segmentRechteck(s[0], s[1], x0 + i * cs, y0 + j * cs, x0 + (i + 1) * cs, y0 + (j + 1) * cs, -1e-6)) gesperrt[k] = 1;
+  /** Berührt die Strecke a–b ein Hindernis (Schnitt oder Abstand ≤ tol)? Sucht nur in den Zellen des Segmentrasters R um die Strecke. */
+  function blockiert(a, b, hindernisse, R, tol = 1e-6) {
+    const { x0, y0, g, nx, ny, zellen, stempel } = R, lauf = ++R.lauf;
+    const i0 = Math.max(0, Math.floor((Math.min(a[0], b[0]) - tol - x0) / g)), i1 = Math.min(nx - 1, Math.floor((Math.max(a[0], b[0]) + tol - x0) / g));
+    const j0 = Math.max(0, Math.floor((Math.min(a[1], b[1]) - tol - y0) / g)), j1 = Math.min(ny - 1, Math.floor((Math.max(a[1], b[1]) + tol - y0) / g));
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+      const L = zellen[j * nx + i];
+      for (let q = 0; q < L.length; q++) {
+        const k = L[q]; if (stempel[k] === lauf) continue; stempel[k] = lauf;
+        const s = hindernisse[k];
+        if (Geo.segmentSchnitt(a, b, s[0], s[1]) || Geo.abstandSegment(s[0], a, b).d <= tol || Geo.abstandSegment(s[1], a, b).d <= tol ||
+            Geo.abstandSegment(a, s[0], s[1]).d <= tol || Geo.abstandSegment(b, s[0], s[1]).d <= tol) return true;
       }
     }
-    const fi = Math.floor((fuell[0] - x0) / cs), fj = Math.floor((fuell[1] - y0) / cs);
-    // Startzelle: die Zelle des Füllpunkts; ist sie gesperrt (grobes Raster an einer Kante), die nächste freie Zelle in den Ringen ringsum
-    const geht = k => !gesperrt[k] && (!frei || frei([x0 + (k % nx + 0.5) * cs, y0 + (Math.floor(k / nx) + 0.5) * cs]));
-    let start = -1;
-    if (fi >= 0 && fj >= 0 && fi < nx && fj < ny) {
-      if (geht(fj * nx + fi)) start = fj * nx + fi;
-      else if (frei) for (let r = 1; r <= suche && start < 0; r++) {
-        let best = Infinity;
-        for (let j = fj - r; j <= fj + r; j++) for (let i = fi - r; i <= fi + r; i++) {
-          if (Math.max(Math.abs(i - fi), Math.abs(j - fj)) !== r || i < 0 || j < 0 || i >= nx || j >= ny) continue;
-          const k = j * nx + i, d = Math.hypot(x0 + (i + 0.5) * cs - fuell[0], y0 + (j + 0.5) * cs - fuell[1]);
-          if (d < best && geht(k)) { best = d; start = k; }
-        }
-      }
-    }
+    return false;
+  }
+  /** Analysis Grid wie in docs/visibility.md §3 der DeCodingSpaces-Toolbox (Definition abgelesen, kein Code übernommen):
+      Zellmitten auf einem quadratischen Gitter durch den Füllpunkt (Abstand cs), vom Füllpunkt aus in vier Richtungen geflutet.
+      Ein Schritt ist gesperrt, wenn die Strecke zwischen zwei Mitten ein Hindernis berührt (≤ 1e-6 m); die Flutung bleibt im
+      umschreibenden Rechteck der Hindernisse. R: Segmentraster (segmentRaster) für die Suche.
+      → {cs, nx, ny, x0, y0 (linke obere Ecke des Zellenbilds), aktiv, zeilen: [[Zellindex …] je Gitterzeile, von unten (Süden) nach oben],
+         anzahl, start (Zelle des Füllpunkts), bounds} */
+  function analyseRaster(hindernisse, cs, fuell, R = null) {
+    R = R || segmentRaster(hindernisse, 5);
+    const bb = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    for (const s of hindernisse) for (const p of s) { bb.x0 = Math.min(bb.x0, p[0]); bb.y0 = Math.min(bb.y0, p[1]); bb.x1 = Math.max(bb.x1, p[0]); bb.y1 = Math.max(bb.y1, p[1]); }
+    const leer = { cs, nx: 1, ny: 1, x0: fuell[0] - cs / 2, y0: fuell[1] - cs / 2, aktiv: new Uint8Array(1), zeilen: [], anzahl: 0, start: -1, bounds: bb };
+    const innen = q => q[0] >= bb.x0 && q[0] <= bb.x1 && q[1] >= bb.y0 && q[1] <= bb.y1;
+    if (!hindernisse.length || !innen(fuell)) return leer;
+    const imin = Math.ceil((bb.x0 - fuell[0]) / cs - 1e-9), imax = Math.floor((bb.x1 - fuell[0]) / cs + 1e-9);
+    const jmin = Math.ceil((bb.y0 - fuell[1]) / cs - 1e-9), jmax = Math.floor((bb.y1 - fuell[1]) / cs + 1e-9);
+    const nx = imax - imin + 1, ny = jmax - jmin + 1, aktiv = new Uint8Array(nx * ny);
+    const mitte = k => { const i = k % nx, j = (k - i) / nx; return [fuell[0] + (i + imin) * cs, fuell[1] + (j + jmin) * cs]; };
+    const start = (-jmin) * nx + (-imin);
+    aktiv[start] = 1;
+    const schlange = [start];
     let anzahl = 0;
-    if (start >= 0) {
-      const stapel = [start]; aktiv[start] = 1;
-      while (stapel.length) {
-        const k = stapel.pop(), i = k % nx, j = (k - i) / nx; anzahl++;
-        const nb = [i > 0 ? k - 1 : -1, i < nx - 1 ? k + 1 : -1, j > 0 ? k - nx : -1, j < ny - 1 ? k + nx : -1];
-        for (const m of nb) if (m >= 0 && !gesperrt[m] && !aktiv[m]) { aktiv[m] = 1; stapel.push(m); }
+    for (let h = 0; h < schlange.length; h++) {
+      const k = schlange[h], i = k % nx, j = (k - i) / nx, a = mitte(k); anzahl++;
+      for (const m of [i < nx - 1 ? k + 1 : -1, i > 0 ? k - 1 : -1, j < ny - 1 ? k + nx : -1, j > 0 ? k - nx : -1]) {
+        if (m < 0 || aktiv[m]) continue;
+        const b = mitte(m);
+        if (!innen(b) || blockiert(a, b, hindernisse, R)) continue;
+        aktiv[m] = 1; schlange.push(m);
       }
     }
     const zeilen = [];
-    for (let j = 0; j < ny; j++) { const Z = []; for (let i = 0; i < nx; i++) if (aktiv[j * nx + i]) Z.push(j * nx + i); if (Z.length) zeilen.push(Z); }
-    return { cs, nx, ny, x0, y0, gesperrt, aktiv, zeilen, anzahl, start };
+    for (let j = ny - 1; j >= 0; j--) { const Z = []; for (let i = 0; i < nx; i++) if (aktiv[j * nx + i]) Z.push(j * nx + i); if (Z.length) zeilen.push(Z); }
+    return { cs, nx, ny, x0: fuell[0] + (imin - 0.5) * cs, y0: fuell[1] + (jmin - 0.5) * cs, aktiv, zeilen, anzahl, start, bounds: bb };
   }
   /** Mitte der Zelle k (Analysis Point) */
   function zellMitte(G, k) { const i = k % G.nx, j = (k - i) / G.nx; return [G.x0 + (i + 0.5) * G.cs, G.y0 + (j + 0.5) * G.cs]; }
@@ -175,7 +182,7 @@
 
   /** Raster neu anlegen (Zellgröße oder Füllpunkt geändert) und alle Werte verwerfen */
   function baueRaster(z, p) {
-    z.raster = analyseRaster(z.rahmen, z.hindernisse, Math.max(1, Math.min(10, p.zelle)), z.fuell, q => !imGebaeude(z, q));
+    z.raster = analyseRaster(z.hindernisse, Math.max(1, Math.min(10, p.zelle)), z.fuell, z.segRaster);
     z.auswahl = -1; z.auswahlIso = null; z.auswahlMasse = null;
     leere(z);
   }
@@ -205,7 +212,7 @@
   /** fertig, wenn alle Zeilen mit Zellen berechnet sind */
   const fertig = z => z.zeile >= z.raster.zeilen.length;
 
-  /** Ein Schritt: die nächste Rasterzeile (von oben nach unten) berechnen; erhöht z.t */
+  /** Ein Schritt: die nächste Gitterzeile (von Süden nach Norden, wie die Komponente die Zellen ausgibt) berechnen; erhöht z.t */
   function schritt(z, p) {
     if (!fertig(z)) { for (const k of z.raster.zeilen[z.zeile]) rechneZelle(z, p, k); z.zeile++; }
     z.t++;
@@ -240,6 +247,6 @@
   /** Mittelwert der berechneten Zellen */
   const mittel = (z, key) => z.berechnet ? z.summe[key] / z.berechnet : NaN;
 
-  return { STANDARD, KENNGROESSEN, RICHTUNG, VERLAUF, verlauf, segmentRechteck, segmentRaster, isovistRaster, analyseRaster, zellMitte, zelleBei,
+  return { STANDARD, KENNGROESSEN, RICHTUNG, VERLAUF, verlauf, segmentRechteck, segmentRaster, isovistRaster, blockiert, analyseRaster, zellMitte, zelleBei,
            erzeuge, baueRaster, leere, isovistAn, rechneZelle, fertig, schritt, rechneAlle, aendere, waehle, imGebaeude, setzeFuellpunkt, anteil, mittel };
 });
