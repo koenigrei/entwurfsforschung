@@ -107,6 +107,27 @@
     ctx.textBaseline = "alphabetic";
   }
 
+  /** Nachbarschaften (DrawConnections): Linien zwischen den Mittelpunkten, erfüllte durchgezogen, offene gestrichelt;
+      der Eingang (Nachbar −1) als Linie zur nächsten Feldkante. Im Grundriss gelten die Rechtecke der Packung. */
+  function zeichneNachbarn(ctx, z, p, F, G) {
+    ctx.strokeStyle = ORANGE; ctx.fillStyle = ORANGE; ctx.lineWidth = 1.5 * F.px;
+    for (const [a, c] of z.paare) {
+      const A = G.find(q => q.id === a); if (!A) continue;
+      const C = c === -1 ? Modell.aussen(A) : G.find(q => q.id === c); if (!C) continue;
+      const ziel = c !== -1 ? [C.x, C.y] : C.x < 0 ? [0, A.y] : C.x > B ? [B, A.y] : C.y < 0 ? [A.x, 0] : [A.x, H];
+      ctx.setLineDash(Modell.paarDistanz(A, C, p.rlap) < 1 ? [] : [4 * F.px, 3 * F.px]);
+      ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(ziel[0], ziel[1]); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    for (const g of G) { ctx.beginPath(); ctx.arc(g.x, g.y, 2.5 * F.px, 0, 2 * Math.PI); ctx.fill(); }
+  }
+  /** Die Wahl der Nachbarschaften (Stern/Wohnung) wirkt nur mit Raumprogramm: sonst ausblenden */
+  function auswahlGrundriss(z) {
+    const e = document.getElementById("p-grundrissTopo"), zeile = e && e.closest(".zeile");
+    const d = z.programm ? "" : "none";                                 // style statt hidden: .zeile setzt display selbst
+    if (zeile && zeile.style.display !== d) zeile.style.display = d;
+  }
+
   const fassungen = Object.keys(FA);
   const folgen = {};
   fassungen.forEach(f => { folgen[f] = { topo: FA[f].ablauf === "topologie" && !FA[f].programm, plan: !!FA[f].programm }; Modell.REGLER.forEach(k => { folgen[f][k] = FA[f][k]; }); });   // show topology: im Original aus
@@ -141,6 +162,7 @@
       { id: "propRate", gruppe: G_K, name: { de: "Proportion: Rate ρG", en: "Proportion rate ρG" }, min: 0, max: 1, schritt: 0.01, wert: S.propRate, format: proz },
       { id: "daempfung", gruppe: G_T, name: { de: "Federdämpfung (spring Damp)", en: "Spring damping" }, min: -1, max: 1, schritt: 0.01, wert: S.daempfung, format: proz },
       { id: "rlap", gruppe: G_T, name: { de: "Durchgangsbreite (Rooms Overlap)", en: "Passage width (rooms overlap)" }, min: 0, max: 100, wert: S.rlap },
+      { id: "federRunden", gruppe: G_T, name: { de: "Federrunden je Kind (Original 2)", en: "Spring rounds per child (original 2)" }, min: 1, max: 20, wert: S.federRunden },
       { id: "topo", gruppe: G_D, name: { de: "Topologie zeigen", en: "Show topology" }, art: "schalter", wert: S.topo },
       { id: "plan", gruppe: G_D, name: { de: "Grundriss ableiten (Wände, Türen)", en: "Derive floor plan (walls, doors)" }, art: "schalter", wert: S.plan },
       { id: "nummern", gruppe: G_D, name: { de: "Raumnummern", en: "Room numbers" }, art: "schalter", wert: S.nummern },
@@ -151,7 +173,8 @@
     zeichne(ctx, z, p, F) {
       const b = Modell.beste(z), G = b.g;
       ctx.fillStyle = F.dunkel ? F.flaeche : F.papier; ctx.fillRect(0, 0, B, H);
-      if (p.plan) { zeichnePlan(ctx, z, p, F, b); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); if (p.verlauf) { if (quer()) diagramm(ctx, z, F, B + LUECKE, 0, RECHTS, H); else diagramm(ctx, z, F, 0, H + 8, B, UNTEN - 8); } return; }
+      auswahlGrundriss(z);
+      if (p.plan) { zeichnePlan(ctx, z, p, F, b); if (p.topo) zeichneNachbarn(ctx, z, p, F, G); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); if (p.verlauf) { if (quer()) diagramm(ctx, z, F, B + LUECKE, 0, RECHTS, H); else diagramm(ctx, z, F, 0, H + 8, B, UNTEN - 8); } return; }
       // Räume der besten Lösung (PhenotypeGdi): grau, Wände in Papierfarbe (dunkel) bzw. schwarz (hell)
       ctx.lineWidth = 2; ctx.strokeStyle = F.dunkel ? F.papier : F.tinte;
       for (const g of G) {
@@ -169,17 +192,7 @@
         if (g) { ctx.strokeStyle = F.akzentText; ctx.lineWidth = 3; ctx.strokeRect(g.x - g.w / 2, g.y - g.h / 2, g.w, g.h); }
       }
       // Nachbarschaften (DrawConnections): Linien zwischen den Mittelpunkten, erfüllte durchgezogen, offene gestrichelt
-      if (p.topo) {
-        ctx.strokeStyle = ORANGE; ctx.fillStyle = ORANGE; ctx.lineWidth = 1.5 * F.px;
-        for (const [a, c] of z.paare) {
-          const A = G.find(q => q.id === a), C = G.find(q => q.id === c);
-          if (!A || !C) continue;
-          ctx.setLineDash(Modell.paarDistanz(A, C, p.rlap) < 1 ? [] : [4 * F.px, 3 * F.px]);
-          ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(C.x, C.y); ctx.stroke();
-        }
-        ctx.setLineDash([]);
-        for (const g of G) { ctx.beginPath(); ctx.arc(g.x, g.y, 2.5 * F.px, 0, 2 * Math.PI); ctx.fill(); }
-      }
+      if (p.topo) zeichneNachbarn(ctx, z, p, F, G);
       if (p.nummern || z.programm) {
         ctx.font = `${11 * F.px}px "Geist Mono", ui-monospace, monospace`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         ctx.fillStyle = F.dunkel ? F.tinte : F.papier;

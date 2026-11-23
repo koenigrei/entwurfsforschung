@@ -15,7 +15,7 @@ Online: https://entwurfsforschung.de/lab/simulationen/kremlas-dichte-packung/ (w
 | Grundriss: 8 Räume | dasselbe mit dem Raumprogramm aus Buch Tab. 8 (= `GrowPolys`, auskommentiert, 86 m²), Sterntopologie um den Flur wie im Buch, wahlweise Wohnung mit Eingang; Grundriss mit Wänden und Türen (neu) | Belegung 100 %, kürzeste Seite 0,4 · √Fläche, μ = 20 |
 | Grundriss: 10 Räume | dasselbe mit Buch Tab. 9 (Essen, zweites Bad) | wie oben |
 
-Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einnehmen (30–100 %, im Original fest 75 %). Regler **kürzeste Seite**: Untergrenze als Anteil von √Fläche (Original fest 0,75).
+Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einnehmen (30–100 %, im Original fest 75 %). Regler **kürzeste Seite**: Untergrenze als Anteil von √Fläche (Original fest 0,75). Regler **Federrunden**: wie oft je Kind Federn und Kollisionserkennung abwechseln (Original 2; Topologie und Gang 10, Grundriss 5). Die Wahl Stern/Wohnung erscheint nur in den Grundriss-Fassungen; „Topologie zeigen“ legt die Nachbarschaften dort als Linien über den Grundriss.
 
 ## Starten
 

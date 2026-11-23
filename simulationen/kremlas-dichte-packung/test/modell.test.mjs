@@ -235,6 +235,23 @@ test("Federn ziehen zum Nachbarn hin, auch wenn er links/oben liegt (Original: Z
   assert.ok(v.x < 0, "A muss nach links, zum Nachbarn");
 });
 
+test("Federn wirken auch bei sich berührenden Räumen, deren gemeinsame Kante kürzer als die Durchgangsbreite ist", () => {
+  // Nach der Kollisionserkennung liegen Räume oft genau aneinander (Abstand 0). Früher war die Feder dann tot.
+  const T = ind([[0, 100, 100, 50, 50], [1, 150, 140, 50, 50]]);          // rechts anliegend, gemeinsame Kante 10 < 50
+  assert.deepEqual(M.federVektor(T.g[0], T.g[1], 50), { x: 0, y: 40 });
+  const L = ind([[0, 150, 140, 50, 50], [1, 100, 100, 50, 50]]);          // Spiegelbild: Nachbar links oben
+  assert.deepEqual(M.federVektor(L.g[0], L.g[1], 50), { x: 0, y: -40 });
+  const U = ind([[0, 100, 100, 50, 50], [1, 120, 150, 50, 50]]);          // unten anliegend, gemeinsame Kante 30
+  assert.deepEqual(M.federVektor(U.g[0], U.g[1], 50), { x: 20, y: 0 });
+  const E = ind([[0, 100, 100, 50, 50], [1, 150, 150, 50, 50]]);          // nur Ecke an Ecke
+  assert.deepEqual(M.federVektor(E.g[0], E.g[1], 50), { x: 50, y: 50 });
+  const G = ind([[0, 100, 100, 50, 50], [1, 150, 100, 50, 50]]);          // ganze Kante gemeinsam: erfüllt, kein Zug
+  assert.deepEqual(M.federVektor(G.g[0], G.g[1], 50), { x: 0, y: 0 });
+  // hauchdünne Überlappung (0,25 px) statt Berühren, wie sie nach dem Abstoßen oft stehen bleibt: Zug längs der Kante
+  const H = ind([[0, 100, 100, 50, 50], [1, 120, 149.75, 50, 50]]);
+  assert.deepEqual(M.federVektor(H.g[0], H.g[1], 50), { x: 20, y: 0 });
+});
+
 test("Belegung: Summe der Raumflächen = Anteil des Umgebungsrechtecks; mit Raumprogramm m² · 2500 px²", () => {
   for (const b of [0.3, 0.75, 1]) {
     const E = M.startPopulation(1, 12, zufall(2), b)[0];
@@ -295,11 +312,41 @@ test("Topologie: Stern mit 8 Räumen wird mit korrigierten Federn gelöst (alle 
   assert.ok(ok >= 2, `nur ${ok} von 4 Läufen gelöst`);
 });
 
-test("Grundriss-Generator: Lösung erfüllt alle Nachbarschaften samt Eingang, der abgeleitete Grundriss füllt das Feld", () => {
-  const { z, p } = lauf("grundriss8", {}, 1500, 1), b = M.beste(z);
-  assert.equal(M.erfuellt(b, z.paare, p.rlap), z.paare.length);
-  const R = M.grundriss(b);
-  const A = R.reduce((s, r) => s + (r.x2 - r.x1) * (r.y2 - r.y1), 0);
-  assert.ok(A > 0.97 * M.BREITE * M.HOEHE, `gefüllt nur ${A / (M.BREITE * M.HOEHE)}`);
-  assert.ok(M.tueren(R, z.paare, 45).length >= z.paare.length - 1);
+test("Grundriss-Generator: Lösung erfüllt alle Nachbarschaften, der abgeleitete Grundriss füllt das Feld (Stern und Wohnung mit Eingang)", () => {
+  // mehrere Saaten statt einer: ein einzelner Lauf hängt vom Zufall ab
+  for (const topo of ["stern", "wohnung"]) {
+    let ok = 0;
+    for (const s of [1, 2, 3, 4]) {
+      const { z, p } = lauf("grundriss8", { grundrissTopo: topo }, 1500, s), b = M.beste(z);
+      if (M.erfuellt(b, z.paare, p.rlap) !== z.paare.length) continue;
+      const R = M.grundriss(b);
+      const A = R.reduce((q, r) => q + (r.x2 - r.x1) * (r.y2 - r.y1), 0);
+      assert.ok(A > 0.97 * M.BREITE * M.HOEHE, `gefüllt nur ${A / (M.BREITE * M.HOEHE)}`);
+      if (M.tueren(R, z.paare, 45).length >= z.paare.length - 2) ok++;          // Türen brauchen 1,1 m gemeinsame Wand
+    }
+    assert.ok(ok >= 2, `${topo}: nur ${ok} von 4 Läufen mit allen Nachbarschaften und Türen`);
+  }
+});
+
+test("Stern und Wohnung sind verschiedene Topologien; die Wahl wirkt nur mit Raumprogramm", () => {
+  const st = M.erzeuge(fassung("grundriss8", { grundrissTopo: "stern" }), zufall(1)).paare;
+  const wo = M.erzeuge(fassung("grundriss8", { grundrissTopo: "wohnung" }), zufall(1)).paare;
+  assert.deepEqual(st, [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]]);
+  assert.deepEqual(wo, M.PROGRAMME.acht.paare);
+  assert.ok(wo.some(q => q[1] === -1) && wo.some(q => q[0] !== 0));     // Eingang und Nachbarn außerhalb des Flurs
+  const t1 = M.erzeuge(fassung("topologie", { grundrissTopo: "wohnung" }), zufall(1)).paare;
+  assert.deepEqual(t1, M.nachbarn(8, "stern"));
+});
+
+test("Federrunden: mit 2 Runden der bisherige Ablauf, mit mehr Runden ziehen die Federn den Stern schneller zusammen", () => {
+  const geloest = (runden, t) => {
+    let ok = 0;
+    for (const s of [1, 2, 3, 4, 5, 6]) {
+      const { z, p } = lauf("topologie", { federRunden: runden }, t, s), b = M.beste(z), A = b.g.reduce((q, g) => q + g.a, 0);
+      if (M.erfuellt(b, z.paare, p.rlap) === z.paare.length && b.fo < 0.01 * A) ok++;
+    }
+    return ok;
+  };
+  const zwei = geloest(2, 150), zehn = geloest(10, 150);
+  assert.ok(zehn >= 3 && zehn > zwei, `nach 150 Generationen gelöst: 2 Runden ${zwei}, 10 Runden ${zehn} von 6`);
 });
