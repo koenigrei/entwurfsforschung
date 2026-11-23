@@ -52,11 +52,11 @@
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10, mindest: false, lform: 0 },
     gang:       { ablauf: "topologie", topologie: "gang", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 16, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10, mindest: false, lform: 0 },
-    grundriss6: { ablauf: "topologie", topologie: "programm", programm: "sechs", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 6, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+    grundriss6: { ablauf: "topologie", topologie: "programm", programm: "sechs", belegung: 0.96, minSeite: 0.4, grundrissTopo: "wohnung", raeume: 6, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true, lform: 0 },
-    grundriss8: { ablauf: "topologie", topologie: "programm", programm: "acht", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 8, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+    grundriss8: { ablauf: "topologie", topologie: "programm", programm: "acht", belegung: 0.96, minSeite: 0.4, grundrissTopo: "wohnung", raeume: 8, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true, lform: 0 },
-    grundriss10:{ ablauf: "topologie", topologie: "programm", programm: "zehn", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 10, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+    grundriss10:{ ablauf: "topologie", topologie: "programm", programm: "zehn", belegung: 0.96, minSeite: 0.4, grundrissTopo: "wohnung", raeume: 10, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
                   repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true, lform: 0 }
   };
 
@@ -66,7 +66,7 @@
 
   /** Raumprogramme für den Grundriss-Generator: Flächen aus REvo.GrowPolys (auskommentiert, je 86 m²) = Buch Tab. 8 und 9
       (Szenarien nach Flemming et al. 1992). Nachbarschaften wie im Buch (Kap. 9.1): Sterntopologie, alle Räume grenzen an den
-      Flur (grundrissTopo "stern", Voreinstellung). Wahlweise ("wohnung") hier angenommene Nachbarschaften einer Wohnung: Flur (hall) liegt an der Außenwand (Eingang, Nachbar −1)
+      Flur (grundrissTopo "stern"). Voreinstellung (Reinhard 23.11.2026) ist "wohnung": hier angenommene Nachbarschaften einer Wohnung: Flur (hall) liegt an der Außenwand (Eingang, Nachbar −1)
       und erschließt Wohnen, Schlafräume und Bad,
       Wohnen grenzt an Hof und Küche (bzw. Essen, Essen an Küche), das zweite Bad gehört zum Elternschlafzimmer.
       Je Raum: [Name, name, Fläche m², Mindestbreite m]. Mindestbreiten (neu, 23.11.2026) sind Annahmen, keine Norm: Flur 1,20 m nach
