@@ -1,8 +1,8 @@
 {
   "id": "kremlas-dichte-packung",
   "titel": {"de": "KREMLAS · Dichte Packung", "en": "KREMLAS · Dense packing"},
-  "vorschau": {"de": "Eine hybride Evolutionsstrategie mit Kollisionserkennung packt Räume fester Fläche überlappungsfrei in einen Umriss; virtuelle Federn ziehen Nachbarn zusammen. Als Grundriss-Generator entsteht daraus eine Wohnung mit Wänden und Türen.",
-               "en": "A hybrid evolution strategy with collision detection packs rooms of fixed area into an outline without overlaps; virtual springs pull neighbours together. As a floor plan generator, it turns the packing into a flat with walls and doors."},
+  "vorschau": {"de": "Eine hybride Evolutionsstrategie mit Kollisionserkennung packt Räume fester Fläche überlappungsfrei in einen Umriss; virtuelle Federn ziehen Nachbarn zusammen. Als Grundriss-Generator entsteht daraus eine Wohnung mit Wänden und Türen; eine Suche sammelt Grundrisse, die Türen und Mindestmaße einhalten.",
+               "en": "A hybrid evolution strategy with collision detection packs rooms of fixed area into an outline without overlaps; virtual springs pull neighbours together. As a floor plan generator, it turns the packing into a flat with walls and doors; a search collects floor plans that meet doors and minimum dimensions."},
   "original": "Kremlas (Einpassung_21.sln: REvo, RChromosome, RSpring, Collision)",
   "herkunft": "C#",
   "jahr": 2011,
@@ -13,5 +13,5 @@
   "vorschau_saat": 1,
   "vorschau_schritte": 400,
   "vorschau_param": {},
-  "pruef_ausdruck": "SIM.zustand.t === 400 && SIM.zustand.verlauf[0] > 10000 && Modell.beste(SIM.zustand).fo < SIM.zustand.verlauf[0] / 1000 && SIM.zustand.eltern.every(e => e.g.every(g => Math.abs(g.w * g.h - g.a) < 1e-6))"
+  "pruef_ausdruck": "SIM.zustand.t === 400 && SIM.zustand.programm === 'sechs' && Modell.planPruefung(Modell.beste(SIM.zustand), SIM.zustand.paare, SIM.zustand.programm, 300).gueltig && SIM.zustand.eltern.every(e => e.g.every(g => Math.abs(g.w * g.h - g.a) < 1e-6))"
 }

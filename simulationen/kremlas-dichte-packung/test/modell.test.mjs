@@ -257,18 +257,19 @@ test("Belegung: Summe der Raumflächen = Anteil des Umgebungsrechtecks; mit Raum
     const E = M.startPopulation(1, 12, zufall(2), b)[0];
     assert.ok(nah(E.g.reduce((s, g) => s + g.a, 0), b * 499 * 429, 1e-6));
   }
-  for (const [prog, n] of [["acht", 8], ["zehn", 10]]) {
+  for (const [prog, n] of [["sechs", 6], ["acht", 8], ["zehn", 10]]) {
     const R = M.PROGRAMME[prog].raeume;
     assert.equal(R.length, n);
     assert.equal(R.reduce((s, r) => s + r[2], 0), 86);                    // REvo.GrowPolys: total = 86
     const A = M.flaechen(n, 1, prog);
     assert.ok(nah(A.reduce((s, a) => s + a, 0), M.BREITE * M.HOEHE, 1e-6)); // 100 % füllen das Feld 10 × 8,6 m genau
   }
-  const z = M.erzeuge(fassung("grundriss8"), zufall(1));                  // wie im Buch: Stern um den Flur, 100 %, kürzeste Seite 0,4 · √Fläche
+  const BUCH = { mindest: false, belegung: 1 };                           // Stand wie im Buch (ohne die neuen Mindestmaße)
+  const z = M.erzeuge(fassung("grundriss8", BUCH), zufall(1));            // wie im Buch: Stern um den Flur, 100 %, kürzeste Seite 0,4 · √Fläche
   assert.equal(z.n, 8); assert.equal(z.programm, "acht"); assert.equal(z.belegung, 1);
   assert.deepEqual(z.paare, [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]]);
   assert.ok(z.eltern[0].g.every(g => g.ms === 0.4));
-  const w = M.erzeuge(fassung("grundriss8", { grundrissTopo: "wohnung" }), zufall(1));
+  const w = M.erzeuge(fassung("grundriss8", { grundrissTopo: "wohnung", ...BUCH }), zufall(1));
   assert.ok(w.paare.some(([a, b]) => a === 0 && b === -1), "Wohnung: Flur braucht einen Eingang");
   const g = M.gen(0, 0, 0, 100, 100, null, 0.4); M.setzeBreite(g, 10);
   assert.ok(nah(g.w, 40) && nah(g.h, 250));                                // kürzeste Seite 0,4 · √10000 = 40
@@ -317,7 +318,7 @@ test("Grundriss-Generator: Lösung erfüllt alle Nachbarschaften, der abgeleitet
   for (const topo of ["stern", "wohnung"]) {
     let ok = 0;
     for (const s of [1, 2, 3, 4]) {
-      const { z, p } = lauf("grundriss8", { grundrissTopo: topo }, 1500, s), b = M.beste(z);
+      const { z, p } = lauf("grundriss8", { grundrissTopo: topo, mindest: false, belegung: 1 }, 1500, s), b = M.beste(z);   // Stand wie im Buch
       if (M.erfuellt(b, z.paare, p.rlap) !== z.paare.length) continue;
       const R = M.grundriss(b);
       const A = R.reduce((q, r) => q + (r.x2 - r.x1) * (r.y2 - r.y1), 0);
@@ -349,4 +350,66 @@ test("Federrunden: mit 2 Runden der bisherige Ablauf, mit mehr Runden ziehen die
   };
   const zwei = geloest(2, 150), zehn = geloest(10, 150);
   assert.ok(zehn >= 3 && zehn > zwei, `nach 150 Generationen gelöst: 2 Runden ${zwei}, 10 Runden ${zehn} von 6`);
+});
+
+/* ---------------------------------------------------------------- Lösungssuche mit Mindestmaßen (neu, 23.11.2026) */
+
+test("Voreinstellung: Grundriss mit sechs Räumen, abgeleiteter Plan, Mindestmaße an", () => {
+  assert.equal(M.STANDARD.fassung, "grundriss6"); assert.equal(M.STANDARD.plan, true); assert.equal(M.STANDARD.mindest, true);
+  const z = M.erzeuge(fassung("grundriss6"), zufall(1));
+  assert.equal(z.n, 6); assert.equal(z.programm, "sechs"); assert.ok(z.mindest);
+  assert.deepEqual(M.PROGRAMME.sechs.raeume.map(r => r[2]), [10, 28, 10, 16, 14, 8]);
+  for (const f of ["einpassung", "kollision", "topologie", "gang"]) assert.equal(M.FASSUNGEN[f].mindest, false, f);
+});
+
+test("Mindestbreiten im Erbgut: kein Raum wird schmaler als seine Mindestbreite, auch nicht durch VarySize", () => {
+  const { z } = lauf("grundriss8", {}, 60, 3), P = M.PROGRAMME.acht.raeume;
+  for (const e of z.eltern) for (const g of e.g) assert.ok(Math.min(g.w, g.h) >= P[g.id][3] * M.PX_M - 1e-6, `Raum ${g.id}: ${Math.min(g.w, g.h)}`);
+  const g = M.gen(0, 0, 0, 200, 200, null, 0.4, 150); M.setzeBreite(g, 10);   // 16 m², Mindestbreite 3 m
+  assert.ok(nah(g.w, 150) && nah(g.h, 40000 / 150));
+  const ohne = lauf("grundriss8", { mindest: false }, 1, 3).z;           // ohne Mindestmaße: keine Mindestbreite
+  assert.ok(ohne.eltern.every(e => e.g.every(q => q.mb === 0)));
+});
+
+test("Plan-Prüfung: gültiger Plan von Hand, Fehlbeträge bei zu schmalem Raum, fehlender Tür und Überlappung", () => {
+  // sechs Räume im Feld 10 × 8,6 m (500 × 430 px): Flur als Streifen in der Mitte, links Wohnen + Küche, rechts Eltern, Zimmer, Bad
+  const r = (id, x1, y1, x2, y2) => [id, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1];
+  const gut = ind([r(1, 0, 0, 220, 320), r(2, 0, 320, 220, 430), r(0, 220, 0, 280, 430), r(3, 280, 0, 500, 180), r(4, 280, 180, 500, 340), r(5, 280, 340, 500, 430)]);
+  const P = M.PROGRAMME.sechs.paare, w = M.planPruefung(gut, P, "sechs");
+  assert.ok(w.gueltig, JSON.stringify(w)); assert.equal(w.f3, 0);
+  const schmal = ind([r(1, 0, 0, 220, 320), r(2, 0, 320, 220, 430), r(0, 220, 0, 270, 430), r(3, 270, 0, 500, 180), r(4, 270, 180, 500, 340), r(5, 270, 340, 500, 430)]);
+  const ws = M.planPruefung(schmal, P, "sechs");                           // Flur 1,0 m statt 1,2 m
+  assert.ok(!ws.gueltig && nah(ws.breite, 0.2, 1e-6)); assert.ok(ws.raeume.find(q => q.id === 0).zuSchmal);
+  const ohneTuer = M.planPruefung(gut, [...P, [2, 3]], "sechs");          // Küche und Eltern grenzen nicht aneinander
+  assert.ok(!ohneTuer.gueltig && ohneTuer.fehlt === 1 && ohneTuer.tuer > 0);
+});
+
+test("Kleine Überlappungen teilt der Plan (Wand in die Mitte), große bleiben", () => {
+  const I = ind([[0, 100, 215, 220, 430], [1, 350, 215, 320, 430]]);     // 20 px Überlappung: x 190 … 210
+  const R = M.grundriss(I, 300, M.TEILE_PX), a = R.find(q => q.id === 0), b = R.find(q => q.id === 1);
+  assert.ok(nah(a.x2, 200, 1e-6) && nah(b.x1, 200, 1e-6));
+  const Q = M.grundriss(I, 300, 0);                                         // ohne Teilen bleibt die Überlappung
+  assert.ok(Q.find(q => q.id === 0).x2 > Q.find(q => q.id === 1).x1);
+});
+
+test("Suche: drei verschiedene gültige Grundrisse mit sechs Räumen, Stern und Wohnung, jeder Treffer lässt sich laden", () => {
+  for (const topo of ["stern", "wohnung"]) {
+    const p = fassung("grundriss6", { grundrissTopo: topo }), S = M.sucheNeu(p, zufall, { anzahl: 3, saat: 1, laeufe: 40 });
+    while (!S.fertig) M.sucheWeiter(S, 400);
+    assert.ok(S.treffer.length >= 3, `${topo}: nur ${S.treffer.length} Treffer in ${S.laeufe} Läufen`);
+    const W = M.waehleVerschiedene(S.treffer, 3);
+    assert.equal(W.length, 3);
+    for (let i = 0; i < 3; i++) for (let k = i + 1; k < 3; k++) assert.ok(M.planAbstand(W[i].plan, W[k].plan) >= 0.3);
+    for (const T of W) {
+      assert.ok(T.wert.gueltig && M.planPruefung(T.ind, T.paare, T.programm).gueltig);
+      const z = M.zustandAusTreffer(p, T, zufall(T.saat));
+      assert.equal(z.t, T.t); assert.ok(M.planPruefung(M.beste(z), z.paare, z.programm).gueltig, "geladener Zustand zeigt den Treffer");
+      M.schritt(z, p); assert.equal(z.t, T.t + 1);                          // weiterrechnen geht
+    }
+  }
+});
+
+test("Suche: gleiche Saat, gleiche Treffer (wiederholbar)", () => {
+  const lauf2 = () => { const S = M.sucheNeu(fassung("grundriss6"), zufall, { anzahl: 2, saat: 5, laeufe: 20 }); while (!S.fertig) M.sucheWeiter(S, 123); return S.treffer.map(t => [t.saat, t.t]); };
+  assert.deepEqual(lauf2(), lauf2());
 });

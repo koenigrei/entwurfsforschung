@@ -210,6 +210,8 @@
       get zustand() { return z; }, get param() { return p; }, get saat() { return saat; },
       schritt(n = 1) { schritt(n); zeichne(); return z.t; },
       zuruecksetzen(s) { if (s) { saat = s; $("#p-saat").value = s; } laeuft = false; knoepfe(); neu(); },
+      /** fertigen Zustand übernehmen (z. B. eine gefundene Lösung), ohne neu zu rechnen; s = zugehörige Saat */
+      lade(zNeu, s) { if (s) { saat = s; $("#p-saat").value = s; } laeuft = false; knoepfe(); z = zNeu; groesse(); zeichne(); adresse(); },
       setze(id, wert) { const d = P.find(q => q.id === id); setzeWert(id, wert); if (d) geaendert(d); else { if (M.aendere) M.aendere(z, p, id); adresse(); } zeichne(); },
       groesse() { groesse(); zeichne(); },
       start() { laeuft = true; knoepfe(); }, pause() { laeuft = false; knoepfe(); }, get laeuft() { return laeuft; }, zeichne

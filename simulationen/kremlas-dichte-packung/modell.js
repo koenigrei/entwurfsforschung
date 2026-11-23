@@ -13,6 +13,10 @@
      hier für achsparallele Rechtecke eigenständig formuliert.
    - Topologie (RunTopo, NextGenerationProportionate): virtuelle Federn ziehen Räume zusammen, die benachbart sein
      sollen (RSpring), zweites Kriterium f2 = Summe der Distanzen (RChromosome.Distances), Selektion getrennt nach f1 und f2.
+   - Neu (23.11.2026, nicht im Original): In den Grundriss-Fassungen mit „Mindestmaße“ gelten Mindestbreiten je Raum im Erbgut,
+     ein drittes Kriterium f3 bewertet den abgeleiteten Plan (Türen, Breiten, Flächen, Überlappung) und ersetzt f2 in der Selektion;
+     eine Suche (sucheNeu, sucheWeiter) sammelt gültige Grundrisse aus vielen kurzen Läufen, bessert Beinahe-Lösungen nach
+     (örtliche Suche, memetisch) und wählt möglichst verschiedene aus (Maximin).
    Ein Schritt = eine Generation (REvo.Run). */
 (function (wurzel, fabrik) {
   const M = fabrik();
@@ -33,20 +37,26 @@
                   μ = 10 wie die einfache MOES im Buch (Abschn. 5.2.3).
       gang:       wie topologie mit dem Testszenario (SetSzenario): ein Gang, drei Wohnungen zu je fünf Räumen (16 Räume).
       federRunden: wie oft je Kind Federn und Kollisionserkennung abwechseln (Original: zweimal Federn; neu einstellbar,
-                  Voreinstellung nach Messung: 10 bei Topologie und Gang, 5 im Grundriss bei 100 % Belegung). */
+                  Voreinstellung nach Messung: 10 bei Topologie und Gang, 5 im Grundriss bei 100 % Belegung).
+      grundriss6/8/10: Grundriss-Generator mit Raumprogramm (8 und 10 Räume nach dem Buch, 6 Räume angenommen, Voreinstellung der App).
+      mindest:    neu (23.11.2026) – Mindestbreiten je Raum im Erbgut, Plan-Bewertung f3 statt f2 in der Selektion, Belegung 96 %
+                  (Spielraum, damit nach dem Aufteilen kleiner Überlappungen jeder Raum seine Fläche behält); aus = Stand wie im Buch
+                  (dann mit Belegung 100 %). */
   const FASSUNGEN = {
     einpassung: { ablauf: "einpassung", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 25, mu: 1, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 2 },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 2, mindest: false },
     kollision:  { ablauf: "einpassung", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 10, mu: 1, druck: 1, plus: true, elite: false, kreuzung: false, kreuzRate: 0.75,
-                  repForce: 0.5, repRate: 1, propForce: 0.1, propRate: 0.5, daempfung: 0.5, rlap: 50, federRunden: 2 },
+                  repForce: 0.5, repRate: 1, propForce: 0.1, propRate: 0.5, daempfung: 0.5, rlap: 50, federRunden: 2, mindest: false },
     topologie:  { ablauf: "topologie", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 8, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10 },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10, mindest: false },
     gang:       { ablauf: "topologie", topologie: "gang", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 16, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10 },
-    grundriss8: { ablauf: "topologie", topologie: "programm", programm: "acht", belegung: 1, minSeite: 0.4, grundrissTopo: "stern", raeume: 8, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5 },
-    grundriss10:{ ablauf: "topologie", topologie: "programm", programm: "zehn", belegung: 1, minSeite: 0.4, grundrissTopo: "stern", raeume: 10, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5 }
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10, mindest: false },
+    grundriss6: { ablauf: "topologie", topologie: "programm", programm: "sechs", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 6, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true },
+    grundriss8: { ablauf: "topologie", topologie: "programm", programm: "acht", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 8, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true },
+    grundriss10:{ ablauf: "topologie", topologie: "programm", programm: "zehn", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 10, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true }
   };
 
   /** Maßstab der Grundrisse: 50 px = 1 m. Das Feld 500 × 430 ist also 10 × 8,6 m = 86 m² – genau die Summe der Raumprogramme
@@ -57,24 +67,32 @@
       (Szenarien nach Flemming et al. 1992). Nachbarschaften wie im Buch (Kap. 9.1): Sterntopologie, alle Räume grenzen an den
       Flur (grundrissTopo "stern", Voreinstellung). Wahlweise ("wohnung") hier angenommene Nachbarschaften einer Wohnung: Flur (hall) liegt an der Außenwand (Eingang, Nachbar −1)
       und erschließt Wohnen, Schlafräume und Bad,
-      Wohnen grenzt an Hof und Küche (bzw. Essen, Essen an Küche), das zweite Bad gehört zum Elternschlafzimmer. */
+      Wohnen grenzt an Hof und Küche (bzw. Essen, Essen an Küche), das zweite Bad gehört zum Elternschlafzimmer.
+      Je Raum: [Name, name, Fläche m², Mindestbreite m]. Mindestbreiten (neu, 23.11.2026) sind Annahmen, keine Norm: Flur 1,20 m nach
+      DIN 18040-2 (barrierefreie Wohnungen); die übrigen nach üblichen Möblierungen (Wohnen 3,00, Eltern 2,80, Zimmer und Essen 2,40,
+      Küche 1,80, Bad 1,60, Bad 2 1,40, Hof 2,50 m). Eine geltende Norm mit Mindestbreiten je Raumart gibt es nicht (DIN 18011 zurückgezogen).
+      sechs: angenommenes Programm mit sechs Räumen (Reinhard 23.11.2026), gleiche 86 m² wie das Buch, ohne Hof. */
   const PROGRAMME = {
+    sechs: {
+      raeume: [["Flur", "Hall", 10, 1.2], ["Wohnen", "Living", 28, 3.0], ["Küche", "Kitchen", 10, 1.8], ["Eltern", "Master bedroom", 16, 2.8],
+               ["Zimmer", "Bedroom", 14, 2.4], ["Bad", "Bathroom", 8, 1.6]],
+      paare: [[0, -1], [0, 1], [0, 3], [0, 4], [0, 5], [1, 2]] },
     acht: {
-      raeume: [["Flur", "Hall", 10], ["Hof", "Court", 7], ["Wohnen", "Living", 22], ["Eltern", "Master bedroom", 14],
-               ["Zimmer 1", "Bedroom 1", 10], ["Zimmer 2", "Bedroom 2", 10], ["Küche", "Kitchen", 8], ["Bad", "Bathroom", 5]],
+      raeume: [["Flur", "Hall", 10, 1.2], ["Hof", "Court", 7, 2.5], ["Wohnen", "Living", 22, 3.0], ["Eltern", "Master bedroom", 14, 2.8],
+               ["Zimmer 1", "Bedroom 1", 10, 2.4], ["Zimmer 2", "Bedroom 2", 10, 2.4], ["Küche", "Kitchen", 8, 1.8], ["Bad", "Bathroom", 5, 1.6]],
       paare: [[0, -1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 7], [2, 1], [2, 6]] },
     zehn: {
-      raeume: [["Flur", "Hall", 10], ["Hof", "Court", 7], ["Wohnen", "Living", 12], ["Eltern", "Master bedroom", 12],
-               ["Zimmer 1", "Bedroom 1", 10], ["Zimmer 2", "Bedroom 2", 8], ["Küche", "Kitchen", 8], ["Bad", "Bathroom", 5],
-               ["Bad 2", "Bathroom 2", 4], ["Essen", "Dining", 10]],
+      raeume: [["Flur", "Hall", 10, 1.2], ["Hof", "Court", 7, 2.5], ["Wohnen", "Living", 12, 3.0], ["Eltern", "Master bedroom", 12, 2.8],
+               ["Zimmer 1", "Bedroom 1", 10, 2.4], ["Zimmer 2", "Bedroom 2", 8, 2.4], ["Küche", "Kitchen", 8, 1.8], ["Bad", "Bathroom", 5, 1.6],
+               ["Bad 2", "Bathroom 2", 4, 1.4], ["Essen", "Dining", 10, 2.4]],
       paare: [[0, -1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 7], [2, 1], [2, 9], [9, 6], [3, 8]] }
   };
-  const REGLER = ["belegung", "minSeite", "grundrissTopo", "raeume", "mu", "druck", "plus", "elite", "kreuzung", "kreuzRate", "repForce", "repRate", "propForce", "propRate", "daempfung", "rlap", "federRunden"];
+  const REGLER = ["belegung", "minSeite", "grundrissTopo", "raeume", "mu", "druck", "plus", "elite", "kreuzung", "kreuzRate", "repForce", "repRate", "propForce", "propRate", "daempfung", "rlap", "federRunden", "mindest"];
 
   function pick(o, ks) { const r = {}; ks.forEach(k => { r[k] = o[k]; }); return r; }
 
-  /** Voreinstellungen: Fassung „einpassung“ (Stand des Programms) */
-  const STANDARD = Object.assign({ fassung: "einpassung", topo: false, plan: false, nummern: false, verlauf: true }, pick(FASSUNGEN.einpassung, REGLER));
+  /** Voreinstellungen: Grundriss mit sechs Räumen als abgeleiteter Plan (Wunsch Reinhard 23.11.2026); Stand des Programms ist „einpassung“ */
+  const STANDARD = Object.assign({ fassung: "grundriss6", topo: false, plan: true, nummern: false, verlauf: true }, pick(FASSUNGEN.grundriss6, REGLER));
 
   /** Math.Round(decimal) bzw. Math.Round(double) in C#: bei genau .5 zur geraden Zahl */
   function rundeBank(x) {
@@ -91,9 +109,10 @@
 
   /* ---------------------------------------------------------------- Räume (Gene) */
   /** Gen: Raumnummer id, Mittelpunkt (x, y), Breite w, Höhe h, Fläche a (bleibt fest), Geschwindigkeit (vx, vy) für die Federn */
-  const gen = (id, x, y, w, h, a, ms) => ({ id, x, y, w, h, a: a == null ? w * h : a, vx: 0, vy: 0, ms: ms || 0.75 });
-  const kopieGen = g => ({ id: g.id, x: g.x, y: g.y, w: g.w, h: g.h, a: g.a, vx: 0, vy: 0, ms: g.ms });
-  const kopie = ind => ({ g: ind.g.map(kopieGen), fo: ind.fo, fd: ind.fd });
+  /** mb: Mindestbreite in px (neu, nur mit Mindestmaßen; 0 = keine) */
+  const gen = (id, x, y, w, h, a, ms, mb) => ({ id, x, y, w, h, a: a == null ? w * h : a, vx: 0, vy: 0, ms: ms || 0.75, mb: mb || 0 });
+  const kopieGen = g => ({ id: g.id, x: g.x, y: g.y, w: g.w, h: g.h, a: g.a, vx: 0, vy: 0, ms: g.ms, mb: g.mb });
+  const kopie = ind => ({ g: ind.g.map(kopieGen), fo: ind.fo, fd: ind.fd, f3: ind.f3 });
   const links = g => g.x - g.w / 2, oben = g => g.y - g.h / 2, rechts = g => g.x + g.w / 2, unten = g => g.y + g.h / 2;
 
   /** Kollision zweier achsparalleler Rechtecke nach dem Separating Axis Theorem (Collision.PolygonCollision, Verfahren nach Cozic).
@@ -133,9 +152,10 @@
     return s;
   }
 
-  /** Breite setzen und Höhe aus der Fläche ableiten (RGen.CheckWidtHeight): kürzeste Seite ≥ 0,75·√Fläche, höchstens Feldbreite/-höhe */
+  /** Breite setzen und Höhe aus der Fläche ableiten (RGen.CheckWidtHeight): kürzeste Seite ≥ 0,75·√Fläche, höchstens Feldbreite/-höhe;
+      mit Mindestmaßen zusätzlich ≥ Mindestbreite des Raums */
   function setzeBreite(g, w) {
-    const min = Math.sqrt(g.a) * (g.ms || 0.75);                       // Mindestseite (Original fest 0,75 · √Fläche)
+    const min = Math.max(Math.sqrt(g.a) * (g.ms || 0.75), g.mb || 0);  // Mindestseite (Original fest 0,75 · √Fläche)
     if (w < min) w = min; else if (w > BREITE) w = BREITE;
     let h = g.a / w;
     if (h < min) { h = min; w = g.a / h; }
@@ -143,9 +163,9 @@
     g.w = w; g.h = h;
   }
 
-  /** Breite variieren mit fester Untergrenze 50 (RChromosome.VarySize/VarySizeFull) */
+  /** Breite variieren mit fester Untergrenze 50 (RChromosome.VarySize/VarySizeFull); mit Mindestmaßen die Mindestbreite, wenn größer */
   function setzeBreite50(g, w) {
-    const min = 50;
+    const min = Math.max(50, g.mb || 0);
     if (w < min) w = min; else if (w > BREITE) w = BREITE;
     g.h = g.a / w; g.w = w;
     if (g.h < min) { g.h = min; g.w = g.a / g.h; }
@@ -384,7 +404,7 @@
 
   /** Startpopulation (REvo-Konstruktor, GrowPolys): Mittelpunkte zufällig im Feld, Flächen siehe flaechen();
       Breite √Fläche + Zufall −10 … 9 (höchstens Feldbreite / 2), Höhe aus der Fläche – je Individuum neu */
-  function startPopulation(mu, n, zufall, belegung, programm, minSeite) {
+  function startPopulation(mu, n, zufall, belegung, programm, minSeite, mindest) {
     const A = flaechen(n, belegung == null ? 0.75 : belegung, programm), P = [];
     for (let k = 0; k < mu; k++) {
       const G = [];
@@ -392,7 +412,10 @@
         const a = A[i], x = zufall.ganz(BREITE), y = zufall.ganz(HOEHE);
         let w = Math.sqrt(a) + zufall.ganz(20) - 10;
         if (w > Math.trunc(BREITE / 2)) w = Math.trunc(BREITE / 2);
-        G.push(gen(i, x, y, w, a / w, a, minSeite));
+        const mb = programm && mindest ? (PROGRAMME[programm].raeume[i][3] || 0) * PX_M : 0;
+        const g = gen(i, x, y, w, a / w, a, minSeite, mb);
+        if (mb) setzeBreite(g, g.w);                                     // Mindestbreite gleich am Start
+        G.push(g);
       }
       P.push(bewerte({ g: G, fo: 0, fd: 0 }));
     }
@@ -405,8 +428,9 @@
     const bel = Math.min(1, Math.max(0.05, p.belegung == null ? 0.75 : p.belegung));
     const z = { t: 0, zufall, n, mu, ablauf: F.ablauf, topologie: F.topologie, programm: prog, belegung: bel,
                 paare: prog ? (p.grundrissTopo === "wohnung" ? PROGRAMME[prog].paare.map(q => q.slice()) : nachbarn(n, "stern")) : nachbarn(n, F.topologie),
-                eltern: startPopulation(mu, n, zufall, bel, prog, p.minSeite), kinder: 0, aufteilung: null, gesperrt: -1, verlauf: [], verlaufD: [], dichte: 1, rlap: p.rlap };
-    for (const e of z.eltern) e.fd = distanzen(e, z.paare, p.rlap);
+                eltern: startPopulation(mu, n, zufall, bel, prog, p.minSeite, p.mindest), kinder: 0, aufteilung: null, gesperrt: -1, verlauf: [], verlaufD: [], dichte: 1, rlap: p.rlap,
+                mindest: !!(prog && p.mindest) };
+    for (const e of z.eltern) { e.fd = distanzen(e, z.paare, p.rlap); if (z.mindest) e.f3 = planPruefung(e, z.paare, prog).f3; }
     merke(z);
     return z;
   }
@@ -415,6 +439,11 @@
       Mit Topologie (neu): zuerst Lösungen mit Sg unter 1 % der Raumfläche, darunter die mit den meisten erfüllten
       Nachbarschaften, dann kleinstes Sg – sonst zeigte die App oft eine überlappungsarme Lösung ohne die Nachbarschaften. */
   function beste(z) {
+    if (z.mindest) {                                                      // neu: kleinstes f3 (Plan), bei Gleichstand kleinstes Sg
+      let b = z.eltern[0];
+      for (const e of z.eltern) if (e.f3 < b.f3 || (e.f3 === b.f3 && e.fo < b.fo)) b = e;
+      return b;
+    }
     if (z.ablauf !== "topologie") { let b = z.eltern[0]; for (const e of z.eltern) if (e.fo < b.fo) b = e; return b; }
     const rl = z.rlap == null ? 50 : z.rlap;
     const A = z.eltern[0].g.reduce((s, g) => s + g.a, 0);
@@ -494,13 +523,14 @@
     z.kinder = K.length;
     if (!K.length) { z.aufteilung = null; return; }
     // NextGenerationProportionate: 1 nach f1, μ − 1 nach f2; sobald die beste Lösung nach f1 auch f2 < 1,5 · Räume erreicht: 60 % / 40 %
-    for (const c of K) { bewerte(c); c.fd = distanzen(c, P, p.rlap); }
+    for (const c of K) { bewerte(c); c.fd = distanzen(c, P, p.rlap); if (z.mindest) c.f3 = planPruefung(c, P, z.programm).f3; }
     const mu = z.mu;
     sortiere(K, "fo");
     let nachD = mu - 1;
     if (K[0].fd < n * 1.5) nachD = rundeBank(mu * 0.4);
     const nachO = mu - nachD, neu = nimmBeste(K, nachO);
-    sortiere(K, "fd");
+    if (z.mindest) K.sort((a, b) => a.f3 - b.f3);                        // neu: Plan-Bewertung f3 statt f2 (ohne Untergrenze 1)
+    else sortiere(K, "fd");
     neu.push(...nimmBeste(K, nachD));
     sortiere(neu, "fo");
     z.eltern = neu; z.aufteilung = [nachO, nachD];
@@ -525,10 +555,17 @@
   /** Aus der dichten Packung wird ein Grundriss: Jeder Raum wächst mit seinen Kanten in die freie Fläche, bis er an einen
       anderen Raum oder an das Umgebungsrechteck stößt. Stehen sich zwei Räume gegenüber, wachsen beide in kleinen Schritten
       (höchstens 4 px je Durchgang, Reihenfolge wechselnd), bis sie sich etwa in der Mitte treffen. Überlappungen bleiben, wie sie sind. Ergebnis: Rechtecke {id, x1, y1, x2, y2}. */
-  function grundriss(ind, durchgaenge) {
+  function grundriss(ind, durchgaenge, teile) {
     const R = ind.g.map(g => ({ id: g.id, x1: links(g), y1: oben(g), x2: rechts(g), y2: unten(g) }));
     for (const r of R) { r.x1 = Math.max(0, r.x1); r.y1 = Math.max(0, r.y1); r.x2 = Math.min(BREITE, r.x2); r.y2 = Math.min(HOEHE, r.y2); }
     const quer = (a1, a2, b1, b2) => Math.min(a2, b2) - Math.max(a1, b1) > 0.5;   // Projektionen überdecken sich echt
+    // neu (Mindestmaße): Überlappungen bis „teile“ px Tiefe werden geteilt – die Wand rückt in die Mitte der Überlappung
+    if (teile) for (let runde = 0; runde < 3; runde++) for (let i = 0; i < R.length; i++) for (let k = i + 1; k < R.length; k++) {
+      const A = R[i], C = R[k], ox = Math.min(A.x2, C.x2) - Math.max(A.x1, C.x1), oy = Math.min(A.y2, C.y2) - Math.max(A.y1, C.y1);
+      if (ox <= 0 || oy <= 0 || Math.min(ox, oy) > teile) continue;
+      if (ox <= oy) { const m = (Math.max(A.x1, C.x1) + Math.min(A.x2, C.x2)) / 2; if (A.x1 + A.x2 < C.x1 + C.x2) { A.x2 = m; C.x1 = m; } else { C.x2 = m; A.x1 = m; } }
+      else { const m = (Math.max(A.y1, C.y1) + Math.min(A.y2, C.y2)) / 2; if (A.y1 + A.y2 < C.y1 + C.y2) { A.y2 = m; C.y1 = m; } else { C.y2 = m; A.y1 = m; } }
+    }
     for (let d = 0; d < (durchgaenge || 300); d++) {
       let bewegt = false;
       // nacheinander (sonst wachsen zwei Räume zugleich in dieselbe Ecke), die Reihenfolge wechselt je Durchgang
@@ -583,6 +620,126 @@
     return T;
   }
 
+  /* ---------------------------------------------------------------- Plan prüfen und Lösungen suchen (neu, 23.11.2026) */
+  const TUER_PX = 45;                                                    // Türbreite 0,9 m
+  const TEILE_PX = 25;                                                   // Überlappungen bis 0,5 m Tiefe teilt der Plan
+  const PLAN_DURCHGAENGE = 120;                                          // Wachsen in der Bewertung (Ansicht: 300)
+  /** Prüft den abgeleiteten Plan eines Individuums: Türen aller geforderten Nachbarschaften, Mindestbreite und Fläche
+      (≥ 95 % der Programmfläche) je Raum, Überlappung. f3 = gewichtete Summe der Fehlbeträge; Türen gleitend gemessen
+      (Abstand der Räume + fehlende Länge der gemeinsamen Wand, in m), damit die Selektion auch kleine Fortschritte sieht.
+      gueltig: alle Türen, Breiten und Flächen auf 1 cm bzw. 0,01 m² genau, Überlappung unter 0,05 m². */
+  function planPruefung(ind, paare, programm, durchgaenge) {
+    const R = grundriss(ind, durchgaenge || PLAN_DURCHGAENGE, TEILE_PX), T = tueren(R, paare, TUER_PX), P = PROGRAMME[programm].raeume;
+    const raeume = [];
+    let breite = 0, flaeche = 0, ue = 0, tuer = 0;
+    for (const r of R) {
+      const w = Math.min(r.x2 - r.x1, r.y2 - r.y1) / PX_M, a = (r.x2 - r.x1) * (r.y2 - r.y1) / (PX_M * PX_M);
+      const db = Math.max(0, (P[r.id][3] || 0) - w), da = Math.max(0, P[r.id][2] * 0.95 - a);
+      breite += db; flaeche += da;
+      raeume.push({ id: r.id, breite: w, flaeche: a, zuSchmal: db > 0.01, zuKlein: da > 0.01 });
+    }
+    for (let i = 0; i < R.length; i++) for (let k = i + 1; k < R.length; k++) {
+      const a = R[i], c = R[k], ox = Math.min(a.x2, c.x2) - Math.max(a.x1, c.x1), oy = Math.min(a.y2, c.y2) - Math.max(a.y1, c.y1);
+      if (ox > 0 && oy > 0) ue += ox * oy / (PX_M * PX_M);
+    }
+    const noetig = TUER_PX + 10, f = id => R.find(r => r.id === id);
+    for (const [a, b] of paare) {
+      const A = f(a); if (!A) continue;
+      if (b === -1) {                                                     // Eingang: Abstand zur Außenwand + fehlende Wandlänge
+        const d = Math.min(A.x1, BREITE - A.x2, A.y1, HOEHE - A.y2), l = Math.max(A.x2 - A.x1, A.y2 - A.y1);
+        tuer += (Math.max(0, d) + Math.max(0, noetig - l)) / PX_M; continue;
+      }
+      const B = f(b); if (!B) continue;
+      const gx = Math.max(A.x1, B.x1) - Math.min(A.x2, B.x2), gy = Math.max(A.y1, B.y1) - Math.min(A.y2, B.y2);   // > 0 Lücke, < 0 Überdeckung
+      tuer += Math.min(Math.max(0, gx) + Math.max(0, noetig + gy), Math.max(0, gy) + Math.max(0, noetig + gx)) / PX_M;
+    }
+    const fehlt = paare.length - T.length;
+    return { f3: fehlt * 2 + tuer * 3 + breite * 10 + flaeche + ue * 5, fehlt, tuer, breite, flaeche, ue, raeume,
+             gueltig: fehlt === 0 && breite < 0.01 && flaeche < 0.01 && ue < 0.05 };
+  }
+
+  /** Örtliche Nachbesserung (memetisch): einzelne Räume ein wenig verschieben oder ihre Proportion ändern, behalten, was f3 nicht
+      verschlechtert; Schrittweite nimmt ab. Bricht ab, sobald der Plan gültig ist. */
+  function nachbessern(ind, paare, programm, zufall, versuche) {
+    let best = kopie(ind), w = planPruefung(best, paare, programm);
+    for (let v = 0; v < versuche && !w.gueltig; v++) {
+      const c = kopie(best), g = c.g[zufall.ganz(c.g.length)], s = 20 * (1 - v / versuche) + 2, art = zufall.ganz(3);
+      if (art === 0) g.x += (zufall() * 2 - 1) * s; else if (art === 1) g.y += (zufall() * 2 - 1) * s; else setzeBreite(g, g.w + (zufall() * 2 - 1) * s);
+      const wc = planPruefung(c, paare, programm);
+      if (wc.f3 <= w.f3) { best = c; w = wc; }
+    }
+    best.fo = ueberlappung(best); best.f3 = w.f3;
+    return { ind: best, wert: w };
+  }
+
+  /** Mittlerer Abstand der Raummittelpunkte zweier Pläne in m (Maß der Verschiedenheit) */
+  function planAbstand(A, B) {
+    let s = 0;
+    for (const a of A) { const b = B.find(q => q.id === a.id); s += Math.hypot((a.x1 + a.x2 - b.x1 - b.x2) / 2, (a.y1 + a.y2 - b.y1 - b.y2) / 2); }
+    return s / A.length / PX_M;
+  }
+  /** Maximin: erst der früheste Treffer, dann jeweils der, dessen kleinster Abstand zu den gewählten am größten ist */
+  function waehleVerschiedene(treffer, n) {
+    if (treffer.length <= n) return treffer.slice();
+    const W = [treffer[0]], rest = treffer.slice(1);
+    while (W.length < n) {
+      let bi = 0, bd = -1;
+      rest.forEach((t, i) => { const d = Math.min(...W.map(w => planAbstand(t.plan, w.plan))); if (d > bd) { bd = d; bi = i; } });
+      W.push(rest.splice(bi, 1)[0]);
+    }
+    return W;
+  }
+
+  /** Suche nach gültigen Grundrissen: viele kurze Läufe mit neuen Saaten (Neustart statt Stillstand), jeder Lauf endet beim
+      ersten gültigen Elter oder nach „generationen“; dann werden die drei besten Eltern nachgebessert. Gesammelt wird bis
+      „ziel“ Treffer (Voreinstellung doppelt so viele wie gewünscht, damit Maximin wählen kann) oder „laeufe“ Läufe.
+      Zufallsquelle: neueZufall(saat). sucheWeiter rechnet höchstens „budget“ Generationen und kehrt dann zurück (Zeitscheiben). */
+  function sucheNeu(param, neueZufall, o) {
+    o = Object.assign({ anzahl: 3, saat: 1, generationen: 200, pruefen: 10, versuche: 800, laeufe: 400 }, o);
+    return { param: Object.assign({}, STANDARD, param), neueZufall, o, ziel: o.ziel || o.anzahl * 2, saat: o.saat, laeufe: 0,
+             generationen: 0, lauf: null, treffer: [], fertig: false };
+  }
+  function sucheWeiter(S, budget) {
+    let rest = budget;
+    while (!S.fertig && rest > 0) {
+      if (!S.lauf) {
+        if (S.laeufe >= S.o.laeufe) { S.fertig = true; break; }
+        const zuf = S.neueZufall(S.saat);
+        S.lauf = { saat: S.saat, zuf, z: erzeuge(S.param, zuf) };
+        S.saat++; S.laeufe++;
+        if (!S.lauf.z.mindest) { S.fertig = true; S.lauf = null; break; }   // nur mit Raumprogramm und Mindestmaßen
+      }
+      const L = S.lauf, z = L.z;
+      schritt(z, S.param); rest--; S.generationen++;
+      let treffer = null;
+      if (z.t % S.o.pruefen === 0) for (const e of z.eltern) { const w = planPruefung(e, z.paare, z.programm); if (w.gueltig) { treffer = { ind: kopie(e), wert: w, nachgebessert: false }; break; } }
+      if (!treffer && z.t >= S.o.generationen) {
+        const E = z.eltern.slice().sort((a, b) => a.f3 - b.f3).slice(0, 3);
+        for (const e of E) { const r = nachbessern(e, z.paare, z.programm, L.zuf, S.o.versuche); if (r.wert.gueltig) { treffer = { ind: r.ind, wert: r.wert, nachgebessert: true }; break; } }
+        if (!treffer) { S.lauf = null; continue; }
+      }
+      if (treffer) {
+        const plan = grundriss(treffer.ind, 300, TEILE_PX);
+        if (!S.treffer.some(t => planAbstand(t.plan, plan) < 0.3)) {      // fast gleiche Pläne nur einmal
+          S.treffer.push({ saat: L.saat, t: z.t, ind: treffer.ind, eltern: z.eltern.map(kopie), wert: treffer.wert, plan, nachgebessert: treffer.nachgebessert,
+                           programm: z.programm, paare: z.paare.map(q => q.slice()) });
+        }
+        S.lauf = null;
+        if (S.treffer.length >= S.ziel) S.fertig = true;
+      }
+    }
+    return S;
+  }
+  /** Zustand für die Einzelansicht aus einem Treffer: neuer Lauf derselben Saat, Eltern und Generation des Treffers,
+      der gefundene Grundriss als erster Elter (so lässt er sich weiterentwickeln und mit der Maus bearbeiten) */
+  function zustandAusTreffer(param, T, zufall) {
+    const z = erzeuge(Object.assign({}, STANDARD, param), zufall);
+    z.eltern = [kopie(T.ind), ...T.eltern.slice(0, z.mu - 1).map(kopie)];
+    for (const e of z.eltern) { e.fo = ueberlappung(e); e.fd = distanzen(e, z.paare, z.rlap); if (z.mindest) e.f3 = planPruefung(e, z.paare, z.programm).f3; }
+    z.t = T.t; z.verlauf = []; z.verlaufD = []; z.dichte = 1; merke(z);
+    return z;
+  }
+
   /* ---------------------------------------------------------------- Maus (Form1.pictureBox1_Mouse*) */
   /** Linke Maustaste über einem Raum der besten Lösung: Raum sperren und in allen Eltern an die Mausposition setzen */
   function ziehe(z, x, y, phase) {
@@ -593,14 +750,15 @@
       z.gesperrt = g.id;
     }
     if (z.gesperrt < 0) return false;
-    for (const e of z.eltern) { const g = finde(e, z.gesperrt); if (g) { g.x = x; g.y = y; } bewerte(e); }
+    for (const e of z.eltern) { const g = finde(e, z.gesperrt); if (g) { g.x = x; g.y = y; } bewerte(e); if (z.mindest) e.f3 = planPruefung(e, z.paare, z.programm).f3; }
     return true;
   }
   /** Maustaste los: Sperre aufheben */
   function loslassen(z) { z.gesperrt = -1; }
 
-  return { BREITE, HOEHE, PX_M, PROGRAMME, flaechen, FASSUNGEN, REGLER, STANDARD, rundeBank, normal, gen, kopie, kollision, schnittRechteck, ueberlappung,
+  return { BREITE, HOEHE, PX_M, TUER_PX, TEILE_PX, PROGRAMME, flaechen, FASSUNGEN, REGLER, STANDARD, rundeBank, normal, gen, kopie, kollision, schnittRechteck, ueberlappung,
            setzeBreite, setzeBreite50, pruefeRand, proportion, abstossen, entwickle, verschiebe, variiereGroesse, variiereGroesseVoll,
            inversion, kreuzung, nachbarn, ringAbstand, zusatzAbstand, zusatzUeberlappung, paarDistanz, distanzen, erfuellt,
-           federVektor, federn, aussen, grundriss, tueren, startPopulation, erzeuge, schritt, aendere, beste, ziehe, loslassen };
+           federVektor, federn, aussen, grundriss, tueren, planPruefung, nachbessern, planAbstand, waehleVerschiedene,
+           sucheNeu, sucheWeiter, zustandAusTreffer, startPopulation, erzeuge, schritt, aendere, beste, ziehe, loslassen };
 });

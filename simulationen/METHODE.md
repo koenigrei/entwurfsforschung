@@ -24,7 +24,7 @@ Kein Korpus echter Städte oder Pläne. Maßstab ist das Originalprogramm: Quell
 
 Methodenfamilien, nach den Gruppen in `bestand.json`:
 
-- **Packung und Layout (Evolutionsstrategie):** `dichte-packungen-1` minimiert die Überschneidung zufälliger Rechtecke (Idee Elezkurtaj und Franck); `kremlas-dichte-packung` packt Räume fester Fläche mit Kollisionserkennung (Separating Axis Theorem) und virtuellen Federn für geforderte Nachbarschaften, bis zum abgeleiteten Grundriss mit Türen; `ueberlagerungsflaechen`.
+- **Packung und Layout (Evolutionsstrategie):** `dichte-packungen-1` minimiert die Überschneidung zufälliger Rechtecke (Idee Elezkurtaj und Franck); `kremlas-dichte-packung` packt Räume fester Fläche mit Kollisionserkennung (Separating Axis Theorem) und virtuellen Federn für geforderte Nachbarschaften, bis zum abgeleiteten Grundriss mit Türen; neu (23.11.2026) eine Suche nach gültigen Grundrissen (Türen, Mindestbreiten, Flächen): Bewertung f3 am abgeleiteten Plan in der Selektion, viele kurze Läufe statt eines langen, örtliche Nachbesserung (memetisch), Maximin-Auswahl; `ueberlagerungsflaechen`.
 - **Zelluläre Automaten und Wachstum:** `einfaches-wachstum` (Wahrscheinlichkeit p), `diffusionsfeld-wachstum` (Potentialfeld, Batty Kap. 3), `schneeflocke` (Reiter); als großes Modell `wachstumssimulation` (Erschließungsgraph, Potentialfeld, Parzellen; Dissertation Kap. 3.4.1 und 6).
 - **Agenten und selbstorganisierte Wegesysteme:** `wegesystem-selbstorganisation` (Markierungen, Hill Climbing oder Roulette Wheel; Schweitzer), `active-walker` (Batty Kap. 5), `optimiertes-wegesystem` (Agentenparameter per genetischem Algorithmus); dazu `facs` und Schwärme.
 - **Wegesuche und Graphen:** `a-stern` (A* im Raster), `wegenutzung` (Nutzungshäufigkeit auf A*-Routen), `gravitation` (Ströme nach `F_ij = P_i · P_j / d_ij²`).
@@ -38,9 +38,9 @@ Gemeinsam: Zufall nur mit Saat (`_gemeinsam/zufall.js`, mulberry32), ein Schritt
 
 Treue zum Original und erwartetes Verhalten, nicht Echtheit gegen reale Beispiele:
 
-- **`node --test` je App** (`test/*.test.mjs`): je Regel ein nachgerechnetes Beispiel, Grenzfälle, gleiche Saat → gleicher Lauf, ein Verhalten aus der Beschreibung (z. B. „Segregationsgrad steigt“, „Ringfolge A–C–B“). Stand 23.11.2026: 50 Apps, 576 Tests, alle grün.
+- **`node --test` je App** (`test/*.test.mjs`): je Regel ein nachgerechnetes Beispiel, Grenzfälle, gleiche Saat → gleicher Lauf, ein Verhalten aus der Beschreibung (z. B. „Segregationsgrad steigt“, „Ringfolge A–C–B“). Stand 23.11.2026: 50 Apps, 582 Tests, alle grün.
 - **`pruef_ausdruck`** in `app.json`: Kennzahl im erwarteten Bereich nach n Schritten; **`pruefe_apps.py`**: Browser, hell/dunkel, 1440/390 px, Bildschirmfotos zur Durchsicht; **`pruefe.py`**: Pflichtdateien, Pflichtlinks, kein DOM in `modell.js`.
-- **Messung über viele Saaten** bei Änderungen am Modell (KREMLAS: Anteil vollständig gelöster Läufe nach 100 … 2000 Generationen, `kremlas-dichte-packung/QUELLE.md`).
+- **Messung über viele Saaten** bei Änderungen am Modell (KREMLAS: Anteil vollständig gelöster Läufe nach 100 … 2000 Generationen; Treffer der Grundrisssuche je Lauf und Fassung, `kremlas-dichte-packung/QUELLE.md`).
 
 ## Handschrift
 

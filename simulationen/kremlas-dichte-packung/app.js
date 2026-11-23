@@ -44,7 +44,7 @@
   }
 
   /* ---------- Grundrissansicht: Räume wachsen in die Restflächen (Modell.grundriss), Wände, Türen, Namen, m² ---------- */
-  const TUER = 45;                                                     // Türbreite 0,9 m bei 50 px = 1 m
+  const TUER = Modell.TUER_PX;                                         // Türbreite 0,9 m bei 50 px = 1 m
   const planFarbe = F => F.dunkel ? "#2b2b30" : "#fbfaf7", hofFarbe = F => F.dunkel ? "#23362a" : "#e3efe2", restFarbe = F => F.dunkel ? "#4a4a50" : "#c9c7c0";
   const raumName = (z, id) => { const r = Modell.PROGRAMME[z.programm].raeume[id]; return r ? (en() ? r[1] : r[0]) : String(id); };
   const qm = a => (a / (Modell.PX_M * Modell.PX_M)).toLocaleString(en() ? "en" : "de", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " m²";
@@ -53,8 +53,11 @@
     for (let y = 2.5; y < H; y += 5) for (let x = 2.5; x < B; x += 5) { n++; if (R.some(r => x > r.x1 && x < r.x2 && y > r.y1 && y < r.y2)) k++; }
     return k / n;
   }
+  /** Plan einer Lösung: mit Mindestmaßen werden kleine Überlappungen geteilt (wie in der Prüfung) */
+  const planVon = (z, b) => Modell.grundriss(b, 300, z.mindest ? Modell.TEILE_PX : 0);
+  const pruefungVon = (z, b) => z.mindest ? Modell.planPruefung(b, z.paare, z.programm, 300) : null;
   function zeichnePlan(ctx, z, p, F, b) {
-    const R = Modell.grundriss(b), T = Modell.tueren(R, z.paare, TUER), wand = 3 * F.px;
+    const R = planVon(z, b), T = Modell.tueren(R, z.paare, TUER), wand = 3 * F.px, W = pruefungVon(z, b);
     // Restflächen schraffiert: erst alles grau, dann die Räume darüber
     ctx.fillStyle = restFarbe(F); ctx.fillRect(0, 0, B, H);
     ctx.save(); ctx.beginPath(); ctx.rect(0, 0, B, H); ctx.clip(); ctx.strokeStyle = F.dunkel ? "#5c5c63" : "#b3b0a8"; ctx.lineWidth = 1;
@@ -99,10 +102,13 @@
     ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = F.tinte;
     for (const r of R) {
       const cx = (r.x1 + r.x2) / 2, cy = (r.y1 + r.y2) / 2, A = (r.x2 - r.x1) * (r.y2 - r.y1);
-      ctx.font = `${12 * F.px}px "Geist", system-ui, sans-serif`;
+      const m = W && W.raeume.find(q => q.id === r.id), mangel = m && (m.zuSchmal || m.zuKlein);
+      ctx.font = `${12 * F.px}px "Geist", system-ui, sans-serif`; ctx.fillStyle = mangel ? F.akzentText : F.tinte;
       ctx.fillText(z.programm ? raumName(z, r.id) : (en() ? "Room " : "Raum ") + r.id, cx, cy - 7 * F.px);
-      ctx.font = `${10 * F.px}px "Geist Mono", ui-monospace, monospace`; ctx.fillStyle = F.gedaempft;
-      ctx.fillText(qm(A), cx, cy + 8 * F.px); ctx.fillStyle = F.tinte;
+      ctx.font = `${10 * F.px}px "Geist Mono", ui-monospace, monospace`; ctx.fillStyle = mangel ? F.akzentText : F.gedaempft;
+      ctx.fillText(qm(A), cx, cy + 8 * F.px);
+      if (mangel) ctx.fillText(m.zuSchmal ? (en() ? "too narrow" : "zu schmal") : (en() ? "too small" : "zu klein"), cx, cy + 21 * F.px);
+      ctx.fillStyle = F.tinte;
     }
     ctx.textBaseline = "alphabetic";
   }
@@ -121,11 +127,15 @@
     ctx.setLineDash([]);
     for (const g of G) { ctx.beginPath(); ctx.arc(g.x, g.y, 2.5 * F.px, 0, 2 * Math.PI); ctx.fill(); }
   }
-  /** Die Wahl der Nachbarschaften (Stern/Wohnung) wirkt nur mit Raumprogramm: sonst ausblenden */
+  /** Die Wahl der Nachbarschaften (Stern/Wohnung), die Mindestmaße und die Lösungssuche wirken nur mit Raumprogramm: sonst ausblenden */
   function auswahlGrundriss(z) {
-    const e = document.getElementById("p-grundrissTopo"), zeile = e && e.closest(".zeile");
     const d = z.programm ? "" : "none";                                 // style statt hidden: .zeile setzt display selbst
-    if (zeile && zeile.style.display !== d) zeile.style.display = d;
+    for (const id of ["p-grundrissTopo", "p-mindest"]) {
+      const e = document.getElementById(id), zeile = e && e.closest(".zeile");
+      if (zeile && zeile.style.display !== d) zeile.style.display = d;
+    }
+    const L = document.getElementById("loesungen");
+    if (L && L.hidden !== !z.programm) L.hidden = !z.programm;
   }
 
   const fassungen = Object.keys(FA);
@@ -142,6 +152,7 @@
                    { wert: "kollision", name: { de: "Kollision allein", en: "Collision only" } },
                    { wert: "topologie", name: { de: "Topologie: Stern", en: "Topology: star" } },
                    { wert: "gang", name: { de: "Topologie: Gang", en: "Topology: corridor" } },
+                   { wert: "grundriss6", name: { de: "Grundriss: 6 Räume", en: "Floor plan: 6 rooms" } },
                    { wert: "grundriss8", name: { de: "Grundriss: 8 Räume", en: "Floor plan: 8 rooms" } },
                    { wert: "grundriss10", name: { de: "Grundriss: 10 Räume", en: "Floor plan: 10 rooms" } }] },
       { id: "belegung", gruppe: G_F, name: { de: "Belegung des Umgebungsrechtecks", en: "Coverage of the bounding rectangle" }, min: 0.3, max: 1, schritt: 0.01, wert: S.belegung, format: proz, neustart: true },
@@ -149,6 +160,7 @@
       { id: "grundrissTopo", gruppe: G_F, name: { de: "Nachbarschaften im Grundriss", en: "Adjacencies in the floor plan" }, art: "auswahl", wert: S.grundrissTopo, neustart: true,
         optionen: [{ wert: "stern", name: { de: "Stern: alle am Flur (Buch)", en: "Star: all at the hall (book)" } },
                    { wert: "wohnung", name: { de: "Wohnung mit Eingang (angenommen)", en: "Flat with entrance (assumed)" } }] },
+      { id: "mindest", gruppe: G_F, name: { de: "Mindestmaße (Breite, Fläche; neu)", en: "Minimum dimensions (width, area; new)" }, art: "schalter", wert: S.mindest, neustart: true },
       { id: "raeume", gruppe: G_ES, name: { de: "Räume (Rooms, nicht im Grundriss)", en: "Rooms (not in floor plan)" }, min: 2, max: 40, wert: S.raeume, neustart: true },
       { id: "mu", gruppe: G_ES, name: { de: "Eltern μ (Population)", en: "Parents μ (population)" }, min: 1, max: 30, wert: S.mu, neustart: true },
       { id: "druck", gruppe: G_ES, name: { de: "Druck (Pressure) λ ≈ μ · Druck", en: "Pressure λ ≈ μ · pressure" }, min: 1, max: 20, wert: S.druck },
@@ -224,14 +236,85 @@
       if (z.aufteilung) k.push([{ de: "Auswahl nach f1 · f2", en: "Selected by f1 · f2" }, `${z.aufteilung[0]} · ${z.aufteilung[1]}`]);
       k.push([{ de: "Belegung", en: "Coverage" }, proz(z.belegung)]);
       if (p.plan) {
-        const R = Modell.grundriss(b), T = Modell.tueren(R, z.paare, TUER);
+        const R = planVon(z, b), T = Modell.tueren(R, z.paare, TUER);
         k.push([{ de: "Türen im Grundriss", en: "Doors in the plan" }, `${T.length} / ${m}`]);
         k.push([{ de: "Grundriss gefüllt", en: "Plan filled" }, proz(gefuellt(R))]);
+      }
+      if (z.mindest) {
+        const W = Modell.planPruefung(b, z.paare, z.programm, 300), n = q => W.raeume.filter(r => r[q]).length;
+        k.push([{ de: "Zu schmal · zu klein", en: "Too narrow · too small" }, `${n("zuSchmal")} · ${n("zuKlein")}`]);
+        k.push([{ de: "Plan gültig", en: "Plan valid" }, W.gueltig ? { de: "ja", en: "yes" } : { de: "nein", en: "no" }]);
       }
       if (z.gesperrt >= 0) k.push([{ de: "Gezogen", en: "Dragged" }, { de: `Raum ${z.gesperrt}`, en: `room ${z.gesperrt}` }]);
       return k;
     }
   });
+
+  /* ---------- Lösungen: gültige Grundrisse suchen, als Karten zeigen, per Klick in die Einzelansicht laden (neu, 23.11.2026) ---------- */
+  const $ = id => document.getElementById(id);
+  const ZEIT_MAX = 90000;                                              // Suche endet spätestens nach 90 s
+  let suche = null, karten = [], gewaehlt = -1, schluessel = "";
+  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu].join("|");
+  const text = o => en() ? o.en : o.de;
+  function status(t) { $("l-status").textContent = t; }
+  function zeichneKarten() {
+    const box = $("l-karten"); box.innerHTML = "";
+    const F = Sim.farben();
+    karten.forEach((T, i) => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "l-karte"; b.setAttribute("aria-pressed", i === gewaehlt);
+      const c = document.createElement("canvas"), w = 240, dpr = Math.min(window.devicePixelRatio || 1, 2), k = w / B;
+      c.style.width = w + "px"; c.style.height = Math.round(H * k) + "px"; c.width = Math.round(w * dpr); c.height = Math.round(H * k * dpr);
+      const ctx = c.getContext("2d"); ctx.setTransform(k * dpr, 0, 0, k * dpr, 0, 0);
+      const zk = { programm: T.programm, paare: T.paare, mindest: true }, Fk = Object.assign({}, F, { px: 1 / k * 0.75 });
+      zeichnePlan(ctx, zk, {}, Fk, T.ind);
+      ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H);
+      const t = Modell.tueren(planVon(zk, T.ind), T.paare, TUER).length;
+      const u = document.createElement("span"); u.className = "mono";
+      u.textContent = `${i + 1} · ${text({ de: "Saat", en: "seed" })} ${T.saat} · ${text({ de: "Generation", en: "generation" })} ${T.t}` +
+        ` · ${text({ de: "Türen", en: "doors" })} ${t}/${T.paare.length}` + (T.nachgebessert ? ` · ${text({ de: "nachgebessert", en: "refined" })}` : "");
+      b.append(c, u);
+      b.addEventListener("click", () => {
+        const p = SIM.param, z = Modell.zustandAusTreffer(p, T, Zufall.zufall(T.saat * 7919 + T.t));
+        gewaehlt = i; SIM.lade(z, T.saat); zeichneKarten();
+        $("leinwand").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+      box.append(b);
+    });
+  }
+  function ende(abgebrochen) {
+    const S = suche, n = S.anzahl, dt = ((performance.now() - S.t0) / 1000).toLocaleString(en() ? "en" : "de", { maximumFractionDigits: 1 });
+    karten = Modell.waehleVerschiedene(S.S.treffer, n); gewaehlt = -1; zeichneKarten();
+    const h = S.S.treffer.length;
+    status(h >= n ? text({ de: `${karten.length} Grundrisse aus ${h} Treffern in ${S.S.laeufe} Läufen (${dt} s), möglichst verschieden gewählt. Klick lädt einen in die Ansicht oben.`,
+                             en: `${karten.length} floor plans from ${h} hits in ${S.S.laeufe} runs (${dt} s), chosen to differ as much as possible. Click one to load it above.` })
+                  : text({ de: `${abgebrochen ? "Abgebrochen" : "Zeit oder Läufe aufgebraucht"}: ${h} gültige Grundrisse in ${S.S.laeufe} Läufen (${dt} s).` + (h ? " Klick lädt einen in die Ansicht oben." : " Mehr Räume oder Sterntopologie machen es schwerer; im Stern mit zehn Räumen reicht die Wandlänge des Flurs kaum für alle Mindestbreiten."),
+                           en: `${abgebrochen ? "Stopped" : "Time or runs used up"}: ${h} valid floor plans in ${S.S.laeufe} runs (${dt} s).` + (h ? " Click one to load it above." : " More rooms or the star topology make it harder; with ten rooms in a star, the hall's walls are barely long enough for every minimum width.") }));
+    $("l-suche").disabled = false; $("l-stopp").disabled = true; suche = null;
+  }
+  function takt() {
+    if (!suche) return;
+    const S = suche, t0 = performance.now();
+    while (performance.now() - t0 < 30 && !S.S.fertig) Modell.sucheWeiter(S.S, 5);
+    const h = S.S.treffer.length;
+    if (h !== karten.length) { karten = S.S.treffer.slice(); zeichneKarten(); }
+    status(text({ de: `Suche … Lauf ${S.S.laeufe} · ${h} von ${S.S.ziel} Treffern`, en: `Searching … run ${S.S.laeufe} · ${h} of ${S.S.ziel} hits` }));
+    if (S.S.fertig || performance.now() - S.t0 > ZEIT_MAX) ende(false); else setTimeout(takt, 0);
+  }
+  $("l-suche").addEventListener("click", () => {
+    const z = SIM.zustand; if (!z.programm) return;
+    if (!z.mindest) { status(text({ de: "Die Suche braucht die Mindestmaße (Schalter unter Fassung).", en: "The search needs the minimum dimensions (switch under Version)." })); return; }
+    const n = Math.max(1, Math.min(12, parseInt($("l-anzahl").value, 10) || 3)); $("l-anzahl").value = n;
+    SIM.pause();
+    const p = Object.assign({}, SIM.param);
+    suche = { anzahl: n, t0: performance.now(), S: Modell.sucheNeu(p, Zufall.zufall, { anzahl: n, saat: SIM.saat, ziel: Math.max(n + 2, Math.ceil(n * 1.5)), laeufe: 400 }) };
+    schluessel = schluesselVon(p); karten = []; gewaehlt = -1; zeichneKarten();
+    $("l-suche").disabled = true; $("l-stopp").disabled = false;
+    takt();
+  });
+  $("l-stopp").addEventListener("click", () => { if (suche) ende(true); });
+  // Karten gehören zu den Einstellungen, mit denen gesucht wurde: ändern sich Fassung, Topologie oder Regler, verschwinden sie
+  setInterval(() => { if (!suche && karten.length && schluesselVon(SIM.param) !== schluessel) { karten = []; gewaehlt = -1; zeichneKarten(); status(""); } }, 500);
+  document.querySelectorAll(".sprache, #theme").forEach(e => e.addEventListener("click", () => setTimeout(zeichneKarten, 0)));
 
   // Maustaste los (pictureBox1_MouseUp): Sperre des gezogenen Raums aufheben
   const los = () => { if (window.SIM && SIM.zustand) { Modell.loslassen(SIM.zustand); SIM.zeichne(); } };
