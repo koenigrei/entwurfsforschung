@@ -8,10 +8,11 @@ from playwright.sync_api import sync_playwright
 
 HIER = os.path.dirname(os.path.abspath(__file__)); SITE = os.path.join(HIER, "site"); OUT = os.path.join(HIER, "bilder")
 os.makedirs(OUT, exist_ok=True)
-AUFTRAG = {"campus": ("lab/campus/spielwiese.html", None), "duarte-siza": ("lab/duarte-siza/malagueira.html", None), "palladio": ("lab/palladio/palladio.html#malcontenta&holz", None), "bergdoerfer": ("lab/bergdoerfer/index.html", None)}
+AUFTRAG = {"campus": ("lab/campus/spielwiese.html", None), "duarte-siza": ("lab/duarte-siza/malagueira.html", None), "palladio": ("lab/palladio/palladio.html#malcontenta&holz", None), "bergdoerfer": ("lab/bergdoerfer/index.html", None), "procedural-cities": ("lab/procedural-cities/procedural_cities.html#vorlage:stadt&saat:4&tab:parzellen", None)}
 SCHNITT = {"campus": {"x": 340, "y": 200, "width": 1090, "height": 640}, "duarte-siza": {"x": 280, "y": 170, "width": 1144, "height": 430},
            "palladio": {"x": 280, "y": 186, "width": 1144, "height": 470},
-           "bergdoerfer": {"x": 200, "y": 120, "width": 960, "height": 720}}
+           "bergdoerfer": {"x": 200, "y": 120, "width": 960, "height": 720},
+           "procedural-cities": {"x": 346, "y": 300, "width": 704, "height": 528}}
 from PIL import Image                                             # Gartenatelier aus dem vorhandenen Explorer-Bild (1500 × 1000)
 _ex = Image.open("C:/LocalOnlyData/GitHub/Planungsgrundlagen/Apps/konzeptstudie/bilder/ks_explorer.png").convert("RGB"); _f = _ex.width / 1500
 _ex.crop((int(330 * _f), int(430 * _f), int(1400 * _f), int(820 * _f))).save(os.path.join(OUT, "gartenatelier.png"))

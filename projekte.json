@@ -157,6 +157,31 @@
    }
   },
   {
+   "id": "procedural-cities",
+   "titel": {
+    "de": "Procedural Cities",
+    "en": "Procedural Cities"
+   },
+   "autoren": "R. König · Claude",
+   "kategorie": {
+    "de": "Generator",
+    "en": "Generator"
+   },
+   "jahr": 2026,
+   "datum": "2026-11-22",
+   "vorschau": {
+    "de": "Ein Straßennetz wächst über Gelände und Bevölkerungsdichte, die Blöcke werden zu Parzellen – nach Parish & Müller (2001), als Grundlage, um die Bergdörfer stilgerecht nachzubilden.",
+    "en": "A street network grows across terrain and population density, the blocks become lots – after Parish & Müller (2001), as a basis for recreating the mountain villages in their own style."
+   },
+   "ziel": "lab/procedural-cities/",
+   "start": "procedural_cities.html",
+   "dateien": {
+    "procedural_cities.html": "Apps/procedural_cities/dist/procedural_cities.html",
+    "Procedural_Cities_Quellcode.zip": "Apps/procedural_cities/dist/Procedural_Cities_Quellcode.zip"
+   },
+   "quellcode": "Procedural_Cities_Quellcode.zip"
+  },
+  {
    "id": "simulationen",
    "titel": {
     "de": "Frühe Simulationen",
