@@ -100,6 +100,8 @@ footer a:hover { color: var(--ink); }
 .artikel > aside .meta b { font-weight: 400; color: var(--ink); }
 .artikel > aside a.zurueck { color: var(--accent-text); }
 .artikel > * { min-width: 0; } .artikel > aside, .artikel .text a { overflow-wrap: anywhere; }
+.artikel .text code { overflow-wrap: anywhere; } .artikel .text pre, .artikel .text .tabelle { max-width: 100%; overflow-x: auto; }   /* Methodenseiten (23.11.2026) */
+.artikel .text .tabelle table { border-collapse: collapse; font-size: .9em; } .artikel .text .tabelle th, .artikel .text .tabelle td { border-bottom: 1px solid var(--line); padding: .35em .6em; text-align: left; vertical-align: top; }
 .artikel h1 { font-weight: 300; font-size: clamp(28px, 4vw, 44px); line-height: 1.1; text-transform: uppercase; margin: 0; }
 .artikel .titelbild { max-width: 100%; height: auto; display: block; }
 .text { padding: 28px var(--g) 48px; max-width: calc(72ch + 2 * var(--g)); font-size: 16.5px; line-height: 1.65; }

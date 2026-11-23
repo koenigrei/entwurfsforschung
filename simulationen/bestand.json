@@ -1889,13 +1889,13 @@
    "quellcode": true,
    "quellpfad": "extern: bitbucket.org/koenigr/cpg_all, Source/Kremlas/",
    "duplikate": [],
-   "beschreibung": "Eine hybride Evolutionsstrategie mit Kollisionserkennung (Abstoßen und Proportionsänderung nach dem Separating Axis Theorem) packt Räume fester Fläche überlappungsfrei in einen Umriss; virtuelle Federn erzeugen geforderte Nachbarschaften (Stern, Gang mit drei Wohnungen).",
+   "beschreibung": "Eine hybride Evolutionsstrategie mit Kollisionserkennung (Abstoßen und Proportionsänderung nach dem Separating Axis Theorem) packt Räume fester Fläche überlappungsfrei in einen Umriss; virtuelle Federn erzeugen geforderte Nachbarschaften (Stern, Gang mit drei Wohnungen); als Grundriss-Generator entstehen daraus Wände und Türen (Raumprogramm mit 8 oder 10 Räumen, Topologie Stern oder Wohnung).",
    "umfang": "groß",
    "gruppe": "formen",
    "welle": 3,
    "status": "umgesetzt",
    "app": "kremlas-dichte-packung",
-   "hinweis": "Fassungen Einpassung, Kollision allein, Topologie Stern und Gang in einer App. Neufassung durch den ursprünglichen Autor unter CC BY 4.0 (Original LGPL in cpg_all).",
+   "hinweis": "Fassungen Einpassung, Kollision allein, Topologie Stern und Gang, Grundriss mit 8 und 10 Räumen (Raumprogramme Buch Tab. 8 und 9, Topologie Stern oder Wohnung) in einer App. Behobene Programmfehler (Federrichtung, Federn bei Berührung) und neuer Regler Federrunden je Kind, gemessen über viele Saaten: QUELLE.md. Neufassung durch den ursprünglichen Autor unter CC BY 4.0 (Original LGPL in cpg_all).",
    "reihenfolge": 80
   }
  ]

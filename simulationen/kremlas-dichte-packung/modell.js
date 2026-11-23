@@ -31,20 +31,22 @@
                   „entwickelt“ sich; α = 0,1, ρG = 0,5, β = 0,5, ρL = 1, zehn Räume.
       topologie:  RunTopo + NextGenerationProportionate mit Sterntopologie (SetNeighbours), acht Räume (rB_8Rooms),
                   μ = 10 wie die einfache MOES im Buch (Abschn. 5.2.3).
-      gang:       wie topologie mit dem Testszenario (SetSzenario): ein Gang, drei Wohnungen zu je fünf Räumen (16 Räume). */
+      gang:       wie topologie mit dem Testszenario (SetSzenario): ein Gang, drei Wohnungen zu je fünf Räumen (16 Räume).
+      federRunden: wie oft je Kind Federn und Kollisionserkennung abwechseln (Original: zweimal Federn; neu einstellbar,
+                  Voreinstellung nach Messung: 10 bei Topologie und Gang, 5 im Grundriss bei 100 % Belegung). */
   const FASSUNGEN = {
     einpassung: { ablauf: "einpassung", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 25, mu: 1, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 2 },
     kollision:  { ablauf: "einpassung", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 10, mu: 1, druck: 1, plus: true, elite: false, kreuzung: false, kreuzRate: 0.75,
-                  repForce: 0.5, repRate: 1, propForce: 0.1, propRate: 0.5, daempfung: 0.5, rlap: 50 },
+                  repForce: 0.5, repRate: 1, propForce: 0.1, propRate: 0.5, daempfung: 0.5, rlap: 50, federRunden: 2 },
     topologie:  { ablauf: "topologie", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 8, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10 },
     gang:       { ablauf: "topologie", topologie: "gang", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 16, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10 },
     grundriss8: { ablauf: "topologie", topologie: "programm", programm: "acht", belegung: 1, minSeite: 0.4, grundrissTopo: "stern", raeume: 8, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5 },
     grundriss10:{ ablauf: "topologie", topologie: "programm", programm: "zehn", belegung: 1, minSeite: 0.4, grundrissTopo: "stern", raeume: 10, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50 }
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5 }
   };
 
   /** Maßstab der Grundrisse: 50 px = 1 m. Das Feld 500 × 430 ist also 10 × 8,6 m = 86 m² – genau die Summe der Raumprogramme
@@ -67,7 +69,7 @@
                ["Bad 2", "Bathroom 2", 4], ["Essen", "Dining", 10]],
       paare: [[0, -1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 7], [2, 1], [2, 9], [9, 6], [3, 8]] }
   };
-  const REGLER = ["belegung", "minSeite", "grundrissTopo", "raeume", "mu", "druck", "plus", "elite", "kreuzung", "kreuzRate", "repForce", "repRate", "propForce", "propRate", "daempfung", "rlap"];
+  const REGLER = ["belegung", "minSeite", "grundrissTopo", "raeume", "mu", "druck", "plus", "elite", "kreuzung", "kreuzRate", "repForce", "repRate", "propForce", "propRate", "daempfung", "rlap", "federRunden"];
 
   function pick(o, ks) { const r = {}; ks.forEach(k => { r[k] = o[k]; }); return r; }
 
@@ -333,16 +335,18 @@
   /** Federvektor (RSpring.CalcSpringVector + AdditionalVector): Abstand der Rechtecke je Achse (vorzeichenbehaftet) plus ein
       Zuschlag für fehlende Durchgangsbreite. Im Original ist der Zuschlag immer positiv: Er schob Raum A stets nach rechts/unten
       und den Nachbarn nach links/oben, gleich wo der Nachbar lag – die Hälfte der Federn zog in die falsche Richtung.
-      Hier zeigt er zum Nachbarn hin (behoben 22.11.2026). */
+      Hier zeigt er zum Nachbarn hin (behoben 22.11.2026). Außerdem wirkt er auch, wenn sich die Räume berühren oder nur
+      leicht überlappen, dem Normalfall nach der Kollisionserkennung: Im Original fielen beide Fälle durch alle Abfragen
+      (nur > 0 geprüft), die Feder war tot, obwohl die gemeinsame Kante kürzer als die Durchgangsbreite war. Jetzt gilt die
+      kleinere Überdeckung als Berührrichtung und die größere als gemeinsame Kante (behoben 23.11.2026). */
   function federVektor(A, B, rlap) {
     const aL = links(A), aR = rechts(A), aO = oben(A), aU = unten(A), bL = links(B), bR = rechts(B), bO = oben(B), bU = unten(B);
     const x = aR < bL ? bL - aR : bR < aL ? -(aL - bR) : 0;
     const y = aU < bO ? bO - aU : bU < aO ? -(aO - bU) : 0;
-    let ox = aL < bL ? bL - aR : aL - bR, oy = aO < bO ? bO - aU : aO - bU;   // negativ bei Überdeckung der Projektionen
-    if (ox < 0 && oy > 0) { ox = Math.abs(ox) < rlap ? rlap + ox : 0; oy = 0; }
-    else if (ox > 0 && oy < 0) { oy = Math.abs(oy) < rlap ? rlap + oy : 0; ox = 0; }
-    else if (ox > 0 && oy > 0) { ox = rlap; oy = rlap; }
-    else { ox = 0; oy = 0; }
+    let ox = aL < bL ? bL - aR : aL - bR, oy = aO < bO ? bO - aU : aO - bU;   // negativ bei Überdeckung der Projektionen, 0 beim Berühren
+    if (ox >= 0 && oy >= 0) { ox = rlap; oy = rlap; }                          // diagonal (auch Ecke an Ecke)
+    else if (ox < 0 && (oy >= 0 || oy > ox)) { ox = -ox < rlap ? rlap + ox : 0; oy = 0; }   // gemeinsame Kante waagerecht
+    else { oy = -oy < rlap ? rlap + oy : 0; ox = 0; }                          // gemeinsame Kante senkrecht
     const rx = B.x >= A.x ? 1 : -1, ry = B.y >= A.y ? 1 : -1;               // Richtung zum Nachbarn
     return { x: x + rx * ox, y: y + ry * oy };
   }
@@ -477,10 +481,13 @@
         verschiebe(c, n / 1000, moveDist * 0.01, zuf, ges);
         inversion(c, 0.05, zuf);
         entwickle(c, zuf, ges, 0.7, 0.1, 0, 0);
-        federn(c, P, p.daempfung, p.rlap, ges);
-        entwickle(c, zuf, ges, p.propForce, p.propRate, p.repForce, p.repRate);
-        federn(c, P, p.daempfung, p.rlap, ges);
-        entwickle(c, zuf, ges, p.propForce, p.propRate, p.repForce, p.repRate);   // neu: zum Schluss noch einmal Kollision (sonst bleiben die Überlappungen der Federn stehen)
+        // Federn und Kollisionserkennung im Wechsel (Original: Federn, Kollision, Federn; neu: jede Federrunde endet mit Kollision,
+        // sonst bleiben die Überlappungen der Federn stehen; mit federRunden = 2 genau der bisherige Ablauf)
+        const runden = Math.max(1, Math.round(p.federRunden == null ? 2 : p.federRunden));
+        for (let r = 0; r < runden; r++) {
+          federn(c, P, p.daempfung, p.rlap, ges);
+          entwickle(c, zuf, ges, p.propForce, p.propRate, p.repForce, p.repRate);
+        }
         K.push(c);
       }
     }
