@@ -2,7 +2,7 @@
 
 Grundrisse durch dichte Packung: Eine hybride Evolutionsstrategie (μ+λ) bzw. (μ,λ) mit Kollisionserkennung ordnet Räume fester Fläche überlappungsfrei in einem Umgebungsrechteck an; virtuelle Federn sorgen für gewünschte Nachbarschaften (Stern, Gang mit drei Wohnungen oder Raumprogramm einer Wohnung). Die Grundriss-Fassungen leiten aus der Packung einen Grundriss mit Wänden, Türen und Eingang ab. Neuumsetzung des C#-Programms „Einpassung“ (`Source/Kremlas/` im Repository cpg_all) von Reinhard König aus dem DFG-Projekt KREMLAS (2009–2011).
 
-Online: https://entwurfsforschung.de/lab/simulationen/kremlas-dichte-packung/ (während der Durchsicht unter `/neu/lab/…`)
+Online: https://entwurfsforschung.de/lab/kremlas/ (eigenes Projekt im KI Lab; bis 23.11.2026 unter den Frühen Simulationen, die alte Adresse leitet weiter)
 
 ## Fassungen
 
@@ -21,8 +21,8 @@ Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einn
 ## Starten
 
 - Doppelklick auf `index.html` genügt (klassische Skripte, keine Module, kein Build).
-- Oder mit lokalem Server aus dem Ordner **über** diesem App-Ordner (dort liegt `_gemeinsam/`):
-  `python -m http.server 8000` → http://localhost:8000/kremlas-dichte-packung/
+- Oder mit lokalem Server aus dem Ordner **über** diesem App-Ordner (dort liegen `kremlas/` und `simulationen/_gemeinsam/`):
+  `python -m http.server 8000` → http://localhost:8000/kremlas/
 - Außerhalb der Website fehlen nur die Schriften Geist und Geist Mono; der Browser nimmt dann Systemschriften.
 
 ## Dateien
@@ -32,7 +32,7 @@ Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einn
 | `index.html` | Seite: Kopfzeile, Zeichenfläche, Bedienfeld, Text, Links zu Quellcode und AGENTS.md |
 | `modell.js` | Modelllogik ohne DOM – in Node testbar |
 | `app.js` | Bedienung und Darstellung: Parameter, Zeichnen, Verlauf, Legende, Kennzahlen, Ziehen mit der Maus |
-| `../_gemeinsam/sim.js`, `sim.css`, `zufall.js` | gemeinsamer Rahmen aller Frühen Simulationen (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
+| `../simulationen/_gemeinsam/sim.js`, `sim.css`, `zufall.js` | gemeinsamer Rahmen der Frühen Simulationen, den KREMLAS mitnutzt (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
 | `test/modell.test.mjs` | Tests der Modellregeln und des erwarteten Verhaltens |
 | `app.json` | Metadaten für die Übersichtsseite (Titel, Vorschautext, Datum, Archivseite, `repo`) |
 | `QUELLE.md` | Originalprogramm, was übernommen und was geändert wurde |

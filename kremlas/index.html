@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KREMLAS · Dichte Packung · Frühe Simulationen · Entwurfsforschung</title>
+<title>KREMLAS · Dichte Packung · Entwurfsforschung</title>
 <meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
 <meta name="description" content="Grundrisse durch dichte Packung: Eine hybride Evolutionsstrategie mit Kollisionserkennung ordnet Räume fester Fläche überlappungsfrei an, virtuelle Federn sorgen für gewünschte Nachbarschaften, ein Grundriss-Generator leitet daraus Wohnungen mit Wänden und Türen ab. Neuumsetzung des C#-Programms aus dem DFG-Projekt KREMLAS als Web-App.">
 <meta name="source" content="quellcode.zip">
 <link rel="help" href="AGENTS.md">
 <link rel="license" href="LICENSE.md">
 <script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
-<link rel="stylesheet" href="../../../schrift/geist.css">
-<link rel="stylesheet" href="../_gemeinsam/sim.css">
+<link rel="stylesheet" href="../../schrift/geist.css">
+<link rel="stylesheet" href="../simulationen/_gemeinsam/sim.css">
 <style>
 /* Lösungen: gefundene Grundrisse als Karten (neu, 23.11.2026) */
 .loesungen { padding: 16px var(--g) 24px; border-bottom: 1px solid var(--line); }
@@ -38,8 +38,8 @@
 </head>
 <body>
 <header class="kopf">
-  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
-  <a class="bereich mono" href="../">← <span lang="de">Frühe Simulationen</span><span lang="en">Early Simulations</span></a>
+  <a class="marke" href="../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../../">← <span lang="de">KI Lab</span><span lang="en">AI Lab</span></a>
   <h1><span lang="de">KREMLAS · Dichte Packung</span><span lang="en">KREMLAS · Dense packing</span></h1>
   <div class="werkzeug">
     <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
@@ -72,9 +72,10 @@
   <aside>
     <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
     <div>Kremlas (Einpassung) · C# · 2010/11</div>
-    <a href="../../../archiv/floor-plans/"><span lang="de">Archivseite des Originals</span><span lang="en">Archive page of the original</span></a>
+    <a href="../../archiv/floor-plans/"><span lang="de">Archivseite des Originals</span><span lang="en">Archive page of the original</span></a>
     <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
     <a href="AGENTS.md">AGENTS.md</a>
+    <a href="../../lab/methode/kremlas/"><span lang="de">Methode</span><span lang="en">Method</span></a>
     <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
   </aside>
   <div class="text">
@@ -106,11 +107,11 @@
   <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
   <a href="AGENTS.md">AGENTS.md</a>
   <a href="LICENSE.md">CC BY 4.0</a>
-  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+  <a href="../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
 </footer>
 
-<script src="../_gemeinsam/zufall.js"></script>
-<script src="../_gemeinsam/sim.js"></script>
+<script src="../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../simulationen/_gemeinsam/sim.js"></script>
 <script src="modell.js"></script>
 <script src="app.js"></script>
 </body>

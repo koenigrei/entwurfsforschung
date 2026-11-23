@@ -10,5 +10,5 @@ Sie dürfen das Material in jedwedem Format oder Medium vervielfältigen und wei
 
 You are free to share and adapt this material for any purpose, even commercially, provided you give appropriate credit, link to the license and indicate if changes were made.
 
-Gilt für alle Dateien dieses Ordners und für `../_gemeinsam/`. Das zugrunde liegende Originalprogramm und seine Beschreibung stammen von Reinhard König (siehe QUELLE.md).
+Gilt für alle Dateien dieses Ordners und für `../simulationen/_gemeinsam/`. Das zugrunde liegende Originalprogramm und seine Beschreibung stammen von Reinhard König (siehe QUELLE.md).
 Schriften Geist und Geist Mono (nur auf der Website eingebunden, nicht Teil dieses Pakets): Vercel, SIL Open Font License 1.1.

@@ -1,6 +1,6 @@
 # AGENTS.md · KREMLAS · Dichte Packung
 
-Anleitung für Coding-Agenten und Menschen, die diese App weiterentwickeln. Wer nur den Link zur App hat, findet hier alles Nötige: `quellcode.zip` neben der `index.html` enthält diesen Ordner vollständig samt `_gemeinsam/`.
+Anleitung für Coding-Agenten und Menschen, die diese App weiterentwickeln. Wer nur den Link zur App hat, findet hier alles Nötige: `quellcode.zip` neben der `index.html` enthält diesen Ordner vollständig samt `simulationen/_gemeinsam/` (gleiche relative Lage wie auf der Website).
 
 ## Worum es geht
 
@@ -9,11 +9,11 @@ Fachlich treue Neuumsetzung des Layoutsolvers „Dichte Packung“ (Einpassung, 
 ## Aufbau
 
 ```
-_gemeinsam/          gemeinsamer Rahmen (nicht pro App kopieren)
+simulationen/_gemeinsam/  gemeinsamer Rahmen der Frühen Simulationen (nicht kopieren)
   zufall.js          Zufall.zufall(saat) → () => [0, 1), dazu .ganz(n), .zwischen(a, b), .dreh()
   sim.js             Sim.starte(cfg): Ablauf, Bedienfeld, Zeichenfläche, Sprache, Hell/Dunkel, window.SIM
   sim.css            Gestaltung wie das KI Lab
-kremlas-dichte-packung/
+kremlas/                eigenes Lab-Projekt (seit 23.11.2026; bis dahin simulationen/kremlas-dichte-packung/), nutzt ../simulationen/_gemeinsam/
   index.html         statische Seite (Kopf, Bühne, Text, Fuß); lädt zufall.js, sim.js, modell.js, app.js
   modell.js          reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
   app.js             Sim.starte({...}): Parameter (Fassung mit „folgen“), zeichne, Verlauf, legende, kennzahlen, Ziehen (klick + pointerup)
@@ -56,7 +56,7 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&fassung=gang&mu=1
 ## Prüfen
 
 - `node --test` (im App-Ordner)
-- Im Repo der Website zusätzlich: `py -3.14 simulationen/pruefe_apps.py kremlas-dichte-packung` (Browser, hell/dunkel, 1440/390 px) und `python bauen.py && python pruefe.py`.
+- Im Repo der Website zusätzlich: `py -3.14 simulationen/pruefe_apps.py kremlas` (Browser, hell/dunkel, 1440/390 px) und `python bauen.py && python pruefe.py`.
 
 ## Ideen für Weiterentwicklung
 

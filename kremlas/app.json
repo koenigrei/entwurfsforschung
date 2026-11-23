@@ -1,5 +1,5 @@
 {
-  "id": "kremlas-dichte-packung",
+  "id": "kremlas",
   "titel": {"de": "KREMLAS · Dichte Packung", "en": "KREMLAS · Dense packing"},
   "vorschau": {"de": "Eine hybride Evolutionsstrategie mit Kollisionserkennung packt Räume fester Fläche überlappungsfrei in einen Umriss; virtuelle Federn ziehen Nachbarn zusammen. Als Grundriss-Generator entsteht daraus eine Wohnung mit Wänden und Türen; eine Suche sammelt Grundrisse, die Türen und Mindestmaße einhalten.",
                "en": "A hybrid evolution strategy with collision detection packs rooms of fixed area into an outline without overlaps; virtual springs pull neighbours together. As a floor plan generator, it turns the packing into a flat with walls and doors; a search collects floor plans that meet doors and minimum dimensions."},
