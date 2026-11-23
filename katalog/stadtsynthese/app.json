@@ -1,0 +1,19 @@
+{
+  "id": "stadtsynthese",
+  "titel": {"de": "Stadtsynthese", "en": "Urban Synthesis"},
+  "vorschau": {
+    "de": "Vom Straßennetz zum Stadtquartier: Straßen wachsen nach einem Instruktionsbaum, ihre Betweenness bestimmt Straßenbreite, Parzellen, Gebäudetyp und Dichte – mit Axonometrie und den Space-Syntax-Kennzahlen des Workshops.",
+    "en": "From street network to urban quarter: streets grow by an instruction tree, their betweenness sets street width, plots, building type and density – with an axonometric view and the workshop's space syntax measures."
+  },
+  "original": "SSS12 Workshop | Parametric urban planning with Space Syntax and DeCodingSpaces-toolbox for Grasshopper",
+  "katalog": "sss12-workshop-parametric-urban-planning-with-space-syntax-and-decodingspaces-toolbox-for-grasshopper",
+  "katalog_url": "https://toolbox.decodingspaces.net/sss12-workshop-parametric-urban-planning-with-space-syntax-and-decodingspaces-toolbox-for-grasshopper/",
+  "autoren": "Reinhard König, Martin Bielik, Yufan Miao",
+  "jahr": 2019,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 20,
+  "vorschau_param": {"gfzFaktor": 2},
+  "pruef_ausdruck": "(K => Modell.fertig(SIM.zustand) && SIM.zustand.stufe === 8 && K.gebaeude > 50 && K.typen.every(n => n > 0) && K.netzLaenge > 2000 && K.gfz > 0.2 && K.gfz < 3 && K.relIntegration > 0.8 && Math.max(...SIM.zustand.gebaeude.map(g => g.hoehe)) <= SIM.param.maxHoehe)(Modell.kennzahlen(SIM.zustand, SIM.param))"
+}

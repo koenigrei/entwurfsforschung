@@ -1,0 +1,16 @@
+{
+  "id": "multiplikatoreffekt",
+  "titel": {"de": "Multiplikatoreffekt", "en": "Multiplier Effect"},
+  "vorschau": {"de": "Zentralität erzeugt Bewegung, Bewegung zieht Nutzungen an: Rückkopplung im Straßennetz über 29 Runden – sagt die erste Runde das Ergebnis voraus, und gleichen sich Störungen aus?", "en": "Centrality generates movement, movement attracts land uses: feedback in a street network over 29 rounds – does the first round predict the outcome, and are disruptions corrected?"},
+  "original": "Evolving Configurational Properties – Simulating multiplier effects between land use and movement patterns",
+  "katalog": "evolving-configurational-properties",
+  "katalog_url": "https://toolbox.decodingspaces.net/evolving-configurational-properties/",
+  "autoren": "Martin Bielik, Reinhard König, Ekaterina Fuchkina, Sven Schneider, Abdulmalik Abdulmawla",
+  "jahr": 2019,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 29,
+  "vorschau_param": {"mass": "betweenness"},
+  "pruef_ausdruck": "SIM.zustand.iter === 29 && Math.abs(Modell.summe(SIM.zustand.gew[29]) - Modell.summe(SIM.zustand.gew[0])) < 1e-6 * Modell.summe(SIM.zustand.gew[0]) && Modell.kennwerte(SIM.zustand).ch < 0.05 && Modell.kennwerte(SIM.zustand).top10 > Modell.kennwerte(SIM.zustand, 0).top10 && Modell.kennwerte(SIM.zustand).disruptorAnteil < Modell.kennwerte(SIM.zustand, 0).disruptorAnteil"
+}

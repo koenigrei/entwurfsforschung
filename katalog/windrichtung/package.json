@@ -1,0 +1,8 @@
+{
+  "name": "windrichtung",
+  "private": true,
+  "type": "commonjs",
+  "description": "Windrichtung und Luftbelastung – Neuumsetzung des Grasshopper-Moduls Wind Direction (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

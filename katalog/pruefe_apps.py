@@ -50,7 +50,7 @@ class Server(http.server.SimpleHTTPRequestHandler):
 
 def apps_aus_bestand():
     B = json.load(open(os.path.join(HIER, "bestand.json"), encoding="utf-8"))
-    return [e["app"] for e in B["eintraege"] if e.get("status") == "umgesetzt" and e.get("app")]
+    return [e["app"] for e in B["eintraege"] + B.get("lab", []) if e.get("status") == "umgesetzt" and e.get("app")]
 
 
 def pruefe_app(browser, basis, aid):
@@ -87,8 +87,8 @@ def pruefe_app(browser, basis, aid):
             if thema == "dark" and breite == 1440:
                 kopf = pg.evaluate("""[!!document.querySelector('link[rel=help][href="AGENTS.md"]'), !!document.querySelector('meta[name=source][content="quellcode.zip"]'),
                                        !!document.querySelector('a[href="quellcode.zip"]'), !!document.querySelector('a[href="AGENTS.md"]'),
-                                       !!document.querySelector('a[href^="https://infar-buw.github.io/parametric-planning-catalogue/docs/"]'), getComputedStyle(document.body).backgroundColor]""")
-                for ok, was in zip(kopf[:5], ("<link rel=help href=AGENTS.md>", "<meta name=source content=quellcode.zip>", "Link quellcode.zip", "Link AGENTS.md", "Link zum Katalogeintrag")):
+                                       !!document.querySelector('a[href^="https://infar-buw.github.io/parametric-planning-catalogue/docs/"], a[href^="https://toolbox.decodingspaces.net/"]'), getComputedStyle(document.body).backgroundColor]""")
+                for ok, was in zip(kopf[:5], ("<link rel=help href=AGENTS.md>", "<meta name=source content=quellcode.zip>", "Link quellcode.zip", "Link AGENTS.md", "Link zum Katalog- bzw. Lab-Eintrag")):
                     if not ok:
                         befunde.append(f"{aid}: {was} fehlt")
                 if kopf[5] not in ("rgb(0, 0, 0)",):

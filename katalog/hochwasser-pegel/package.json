@@ -1,0 +1,8 @@
+{
+  "name": "hochwasser-pegel",
+  "private": true,
+  "type": "commonjs",
+  "description": "Hochwasser: steigender Pegel – Neuumsetzung der Spatial Resilience Toolbox – Flooding (DeCodingSpaces Lab, Morschek, König, Schneider, SimAUD 2019) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

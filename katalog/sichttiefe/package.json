@@ -1,0 +1,8 @@
+{
+  "name": "sichttiefe",
+  "private": true,
+  "type": "commonjs",
+  "description": "Sichttiefe (Visibility Step Depth) – Neuumsetzung des Grasshopper-Snippets Visual Distance (DeCodingSpaces Lab, Grasshopper snippets for Urban Design and Analysis) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

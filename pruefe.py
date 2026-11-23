@@ -254,7 +254,8 @@ def pruefe_simulationen(site=SITE, tests=True):
     return b
 
 
-KAT_STATUS = {"umgesetzt", "in_arbeit", "naechste_runde", "nicht_umgesetzt"}
+KAT_STATUS = {"umgesetzt", "in_arbeit", "naechste_runde", "nicht_umgesetzt", "abgedeckt", "teil"}
+KAT_URL = {"eintraege": "https://infar-buw.github.io/parametric-planning-catalogue/docs/", "lab": "https://toolbox.decodingspaces.net/"}
 
 
 def pruefe_katalog(site=SITE, tests=True):
@@ -264,27 +265,36 @@ def pruefe_katalog(site=SITE, tests=True):
         B = json.load(open(os.path.join(quelle, "bestand.json"), encoding="utf-8"))
     except Exception as e:
         return [f"katalog/bestand.json: {e}"]
-    E = B["eintraege"]
+    E = B["eintraege"] + B.get("lab", [])                                  # Katalog und DeCodingSpaces Lab (23.11.2026)
     if len({e.get("id") for e in E}) != len(E) or len({e["app"] for e in E if e.get("app")}) != len([e for e in E if e.get("app")]):
         b.append("katalog/bestand.json: doppelte id oder app")
+    apps_fertig = {e["app"] for e in E if e.get("status") == "umgesetzt" and e.get("app")}
+    for liste_, L in (("eintraege", B["eintraege"]), ("lab", B.get("lab", []))):
+        for e in L:
+            if not str(e.get("url", "")).startswith(KAT_URL[liste_]):
+                b.append(f"katalog/bestand.json {e.get('id')}: url zeigt nicht auf {KAT_URL[liste_]}")
+            if e.get("status") == "teil" and e.get("teil_von") not in apps_fertig:
+                b.append(f"katalog/bestand.json {e.get('id')}: teil_von {e.get('teil_von')} ist keine umgesetzte App")
     for e in E:
-        for k in ("id", "titel", "tags", "autoren", "url", "status"):
+        for k in ("id", "titel", "autoren", "url", "status"):
             if not e.get(k):
                 b.append(f"katalog/bestand.json {e.get('id')}: Feld {k} fehlt")
         if e.get("status") not in KAT_STATUS:
             b.append(f"katalog/bestand.json {e.get('id')}: unbekannter Status {e.get('status')}")
-        if e.get("status") in ("naechste_runde", "nicht_umgesetzt") and not (e.get("grund") or {}).get("de"):
+        if e.get("status") in ("naechste_runde", "nicht_umgesetzt", "abgedeckt", "teil") and not (e.get("grund") or {}).get("de"):
             b.append(f"katalog/bestand.json {e.get('id')}: Begründung (grund) fehlt")
-        if not str(e.get("url", "")).startswith("https://infar-buw.github.io/parametric-planning-catalogue/docs/"):
-            b.append(f"katalog/bestand.json {e.get('id')}: url zeigt nicht auf den Katalog")
     fertig = [e for e in E if e.get("status") == "umgesetzt" and e.get("app")]
     wurzel = os.path.join(site, "lab", "parametric-planning-catalogue")
     uebersicht = os.path.join(wurzel, "index.html")
     if not os.path.exists(uebersicht):
         return b + ["lab/parametric-planning-catalogue/index.html fehlt"]
     u = open(uebersicht, encoding="utf-8").read()
-    if u.count("const DATA") != 1 or u.count('"href"') != len(fertig):
-        b.append(f"lab/parametric-planning-catalogue/index.html: {u.count(chr(34) + 'href' + chr(34))} Kacheln statt {len(fertig)}")
+    n_kat = len([e for e in fertig if e in B["eintraege"]])
+    if u.count("const DATA") != 1 or u.count('"href"') != n_kat:
+        b.append(f"lab/parametric-planning-catalogue/index.html: {u.count(chr(34) + 'href' + chr(34))} Kacheln statt {n_kat}")
+    for e in fertig:
+        if e not in B["eintraege"] and f'class="karte" href="{e["app"]}/"' not in u:
+            b.append(f"lab/parametric-planning-catalogue/index.html: Lab-Kachel {e['app']} fehlt")
     for e in E:
         if e["url"] not in u:
             b.append(f"lab/parametric-planning-catalogue/index.html: Modul {e['id']} fehlt in der Liste")
@@ -305,7 +315,7 @@ def pruefe_katalog(site=SITE, tests=True):
             for muss, was in (('rel="help" href="AGENTS.md"', "<link rel=help>"), ('name="source" content="quellcode.zip"', "<meta name=source>"),
                               ('href="quellcode.zip', "Link quellcode.zip"), ('href="AGENTS.md"', "Link AGENTS.md"), ("Weiterentwickeln", "„Quellcode · Weiterentwickeln“"),
                               ("Prof. Dr. Reinhard König", "Namensnennung"), ("../../simulationen/_gemeinsam/sim.js", "gemeinsamer Rahmen"),
-                              (f'href="{e["url"]}"', "Link zum Katalogeintrag"), ('href="../"', "Rückweg zur Übersicht")):
+                              (f'href="{e["url"]}"', "Link zum Katalog- bzw. Lab-Eintrag"), ('class="bereich mono" href="../', "Rückweg zur Übersicht")):
                 if muss not in t:
                     b.append(f"katalog/{aid}/index.html: {was} fehlt")
             for src in re.findall(r'(?:src|href)="(\.\./[^"?#]+)', t):
@@ -324,10 +334,10 @@ def pruefe_katalog(site=SITE, tests=True):
                 t = open(p, encoding="utf-8").read()
                 if "TODO" in t or "{{" in t:
                     b.append(f"katalog/{aid}/{f}: Platzhalter oder TODO")
-                if f == "LICENSE.md" and ("CC BY 4.0" not in t or "in Zusammenarbeit mit Claude von Anthropic" not in t or "MIT" not in t):
-                    b.append(f"katalog/{aid}/LICENSE.md: CC BY 4.0, Namensnennung oder MIT-Hinweis des Katalogs fehlt")
-                if f == "QUELLE.md" and "infar-buw" not in t:
-                    b.append(f"katalog/{aid}/QUELLE.md: Link auf den Katalog fehlt")
+                if f == "LICENSE.md" and ("CC BY 4.0" not in t or "in Zusammenarbeit mit Claude von Anthropic" not in t or ("MIT" not in t and "GPL" not in t)):
+                    b.append(f"katalog/{aid}/LICENSE.md: CC BY 4.0, Namensnennung oder Lizenzhinweis des Originals (MIT/GPL) fehlt")
+                if f == "QUELLE.md" and e["url"] not in t and "infar-buw" not in t:
+                    b.append(f"katalog/{aid}/QUELLE.md: Link auf das Original fehlt")
         z = os.path.join(d, "quellcode.zip")
         if os.path.exists(z):
             n = set(zipfile.ZipFile(z).namelist())

@@ -1,0 +1,8 @@
+{
+  "name": "grundriss-magnetisch",
+  "private": true,
+  "type": "commonjs",
+  "description": "Magnetischer Grundrissgenerator – Neuumsetzung des Werkzeugs Magnetizing Floor Plan Generator (DeCodingSpaces Lab) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

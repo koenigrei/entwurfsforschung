@@ -1,0 +1,16 @@
+{
+  "id": "hochwasser-pegel",
+  "titel": {"de": "Hochwasser: steigender Pegel", "en": "Flooding: Rising Water Level"},
+  "vorschau": {"de": "Ein Fluss tritt über die Ufer: Der Pegel steigt in Schritten von 8 cm, Gebäude laufen voll, sobald das Wasser die Oberkante ihres Sockels erreicht – mit mittlerem Risiko über alle Pegel, Regenabfluss und Maßnahmen.", "en": "A river overflows its banks: the water level rises in steps of 8 cm, and buildings are flooded as soon as the water reaches the top of their platform – with mean risk over all levels, rain runoff and mitigation measures."},
+  "original": "Spatial Resilience Towards Flooding Hazards (SRTF)",
+  "katalog": "spatial-resilience-towards-flooding-hazards",
+  "katalog_url": "https://toolbox.decodingspaces.net/spatial-resilience-towards-flooding-hazards/",
+  "autoren": "Julius Morschek, Reinhard König, Sven Schneider",
+  "jahr": 2019,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 60,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.k === 60 && Math.abs(Modell.pegel(SIM.zustand) - 4.8) < 1e-9 && Modell.auswertung(SIM.zustand, SIM.param).geb > 20 && Modell.auswertung(SIM.zustand, SIM.param).geb < Modell.auswertung(SIM.zustand, SIM.param).maxGeb && SIM.zustand.kurve[60] === Modell.auswertung(SIM.zustand, SIM.param).geb"
+}

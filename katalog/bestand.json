@@ -45,12 +45,9 @@
    ],
    "autoren": "Martin Bielik, Ekaterina Fuchkina",
    "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/Isovist3D/",
-   "status": "naechste_runde",
+   "status": "umgesetzt",
    "reihenfolge": 3,
-   "grund": {
-    "de": "Dreidimensionale Sichtstrahlen auf Baukörper (horizontaler und vertikaler Blickwinkel, Präzision, Trefferarten Himmel/Hindernis/Boden). Umsetzbar mit Quadern als Gebäuden und einer eigenen Axonometrie; aufwendiger als die 2D-Isovisten, daher nach ihnen.",
-    "en": "Three-dimensional view rays onto building volumes (horizontal and vertical view angle, precision, hit types sky/obstacle/ground). Feasible with boxes as buildings and an own axonometric view; more work than the 2D isovists, so it comes after them."
-   }
+   "app": "isovist-3d"
   },
   {
    "id": "ParcellationByArea",
@@ -172,19 +169,16 @@
   {
    "id": "WaterBasedStreetGrowth",
    "titel": "Waterbased Street Growth",
-   "titel_de": "Waterbased Street Growth",
+   "titel_de": "Straßenwachstum nach dem Wasserabfluss",
    "tags": [
     "Water",
     "Street"
    ],
    "autoren": "Martin Dennemark",
    "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WaterBasedStreetGrowth/",
-   "status": "naechste_runde",
+   "status": "umgesetzt",
    "reihenfolge": 13,
-   "grund": {
-    "de": "Straßenwachstum nach „Procedural Cities“ (phiresky) mit einem Grauwertbild aus dem Gelände statt Perlin-Rauschen; dazu Wachstumsgrenze aus Hangneigung, Höhe und Zentrumsnähe. Gut umsetzbar; im Lab gibt es bereits die Kachel „Procedural Cities“, auf die sich aufbauen lässt.",
-    "en": "Street growth after “Procedural Cities” (phiresky) with a grayscale layer from the terrain instead of Perlin noise, plus a growth boundary from slope, height and distance to the centre. Well feasible; the Lab already has the “Procedural Cities” tile to build on."
-   }
+   "app": "wasserbasiertes-wachstum"
   },
   {
    "id": "NetworkShortestPath",
@@ -312,18 +306,15 @@
   {
    "id": "WindDirection",
    "titel": "Wind Direction",
-   "titel_de": "Wind Direction",
+   "titel_de": "Windrichtung und Luftbelastung",
    "tags": [
     "Context"
    ],
    "autoren": "Martin Dennemark",
    "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WindDirection/",
-   "status": "naechste_runde",
+   "status": "umgesetzt",
    "reihenfolge": 23,
-   "grund": {
-    "de": "Windrichtungshäufigkeit eines Ortes (Datei aus dem Global Wind Atlas) und ein Abklingen der Windwirkung über die Entfernung; das Abklingen ist laut Katalog nur beispielhaft. Umsetzbar mit einer mitgelieferten Beispiel-Windrose; ohne Datenabruf von fremden Servern.",
-    "en": "Wind direction frequency of a site (file from the Global Wind Atlas) and a falloff of the wind effect with distance; according to the catalogue the falloff is only exemplary. Feasible with a bundled example wind rose; no data download from third-party servers."
-   }
+   "app": "windrichtung"
   },
   {
    "id": "StreetsToPlots",
@@ -342,19 +333,16 @@
   {
    "id": "BuildingGeneration",
    "titel": "Building Generation",
-   "titel_de": "Building Generation",
+   "titel_de": "Vom Straßennetz zum Gebäude",
    "tags": [
     "Building",
     "Parcel"
    ],
    "autoren": "DeCodingSpaces",
    "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/BuildingGeneration/",
-   "status": "naechste_runde",
+   "status": "umgesetzt",
    "reihenfolge": 25,
-   "grund": {
-    "de": "Kette der kompilierten DeCodingSpaces-Komponenten Straßennetz → Blöcke → Parzellen → bebaubare Fläche → Gebäude. Umsetzbar, sobald die Parzellierungs-Apps stehen; braucht zusätzlich Baufenster und Gebäudeformen.",
-    "en": "Chain of compiled DeCodingSpaces components street network → blocks → parcels → buildable area → buildings. Feasible once the parcellation apps exist; additionally needs building envelopes and building shapes."
-   }
+   "app": "gebaeude-generierung"
   },
   {
    "id": "TerrainAnalysis",
@@ -375,18 +363,451 @@
   {
    "id": "BuildingPlacementOnParcels",
    "titel": "Placement on Parcel",
-   "titel_de": "Placement on Parcel",
+   "titel_de": "Gebäude auf Parzellen verteilen",
    "tags": [
     "Building",
     "Parcel"
    ],
    "autoren": "Martin Dennemark",
    "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/BuildingPlacementOnParcels/",
-   "status": "nicht_umgesetzt",
+   "status": "teil",
    "reihenfolge": 27,
    "grund": {
-    "de": "Verteilt Rhino-Blöcke (vorgefertigte Gebäudegeometrie) zufällig auf Parzellen – reine Geometrieverwaltung in Rhino ohne eigenes Modell. Sinnvoll erst als Teil von „Building Generation“.",
-    "en": "Distributes Rhino blocks (prepared building geometry) randomly onto parcels – pure geometry handling in Rhino without a model of its own. Makes sense only as part of “Building Generation”."
+    "de": "Umgesetzt als Option „Gebäude aus Vorlagen“ in der App „Vom Straßennetz zum Gebäude“ (Building Generation): Vorlagen werden zufällig auf die Parzellen gesetzt.",
+    "en": "Implemented as the option “buildings from templates” in the app “From street network to building” (Building Generation): templates are placed randomly onto the parcels."
+   },
+   "teil_von": "gebaeude-generierung"
+  }
+ ],
+ "lab_info": {
+  "titel": "DeCodingSpaces Lab",
+  "url": "https://toolbox.decodingspaces.net/#lab",
+  "toolbox": "https://toolbox.decodingspaces.net/",
+  "lizenz": "DeCodingSpaces Toolbox: GNU GPL v3; Lab-Seiten ohne eigene Lizenzangabe",
+  "herausgeber": "DeCodingSpaces · Computational Planning Group (CPlan), Bauhaus-Universität Weimar"
+ },
+ "lab": [
+  {
+   "id": "evolving-configurational-properties",
+   "titel": "Evolving Configurational Properties – Simulating multiplier effects between land use and movement patterns",
+   "titel_de": "Multiplikatoreffekt",
+   "art": "Forschungsprojekt (Konferenzbeitrag mit Grasshopper-Skripten)",
+   "autoren": "Martin Bielik, Reinhard König, Ekaterina Fuchkina, Sven Schneider, Abdulmalik Abdulmawla",
+   "jahr": 2019,
+   "url": "https://toolbox.decodingspaces.net/evolving-configurational-properties/",
+   "lizenz": "keine Lizenzangabe auf der Seite (Skripte frei zum Download; Toolbox-Komponenten kompiliert)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 1,
+   "app": "multiplikatoreffekt",
+   "titel_en": "Multiplier Effect",
+   "status": "umgesetzt"
+  },
+  {
+   "id": "urban-simulation-with-grasshopper",
+   "titel": "Urban Simulation with Grasshopper for Rhino3D",
+   "titel_de": "Stadtdynamik",
+   "art": "Forschungsprojekt (Konferenzbeitrag SimAUD 2018 mit vier Grasshopper-Modellen)",
+   "autoren": "Reinhard König, Martin Bielik, Sven Schneider",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/urban-simulation-with-grasshopper/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 2,
+   "app": "stadtdynamik",
+   "titel_en": "Urban Dynamics",
+   "status": "umgesetzt"
+  },
+  {
+   "id": "sss12-workshop-parametric-urban-planning-with-space-syntax-and-decodingspaces-toolbox-for-grasshopper",
+   "titel": "SSS12 Workshop | Parametric urban planning with Space Syntax and DeCodingSpaces-toolbox for Grasshopper",
+   "titel_de": "Stadtsynthese",
+   "art": "Workshop (12th Space Syntax Symposium, Beijing)",
+   "autoren": "Reinhard König, Martin Bielik, Yufan Miao",
+   "jahr": 2019,
+   "url": "https://toolbox.decodingspaces.net/sss12-workshop-parametric-urban-planning-with-space-syntax-and-decodingspaces-toolbox-for-grasshopper/",
+   "lizenz": "keine Lizenzangabe auf der Seite (DeCodingSpaces-Toolbox „free software“, kompiliert)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 3,
+   "app": "stadtsynthese",
+   "titel_en": "Urban Synthesis",
+   "status": "umgesetzt"
+  },
+  {
+   "id": "magnetizing-floor-plan-generator",
+   "titel": "Magnetizing Floor Plan Generator",
+   "titel_de": "Magnetischer Grundrissgenerator",
+   "art": "Werkzeug (studentisches Forschungsprojekt, Grasshopper-Plugin)",
+   "autoren": "Egor Gavrilov (Autor); Reinhard König, Sven Schneider, Martin Dennemark (Betreuung)",
+   "jahr": 2019,
+   "url": "https://toolbox.decodingspaces.net/magnetizing-floor-plan-generator/",
+   "lizenz": "Seite: keine Angabe; GitHub-Repository ohne Lizenz (nur lesen, keinen Code übernehmen – Neuumsetzung nach Beschreibung)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 4,
+   "app": "grundriss-magnetisch",
+   "titel_en": "Magnetizing Floor Plan Generator",
+   "status": "umgesetzt"
+  },
+  {
+   "id": "digiwo",
+   "titel": "DigiWo – Block Generation Components / Slabs Generation Components",
+   "titel_de": "Baublock-Generator (DigiWo)",
+   "art": "Forschungsprojekt (ZukunftBau) mit Tutorial und Grasshopper-Komponenten",
+   "autoren": "Iuliia Osintseva (Autorin); Reinhard König, Sven Schneider, Martin Bielik (Betreuung); Andreas Berst; Egor Gavrilov, Martin Oravec",
+   "jahr": 2020,
+   "url": "https://toolbox.decodingspaces.net/digiwo/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 5,
+   "app": "baublock-generator",
+   "titel_en": "Urban Block Generator (DigiWo)",
+   "status": "umgesetzt"
+  },
+  {
+   "id": "spatial-resilience-towards-flooding-hazards",
+   "titel": "Spatial Resilience Towards Flooding Hazards (SRTF)",
+   "titel_de": "Hochwasser: steigender Pegel",
+   "art": "Forschungsprojekt (Konferenzbeitrag SimAUD 2019)",
+   "autoren": "Julius Morschek, Reinhard König, Sven Schneider",
+   "jahr": 2019,
+   "url": "https://toolbox.decodingspaces.net/spatial-resilience-towards-flooding-hazards/",
+   "lizenz": "keine Lizenzangabe auf der Seite (Quelldateien passwortgeschützt)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 6,
+   "app": "hochwasser-pegel",
+   "titel_en": "Flooding: Rising Water Level",
+   "status": "umgesetzt"
+  },
+  {
+   "id": "grasshopper-snippets-for-urban-design-and-analysis",
+   "titel": "Grasshopper snippets for Urban Design and Analysis",
+   "titel_de": "Sichttiefe (Visibility Step Depth)",
+   "art": "Werkzeugsammlung (Lehr-Snippets, Kurs Computational Urban Analysis)",
+   "autoren": "Professuren Informatik in der Architektur und Computational Architecture, Bauhaus-Universität Weimar (u. a. Martin Dennemark; Weighted Boundary angeregt durch Ondřej Veselý)",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/grasshopper-snippets-for-urban-design-and-analysis/",
+   "lizenz": "keine Lizenzangabe auf der Seite; Divide by Area laut Notiz MIT (nach polysplit)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 7,
+   "app": "sichttiefe",
+   "titel_en": "Visual Step Depth",
+   "status": "umgesetzt",
+   "grund": {
+    "de": "Aus der Snippet-Sammlung wird „Visibility Step Depth“ umgesetzt; „Weighted Boundary“ entspricht der App „Ringstraßen“, „Divide by Area“, „Path by Steepness“ und „Pipe Dimensioning“ den Apps „Parzellierung nach Fläche“, „Serpentinen“ und „Wassernetz“.",
+    "en": "From the snippet collection, “Visibility Step Depth” is implemented; “Weighted Boundary” corresponds to the app “Ring Roads”, “Divide by Area”, “Path by Steepness” and “Pipe Dimensioning” to the apps “Parcellation by Area”, “Serpentine Roads” and “Water Network”."
+   }
+  },
+  {
+   "id": "public-transport-isochronal-map",
+   "titel": "Public Transport Isochronal Map",
+   "titel_de": "Isochronen im ÖPNV",
+   "art": "Werkzeug (technische Demonstration, AIT)",
+   "autoren": "Ondřej Veselý, Reinhard König",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/public-transport-isochronal-map/",
+   "lizenz": "keine Lizenzangabe auf der Seite (Dateien passwortgeschützt)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 8,
+   "app": "isochronen-oepnv",
+   "titel_en": "Public Transport Isochrones",
+   "status": "umgesetzt"
+  },
+  {
+   "id": "discovering-cities-workshop-amman",
+   "titel": "Discovering Cities Workshop | Amman",
+   "titel_de": "Dichtefeld",
+   "art": "Workshop (DAAD, German Jordanian University)",
+   "autoren": "DeCodingSpaces / Bauhaus-Universität Weimar (Workshopleitung nicht namentlich genannt)",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/discovering-cities-workshop-amman/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 9,
+   "app": "dichtefeld",
+   "titel_en": "Density Field",
+   "status": "umgesetzt"
+  },
+  {
+   "id": "dynamic-urban-development-model",
+   "titel": "Dynamic Urban Development Model",
+   "titel_de": "Dynamic Urban Development Model",
+   "art": "Forschungsprojekt / Lehrmodell (Seminar Applied System Dynamics, 2018)",
+   "autoren": "Reinhard König, Martin Bielik, Sven Schneider",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/dynamic-urban-development-model/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 10,
+   "status": "abgedeckt",
+   "grund": {
+    "de": "Das Simulationsmodell ist das der Netzstadt aus „Urban Simulation with Grasshopper“ (dort als App stadtdynamik vorgeschlagen), die Bebauung die Kette aus „stadtsynthese“. Neu ist nur die Kopplung: Blöcke über der Dichteschwelle werden bebaut. Als dritte Stufe in stadtdynamik aufnehmen, sobald beide Apps stehen.",
+    "en": "The simulation is the net-city model of \"Urban Simulation with Grasshopper\" (proposed there as app stadtdynamik), the development is the chain of \"stadtsynthese\". Only the coupling is new: blocks above the density threshold get built. Add as a third stage of stadtdynamik once both apps exist."
+   }
+  },
+  {
+   "id": "workshop-network-analysis-based-dynamic-urban-simulation-in-grasshopper",
+   "titel": "Workshop | Network analysis based dynamic urban simulation in Grasshopper",
+   "titel_de": "Workshop | Network analysis based dynamic urban simulation in Grasshopper",
+   "art": "Workshop (SimAUD 2018, TU Delft)",
+   "autoren": "DeCodingSpaces (Reinhard König u. a.)",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/workshop-network-analysis-based-dynamic-urban-simulation-in-grasshopper/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 11,
+   "status": "abgedeckt",
+   "grund": {
+    "de": "Reine Lehrveranstaltung aus bekannten Bausteinen; alle Beispiele sind durch vorhandene bzw. vorgeschlagene Apps abgedeckt (Isovisten, kürzeste Wege, Betweenness, Custom Offset = parzellen-versatz in Arbeit, Simulation = stadtdynamik). Nichts Eigenes, das eine weitere App rechtfertigt.",
+    "en": "A teaching event built from known components; all examples are covered by existing or proposed apps (isovists, shortest paths, betweenness, custom offset = parzellen-versatz in progress, simulation = stadtdynamik). Nothing original that justifies another app."
+   }
+  },
+  {
+   "id": "ecaade2018-workshop-urban-analysis-synthesis-and-exploration-with-grasshopper",
+   "titel": "eCAADe2018 Workshop | Urban Analysis, Synthesis and Exploration with Grasshopper",
+   "titel_de": "eCAADe2018 Workshop | Urban Analysis, Synthesis and Exploration with Grasshopper",
+   "art": "Workshop (eCAADe 2018, Łódź)",
+   "autoren": "DeCodingSpaces / Computational Planning Group (CPlan)",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/ecaade2018-workshop-urban-analysis-synthesis-and-exploration-with-grasshopper/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 12,
+   "status": "abgedeckt",
+   "grund": {
+    "de": "Analyse durch vorhandene Apps abgedeckt, Exploration durch den Design Explorer (bereits im Archiv). Der „Weimar Urban Layout Generator“ bringt Neues für stadtsynthese: vier wählbare Netzgeneratoren (manuell, Leitkurve, Raster mit Haupt-/Nebenstraße, InstructionTree) und zehn Kennzahlen – dort einbauen statt eigener App.",
+    "en": "Analysis covered by existing apps, exploration by the Design Explorer (already in the archive). The \"Weimar Urban Layout Generator\" adds to stadtsynthese: four selectable network generators (manual, guide curve, grid with main/secondary street, InstructionTree) and ten indicators – include there instead of a separate app."
+   }
+  },
+  {
+   "id": "simaud-2019-workshop-adaptive-urban-layout-optimization-with-decodingspaces-toolbox",
+   "titel": "SimAUD 2019 Workshop | Adaptive Urban Layout Optimization with DeCodingSpaces-Toolbox",
+   "titel_de": "SimAUD 2019 Workshop | Adaptive Urban Layout Optimization with DeCodingSpaces-Toolbox",
+   "art": "Workshop (SimAUD 2019, Georgia Tech, Atlanta)",
+   "autoren": "DeCodingSpaces / Computational Planning Group (CPlan)",
+   "jahr": 2019,
+   "url": "https://toolbox.decodingspaces.net/simaud-2019-workshop-adaptive-urban-layout-optimization-with-decodingspaces-toolbox/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 13,
+   "status": "abgedeckt",
+   "grund": {
+    "de": "Analysebeispiele durch kuerzester-weg und strassenhierarchie abgedeckt, Optimierung durch netzoptimierung (in Arbeit), Synthese durch stadtsynthese. Neu und als Option nachrüstbar: Distanzabfallfunktion exp(−β·d) für Gravitationszentralität (in multiplikatoreffekt bzw. kuerzester-weg) und Einbahnstraßen (gerichteter Graph).",
+    "en": "Analysis examples covered by kuerzester-weg and strassenhierarchie, optimisation by netzoptimierung (in progress), synthesis by stadtsynthese. New and addable as options: distance decay exp(−β·d) for gravity centrality (in multiplikatoreffekt or kuerzester-weg) and one-way streets (directed graph)."
+   }
+  },
+  {
+   "id": "computational-urban-design-prototyping",
+   "titel": "Computational Urban Design Prototyping",
+   "titel_de": "Computational Urban Design Prototyping",
+   "art": "Forschungsprojekt (IJAC-Beitrag, Fallstudie Kapstadt/Enkanini)",
+   "autoren": "Reinhard König, Peter Bus, Yufan Miao, Chang-Mei Chih, Artem Chirkin (laut Seite); Veröffentlichung: Miao, König, Knecht, Konieva, Bus, Chang",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/computational-urban-design-prototyping/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 14,
+   "status": "abgedeckt",
+   "grund": {
+    "de": "Der Download enthält nur vorberechnete Geometrie für den Speckle-Viewer (Parzellenbreite/-tiefe umschaltbar), kein Generator. Das Verfahren (Slicing Tree für Netz und Parzellen) steckt in parzellen-slicing-tree und der vorgeschlagenen stadtsynthese. Neu wäre die gravitationsbasierte Erreichbarkeit von Schulen/Geschäften – als Kennzahl in stadtsynthese.",
+    "en": "The download contains only precomputed geometry for the Speckle viewer (switchable parcel width/depth), no generator. The procedure (slicing tree for network and parcels) is in parzellen-slicing-tree and the proposed stadtsynthese. New would be the gravity-based accessibility of schools/shops – as an indicator in stadtsynthese."
+   }
+  },
+  {
+   "id": "tutorial-2d-and-3d-isovists-for-visibility-analysis",
+   "titel": "Tutorial | 2D and 3D isovists for visibility analysis",
+   "titel_de": "Tutorial | 2D and 3D isovists for visibility analysis",
+   "art": "Tutorial (Teil des OTP-Kurses Visibility Analysis)",
+   "autoren": "Martin Bielik, Ekaterina Fuchkina, Sven Schneider, Reinhard König",
+   "jahr": 2019,
+   "url": "https://toolbox.decodingspaces.net/tutorial-2d-and-3d-isovists-for-visibility-analysis/",
+   "lizenz": "keine Lizenzangabe auf der Seite (Skripte frei; Gebäudemodell urheberrechtlich geschützt)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 15,
+   "status": "abgedeckt",
+   "grund": {
+    "de": "Alle 2D-Fälle sind durch die vier Isovist-Apps abgedeckt (16 Kenngrößen identisch). Neu: vertikaler Isovist (Schnitt durch ein Gebäude) und kumulative Sichtbarkeit entlang eines Pfades – beides kleine Optionen für isovist-punkt bzw. isovist-pfad. 3D-Isovist ist als Katalogeintrag „Isovist 3D“ schon für die nächste Runde vorgesehen; die Tutorial-Dateien liefern dafür die Kenngrößen (Volumen, Himmels-, Boden-, Objektfaktor).",
+    "en": "All 2D cases are covered by the four isovist apps (same 16 measures). New: vertical isovist (section through a building) and cumulative visibility along a path – both small options for isovist-punkt / isovist-pfad. 3D isovist is already planned as catalogue entry \"Isovist 3D\"; the tutorial files supply its measures (volume, sky, ground, object factor)."
+   }
+  },
+  {
+   "id": "adaptive-urban-masterplan-05-18",
+   "titel": "Adaptive Urban Masterplan 05/18",
+   "titel_de": "Adaptive Urban Masterplan 05/18",
+   "art": "Werkzeug (technische Demonstration, AIT)",
+   "autoren": "Ondřej Veselý, Reinhard König",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/adaptive-urban-masterplan-05-18/",
+   "lizenz": "keine Lizenzangabe auf der Seite (Download passwortgeschützt)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 16,
+   "status": "abgedeckt",
+   "grund": {
+    "de": "Download geschützt, nur Video, Bilder und Mapbox-Karte; keine Regeln dokumentiert. Das Verfahren (Netz → Nutzungsflächen → Gebäude nach Regeln) entspricht der Kette in stadtsynthese bzw. „Building Generation“. Neu wären Nutzungszonen mit eigener Höhen- und Rücksprungregel – als Option in stadtsynthese.",
+    "en": "Download protected; only video, images and a Mapbox map; no rules documented. The procedure (network → land-use areas → buildings by rules) matches the chain in stadtsynthese / \"Building Generation\". New would be land-use zones with their own height and setback rules – as an option in stadtsynthese."
+   }
+  },
+  {
+   "id": "cognitive-urban-design-computing-fcl",
+   "titel": "Cognitive Urban Design Computing @ FCL",
+   "titel_de": "Cognitive Urban Design Computing @ FCL",
+   "art": "Forschungsprojekt (Übersicht Arbeitsbereich CoDeC, Future Cities Lab Singapur)",
+   "autoren": "Katja Knecht, Yufan Miao, Kateryna Konieva, Pol Foreman, Reinhard König, Gerhard Schmitt; mit Dietmar Leyk",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/cognitive-urban-design-computing-fcl/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 17,
+   "status": "nicht_umgesetzt",
+   "grund": {
+    "de": "Projektübersicht ohne eigenes, beschriebenes Modell und ohne Dateien; Einzelteile sind anderweitig abgedeckt (Design Explorer im Archiv, Netzanalyse, Optimierung → netzoptimierung, Generierung → stadtsynthese).",
+    "en": "Project overview without an own described model and without files; parts are covered elsewhere (Design Explorer in the archive, network analysis, optimisation → netzoptimierung, generation → stadtsynthese)."
+   }
+  },
+  {
+   "id": "introduction-to-c-scripting-for-grasshopper",
+   "titel": "Introduction to C# scripting for Grasshopper",
+   "titel_de": "Introduction to C# scripting for Grasshopper",
+   "art": "Lehrveranstaltung (Videos + Skript)",
+   "autoren": "Professur Computational Architecture (Reinhard König)",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/introduction-to-c-scripting-for-grasshopper/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 18,
+   "status": "nicht_umgesetzt",
+   "grund": {
+    "de": "C#-Einführung ohne Planungsmodell; gehört eher in die Tutorial-Seite (Coding-Agent-/Programmierkapitel) als ins Lab.",
+    "en": "C# introduction without a planning model; belongs on the tutorial site rather than in the lab."
+   }
+  },
+  {
+   "id": "parametric-assistnance",
+   "titel": "Parametric assistance for complex urban planning processes",
+   "titel_de": "Parametric assistance for complex urban planning processes",
+   "art": "Projektsammlung (Entwurfsstudios und Forschung)",
+   "autoren": "Kateryna Konieva, Iuliia Osintseva, Ondřej Veselý, Abdulmalik Abdulmawla, Katja Knecht, Reinhard König, Sven Schneider (u. a. Burcu Cimenoglu, Christoph Hanisch, Mahmoud A’dam)",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/parametric-assistnance/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 19,
+   "status": "nicht_umgesetzt",
+   "grund": {
+    "de": "Projektdarstellung mit Videos, ohne Dateien und ohne beschriebene Regeln. Die Idee „Straßen nach Gelände gegen Erosion“ steckt im Katalogeintrag „Waterbased Street Growth“ (nächste Runde) und in serpentinen; Generierung und Typologien in stadtsynthese.",
+    "en": "Project presentation with videos, no files and no described rules. The idea \"streets following terrain against erosion\" is in the catalogue entry \"Waterbased Street Growth\" (next round) and in serpentinen; generation and typologies in stadtsynthese."
+   }
+  },
+  {
+   "id": "rural-urban-metabolism",
+   "titel": "Rural Urban Metabolism",
+   "titel_de": "Rural Urban Metabolism",
+   "art": "Lehrveranstaltung (Studienprojekt MSc Advanced Urbanism / European Studies, SoSe 2018)",
+   "autoren": "Betreuung: Sven Schneider, Philippe Schmidt, Reinhard König, Abdulmalik Abdulmawla, Martin Dennemark; Studierendengruppen",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/rural-urban-metabolism/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 20,
+   "status": "nicht_umgesetzt",
+   "grund": {
+    "de": "Reine Lehrveranstaltung, nur Videos, kein eigenes Modell und keine Dateien.",
+    "en": "Pure teaching course, videos only, no own model and no files."
+   }
+  },
+  {
+   "id": "urban-elements",
+   "titel": "Urban Elements",
+   "titel_de": "Urban Elements",
+   "art": "Lehrveranstaltung (Kurs für die URA Singapur, FCL) mit Grasshopper-Beispielen",
+   "autoren": "Aurel von Richthofen, Katja Knecht, Yufan Miao, Kateryna Konieva, Reinhard König",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/urban-elements/",
+   "lizenz": "keine Lizenzangabe auf der Seite (Paper CC BY-NC-ND; g_SolarExposure enthält Ladybug, GPL)",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 21,
+   "status": "nicht_umgesetzt",
+   "grund": {
+    "de": "Lehrmethode mit elementaren Grasshopper-Übungen (Box, Raster, Zufallsverteilung, Attraktor-Sortierung); kein eigenständiges Modell. Die wenigen inhaltlichen Beispiele sind abgedeckt (Wassereinzugsgebiete → regenwasser-raster, kürzester Weg → kuerzester-weg) oder trivial (Funktionsverteilung nach Attraktorabstand).",
+    "en": "Teaching method with elementary Grasshopper exercises (box, grid, random distribution, attractor sorting); no independent model. The few substantive examples are covered (watersheds → regenwasser-raster, shortest path → kuerzester-weg) or trivial (function distribution by attractor distance)."
+   }
+  },
+  {
+   "id": "urban-planning-table-integrated-infrastructure",
+   "titel": "Urban Planning Table – Integrated Infrastructure",
+   "titel_de": "Urban Planning Table – Integrated Infrastructure",
+   "art": "Werkzeug / Exponat (interaktiver Planungstisch, Projekt IN³)",
+   "autoren": "IN³-Team EiABC (Zegeye Cherenet u. a.) und BUW (Andreas Aicher, Nicole Baron, Martin Dennemark, Philippe Schmidt, Sven Schneider); Oberfläche und Programmierung Martin Dennemark",
+   "jahr": 2019,
+   "url": "https://toolbox.decodingspaces.net/urban-planning-table-integrated-infrastructure/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 22,
+   "status": "nicht_umgesetzt",
+   "grund": {
+    "de": "Hardware-Exponat ohne veröffentlichte Dateien oder Formeln; die Bewertungen sind nur qualitativ beschrieben. Chance für später: ein browserbasiertes „Planungsspiel“ aus vorhandenen Katalog-Bausteinen (Wasserdruck aus Höhenunterschied → wasserleitung, Wind → Katalog Wind Direction, Gehbarkeit), wenn die Professur die Regeln liefert.",
+    "en": "Hardware exhibit without published files or formulas; evaluations described only qualitatively. Later chance: a browser \"planning game\" from existing catalogue components (water pressure from height difference → wasserleitung, wind → Wind Direction, walkability) if the chair supplies the rules."
+   }
+  },
+  {
+   "id": "working-with-and-exporting-geospatial-data",
+   "titel": "Working with and Exporting Geospatial Data",
+   "titel_de": "Working with and Exporting Geospatial Data",
+   "art": "Tutorial (Grasshopper-Komponenten für GeoJSON und Mapbox)",
+   "autoren": "Ondřej Veselý, Martin Bielik, Reinhard König",
+   "jahr": 2018,
+   "url": "https://toolbox.decodingspaces.net/working-with-and-exporting-geospatial-data/",
+   "lizenz": "keine Lizenzangabe auf der Seite",
+   "tags": [
+    "DeCodingSpaces Lab"
+   ],
+   "reihenfolge": 23,
+   "status": "nicht_umgesetzt",
+   "grund": {
+    "de": "Datenimport/-export und Web-Kartenanleitung, kein Planungsmodell.",
+    "en": "Data import/export and web-map guide, no planning model."
    }
   }
  ]

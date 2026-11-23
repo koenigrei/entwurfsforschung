@@ -1,0 +1,24 @@
+{
+  "id": "isochronen-oepnv",
+  "titel": {
+    "de": "Isochronen im ÖPNV",
+    "en": "Public Transport Isochrones"
+  },
+  "vorschau": {
+    "de": "Wie weit kommt man in 5, 10, 15 und 20 Minuten zu Fuß und mit Bahn und Bus? Isochronen aus Gehwegen, Linien, Takt und Umstiegen – Bestand und Szenario mit neuer Linie im Vergleich.",
+    "en": "How far can you get in 5, 10, 15 and 20 minutes on foot and by rail and bus? Isochrones from footpaths, lines, headways and transfers – current network and a scenario with a new line compared."
+  },
+  "original": "Public Transport Isochronal Map",
+  "katalog": "public-transport-isochronal-map",
+  "katalog_url": "https://toolbox.decodingspaces.net/public-transport-isochronal-map/",
+  "autoren": "Ondřej Veselý, Reinhard König",
+  "jahr": 2018,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 20,
+  "vorschau_param": {
+    "ansicht": "b"
+  },
+  "pruef_ausdruck": "Modell.fertig(SIM.zustand, SIM.param) && SIM.zustand.horizont === 20 && Modell.bilanz(SIM.zustand, 'b', 20).flaeche > Modell.bilanz(SIM.zustand, 'a', 20).flaeche * 1.05 && Modell.bilanz(SIM.zustand, 'a', 15).flaeche > 0.5"
+}

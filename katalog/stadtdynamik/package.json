@@ -1,0 +1,8 @@
+{
+  "name": "stadtdynamik",
+  "private": true,
+  "type": "commonjs",
+  "description": "Stadtdynamik – Neuumsetzung des Grasshopper-Moduls Urban Simulation with Grasshopper for Rhino3D (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

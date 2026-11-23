@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stadtsynthese · DeCodingSpaces Lab · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Vom Straßennetz zum Stadtquartier in einer Kette: Straßen wachsen nach einem Instruktionsbaum, ihre Betweenness bestimmt Straßenbreite, Parzellenbreite, Gebäudetyp und Dichte; dazu die Space-Syntax-Kennzahlen des Workshops. Neuumsetzung des SSS12-Workshops (DeCodingSpaces, Bauhaus-Universität Weimar, 2019) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../#dcs-lab">← DeCodingSpaces Lab</a>
+  <h1><span lang="de">Stadtsynthese</span><span lang="en">Urban Synthesis</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Schritt: nächste Stufe der Kette (Straßen wachsen Ebene für Ebene) · Ecken des Gebiets ziehen · Regler rechnen die Kette bis zum aktuellen Schritt neu</span><span lang="en">Step: next stage of the chain (streets grow level by level) · drag the corners of the site · sliders recompute the chain up to the current step</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>SSS12 Workshop | Parametric urban planning with Space Syntax and DeCodingSpaces-toolbox for Grasshopper · <span lang="de">Workshop (12th Space Syntax Symposium, Peking), 2019</span><span lang="en">workshop (12th Space Syntax Symposium, Beijing), 2019</span> · Reinhard König, Martin Bielik, Yufan Miao</div>
+    <a href="https://toolbox.decodingspaces.net/sss12-workshop-parametric-urban-planning-with-space-syntax-and-decodingspaces-toolbox-for-grasshopper/"><span lang="de">Eintrag im DeCodingSpaces Lab</span><span lang="en">Entry in the DeCodingSpaces Lab</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Vom leeren Baufeld zum Stadtquartier in einer Kette: Straßen wachsen von den Anschlussstraßen ins Gebiet, ihre <em>Betweenness</em> – wie oft ein Straßensegment auf kürzesten Wegen liegt – bestimmt Straßenbreite, Parzellenbreite, Gebäudetyp und Dichte. Am Ende stehen die Kennzahlen, mit denen der Workshop die Varianten vergleicht.</p>
+      <p><b>Kette.</b> (1) <em>Street Network Synthesis</em>: Von jedem Stützpunkt der Anschlussstraßen wächst ein Instruktionsbaum Ebene für Ebene. Jeder Ast hat eine Länge <code>MinLength + Zufall(MaxLength)</code>, weicht um bis zu <code>±RandomAngle/2</code> ab und zielt in die Mitte der größten freien Winkellücke; er fängt im Abstand <code>MinDist</code> an Knoten und Straßen und endet an der ersten Kreuzung oder am Rand. (2) Sackgassen werden in zwei Durchgängen entfernt. (3) <em>CityGraph</em> zählt für jedes Segment die kürzesten Wege (metrisch) zwischen allen Segmenten, die es benutzen. (4) <em>Polygons from lines</em> bildet die Blöcke; jede Blockkante rückt um <code>BC^0,5 × 0,12</code> zurück, die Straße wird also umso breiter, je zentraler sie ist. (5) Der <em>Slicing Tree</em> teilt jeden Block quer zur Straßenfront, bis die Front unter der doppelten Parzellenbreite liegt; die Breite ist <code>größte √BC des Blocks / 3</code>. (6) Das <em>Baufenster</em> rückt von der Straße 5 m, von Seiten und Rückseite je 3 m ab. (7) <em>Building Generation</em> setzt je nach Zentralität des Blocks ein freistehendes Haus (30 × 10 m), eine Zeile oder einen Blockrand (Tiefe 10 m); die GFZ ist die Zentralität (0…1), Geschosse <code>⌈GFZ · Parzelle / Grundfläche⌉</code> zu 3 m, höchstens 27 m, Grundflächen unter 60 m² entfallen.</p>
+      <p><b>Kennzahlen</b> wie im eCAADe-Workshop 2018: Netzlänge als Maß der Infrastrukturkosten, Geschossfläche, Länge der Geschäftsstraßen (Segmente mit hoher Betweenness), Verhältnis öffentlicher zu privater Fläche, T- zu X-Kreuzungen, relative Konnektivität und relative Integration (normalisierte Winkelintegration NAIN mit und ohne das neue Quartier) sowie die mittleren Wege zu Hochschule, Haltestelle und Freiraum. Links steht der Plan, rechts eine Axonometrie der Baukörper.</p>
+      <p><b>Ausprobieren.</b> Start drücken und die Stufen verfolgen. Dann die Zufallssaat der Straßen (SeedForRandom) ändern: Ein anderes Netz ergibt andere Hauptstraßen und damit andere Dichten. <code>LinearScaling</code> auf 0,3 stellen: Die Hauptstraßen werden zu Boulevards, die Blöcke schrumpfen. Die Parzellenbreite auf „fest“ stellen und mit der Zentralitätsregel vergleichen. Eine Ecke des Gebiets ziehen und sehen, wie die Kennzahlen reagieren.</p>
+      <p>Die Kette stammt aus dem Workshop „Parametric urban planning with Space Syntax and DeCodingSpaces-toolbox for Grasshopper“ von Reinhard König, Martin Bielik und Yufan Miao beim 12. Space Syntax Symposium 2019 in Peking (Dateien 190705_DS_01–03), die Kennzahlen aus dem Workshop „Urban Analysis, Synthesis and Exploration with Grasshopper“ (eCAADe 2018) – beide im <a href="https://toolbox.decodingspaces.net/sss12-workshop-parametric-urban-planning-with-space-syntax-and-decodingspaces-toolbox-for-grasshopper/">DeCodingSpaces Lab</a>. Hintergrund: Miao, König u. a. (2018), <em>Computational urban design prototyping</em>, IJAC 16(3), <a href="https://doi.org/10.1177/1478077118798395">doi:10.1177/1478077118798395</a>. Die App setzt das Verfahren neu im Browser um, ohne Code zu übernehmen. Was abweicht, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>From an empty site to an urban quarter in one chain: streets grow from the connecting streets into the site, and their <em>betweenness</em> – how often a street segment lies on shortest paths – controls street width, plot width, building type and density. At the end come the measures the workshop used to compare variants.</p>
+      <p><b>Chain.</b> (1) <em>Street Network Synthesis</em>: an instruction tree grows level by level from every vertex of the connecting streets. Each arm has a length <code>MinLength + random(MaxLength)</code>, deviates by up to <code>±RandomAngle/2</code> and aims into the middle of the largest free angular gap; it snaps to nodes and streets within <code>MinDist</code> and ends at the first crossing or at the boundary. (2) Cul-de-sacs are removed in two passes. (3) <em>CityGraph</em> counts for every segment the shortest (metric) paths between all segments that use it. (4) <em>Polygons from lines</em> forms the blocks; every block edge is set back by <code>BC^0.5 × 0.12</code>, so a street gets wider the more central it is. (5) The <em>slicing tree</em> cuts each block across its street frontage until the frontage is below twice the plot width; the width is <code>largest √BC of the block / 3</code>. (6) The <em>buildable area</em> keeps 5 m from the street and 3 m from sides and rear. (7) <em>Building Generation</em> places, depending on the block's centrality, a detached house (30 × 10 m), a row or a perimeter block (depth 10 m); the FAR is the centrality (0…1), storeys <code>⌈FAR · plot / footprint⌉</code> of 3 m, at most 27 m; footprints under 60 m² are dropped.</p>
+      <p><b>Measures</b> as in the eCAADe 2018 workshop: network length as a proxy for infrastructure cost, gross floor area, length of shopping streets (segments with high betweenness), ratio of public to private area, T to X crossings, relative connectivity and relative integration (normalised angular integration NAIN with and without the new quarter), and the mean distances to the university, the transit stop and open space. The plan is on the left, an axonometric view of the buildings on the right.</p>
+      <p><b>Try it.</b> Press Start and follow the stages. Then change the street seed (SeedForRandom): a different network gives different main streets and therefore different densities. Set <code>LinearScaling</code> to 0.3: the main streets become boulevards and the blocks shrink. Switch the plot width to “fixed” and compare with the centrality rule. Drag a corner of the site and watch the measures respond.</p>
+      <p>The chain comes from the workshop “Parametric urban planning with Space Syntax and DeCodingSpaces-toolbox for Grasshopper” by Reinhard König, Martin Bielik and Yufan Miao at the 12th Space Syntax Symposium 2019 in Beijing (files 190705_DS_01–03), the measures from the workshop “Urban Analysis, Synthesis and Exploration with Grasshopper” (eCAADe 2018) – both listed in the <a href="https://toolbox.decodingspaces.net/sss12-workshop-parametric-urban-planning-with-space-syntax-and-decodingspaces-toolbox-for-grasshopper/">DeCodingSpaces Lab</a>. Background: Miao, König et al. (2018), <em>Computational urban design prototyping</em>, IJAC 16(3), <a href="https://doi.org/10.1177/1478077118798395">doi:10.1177/1478077118798395</a>. The app re-implements the method in the browser without taking over code. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

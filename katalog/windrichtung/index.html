@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Windrichtung und Luftbelastung · Parametric Planning Catalogue · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Windrose eines Ortes auf Parzellen übertragen: Welche Nachbarn liegen im Wind einer gewählten Parzelle, und wie stark wäre ihre Luftbelastung mit einem beispielhaften Abfall über die Entfernung? Neuumsetzung des Moduls „Wind Direction“ aus dem Parametric Planning Catalogue (DeCodingSpaces, Bauhaus-Universität Weimar) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← Parametric Planning Catalogue</a>
+  <h1><span lang="de">Windrichtung und Luftbelastung</span><span lang="en">Wind Direction</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Klick auf eine Parzelle: Parzelle wählen (Wind From) · Windrose ziehen oder Rechtsklick: Windrose versetzen · Start: Sektoren nacheinander addieren</span><span lang="en">Click a parcel: select it (Wind From) · drag the wind rose or right-click: move the wind rose · Start: add the sectors one by one</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Wind Direction · Grasshopper · DeCodingSpaces – Martin Dennemark, v. 1.0</div>
+    <a href="https://infar-buw.github.io/parametric-planning-catalogue/docs/WindDirection/"><span lang="de">Eintrag im Parametric Planning Catalogue</span><span lang="en">Entry in the Parametric Planning Catalogue</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Windrose eines Ortes auf Parzellen übertragen: Welche Nachbarn liegen im Wind einer gewählten Parzelle, und wie stark wäre ihre Luftbelastung mit einem beispielhaften Abfall über die Entfernung?</p>
+      <p>Die <em>Windrose</em> gibt für jeden Richtungssektor an, wie oft der Wind aus ihm kommt; im Original stammt sie als <code>windFrequencyRose.json</code> aus dem Global Wind Atlas („Plot data“). Die Häufigkeiten werden auf den größten Sektor bezogen (0…1). Von der gewählten Parzelle (<em>Wind From</em>) führt zu jeder anderen Parzelle (<em>Wind To</em>) ein Vektor zwischen den Schwerpunkten. Ein Sektor „trifft“, wenn dieser Vektor höchstens <code>Sektorbreite · Faktor / 2</code> von der Richtung abweicht, in die der Wind des Sektors weht – mit dem Faktor 1,25 zählen zwischen zwei Sektoren beide. Der Wert der Parzelle ist das gewichtete Mittel der getroffenen Häufigkeiten <code>Σ f² / Σ f</code>.</p>
+      <p>Für die <em>Luftbelastung</em> (Schalter „pollution“) werden die Häufigkeiten zuvor mit dem Abfall über die Entfernung multipliziert: <code>Exp(−0,02 · x)</code>, laut Katalog „nur beispielhaft und nicht wissenschaftlich“. Die Farbskala reicht dann bis zum Abfall bei der Reichweite (<em>Falloff Radius</em>, 432 m): Parzellen näher als etwa die Reichweite erscheinen voll belastet, weiter entfernte klingen rasch ab. „Wind From ↔ Wind To tauschen“ dreht die Frage um: Welche Parzellen belasten die gewählte?</p>
+      <p>Probieren: mit Start die Sektoren nacheinander addieren und den Suchkegel verfolgen; auf eine Parzelle am Westrand klicken und auf Luftbelastung umschalten; den Sektorfaktor unter 1 stellen – dann bleiben Lücken zwischen den Sektoren ohne Wert. Die Windrosen sind ausdrücklich Beispiele; über den Knopf „JSON…“ lässt sich die Datei eines echten Ortes aus dem Global Wind Atlas verwenden.</p>
+      <p>Die App setzt das Modul „Wind Direction“ aus dem <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT-Lizenz) neu im Browser um. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>The <em>wind rose</em> gives, for every direction sector, how often the wind comes from it; in the original it is a <code>windFrequencyRose.json</code> downloaded from the Global Wind Atlas (“Plot data”). The frequencies are related to the largest sector (0…1). From the selected parcel (<em>Wind From</em>) a vector leads to every other parcel (<em>Wind To</em>) between the centroids. A sector “hits” if this vector deviates at most <code>sector width · factor / 2</code> from the direction the wind of that sector blows to – with the factor 1.25 both sectors count between two of them. The parcel value is the weighted average of the hit frequencies <code>Σ f² / Σ f</code>.</p>
+      <p>For <em>air pollution</em> (toggle “pollution”) the frequencies are first multiplied by a falloff over distance: <code>Exp(−0.02 · x)</code>, according to the catalogue “only exemplary and not scientific”. The colour scale then ends at the falloff at the <em>falloff radius</em> (432 m): parcels closer than about the radius appear fully polluted, farther ones fade quickly. “Swap Wind From ↔ Wind To” reverses the question: which parcels pollute the selected one?</p>
+      <p>Try: press Start to add the sectors one by one and follow the search cone; click a parcel at the western edge and switch to air pollution; set the sector factor below 1 – gaps between the sectors then remain without value. The wind roses are explicitly examples; the button “JSON…” lets you use the file of a real site from the Global Wind Atlas.</p>
+      <p>The app re-implements the module “Wind Direction” of the <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT license) in the browser. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
