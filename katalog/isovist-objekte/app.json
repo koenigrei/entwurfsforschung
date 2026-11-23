@@ -1,0 +1,16 @@
+{
+  "id": "isovist-objekte",
+  "titel": {"de": "Sichtbarkeit von Objekten", "en": "Isovist Object Visibility"},
+  "vorschau": {"de": "Welche Gebäude sieht man von einem Standpunkt aus? Die Strahlen des Isovists werden je Gebäude und je Fassadenkante gezählt; blau bleibt, was verdeckt ist, gelb bis rot, was stark ins Auge fällt.", "en": "Which buildings can be seen from a viewpoint? The rays of the isovist are counted per building and per façade edge; what is hidden stays blue, what catches the eye turns yellow to red."},
+  "original": "Isovist Object Visibility",
+  "katalog": "IsovistObjectVisibility",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistObjectVisibility/",
+  "autoren": "DeCodingSpaces – Martin Bielik, Ekaterina Fuchkina",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 0,
+  "vorschau_param": {"zeigeWeg": false},
+  "pruef_ausdruck": "(() => { const a = Modell.auswertung(SIM.zustand), k = SIM.zustand.szene.gebaeude.length - 1; return a.treffer + a.frei === 360 && a.sichtbar > 5 && a.sichtbar < a.gebaeude && SIM.zustand.s.geb[k] >= 20; })()"
+}

@@ -1,0 +1,411 @@
+{
+ "_hinweis": "Bestand des Parametric Planning Catalogue (https://infar-buw.github.io/parametric-planning-catalogue/) und Stand der Neuumsetzung als Web-Apps. Status: umgesetzt, in_arbeit, naechste_runde, nicht_umgesetzt. Reihenfolge wie auf der Startseite des Katalogs.",
+ "katalog": {
+  "titel": "Parametric Planning Catalogue",
+  "untertitel": "A Catalogue for Integrated Planning Strategies and Modules",
+  "url": "https://infar-buw.github.io/parametric-planning-catalogue/",
+  "repo": "https://github.com/infar-buw/parametric-planning-catalogue",
+  "lizenz": "MIT, Copyright (c) 2020 infar-buw",
+  "herausgeber": "DecodingSpaces · ECL-AA · InfAR, Bauhaus-Universität Weimar",
+  "jahr": 2020
+ },
+ "eintraege": [
+  {
+   "id": "ParcellationVoronoi",
+   "titel": "Parcellation via Voronoi",
+   "titel_de": "Parzellierung mit Voronoi",
+   "tags": [
+    "Parcel"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcellationVoronoi/",
+   "status": "umgesetzt",
+   "reihenfolge": 1,
+   "app": "parzellen-voronoi"
+  },
+  {
+   "id": "WaterNetworkGenerationAndAnalysis",
+   "titel": "Water Network Generation and Analysis",
+   "titel_de": "Water Network Generation and Analysis",
+   "tags": [
+    "Water"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WaterNetworkGenerationAndAnalysis/",
+   "status": "naechste_runde",
+   "reihenfolge": 2,
+   "grund": {
+    "de": "Braucht eine Rohrnetzberechnung (im Original EPANET): Druck und Durchfluss im vermaschten Netz, dazu die automatische Dimensionierung der Rohre. Umsetzbar mit einem eigenen Gradientenverfahren nach Todini/Pilati im Browser; das Netz aus zwei kürzesten Wegebäumen ist mit den vorhandenen Bausteinen schon möglich.",
+    "en": "Needs a pipe network solver (EPANET in the original): pressure and flow in a looped network plus automatic pipe sizing. Feasible with an own gradient method (Todini/Pilati) in the browser; the network from two shortest-path trees can already be built with the existing components."
+   }
+  },
+  {
+   "id": "Isovist3D",
+   "titel": "Isovist 3D",
+   "titel_de": "Isovist 3D",
+   "tags": [
+    "Visibility"
+   ],
+   "autoren": "Martin Bielik, Ekaterina Fuchkina",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/Isovist3D/",
+   "status": "naechste_runde",
+   "reihenfolge": 3,
+   "grund": {
+    "de": "Dreidimensionale Sichtstrahlen auf Baukörper (horizontaler und vertikaler Blickwinkel, Präzision, Trefferarten Himmel/Hindernis/Boden). Umsetzbar mit Quadern als Gebäuden und einer eigenen Axonometrie; aufwendiger als die 2D-Isovisten, daher nach ihnen.",
+    "en": "Three-dimensional view rays onto building volumes (horizontal and vertical view angle, precision, hit types sky/obstacle/ground). Feasible with boxes as buildings and an own axonometric view; more work than the 2D isovists, so it comes after them."
+   }
+  },
+  {
+   "id": "ParcellationByArea",
+   "titel": "Parcellation By Area",
+   "titel_de": "Parzellierung nach Fläche",
+   "tags": [
+    "Parcel"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcellationByArea/",
+   "status": "umgesetzt",
+   "reihenfolge": 4,
+   "app": "parzellen-flaeche"
+  },
+  {
+   "id": "IsovistSinglePoint",
+   "titel": "Isovist Single Point",
+   "titel_de": "Isovist von einem Punkt",
+   "tags": [
+    "Visibility"
+   ],
+   "autoren": "Martin Bielik, Ekaterina Fuchkina",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistSinglePoint/",
+   "status": "umgesetzt",
+   "reihenfolge": 5,
+   "app": "isovist-punkt"
+  },
+  {
+   "id": "IsovistObjectVisibility",
+   "titel": "Isovist Object Visibility",
+   "titel_de": "Sichtbarkeit von Objekten",
+   "tags": [
+    "Visibility"
+   ],
+   "autoren": "Martin Bielik, Ekaterina Fuchkina",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistObjectVisibility/",
+   "status": "umgesetzt",
+   "reihenfolge": 6,
+   "app": "isovist-objekte"
+  },
+  {
+   "id": "IsovistOnPath",
+   "titel": "Isovist On Path",
+   "titel_de": "Isovist entlang eines Weges",
+   "tags": [
+    "Visibility"
+   ],
+   "autoren": "Martin Bielik, Ekaterina Fuchkina",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistOnPath/",
+   "status": "umgesetzt",
+   "reihenfolge": 7,
+   "app": "isovist-pfad"
+  },
+  {
+   "id": "WaterNetworkAnalysis",
+   "titel": "Water Network Analysis",
+   "titel_de": "Water Network Analysis",
+   "tags": [
+    "Water"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WaterNetworkAnalysis/",
+   "status": "naechste_runde",
+   "reihenfolge": 8,
+   "grund": {
+    "de": "Druckverlauf in einer Wasserleitung mit Hochbehälter, Pumpe und Verbrauchern (im Original EPANET). Für ein einzelnes Rohrstrangmodell genügt die Hazen-Williams-Formel – gut umsetzbar zusammen mit „Water Network Generation and Analysis“.",
+    "en": "Pressure along a water main with tank, pump and consumers (EPANET in the original). For a single pipeline the Hazen–Williams formula suffices – well feasible together with “Water Network Generation and Analysis”."
+   }
+  },
+  {
+   "id": "RingRoads",
+   "titel": "Ring Roads",
+   "titel_de": "Ringstraßen",
+   "tags": [
+    "Street"
+   ],
+   "autoren": "Ondřej Veselý, Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/RingRoads/",
+   "status": "umgesetzt",
+   "reihenfolge": 9,
+   "app": "ringstrassen"
+  },
+  {
+   "id": "ParcellationSlicingTree",
+   "titel": "Parcellation Slicing Tree",
+   "titel_de": "Parzellierung mit Slicing Tree",
+   "tags": [
+    "Parcel"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcellationSlicingTree/",
+   "status": "umgesetzt",
+   "reihenfolge": 10,
+   "app": "parzellen-slicing-tree"
+  },
+  {
+   "id": "StreetHierarchy",
+   "titel": "Street Hierarchy",
+   "titel_de": "Straßenhierarchie",
+   "tags": [
+    "Street"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/StreetHierarchy/",
+   "status": "umgesetzt",
+   "reihenfolge": 11,
+   "app": "strassenhierarchie"
+  },
+  {
+   "id": "SerpentineRoads",
+   "titel": "Serpentine Roads",
+   "titel_de": "Serpentinen",
+   "tags": [
+    "Street"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/SerpentineRoads/",
+   "status": "umgesetzt",
+   "reihenfolge": 12,
+   "app": "serpentinen"
+  },
+  {
+   "id": "WaterBasedStreetGrowth",
+   "titel": "Waterbased Street Growth",
+   "titel_de": "Waterbased Street Growth",
+   "tags": [
+    "Water",
+    "Street"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WaterBasedStreetGrowth/",
+   "status": "naechste_runde",
+   "reihenfolge": 13,
+   "grund": {
+    "de": "Straßenwachstum nach „Procedural Cities“ (phiresky) mit einem Grauwertbild aus dem Gelände statt Perlin-Rauschen; dazu Wachstumsgrenze aus Hangneigung, Höhe und Zentrumsnähe. Gut umsetzbar; im Lab gibt es bereits die Kachel „Procedural Cities“, auf die sich aufbauen lässt.",
+    "en": "Street growth after “Procedural Cities” (phiresky) with a grayscale layer from the terrain instead of Perlin noise, plus a growth boundary from slope, height and distance to the centre. Well feasible; the Lab already has the “Procedural Cities” tile to build on."
+   }
+  },
+  {
+   "id": "NetworkShortestPath",
+   "titel": "Street Network Shortest Path",
+   "titel_de": "Kürzester Weg im Straßennetz",
+   "tags": [
+    "Street"
+   ],
+   "autoren": "Reinhard König, Martin Bielik, Ekaterina Fuchkina",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/NetworkShortestPath/",
+   "status": "umgesetzt",
+   "reihenfolge": 14,
+   "app": "kuerzester-weg"
+  },
+  {
+   "id": "StreetFloodRisk",
+   "titel": "Street Flood Risk",
+   "titel_de": "Straßen und Starkregen",
+   "tags": [
+    "Water",
+    "Street"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/StreetFloodRisk/",
+   "status": "umgesetzt",
+   "reihenfolge": 15,
+   "app": "strassen-ueberflutung"
+  },
+  {
+   "id": "NetworkEditing",
+   "titel": "Street Network Editing",
+   "titel_de": "Street Network Editing",
+   "tags": [
+    "Street"
+   ],
+   "autoren": "Martin Bielik, Ekaterina Fuchkina",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/NetworkEditing/",
+   "status": "nicht_umgesetzt",
+   "reihenfolge": 16,
+   "grund": {
+    "de": "Kein eigenes Modell, sondern eine Sammlung von Werkzeugen zur Netzbearbeitung (Straßennetz erzeugen, glätten, Sackgassen entfernen, in Segmente und Polylinien wandeln). Diese Schritte stecken als Vorverarbeitung in den anderen Apps (z. B. Knoten zusammenführen in geo.js).",
+    "en": "Not a model of its own but a set of network editing tools (generate, smooth, remove dead ends, convert to segments and polylines). These steps are part of the preprocessing in the other apps (e.g. merging nodes in geo.js)."
+   }
+  },
+  {
+   "id": "RainwaterRundownRaster",
+   "titel": "Rainwater Rundown (Raster)",
+   "titel_de": "Regenwasserabfluss (Raster)",
+   "tags": [
+    "Water",
+    "Context"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/RainwaterRundownRaster/",
+   "status": "umgesetzt",
+   "reihenfolge": 17,
+   "app": "regenwasser-raster"
+  },
+  {
+   "id": "RainwaterRundownVector",
+   "titel": "Rainwater Rundown (Vector)",
+   "titel_de": "Regenwasserabfluss (Vektor)",
+   "tags": [
+    "Water",
+    "Context"
+   ],
+   "autoren": "Djordje Spasić (Gismo)",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/RainwaterRundownVector/",
+   "status": "umgesetzt",
+   "reihenfolge": 18,
+   "app": "regenwasser-vektor"
+  },
+  {
+   "id": "LandUseDistribution",
+   "titel": "Land Use Distribution",
+   "titel_de": "Land Use Distribution",
+   "tags": [
+    "Land Use"
+   ],
+   "autoren": "Reinhard König, Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/LandUseDistribution/",
+   "status": "naechste_runde",
+   "reihenfolge": 19,
+   "grund": {
+    "de": "Iterative Verteilung von Nutzungen (Wohnen, Gewerbe, Industrie) auf Parzellen nach Profilen aus Zentralität, Erreichbarkeit, wahrgenommener Entfernung und gegenseitiger Anziehung/Abstoßung. Fachlich wichtig und umsetzbar; die Definition ist umfangreich (541 Komponenten, zehn C#-Skripte) und braucht eine eigene Runde.",
+    "en": "Iterative distribution of land uses (residential, commercial, industry) onto plots by profiles of centrality, accessibility, perceived distance and mutual attraction/repulsion. Important and feasible; the definition is extensive (541 components, ten C# scripts) and needs its own round."
+   }
+  },
+  {
+   "id": "ParcelCustomOffset",
+   "titel": "Parcel Custom Offset",
+   "titel_de": "Parcel Custom Offset",
+   "tags": [
+    "Parcel"
+   ],
+   "autoren": "Martin Bielik",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcelCustomOffset/",
+   "status": "naechste_runde",
+   "reihenfolge": 20,
+   "grund": {
+    "de": "Versatz einzelner Parzellenkanten nach der Betweenness der angrenzenden Straße. Umsetzbar mit den vorhandenen Bausteinen (Segmentgraph, Betweenness, Kantenversatz); kleiner Umfang.",
+    "en": "Offsets individual plot edges by the betweenness of the adjacent street. Feasible with the existing components (segment graph, betweenness, edge offset); small scope."
+   }
+  },
+  {
+   "id": "IsovistField",
+   "titel": "Isovist Field",
+   "titel_de": "Isovistenfeld",
+   "tags": [
+    "Visibility"
+   ],
+   "autoren": "Martin Bielik, Ekaterina Fuchkina",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistField/",
+   "status": "umgesetzt",
+   "reihenfolge": 21,
+   "app": "isovist-feld"
+  },
+  {
+   "id": "NetworkOptimization",
+   "titel": "Street Network Optimization",
+   "titel_de": "Street Network Optimization",
+   "tags": [
+    "Street"
+   ],
+   "autoren": "Reinhard König, Martin Bielik, Ekaterina Fuchkina",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/NetworkOptimization/",
+   "status": "naechste_runde",
+   "reihenfolge": 22,
+   "grund": {
+    "de": "Genetischer Algorithmus für Straßennetzvarianten mit zwei Zielen (Gesamtlänge und Closeness-Zentralität), Pareto-Diagramm und Anzeige der besten Varianten. Umsetzbar; braucht die Abbildung der Chromosomen auf die Netzgeometrie aus der .gh-Datei.",
+    "en": "Genetic algorithm for street network variants with two objectives (total length and closeness centrality), Pareto chart and display of the best variants. Feasible; needs the mapping of chromosomes to network geometry from the .gh file."
+   }
+  },
+  {
+   "id": "WindDirection",
+   "titel": "Wind Direction",
+   "titel_de": "Wind Direction",
+   "tags": [
+    "Context"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/WindDirection/",
+   "status": "naechste_runde",
+   "reihenfolge": 23,
+   "grund": {
+    "de": "Windrichtungshäufigkeit eines Ortes (Datei aus dem Global Wind Atlas) und ein Abklingen der Windwirkung über die Entfernung; das Abklingen ist laut Katalog nur beispielhaft. Umsetzbar mit einer mitgelieferten Beispiel-Windrose; ohne Datenabruf von fremden Servern.",
+    "en": "Wind direction frequency of a site (file from the Global Wind Atlas) and a falloff of the wind effect with distance; according to the catalogue the falloff is only exemplary. Feasible with a bundled example wind rose; no data download from third-party servers."
+   }
+  },
+  {
+   "id": "StreetsToPlots",
+   "titel": "Streets to Plots",
+   "titel_de": "Streets to Plots",
+   "tags": [
+    "Street",
+    "Parcel"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/StreetsToPlots/",
+   "status": "naechste_runde",
+   "reihenfolge": 24,
+   "grund": {
+    "de": "Blöcke aus dem Straßennetz bilden und Blöcke auf zu steilem Gelände aussortieren. Umsetzbar (Flächen aus Linien, Hangneigung); kleiner Umfang.",
+    "en": "Builds blocks from the street network and filters out blocks on steep terrain. Feasible (faces from lines, slope); small scope."
+   }
+  },
+  {
+   "id": "BuildingGeneration",
+   "titel": "Building Generation",
+   "titel_de": "Building Generation",
+   "tags": [
+    "Building",
+    "Parcel"
+   ],
+   "autoren": "DeCodingSpaces",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/BuildingGeneration/",
+   "status": "naechste_runde",
+   "reihenfolge": 25,
+   "grund": {
+    "de": "Kette der kompilierten DeCodingSpaces-Komponenten Straßennetz → Blöcke → Parzellen → bebaubare Fläche → Gebäude. Umsetzbar, sobald die Parzellierungs-Apps stehen; braucht zusätzlich Baufenster und Gebäudeformen.",
+    "en": "Chain of compiled DeCodingSpaces components street network → blocks → parcels → buildable area → buildings. Feasible once the parcellation apps exist; additionally needs building envelopes and building shapes."
+   }
+  },
+  {
+   "id": "TerrainAnalysis",
+   "titel": "Terrain Analysis",
+   "titel_de": "Terrain Analysis",
+   "tags": [
+    "Context"
+   ],
+   "autoren": "Djordje Spasić (Gismo)",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/TerrainAnalysis/",
+   "status": "nicht_umgesetzt",
+   "reihenfolge": 26,
+   "grund": {
+    "de": "Das Modul besteht laut Katalog nur aus der Geländeanalyse des Plugins Gismo (Hangneigung, Höhe, Exposition für echte Geodaten). Kein eigenes Verfahren des Katalogs; Hangneigung und Abfluss zeigen die Apps „Regenwasserabfluss“, „Serpentinen“ und „Straßen und Starkregen“.",
+    "en": "According to the catalogue the module only consists of the terrain analysis of the Gismo plugin (slope, elevation, aspect for real geodata). No procedure of the catalogue itself; slope and runoff are shown by the apps “Rainwater Rundown”, “Serpentine Roads” and “Street Flood Risk”."
+   }
+  },
+  {
+   "id": "BuildingPlacementOnParcels",
+   "titel": "Placement on Parcel",
+   "titel_de": "Placement on Parcel",
+   "tags": [
+    "Building",
+    "Parcel"
+   ],
+   "autoren": "Martin Dennemark",
+   "url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/BuildingPlacementOnParcels/",
+   "status": "nicht_umgesetzt",
+   "reihenfolge": 27,
+   "grund": {
+    "de": "Verteilt Rhino-Blöcke (vorgefertigte Gebäudegeometrie) zufällig auf Parzellen – reine Geometrieverwaltung in Rhino ohne eigenes Modell. Sinnvoll erst als Teil von „Building Generation“.",
+    "en": "Distributes Rhino blocks (prepared building geometry) randomly onto parcels – pure geometry handling in Rhino without a model of its own. Makes sense only as part of “Building Generation”."
+   }
+  }
+ ]
+}

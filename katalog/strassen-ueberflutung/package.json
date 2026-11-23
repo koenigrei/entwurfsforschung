@@ -1,0 +1,8 @@
+{
+  "name": "strassen-ueberflutung",
+  "private": true,
+  "type": "commonjs",
+  "description": "Straßen und Starkregen – Neuumsetzung des Grasshopper-Moduls Street Flood Risk (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

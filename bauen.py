@@ -220,7 +220,7 @@ def bauen(alt="/"):
         if p.get("nur_kachel"):                                        # nur Kachel, Inhalt pflegt ein anderes Werkzeug (Design Explorer: sync.py).
             if os.path.exists(z):                                      # Kein Ordner in site/, sonst ersetzt deploy.py den Ordner auf dem Server.
                 sys.exit(f"{p['ziel']}: Projekt ist nur_kachel, darf in site/ nicht vorkommen")
-            lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
+            lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
             continue
         os.makedirs(z, exist_ok=True)
         for ziel, quelle in p.get("dateien", {}).items():
@@ -232,7 +232,7 @@ def bauen(alt="/"):
                 lokal(os.path.join(z, ziel), "../" * p["ziel"].strip("/").count("/") + "../")
         if p["start"] != "index.html":
             open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"], q=(f'<link rel="code-repository" href="{p["quellcode"]}"><link rel="license" href="https://creativecommons.org/licenses/by/4.0/">' if p.get("quellcode") else "")))
-        lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
+        lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
     seite(vorlage, os.path.join(SITE, "index.html"), FILTER.format(id="lab", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": lab}, ensure_ascii=False)) + "\n" + UEBER,
           "", "Entwurfsforschung · KI Lab", "lab", alt)
 
@@ -292,16 +292,20 @@ def bauen(alt="/"):
     # ---------------------------------------------------------------- Frühe Simulationen (simulationen/, 21.11.2026)
     nsim = simulationen(vorlage, alt)
 
+    # ---------------------------------------------------------------- Parametric Planning Catalogue (katalog/, 23.11.2026)
+    nkat = katalog(vorlage, alt)
+
     # ---------------------------------------------------------------- Impressum (Platzhalter)
     seite(vorlage, os.path.join(SITE, "impressum", "index.html"),
           open(os.path.join(HIER, "impressum.html"), encoding="utf-8").read(),
           "../", "Impressum · Entwurfsforschung", "", alt)
     n = sum(len(f) for _, _, f in os.walk(SITE))
-    print(f"site/ gebaut: {len(lab)} Projekte, {len(karten)} Archiveinträge, {nsim} Simulationen, {n} Dateien")
+    print(f"site/ gebaut: {len(lab)} Projekte, {len(karten)} Archiveinträge, {nsim} Simulationen, {nkat} Katalog-Apps, {n} Dateien")
 
 
 SIM = os.path.join(HIER, "simulationen")
-SIM_NICHT = shutil.ignore_patterns("node_modules", ".git", "__pycache__", "_pruefung", "*.local.*", "quellcode.zip")
+SIM_NICHT_MUSTER = ("node_modules", ".git", "__pycache__", "_pruefung", "*.local.*", "quellcode.zip")
+SIM_NICHT = shutil.ignore_patterns(*SIM_NICHT_MUSTER)
 SIM_TEXT = {"de": ("Frühe Simulationen", "Die Simulationsprogramme der alten Website – Delphi, NetLogo, AutoCAD-VBA, entstanden 2005 bis 2008 – neu umgesetzt als Web-Apps. Die Regeln und Parameter folgen den Originalen; jede App verweist auf ihre Archivseite und lässt sich als Quellcode herunterladen und weiterentwickeln.",
                    "Sortiert nach Entstehungsdatum, neueste zuerst; weitere Modelle kommen nach und nach hinzu."),
             "en": ("Early Simulations", "The simulation programs of the old website – Delphi, NetLogo, AutoCAD VBA, written between 2005 and 2008 – re-implemented as web apps. Rules and parameters follow the originals; every app links to its archive page and can be downloaded as source code to develop further.",
@@ -354,6 +358,81 @@ def simulationen(vorlage, alt):
     seite(vorlage, os.path.join(ziel, "index.html"),
           FILTER.format(id="simulationen", folge="", daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
           "../../", "Frühe Simulationen · Entwurfsforschung", "lab", alt)
+    return len(karten)
+
+
+
+KAT = os.path.join(HIER, "katalog")
+KAT_TAGS = {"Parcel": ("Parzellen", "Parcels"), "Visibility": ("Sichtbarkeit", "Visibility"), "Street": ("Straßen", "Streets"), "Water": ("Wasser", "Water"),
+            "Context": ("Kontext", "Context"), "Land Use": ("Nutzung", "Land use"), "Building": ("Gebäude", "Buildings")}
+KAT_STATUS = {"umgesetzt": ("Web-App", "Web app"), "in_arbeit": ("in Arbeit", "in progress"), "naechste_runde": ("nächste Runde", "next round"),
+              "nicht_umgesetzt": ("nicht umgesetzt", "not implemented")}
+
+
+def katalog(vorlage, alt):
+    """Bereich lab/parametric-planning-catalogue/ (23.11.2026): Module des Parametric Planning Catalogue (InfAR, Bauhaus-Universität Weimar)
+    als Web-Apps. Je Eintrag mit Status „umgesetzt“ in katalog/bestand.json: App-Ordner, quellcode.zip (katalog/<app>/, katalog/_gemeinsam/,
+    simulationen/_gemeinsam/ – die Apps nutzen den Rahmen der Frühen Simulationen über ../../simulationen/_gemeinsam/), Kachelbild aus
+    <app>/vorschau.png. Die Übersicht listet darunter alle Einträge des Katalogs mit Stand (umgesetzt, nächste Runde, nicht umgesetzt + Grund)."""
+    import zipfile
+    B = json.load(open(os.path.join(KAT, "bestand.json"), encoding="utf-8"))
+    ziel = os.path.join(SITE, "lab", "parametric-planning-catalogue")
+    os.makedirs(os.path.join(ziel, "bilder"), exist_ok=True)
+    shutil.copytree(os.path.join(KAT, "_gemeinsam"), os.path.join(ziel, "_gemeinsam"), ignore=shutil.ignore_patterns("test", *SIM_NICHT_MUSTER), dirs_exist_ok=True)
+    open(os.path.join(ziel, ".htaccess"), "w", encoding="utf-8").write('AddType "text/plain; charset=utf-8" .md\nAddType "text/javascript; charset=utf-8" .mjs\n')
+    pakete = [(os.path.join(KAT, "_gemeinsam"), "katalog/_gemeinsam"), (os.path.join(SIM, "_gemeinsam"), "simulationen/_gemeinsam")]
+    karten = []
+    for e in sorted(B["eintraege"], key=lambda e: e.get("reihenfolge", 0)):
+        if e.get("status") != "umgesetzt" or not e.get("app"):
+            continue
+        aid = e["app"]; q = os.path.join(KAT, aid); d = os.path.join(ziel, aid)
+        meta = json.load(open(os.path.join(q, "app.json"), encoding="utf-8"))
+        shutil.copytree(q, d, ignore=SIM_NICHT, dirs_exist_ok=True)
+        with zipfile.ZipFile(os.path.join(d, "quellcode.zip"), "w", zipfile.ZIP_DEFLATED) as zf:
+            for basis, name in [(q, f"katalog/{aid}")] + pakete:
+                for wurzel, ordner, dateien in os.walk(basis):
+                    ordner[:] = sorted(o for o in ordner if o not in ("node_modules", ".git", "__pycache__", "_pruefung"))
+                    for f in sorted(dateien):
+                        if f != "quellcode.zip" and ".local." not in f:
+                            zf.write(os.path.join(wurzel, f), name + "/" + os.path.relpath(os.path.join(wurzel, f), basis).replace(os.sep, "/"))
+        ih = os.path.join(d, "index.html")
+        h_ = versionieren(open(ih, encoding="utf-8").read(), d)       # ?v= gegen den Cloudflare-Cache (erst lesen, dann schreiben)
+        open(ih, "w", encoding="utf-8").write(h_)
+        bild = os.path.join(q, "vorschau.png")
+        if os.path.exists(bild):
+            w, h = kachelbild(bild, os.path.join(ziel, "bilder", aid + ".webp"))
+        else:
+            w, h = titelbild(meta["titel"]["de"], os.path.join(ziel, "bilder", aid + ".webp"))
+        tag = KAT_TAGS.get(e["tags"][0], (e["tags"][0], e["tags"][0]))
+        karten.append({"id": aid, "titel": meta["titel"], "autoren": "Gismo · InfAR" if "Gismo" in e["autoren"] else "DeCodingSpaces · InfAR",
+                       "kategorie": {"de": tag[0], "en": tag[1]}, "jahr": meta.get("jahr", 2020), "datum": meta.get("datum") or "2020-01-01",
+                       "vorschau": meta.get("vorschau"), "href": f"{aid}/",
+                       "bild": f"bilder/{aid}.webp" + vq(os.path.join(ziel, "bilder", aid + ".webp")), "w": w, "h": h})
+    K = B["katalog"]
+    zeilen = []
+    for e in sorted(B["eintraege"], key=lambda e: e.get("reihenfolge", 0)):
+        st = KAT_STATUS.get(e["status"], (e["status"], e["status"]))
+        titel = (f'<a href="{e["app"]}/">{zwei(e["titel_de"], e["titel"])}</a>' if e["status"] == "umgesetzt" and e.get("app") else html.escape(e["titel"]))
+        grund = e.get("grund") or {}
+        zeilen.append(f'<li><div class="kopfzeile">{titel}<span class="mono status s-{e["status"]}">{zwei(*st)}</span></div>'
+                      f'<div class="mono klein">{html.escape(" · ".join(e["tags"]))} · {html.escape(e["autoren"])} · <a href="{html.escape(e["url"])}">{zwei("Katalogeintrag", "catalogue entry")}</a></div>'
+                      + (f'<p class="nur-de">{html.escape(grund["de"])}</p><p class="nur-en">{html.escape(grund.get("en", grund["de"]))}</p>' if grund else "") + "</li>")
+    n_alle, n_um = len(B["eintraege"]), len(karten)
+    stil = ('<style>html[lang="en"] .nur-de, html[lang="de"] .nur-en { display: none; } .feld select { max-width: 62%; text-overflow: ellipsis; }'
+            ' .bestand { list-style: none; margin: 0; padding: 0; } .bestand li { border-top: 1px solid var(--line); padding: 12px 0; }'
+            ' .bestand .kopfzeile { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }'
+            ' .bestand .status { color: var(--muted); white-space: nowrap; } .bestand .s-umgesetzt { color: var(--accent-text); }'
+            ' .bestand .klein { color: var(--muted); margin-top: 4px; text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; } .bestand p { margin: 6px 0 0; font-size: 14px; }</style>')
+    einleitung = (f'{stil}<section class="ueber" id="ueber"><div><h2>{html.escape(K["titel"])}</h2></div><div>'
+                  f'<p class="nur-de">Der Parametric Planning Catalogue (2020) sammelt Grasshopper-Module für integrierte Planungsstrategien – Parzellierung, Sichtbarkeit, Straßennetze, Wasser, Gelände –, entwickelt bei DecodingSpaces, ECL-AA und der Professur Informatik in der Architektur und Urbanistik (InfAR) der Bauhaus-Universität Weimar. Hier laufen die Module als eigenständige Web-Apps im Browser: Verfahren, Parameter und Begriffe folgen den Grasshopper-Dateien; jede App nennt ihr Original und lässt sich als Quellcode herunterladen und weiterentwickeln.</p>'
+                  f'<p class="nur-en">The Parametric Planning Catalogue (2020) collects Grasshopper modules for integrated planning strategies – parcellation, visibility, street networks, water, terrain – developed at DecodingSpaces, ECL-AA and the Chair for Informatics in Architecture and Urbanism (InfAR) at Bauhaus-Universität Weimar. Here the modules run as standalone web apps in the browser: procedures, parameters and terms follow the Grasshopper files; every app names its original and can be downloaded as source code to develop further.</p>'
+                  f'<p class="nur-de">{n_um} von {n_alle} Modulen sind umgesetzt; die übrigen stehen unten mit Begründung.</p><p class="nur-en">{n_um} of {n_alle} modules are done; the others are listed below with reasons.</p>'
+                  f'<p><a href="{html.escape(K["url"])}">{zwei("Original: Parametric Planning Catalogue", "Original: Parametric Planning Catalogue")}</a> · '
+                  f'<a href="{html.escape(K["repo"])}">GitHub infar-buw/parametric-planning-catalogue</a> · {zwei("Lizenz des Katalogs: MIT", "Catalogue license: MIT")}</p></div></section>'
+                  f'<section class="ueber" id="bestand"><div><h2>{zwei("Alle Module", "All modules")}</h2></div><div><ul class="bestand">{"".join(zeilen)}</ul></div></section>')
+    seite(vorlage, os.path.join(ziel, "index.html"),
+          FILTER.format(id="katalog", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
+          "../../", "Parametric Planning Catalogue · Entwurfsforschung", "lab", alt)
     return len(karten)
 
 

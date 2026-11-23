@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isovistenfeld · Parametric Planning Catalogue · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Isovist-Kenngrößen für viele Standpunkte auf einem Raster: Jede Zelle des Freiraums bekommt ihren Isovist, die Färbung zeigt, wo Fläche, Kompaktheit oder Drift hoch und niedrig sind. Neuumsetzung des Moduls „Isovist Field“ aus dem Parametric Planning Catalogue (DeCodingSpaces, Bauhaus-Universität Weimar) als Web-App.">
+<meta name="source" content="quellcode.zip">
+<link rel="help" href="AGENTS.md">
+<link rel="license" href="LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../">← Parametric Planning Catalogue</a>
+  <h1><span lang="de">Isovistenfeld</span><span lang="en">Isovist Field</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">Start rechnet Zeile für Zeile · Klick auf eine Zelle: ihr Isovist und ihre Werte · Rechtsklick oder Umschalt-Klick: Füllpunkt versetzen</span><span lang="en">Start computes row by row · click a cell: its isovist and values · right-click or shift-click: move the fill point</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Original</span><span lang="en">Original</span></div>
+    <div>Isovist Field · Grasshopper · DeCodingSpaces – Martin Bielik, Ekaterina Fuchkina</div>
+    <a href="https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistField/"><span lang="de">Eintrag im Parametric Planning Catalogue</span><span lang="en">Entry in the Parametric Planning Catalogue</span></a>
+    <a class="weiter mono" href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="AGENTS.md">AGENTS.md</a>
+    <a href="QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Isovist-Kenngrößen für viele Standpunkte auf einem Raster: Jede Zelle des Freiraums bekommt ihren Isovist, die Färbung zeigt, wo Fläche, Kompaktheit oder Drift hoch und niedrig sind.</p>
+      <p>Ein <em>Isovistenfeld</em> (Benedikt 1979) rechnet den Isovist nicht für einen, sondern für viele Standpunkte. Wie die Komponente „Analysis Grid“ des Grasshopper-Moduls legt die App ein Raster mit der <code>Zellgröße</code> über den Analyserahmen und sammelt vom <em>Füllpunkt</em> aus alle Zellen, die man ohne Hindernis erreicht; Zellen, die eine Gebäudekante schneiden, und Innenhöfe ohne Zugang bleiben leer. Für jede Zellmitte entsteht ein Isovist mit Blickwinkel, Reichweite und Strahlenzahl wie im Modul, Blickrichtung Norden (Unit Y). Gespeichert werden alle 17 Kenngrößen; die Auswahl färbt das Feld vom kleinsten (dunkelblau) zum größten Wert (rot) – ohne neu zu rechnen.</p>
+      <p>Ein Schritt rechnet eine Rasterzeile; Start füllt das Feld von oben nach unten. Zellgröße, Blickwinkel, Reichweite und Strahlen beginnen die Rechnung neu: Eine kleine Zelle zeigt feinere Muster, kostet aber mehr Isovisten (bei 1 m etwa viermal so viele wie bei 2 m).</p>
+      <p>Probieren: Fläche, Kompaktheit und Konvexitätsdefizit nacheinander wählen und vergleichen, wo Platz, Straßenkreuzungen und Gassen hell und dunkel werden; den Blickwinkel auf 90° stellen und sehen, welche Orte nach Norden weit blicken; die Zellgröße von 2 auf 5 m stellen und beobachten, welche Hoch- und Tiefpunkte erhalten bleiben; ab etwa 6 m passen die Zellen nicht mehr durch die 10 m breiten Straßen, und das Feld schrumpft auf die Umgebung des Füllpunkts.</p>
+      <p>Die App setzt das Modul „Isovist Field“ aus dem <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT-Lizenz) neu im Browser um. Was geändert wurde, steht in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+    <div lang="en">
+      <p>Isovist properties for many vantage points on a grid: every cell of the open space gets its own isovist, and the colouring shows where area, compactness or drift are high and low.</p>
+      <p>An <em>isovist field</em> (Benedikt 1979) computes the isovist not for one but for many viewpoints. Like the component “Analysis Grid” of the Grasshopper module, the app lays a grid with the given <code>cell size</code> over the analysis frame and collects, starting from the <em>fill point</em>, all cells that can be reached without crossing an obstacle; cells cut by a building edge and inaccessible courtyards stay empty. Each cell centre gets an isovist with viewing angle, range and number of rays as in the module, view direction north (Unit Y). All 17 properties are stored; the selection colours the field from the lowest (dark blue) to the highest value (red) – without recomputing.</p>
+      <p>One step computes one grid row; Start fills the field from top to bottom. Cell size, viewing angle, range and rays restart the computation: a small cell shows finer patterns but costs more isovists (at 1 m about four times as many as at 2 m).</p>
+      <p>Try: select area, compactness and convex deficiency in turn and compare where the square, junctions and lanes turn light or dark; set the viewing angle to 90° and see which places have a long view to the north; change the cell size from 2 to 5 m and watch which highs and lows survive; from about 6 m the cells no longer fit through the 10 m wide streets and the field shrinks to the surroundings of the fill point.</p>
+      <p>The app re-implements the module “Isovist Field” of the <a href="https://infar-buw.github.io/parametric-planning-catalogue/">Parametric Planning Catalogue</a> (DeCodingSpaces, InfAR, Bauhaus-Universität Weimar, 2020, MIT license) in the browser. Changes are listed in <a href="QUELLE.md">QUELLE.md</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="AGENTS.md">AGENTS.md</a>
+  <a href="LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script src="../_gemeinsam/geo.js"></script>
+<script src="../_gemeinsam/szenen.js"></script>
+<script src="../_gemeinsam/karte.js"></script>
+<script src="modell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

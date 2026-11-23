@@ -5,6 +5,8 @@
 - je Projekt: Kachelbild, Zielordner mit index.html und Startdatei, alle Dateien und Ordner aus projekte.json
 - Frühe Simulationen (simulationen/bestand.json): je App mit Status „umgesetzt“ index.html, modell.js, README, AGENTS, QUELLE, LICENSE,
   quellcode.zip (App + _gemeinsam), Pflichtlinks und Hinweise im <head>, Archivlink gültig, modell.js ohne DOM, Tests grün (node --test)
+- Parametric Planning Catalogue (katalog/bestand.json, 23.11.2026): dieselben Pflichten je App, Link zum Katalogeintrag statt Archivlink,
+  quellcode.zip mit katalog/<app>/, katalog/_gemeinsam/ und simulationen/_gemeinsam/, Begründung für jedes nicht umgesetzte Modul
 """
 import json, os, re, subprocess, sys, zipfile
 
@@ -77,6 +79,7 @@ def pruefe(site=SITE, projekte=None):
                     if host in t:
                         b.append(f"{os.path.relpath(os.path.join(wurzel, f), site)}: {host}")
     b += pruefe_simulationen(site)
+    b += pruefe_katalog(site)
     imp = os.path.join(site, "impressum", "index.html")
     if os.path.exists(imp):
         t = open(imp, encoding="utf-8").read()
@@ -212,6 +215,102 @@ def pruefe_simulationen(site=SITE, tests=True):
                 b.append("node fehlt – Tests der Simulationen nicht ausführbar")
             except subprocess.TimeoutExpired:
                 b.append(f"simulationen/{aid}: Tests brauchen länger als 10 min")
+    return b
+
+
+KAT_STATUS = {"umgesetzt", "in_arbeit", "naechste_runde", "nicht_umgesetzt"}
+
+
+def pruefe_katalog(site=SITE, tests=True):
+    """Bereich lab/parametric-planning-catalogue/ (23.11.2026)."""
+    b, quelle = [], os.path.join(HIER, "katalog")
+    try:
+        B = json.load(open(os.path.join(quelle, "bestand.json"), encoding="utf-8"))
+    except Exception as e:
+        return [f"katalog/bestand.json: {e}"]
+    E = B["eintraege"]
+    if len({e.get("id") for e in E}) != len(E) or len({e["app"] for e in E if e.get("app")}) != len([e for e in E if e.get("app")]):
+        b.append("katalog/bestand.json: doppelte id oder app")
+    for e in E:
+        for k in ("id", "titel", "tags", "autoren", "url", "status"):
+            if not e.get(k):
+                b.append(f"katalog/bestand.json {e.get('id')}: Feld {k} fehlt")
+        if e.get("status") not in KAT_STATUS:
+            b.append(f"katalog/bestand.json {e.get('id')}: unbekannter Status {e.get('status')}")
+        if e.get("status") in ("naechste_runde", "nicht_umgesetzt") and not (e.get("grund") or {}).get("de"):
+            b.append(f"katalog/bestand.json {e.get('id')}: Begründung (grund) fehlt")
+        if not str(e.get("url", "")).startswith("https://infar-buw.github.io/parametric-planning-catalogue/docs/"):
+            b.append(f"katalog/bestand.json {e.get('id')}: url zeigt nicht auf den Katalog")
+    fertig = [e for e in E if e.get("status") == "umgesetzt" and e.get("app")]
+    wurzel = os.path.join(site, "lab", "parametric-planning-catalogue")
+    uebersicht = os.path.join(wurzel, "index.html")
+    if not os.path.exists(uebersicht):
+        return b + ["lab/parametric-planning-catalogue/index.html fehlt"]
+    u = open(uebersicht, encoding="utf-8").read()
+    if u.count("const DATA") != 1 or u.count('"href"') != len(fertig):
+        b.append(f"lab/parametric-planning-catalogue/index.html: {u.count(chr(34) + 'href' + chr(34))} Kacheln statt {len(fertig)}")
+    for e in E:
+        if e["url"] not in u:
+            b.append(f"lab/parametric-planning-catalogue/index.html: Modul {e['id']} fehlt in der Liste")
+    for f in ("katalog/_gemeinsam/geo.js", "katalog/_gemeinsam/szenen.js", "katalog/_gemeinsam/karte.js"):
+        if not os.path.exists(os.path.join(wurzel, "_gemeinsam", os.path.basename(f))):
+            b.append(f"lab/parametric-planning-catalogue/_gemeinsam/{os.path.basename(f)} fehlt")
+    for e in fertig:
+        aid = e["app"]; d = os.path.join(wurzel, aid); q = os.path.join(quelle, aid)
+        for f in SIM_PFLICHT:
+            if not os.path.exists(os.path.join(d, f)):
+                b.append(f"katalog/{aid}: {f} fehlt")
+        if not os.path.exists(os.path.join(wurzel, "bilder", aid + ".webp")):
+            b.append(f"katalog/{aid}: Kachelbild fehlt")
+        if not (os.path.isdir(os.path.join(q, "test")) and any(f.endswith(".test.mjs") for f in os.listdir(os.path.join(q, "test")))):
+            b.append(f"katalog/{aid}: keine Tests test/*.test.mjs")
+        if os.path.exists(os.path.join(d, "index.html")):
+            t = open(os.path.join(d, "index.html"), encoding="utf-8").read()
+            for muss, was in (('rel="help" href="AGENTS.md"', "<link rel=help>"), ('name="source" content="quellcode.zip"', "<meta name=source>"),
+                              ('href="quellcode.zip', "Link quellcode.zip"), ('href="AGENTS.md"', "Link AGENTS.md"), ("Weiterentwickeln", "„Quellcode · Weiterentwickeln“"),
+                              ("Prof. Dr. Reinhard König", "Namensnennung"), ("../../simulationen/_gemeinsam/sim.js", "gemeinsamer Rahmen"),
+                              (f'href="{e["url"]}"', "Link zum Katalogeintrag"), ('href="../"', "Rückweg zur Übersicht")):
+                if muss not in t:
+                    b.append(f"katalog/{aid}/index.html: {was} fehlt")
+            for src in re.findall(r'(?:src|href)="(\.\./[^"?#]+)', t):
+                if not os.path.exists(os.path.normpath(os.path.join(d, src))) and not src.endswith("/"):
+                    b.append(f"katalog/{aid}/index.html: {src} fehlt im Bau")
+            if "{{" in t or "TODO" in t:
+                b.append(f"katalog/{aid}/index.html: Platzhalter oder TODO")
+        if os.path.exists(os.path.join(d, "modell.js")):
+            m = re.sub(r"/\*.*?\*/|//[^\n]*", "", open(os.path.join(d, "modell.js"), encoding="utf-8").read(), flags=re.S)
+            for wort in ("document.", "window.", "Math.random", "getContext"):
+                if wort in m:
+                    b.append(f"katalog/{aid}/modell.js: {wort} (Modell muss ohne DOM und mit fester Saat laufen)")
+        for f in ("QUELLE.md", "LICENSE.md", "AGENTS.md", "README.md", "app.json"):
+            p = os.path.join(d, f)
+            if os.path.exists(p):
+                t = open(p, encoding="utf-8").read()
+                if "TODO" in t or "{{" in t:
+                    b.append(f"katalog/{aid}/{f}: Platzhalter oder TODO")
+                if f == "LICENSE.md" and ("CC BY 4.0" not in t or "in Zusammenarbeit mit Claude von Anthropic" not in t or "MIT" not in t):
+                    b.append(f"katalog/{aid}/LICENSE.md: CC BY 4.0, Namensnennung oder MIT-Hinweis des Katalogs fehlt")
+                if f == "QUELLE.md" and "infar-buw" not in t:
+                    b.append(f"katalog/{aid}/QUELLE.md: Link auf den Katalog fehlt")
+        z = os.path.join(d, "quellcode.zip")
+        if os.path.exists(z):
+            n = set(zipfile.ZipFile(z).namelist())
+            for f in [f"katalog/{aid}/{x}" for x in SIM_PFLICHT if x != "quellcode.zip"] + ["katalog/_gemeinsam/geo.js", "katalog/_gemeinsam/szenen.js", "katalog/_gemeinsam/karte.js",
+                                                                                         "simulationen/_gemeinsam/sim.js", "simulationen/_gemeinsam/zufall.js", "simulationen/_gemeinsam/sim.css"]:
+                if f not in n:
+                    b.append(f"katalog/{aid}/quellcode.zip: {f} fehlt")
+            if not any(x.startswith(f"katalog/{aid}/test/") for x in n):
+                b.append(f"katalog/{aid}/quellcode.zip: Tests fehlen")
+    if tests:
+        for ordner in [os.path.join(quelle, "_gemeinsam")] + [os.path.join(quelle, e["app"]) for e in fertig]:
+            try:
+                r = subprocess.run(["node", "--test"], cwd=ordner, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600)
+                if r.returncode:
+                    b.append(f"katalog/{os.path.basename(ordner)}: Tests rot – " + " | ".join(z for z in r.stdout.splitlines() if z.startswith("✖"))[:300])
+            except FileNotFoundError:
+                b.append("node fehlt – Tests des Katalogs nicht ausführbar"); break
+            except subprocess.TimeoutExpired:
+                b.append(f"katalog/{os.path.basename(ordner)}: Tests brauchen länger als 10 min")
     return b
 
 

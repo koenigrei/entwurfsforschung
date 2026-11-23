@@ -1,0 +1,8 @@
+{
+  "name": "isovist-objekte",
+  "private": true,
+  "type": "commonjs",
+  "description": "Sichtbarkeit von Objekten – Neuumsetzung des Grasshopper-Moduls Isovist Object Visibility (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

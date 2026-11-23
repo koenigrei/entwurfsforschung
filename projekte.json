@@ -182,6 +182,28 @@
    "quellcode": "Procedural_Cities_Quellcode.zip"
   },
   {
+   "id": "parametric-planning-catalogue",
+   "titel": {
+    "de": "Parametric Planning Catalogue",
+    "en": "Parametric Planning Catalogue"
+   },
+   "autoren": "InfAR · R. König · Claude",
+   "kategorie": {
+    "de": "Planungswerkzeuge",
+    "en": "Planning tools"
+   },
+   "jahr": "2020–2026",
+   "datum": "2020-01-01",
+   "bild": null,
+   "vorschau": {
+    "de": "Die Grasshopper-Module des Parametric Planning Catalogue der Bauhaus-Universität Weimar als Web-Apps: Isovisten, Parzellierung, Straßenhierarchie, kürzeste Wege, Serpentinen, Ringstraßen, Regenwasserabfluss und Starkregen.",
+    "en": "The Grasshopper modules of the Parametric Planning Catalogue of Bauhaus-Universität Weimar as web apps: isovists, parcellation, street hierarchy, shortest paths, serpentine roads, ring roads, rainwater rundown and flood risk."
+   },
+   "ziel": "lab/parametric-planning-catalogue/",
+   "start": "index.html",
+   "vorletzt": true
+  },
+  {
    "id": "simulationen",
    "titel": {
     "de": "Frühe Simulationen",

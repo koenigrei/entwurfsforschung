@@ -1,0 +1,16 @@
+{
+  "id": "parzellen-slicing-tree",
+  "titel": {"de": "Parzellierung mit Slicing Tree", "en": "Parcellation Slicing Tree"},
+  "vorschau": {"de": "Ein Slicing Tree zerlegt jeden Baublock mit geraden Schnitten in zwei Teile, dann wieder in zwei, bis Parzellen von etwa der gewünschten Breite entstehen – jede behält ihre Straßenkante.", "en": "A slicing tree splits each urban block with straight cuts into two parts, then again into two, until parcels of about the desired width remain – each keeps its street edge."},
+  "original": "Parcellation Slicing Tree",
+  "katalog": "ParcellationSlicingTree",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/ParcellationSlicingTree/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "Modell.fertig(SIM.zustand) && SIM.zustand.bloecke.every(b => Modell.blaetter(b.knoten).every(k => k.front > 1) && Math.abs(Modell.blaetter(b.knoten).reduce((s, k) => s + k.A, 0) - b.A) < b.A * 1e-6) && SIM.zustand.bloecke.some(b => Modell.blaetter(b.knoten).length >= 6)"
+}

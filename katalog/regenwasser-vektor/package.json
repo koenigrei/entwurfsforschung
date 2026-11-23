@@ -1,0 +1,8 @@
+{
+  "name": "regenwasser-vektor",
+  "private": true,
+  "type": "commonjs",
+  "description": "Regenwasserabfluss (Vektor) – Neuumsetzung des Grasshopper-Moduls Rainwater Rundown (Vector) (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

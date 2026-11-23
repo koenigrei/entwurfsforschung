@@ -1,0 +1,16 @@
+{
+  "id": "isovist-pfad",
+  "titel": {"de": "Isovist entlang eines Weges", "en": "Isovist On Path"},
+  "vorschau": {"de": "Ein gerichteter Isovist wandert einen Weg entlang: Blickrichtung ist die Wegrichtung, und das Diagramm zeigt, wie Fläche, Kompaktheit oder Drift sich mit jedem Schritt ändern.", "en": "A directed isovist walks along a path: the view direction is the direction of the path, and the chart shows how area, compactness or drift change with every step."},
+  "original": "Isovist On Path",
+  "katalog": "IsovistOnPath",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistOnPath/",
+  "autoren": "DeCodingSpaces – Martin Bielik, Ekaterina Fuchkina",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 40,
+  "vorschau_param": {"winkel": 90, "reichweite": 150},
+  "pruef_ausdruck": "Math.abs(SIM.zustand.anteil - (0.274 + 40 * 0.004)) < 1e-9 && SIM.zustand.iso.punkte.length === 360 && Modell.profil(SIM.zustand, SIM.param).max.area > 2 * Modell.profil(SIM.zustand, SIM.param).min.area && SIM.zustand.masse.area <= Math.PI * 150 * 150 / 4 + 1"
+}

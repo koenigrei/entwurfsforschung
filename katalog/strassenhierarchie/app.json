@@ -1,0 +1,22 @@
+{
+  "id": "strassenhierarchie",
+  "titel": {
+    "de": "Straßenhierarchie",
+    "en": "Street Hierarchy"
+  },
+  "vorschau": {
+    "de": "Welche Straßen tragen den Verkehr? Die gewichtete Betweenness Centrality der Straßensegmente – mit Zusatzgewicht für Stadteingänge und Points of Interest – teilt das Netz in Haupt-, Neben- und Anliegerstraßen.",
+    "en": "Which streets carry the traffic? The weighted betweenness centrality of the street segments – with extra weight for city entrances and points of interest – divides the network into primary, secondary and tertiary streets."
+  },
+  "original": "Street Hierarchy",
+  "katalog": "StreetHierarchy",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/StreetHierarchy/",
+  "autoren": "DeCodingSpaces – Martin Dennemark",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.fertig === SIM.zustand.G.n && SIM.zustand.eingangSeg.every(s => SIM.zustand.K.klasse[s] === 2) && Modell.bilanz(SIM.zustand).anz.every(a => a > 0)"
+}

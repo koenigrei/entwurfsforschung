@@ -1,0 +1,16 @@
+{
+  "id": "isovist-feld",
+  "titel": {"de": "Isovistenfeld", "en": "Isovist Field"},
+  "vorschau": {"de": "Isovist-Kenngrößen für viele Standpunkte auf einem Raster: Jede Zelle des Freiraums bekommt ihren Isovist, die Färbung zeigt, wo Fläche, Kompaktheit oder Drift hoch und niedrig sind.", "en": "Isovist properties for many vantage points on a grid: every cell of the open space gets its own isovist, and the colouring shows where area, compactness or drift are high and low."},
+  "original": "Isovist Field",
+  "katalog": "IsovistField",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/IsovistField/",
+  "autoren": "DeCodingSpaces – Martin Bielik, Ekaterina Fuchkina",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {"umrandung": false},
+  "pruef_ausdruck": "Modell.fertig(SIM.zustand) && SIM.zustand.berechnet === SIM.zustand.raster.anzahl && SIM.zustand.raster.anzahl > 2000 && SIM.zustand.max.area > 3 * SIM.zustand.min.area && SIM.zustand.werte.area[SIM.zustand.raster.start] > Modell.mittel(SIM.zustand, 'area')"
+}

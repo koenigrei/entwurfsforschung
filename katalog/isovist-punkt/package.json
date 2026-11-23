@@ -1,0 +1,8 @@
+{
+  "name": "isovist-punkt",
+  "private": true,
+  "type": "commonjs",
+  "description": "Isovist von einem Punkt – Neuumsetzung des Grasshopper-Moduls Isovist Single Point (Parametric Planning Catalogue) als Web-App",
+  "license": "CC-BY-4.0",
+  "scripts": { "test": "node --test" }
+}

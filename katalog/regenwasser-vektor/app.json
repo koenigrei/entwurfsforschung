@@ -1,0 +1,16 @@
+{
+  "id": "regenwasser-vektor",
+  "titel": {"de": "Regenwasserabfluss (Vektor)", "en": "Rainwater Rundown (Vector)"},
+  "vorschau": {"de": "Regentropfen laufen in kleinen Schritten in Richtung des steilsten Gefälles hinab – jede Spur eine freie Polylinie, nach der Komponente „Flow Paths“ des Plugins Gismo.", "en": "Raindrops run downhill in small steps in the direction of steepest descent – each trace a free polyline, after the “Flow Paths” component of the Gismo plugin."},
+  "original": "Rainwater Rundown (Vector)",
+  "katalog": "RainwaterRundownVector",
+  "katalog_url": "https://infar-buw.github.io/parametric-planning-catalogue/docs/RainwaterRundownVector/",
+  "autoren": "Djordje Spasić (Gismo), Parametric Planning Catalogue",
+  "jahr": 2020,
+  "repo": null,
+  "schritt_pflicht": true,
+  "vorschau_saat": 1,
+  "vorschau_schritte": 3000,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.aktiv === 0 && SIM.zustand.wege.length === 306 && SIM.zustand.wege.every(w => w.pkt[w.pkt.length - 1][2] <= w.pkt[0][2]) && Modell.auswertung(SIM.zustand).mittel > 50"
+}
