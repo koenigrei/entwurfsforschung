@@ -14,7 +14,7 @@ simulationen/_gemeinsam/   Rahmen aller Lab-Apps (nicht pro App kopieren)
   sim.js                   Sim.starte(cfg): Ablauf, Bedienfeld, Zeichenfläche, Sprache, Hell/Dunkel, window.SIM
   sim.css                  Gestaltung wie das KI Lab
 katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catalogue
-  geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
+  geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness; schneller Isovist (segmentRaster, isovistRaster); Kennzeichnung der Isovist-Kenngrößen (ISOVIST_EIGENE_DEFINITION, ISOVIST_FUSSNOTE, isovistMassName, isovistMassOption); Polylinien (polylinienLaenge, naechsterAnteil, rundeEcken)
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
 katalog/isovist-pfad/
@@ -45,10 +45,10 @@ katalog/isovist-pfad/
 | `rechne(z, p)` | Isovist am aktuellen Anteil `z.anteil` |
 | `profil(z, p)` | Verlauf der 17 Kenngrößen an `PROFIL_N + 1` = 201 Stellen (zwischengespeichert, `z.profil = null` verwirft) |
 | `amZiel(z, p)` | Ende des Weges erreicht (bei „anhalten“) |
-| `geheZu(z, p, q)`, `naechsterAnteil(P, q)`, `laenge(P)` | Standpunkt auf den nächsten Wegpunkt setzen; Anteil des nächsten Punkts; Weglänge |
+| `geheZu(z, p, q)`, `naechsterAnteil(P, q)`, `laenge(P)` | Standpunkt auf den nächsten Wegpunkt setzen; Anteil des nächsten Punkts; Weglänge (`Geo.naechsterAnteil`, `Geo.polylinienLaenge`) |
 | `setzePfad(z, p, P)`, `zeichneBeginn(z, q)`, `zeichneWeiter(z, p, q)`, `pfadZurueck(z, p)` | eigener Weg (auch mit der Maus), Weg der Stadt wiederherstellen |
-| `wegDurchStadt(szene)`, `rundeEcken(P, r, teile)` | Weg auf den Straßenmitten über den Platz, Ecken abgerundet (Vorschlag für `_gemeinsam/szenen.js`) |
-| `segmentRaster(hindernisse, g)`, `isovistRaster(o, hindernisse, R, opt)` | schneller Isovist, gleiches Ergebnis wie `Geo.isovist` (Vorschlag für `_gemeinsam/geo.js`) |
+| `wegDurchStadt(szene)`, `rundeEcken(P, r, teile)` | Weg auf den Straßenmitten über den Platz, Ecken abgerundet (`Geo.rundeEcken`; `wegDurchStadt` als Vorschlag für `_gemeinsam/szenen.js`) |
+| `segmentRaster(hindernisse, g)`, `isovistRaster(o, hindernisse, R, opt)` | schneller Isovist, gleiches Ergebnis wie `Geo.isovist` (aus `Geo`, `../_gemeinsam/geo.js`) |
 
 Zustand `z`: `pfad`, `anteil`, `o` (Standpunkt), `richtung` (Tangente, Bogenmaß), `laenge` (des Weges), `iso`, `masse`, `profil`, `zeichnung` (Punkte beim Zeichnen).
 
@@ -65,4 +65,4 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 - Mehrere Kenngrößen gleichzeitig im Diagramm (wie im Katalogbild Fläche und Kompaktheit übereinander).
 - Blickrichtung wahlweise fest oder mit Kopfdrehung (Pendeln um die Wegrichtung) – zeigt, wie stark der gerichtete Isovist vom Blick abhängt.
 - Profil als CSV herunterladen, um Wege zu vergleichen.
-- `isovistRaster` und `wegDurchStadt` nach `katalog/_gemeinsam/` übernehmen.
+- `wegDurchStadt` nach `katalog/_gemeinsam/szenen.js` übernehmen.

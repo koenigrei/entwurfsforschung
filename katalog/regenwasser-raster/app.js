@@ -32,7 +32,7 @@
     zeichne(ctx, z, p, F) {
       const px = F.px, m = z.m, d = z.d, N = z.nach;
       const X = k => (k % m) * d, Y = k => Math.floor(k / m) * d;
-      Karte.gelaende(ctx, z.G, F, { hoehenlinien: 20 });
+      Karte.gelaendeGespeichert(ctx, z.G, F, { hoehenlinien: 20 });   // Gelände nur bei Änderung neu rechnen
       // Einzugsgebiete: jede Rasterzelle in der Farbe ihres Gebiets
       if (z.gruppiert && p.zeigeGebiete) {
         const C = Array.from({ length: z.anzahlGebiete }, (_, g) => gebietRGB(z, g, F)), a = F.dunkel ? 48 : 70;

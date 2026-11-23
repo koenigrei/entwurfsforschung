@@ -12,10 +12,11 @@
    („Rücken an Rücken“). Kein Zufall: das Verfahren ist deterministisch. Ein Schritt ist ein Schnitt. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/generierung.js") : wurzel.Generierung);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Generierung) {
   "use strict";
 
   /** Werte der Komponente „Customized Parameters“ in der .gh-Datei: parcelWidth = Regler 31 [10..100], sonst feste Werte.
@@ -31,101 +32,26 @@
     density: "nur im PISA-Chromosom", seed: "von keiner Komponente gelesen"
   };
   const STANDARD = { breite: 31, teilung: 0.5, skalierung: 1, minAbstand: 1 };
-  const WINKEL_TOL = 0.01;           // rad, „quasi-kollinear“
   const MAX_EBENE = 40;              // Schutz gegen endlose Rekursion (im Original: Stapelüberlauf bei Schnitt der Länge 0)
 
-  /** Beispielquartier: verzogenes Straßenraster, nur Blöcke (wie „Polygons from lines“ aus dem Straßennetz, MinBlockSize 0) */
-  function quartier(zufall) {
-    const s = Szenen.stadt(zufall, { b: 720, h: 500, nx: 7, ny: 6, strasse: 14, gebaeude: false, platz: false, kirche: false });
-    s.bloecke = s.bloecke.map(b => Geo.flaecheS(b) < 0 ? b.slice().reverse() : b);
-    return s;
-  }
+  /** Beispielquartier (Szenen.quartier): verzogenes Straßenraster, nur Blöcke (wie „Polygons from lines“ aus dem Straßennetz, MinBlockSize 0) */
+  const quartier = zufall => Szenen.quartier(zufall);
 
-  /* ---------------------------------------------------------------- Drehung ins Rechteck der kleinsten Fläche */
-  const dreh = (p, c, w) => { const co = Math.cos(w), si = Math.sin(w), x = p[0] - c[0], y = p[1] - c[1]; return [c[0] + co * x - si * y, c[1] + si * x + co * y]; };
-  /** Winkel, um den das Polygon zu drehen ist, damit die lange Seite seines kleinsten umschließenden Rechtecks waagrecht liegt */
-  function rechteckWinkel(poly) {
-    const H = Geo.konvexeHuelle(poly);
-    let best = { A: Infinity, w: 0 };
-    for (let i = 0; i < H.length; i++) {
-      const a = H[i], b = H[(i + 1) % H.length], phi = Math.atan2(b[1] - a[1], b[0] - a[0]);
-      const Q = H.map(p => dreh(p, [0, 0], -phi)), bb = Geo.bbox(Q), A = bb.b * bb.h;
-      if (A < best.A - 1e-9) best = { A, w: bb.b >= bb.h ? -phi : -phi + Math.PI / 2 };
-    }
-    return best.w;
-  }
-
-  /* ---------------------------------------------------------------- Kanten */
-  function kantenVon(poly) { return poly.map((a, i) => { const b = poly[(i + 1) % poly.length]; return { a, b, l: Geo.abstand(a, b) }; }); }
-  const winkelDiff = (u, v) => { let d = Math.abs(Math.atan2(u[1], u[0]) - Math.atan2(v[1], v[0])) % Math.PI; return Math.min(d, Math.PI - d); };
-  /** Straßenkante: quasi-kollinear (Winkel < 0,01 rad, Abstand < 1 · scalingFactor) mit einer Kante des Wurzelblocks */
-  function istStrasse(k, wurzel, skal) {
-    const m = Geo.lerp(k.a, k.b, 0.5), d = Geo.sub(k.b, k.a);
-    return wurzel.some(r => winkelDiff(d, Geo.sub(r.b, r.a)) < WINKEL_TOL && Geo.abstandSegment(m, r.a, r.b).d < skal);
-  }
-  function teileKanten(poly, wurzel, skal) {
-    const K = kantenVon(poly).filter(k => k.l > 1e-9), strasse = [], innen = [];
-    for (const k of K) (istStrasse(k, wurzel, skal) ? strasse : innen).push(k);
-    strasse.sort((x, y) => y.l - x.l); innen.sort((x, y) => y.l - x.l);
-    return { strasse, innen };
-  }
+  /* ---------------------------------------------------------------- Slicing Tree (_gemeinsam/generierung.js)
+     Drehung ins Rechteck der kleinsten Fläche, Straßenkanten (quasi-kollinear: Winkel < 0,01 rad, Abstand < scalingFactor),
+     Teilungsregel (Variante „stx“), achsparalleler Schnitt und Baum stehen in Generierung (sliceRegel, sliceTeile, sliceBaum). */
+  const { rechteckWinkel, kantenVon, istStrasse, teileKanten, senkrecht, parallelAbstand } = Generierung;
   const front = (poly, wurzelPoly, skal = STANDARD.skalierung) => teileKanten(poly, kantenVon(wurzelPoly), skal).strasse.reduce((s, k) => s + k.l, 0);
-  /** „senkrecht“ im gedrehten Rahmen: 45° < |Winkel| < 135° */
-  const senkrecht = k => { const w = Math.abs(Math.atan2(k.b[1] - k.a[1], k.b[0] - k.a[0])) * 180 / Math.PI; return w > 45 && w < 135; };
-  const beruehren = (k, e, tol = 1e-6) => [k.a, k.b].some(p => Geo.abstandSegment(p, e.a, e.b).d < tol) || [e.a, e.b].some(p => Geo.abstandSegment(p, k.a, k.b).d < tol);
-  /** Abstand zweier (fast) paralleler Kanten: Abstand der Mitte der einen von der Geraden der anderen */
-  function parallelAbstand(k, e) {
-    if (winkelDiff(Geo.sub(k.b, k.a), Geo.sub(e.b, e.a)) >= WINKEL_TOL) return -1;
-    const n = Geo.norm([-(e.b[1] - e.a[1]), e.b[0] - e.a[0]]);
-    return Math.abs(Geo.dot(Geo.sub(Geo.lerp(k.a, k.b, 0.5), e.a), n));
-  }
-
-  /** Teilungsregel eines Teils (im gedrehten Rahmen). → {op: "V"|"H", x|y, kante, ruecken} oder null (Blatt) */
-  function regel(poly, wurzel, p) {
-    const { strasse, innen } = teileKanten(poly, wurzel, p.skalierung);
-    if (!strasse.length) return null;                                   // Restfläche ohne Straße: Blatt
-    const kandidaten = strasse.slice();
-    let ruecken = null;
-    if (strasse.length >= 2 && innen.length >= 2) {                      // Rücken an Rücken bei durchgehenden Streifen
-      const [i1, i2] = innen, abst = parallelAbstand(i2, i1);
-      const gegenueber = strasse.some(k => !beruehren(k, strasse[0]));
-      if (abst >= p.minAbstand * p.teilung && gegenueber && i1.l > 2 * p.breite) { ruecken = i1; kandidaten.push(i1); }
-    }
-    const e = kandidaten.find(k => p.teilung * k.l > p.breite);
-    if (!e) return null;
-    const bb = Geo.bbox(poly), op = senkrecht(e) ? "H" : "V";
-    return op === "V" ? { op, x: bb.x0 + p.teilung * bb.b, kante: e, ruecken: e === ruecken } : { op, y: bb.y0 + p.teilung * bb.h, kante: e, ruecken: e === ruecken };
-  }
-
-  /** Polygon an der achsparallelen Geraden teilen → [kleinere Koordinate, größere] oder null */
-  function teile(poly, r) {
-    const p = r.op === "V" ? [r.x, 0] : [0, r.y], n = r.op === "V" ? [1, 0] : [0, 1];
-    const a = Geo.bereinige(Geo.schneideHalbebene(poly, p, n), 1e-7), b = Geo.bereinige(Geo.schneideHalbebene(poly, p, [-n[0], -n[1]]), 1e-7);
-    const A = Geo.flaeche(poly);
-    if (a.length < 3 || b.length < 3 || Geo.flaeche(a) < 1e-6 * A || Geo.flaeche(b) < 1e-6 * A) return null;
-    const S = r.op === "V" ? Geo.geradeSchnittPoly(poly, [r.x, 0], [0, 1]) : Geo.geradeSchnittPoly(poly, [0, r.y], [1, 0]);
-    const linie = r.op === "V" ? [[r.x, S[0]], [r.x, S[S.length - 1]]] : [[S[0], r.y], [S[S.length - 1], r.y]];
-    return { kinder: [a, b], linie };
-  }
-
+  /** Teilungsregel eines Teils (im gedrehten Rahmen), p = {breite, teilung, skalierung, minAbstand}. → {op: "V"|"H", x|y, kante, ruecken} oder null (Blatt) */
+  const regel = (poly, wurzel, p) => Generierung.sliceRegel(poly, wurzel, p);
+  /** Polygon an der achsparallelen Geraden teilen → {kinder: [kleinere Koordinate, größere], linie} oder null */
+  const teile = Generierung.sliceTeile;
   /** Slicing Tree eines Blocks → Knotenliste {id, poly, ebene, eltern, kinder, op, linie, ruecken} in Weltkoordinaten */
   function baum(block, param) {
-    const p = Object.assign({}, STANDARD, param), c = Geo.schwerpunkt(block), w = rechteckWinkel(block);
-    const wurzelPoly = block.map(q => dreh(q, c, w)), wurzel = kantenVon(wurzelPoly), K = [];
-    const zurueck = P => P.map(q => dreh(q, c, -w));
-    (function teileRek(poly, ebene, eltern) {
-      const kn = { id: K.length, poly: zurueck(poly), ebene, eltern, kinder: null, op: null, linie: null, ruecken: false };
-      K.push(kn);
-      const r = ebene < MAX_EBENE ? regel(poly, wurzel, p) : null, s = r && teile(poly, r);
-      if (s) {
-        kn.op = r.op; kn.linie = zurueck(s.linie); kn.ruecken = r.ruecken;
-        kn.kinder = s.kinder.map(q => teileRek(q, ebene + 1, kn.id));
-      }
-      return kn.id;
-    })(wurzelPoly, 0, -1);
-    return K;
+    const p = Object.assign({}, STANDARD, param);
+    return Generierung.sliceBaum(block, { breite: p.breite, teilung: p.teilung, skalierung: p.skalierung, minAbstand: p.minAbstand, maxEbene: MAX_EBENE });
   }
-  const blaetter = K => K.filter(k => !k.kinder);
+  const blaetter = Generierung.sliceBlaetter;
 
   /* ---------------------------------------------------------------- Zustand und Ablauf */
   function erzeuge(param, zufall) {

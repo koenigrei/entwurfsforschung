@@ -19,6 +19,9 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  flaechen.js              Flaechen: Teilen an Schnitten, offene Enden verlängern, Flächen aus Linien, Kantenversatz je Kante, konvexe Polygonoperationen
+  generierung.js           Generierung: Instruktionsbaum und Straßenwachstum, Slicing Tree (STreeExtended) und Parcels (PG)
+  axonometrie.js           Axo: Prismen in Axonometrie/Schrägansicht – Projektion, Malerverfahren, Wände und Dach, Drehen per Ziehen (nur app.js)
 katalog/stadtsynthese/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
@@ -28,7 +31,7 @@ katalog/stadtsynthese/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `flaechen.js`, `generierung.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -39,6 +42,8 @@ katalog/stadtsynthese/
 
 ## Schnittstelle des Modells
 
+Instruktionsbaum, Wachstum und Slicing Tree stehen in `../_gemeinsam/generierung.js` (Generierung), Flächen aus Linien, Kantenversatz, Teilen an Schnitten und konvexes Schneiden in `../_gemeinsam/flaechen.js` (Flaechen); die Namen bleiben als Exporte von modell.js erhalten. Die Axonometrie in app.js nutzt `../_gemeinsam/axonometrie.js` (Axo).
+
 | Funktion | Aufgabe |
 |---|---|
 | `erzeuge(param, zufall)` | neuer Zustand `z` (enthält `t` = Schrittzahl) |
@@ -46,11 +51,11 @@ katalog/stadtsynthese/
 | `aendere(z, param, id)` | Kette bis zum aktuellen Schritt neu rechnen (`rechneBis`); Darstellungsparameter (`DARSTELLUNG`) ändern nichts |
 | `fertig(z)`, `rechneAlles(z, p)`, `rechneBis(z, p, t)` | Ende (Stufe 8), ganze Kette, Kette bis Schritt t |
 | `szene(zufall)`, `teileSzene(S, anschluss)` | Umgebung (Szenen.stadt 900 × 640 m), Gebiet, Anschlussstraßen, Park, Hochschule, Haltestelle |
-| `grundnetz`, `gene`, `baum`, `armRichtung`, `arm`, `wachstumStart`, `wachstumEbene` | 1 Street Network Synthesis (Instruktionsbaum, Wachstum Ebene für Ebene; aus `../netzoptimierung`) |
+| `grundnetz`, `gene`, `baum`, `armRichtung`, `arm`, `wachstumStart`, `wachstumEbene` | 1 Street Network Synthesis (Instruktionsbaum, Wachstum Ebene für Ebene; `Generierung`) |
 | `sackgassenEntfernen(N, n)` | 2 Cul de sac removal |
 | `betweenness(N)` | 3 CityGraph, metrisch, Start/Ziel zählen (`Geo.richtungsGraph`, `Geo.segmentBetweennessVon`) |
 | `flaechenAusLinien`, `versetzeKanten`, `vereinfache`, `bloeckeAusNetz` | 4 Polygons from lines, Custom offset (BC^0,5 · 0,12), Polyline Collapse/Simplify, Zentralität je Block |
-| `parzelliere(block, breite)`, `parzellenBreite(b, p)` | 5 Slicing Tree (aus `../parzellen-slicing-tree`), parcelWidth |
+| `parzelliere(block, breite)`, `parzellenBreite(b, p)` | 5 Slicing Tree (`Generierung.sliceBaum`), parcelWidth |
 | `kantenRollen`, `baufenster` | 6 Buildable Area (front/side/back, Rücksprünge) |
 | `gebaeudeTyp`, `geschosse`, `frontLinie`, `grundriss`, `schneideKonvex`, `ohneKonvex` | 7 Building Generation (Typ, FAR, Geschosse, Grundrisse) |
 | `kennzahlen(z, p)`, `netzKennzahlen(z)`, `kreuzungen`, `mittlereIntegration`, `mittlererWeg`, `verknuepft` | 8 Kennzahlen des eCAADe-Workshops |

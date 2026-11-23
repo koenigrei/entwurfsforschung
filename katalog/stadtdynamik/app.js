@@ -27,9 +27,9 @@
     const rand = raster ? 0.35 : 8, hoch = raster ? 2.6 : 70;           // Höhe einer vollen Säule (maxDensity)
     const k = saeulen ? KOMPR : 1, kopf = saeulen ? hoch : 0, sch = saeulen ? SCHER : 0;
     const K = { rand, hoch, k, sch, tiefe: z.h, kopf, w: z.b + z.h * sch + 2 * rand, h: z.h * k + kopf + 2 * rand, ox: rand, oy: rand + kopf };
-    // Grundriss → Zeichenfläche (Höhe h nach oben); rueck: Zeichenfläche → Grundriss (auf Höhe 0)
-    K.pr = (q, h = 0) => [K.ox + q[0] + (K.tiefe - q[1]) * K.sch, K.oy + q[1] * K.k - h];
-    K.rueck = (x, y) => { const gy = (y - K.oy) / K.k; return [x - K.ox - (K.tiefe - gy) * K.sch, gy]; };
+    // Grundriss → Zeichenfläche (Höhe h nach oben); rueck: Zeichenfläche → Grundriss (auf Höhe 0) – Schrägansicht aus _gemeinsam/axonometrie.js
+    K.A = Axo.schraeg({ ox: K.ox, oy: K.oy, k: K.k, sch: K.sch, tiefe: K.tiefe });
+    K.pr = K.A.pq; K.rueck = K.A.rueck;
     return K;
   }
   /** Gesamtlayout: Karte bzw. Flächen + Diagramm(e), auf breiten Bildschirmen nebeneinander */
@@ -48,20 +48,9 @@
   }
 
   /* ---------------------------------------------------------------- Säulen (Extrude) */
-  /** Prisma über dem Grundriss poly von Höhe h0 bis h1, Schrägansicht: Bildpunkt = (x, oy + y·k − h) */
+  /** Prisma über dem Grundriss poly von Höhe h0 bis h1, Schrägansicht: nur Seiten, die zum Betrachter (Südwesten) zeigen, dann der Deckel */
   function prisma(ctx, poly, h0, h1, K, oben, seite, linie, lw) {
-    const pr = K.pr, blick = [-K.sch, 1];
-    const c = Geo.schwerpunkt(poly);
-    ctx.lineJoin = "round";
-    for (let i = 0; i < poly.length; i++) {
-      const a = poly[i], b = poly[(i + 1) % poly.length];
-      let n = [-(b[1] - a[1]), b[0] - a[0]];
-      const m = [(a[0] + b[0]) / 2 - c[0], (a[1] + b[1]) / 2 - c[1]];
-      if (n[0] * m[0] + n[1] * m[1] < 0) n = [-n[0], -n[1]];
-      if (n[0] * blick[0] + n[1] * blick[1] <= 1e-9) continue;    // nur Seiten, die zum Betrachter (Südwesten) zeigen
-      Karte.poly(ctx, [pr(a, h0), pr(b, h0), pr(b, h1), pr(a, h1)], seite, linie, lw);
-    }
-    Karte.poly(ctx, poly.map(q => pr(q, h1)), oben, linie, lw);
+    Axo.prisma(ctx, K.A, poly, { h0, h1, normale: "schwerpunkt", join: "round", kante: linie, lw, dach: oben, seite: () => seite });
   }
 
   /* ---------------------------------------------------------------- Farbflächen (Custom Preview + Gradient) */

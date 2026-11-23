@@ -16,11 +16,11 @@ Online: https://entwurfsforschung.de/lab/parametric-planning-catalogue/wasserlei
 |---|---|
 | `index.html` | Seite: Kopfzeile, Zeichenfläche, Bedienfeld, Text, Links zu Quellcode und AGENTS.md |
 | `modell.js` | Modelllogik ohne DOM – in Node testbar |
-| `hydraulik.js` | Rohrnetzlöser (Gradientenverfahren wie EPANET), gleich in `../wassernetz/` |
 | `app.js` | Bedienung und Darstellung: Parameter, Zeichnen, Legende, Kennzahlen |
 | `../_gemeinsam/geo.js`, `szenen.js`, `karte.js` | Geometrie und Graphen, Beispielszenen (Stadt, Gelände), Zeichenhilfen – gemeinsam für alle Apps des Katalogs |
+| `../_gemeinsam/hydraulik.js` | Rohrnetzlöser (Gradientenverfahren wie EPANET), gemeinsam mit `../wassernetz/`; Tests und Prüfnetze in `../_gemeinsam/test/` |
 | `../../simulationen/_gemeinsam/sim.js`, `sim.css`, `zufall.js` | Rahmen der Lab-Apps (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
-| `test/modell.test.mjs`, `test/hydraulik.test.mjs` | Tests des Modells und des Lösers; `test/Testnet.inp` Prüfnetz aus dem Katalog (MIT) |
+| `test/modell.test.mjs` | Tests des Modells (die Tests des Lösers stehen in `../_gemeinsam/test/hydraulik.test.mjs`) |
 | `app.json` | Metadaten für die Übersichtsseite (Titel, Vorschautext, Katalogeintrag) |
 | `QUELLE.md` | Original, was übernommen und was geändert wurde |
 | `AGENTS.md` | Anleitung für Coding-Agenten (und Menschen), die weiterentwickeln |

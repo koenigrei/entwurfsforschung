@@ -1,7 +1,7 @@
 /* Vom Straßennetz zum Gebäude · Bedienung und Darstellung (Modelllogik in modell.js)
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0
    Links der Plan (Straßen, Blöcke, Parzellen, Baufenster, Grundflächen), rechts (schmal: darunter) eine einfache Axonometrie der
-   Baukörper – eigene Parallelprojektion wie in simulationen/vba-rekursion, drehbar per Ziehen; Zeichenreihenfolge von hinten nach vorn. */
+   Baukörper – Parallelprojektion aus _gemeinsam/axonometrie.js (Axo), drehbar per Ziehen; Zeichenreihenfolge von hinten nach vorn. */
 (function () {
   "use strict";
   const S = Modell.STANDARD;
@@ -67,22 +67,15 @@
   }
   function ring(ctx, P) { P.forEach((q, i) => (i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]))); ctx.closePath(); }
 
-  /* ---------------------------------------------------------------- Axonometrie */
+  /* ---------------------------------------------------------------- Axonometrie (_gemeinsam/axonometrie.js) */
   /** Ansicht: Drehung θ um die Hochachse, Neigung φ; Maßstab drehungsunabhängig (Umkreis des Baufelds) */
   function ansicht(z, p, R) {
-    const th = p.drehung * D2R, ph = p.neigung * D2R, c = Math.cos(th), s = Math.sin(th), cp = Math.cos(ph), sp = Math.sin(ph);
+    const ph = p.neigung * D2R, cp = Math.cos(ph), sp = Math.sin(ph);
     const bb = Geo.bbox(z.S.rand), mx = (bb.x0 + bb.x1) / 2, my = (bb.y0 + bb.y1) / 2;
     let r = 0; for (const q of z.S.rand) r = Math.max(r, Math.hypot(q[0] - mx, q[1] - my));
     const hRef = Math.max(40, z.K.summe.maxH);
     const k = Math.min(R.w * 0.94 / (2 * r), R.h * 0.9 / (2 * r * sp + hRef * cp));
-    const ox = R.x + R.w / 2, oy = R.y + R.h / 2 + k * hRef * cp / 2;
-    return {
-      c, s, cp, sp, k,
-      /** Bildpunkt eines Raumpunkts (x, y im Plan, q Höhe) */
-      p(x, y, q = 0) { const u = (x - mx) * c - (y - my) * s, v = (x - mx) * s + (y - my) * c; return [ox + k * u, oy + k * (v * sp - q * cp)]; },
-      /** Tiefe (größer = näher am Betrachter) */
-      t(x, y) { return (x - mx) * s + (y - my) * c; }
-    };
+    return Axo.ansicht({ drehung: p.drehung, neigung: p.neigung, mitte: [mx, my], k, ox: R.x + R.w / 2, oy: R.y + R.h / 2 + k * hRef * cp / 2 });
   }
   function flach(ctx, A, P, fuellung, strich, lw) {
     ctx.beginPath(); P.forEach((q, i) => { const a = A.p(q[0], q[1]); i ? ctx.lineTo(a[0], a[1]) : ctx.moveTo(a[0], a[1]); }); ctx.closePath();
@@ -91,25 +84,8 @@
   }
   /** Baukörper: sichtbare Wände (Außenring nach außen, Hofring nach innen) von hinten nach vorn, dann das Dach mit Hof */
   function koerper(ctx, A, g, C, lw) {
-    const h = g.hoehe, waende = [];
-    const nimm = (P, innen) => P.forEach((a, i) => {
-      const b = P[(i + 1) % P.length], d = [b[0] - a[0], b[1] - a[1]], l = Math.hypot(d[0], d[1]) || 1;
-      let n = [d[1] / l, -d[0] / l]; if (innen) n = [-n[0], -n[1]];
-      const nv = n[0] * A.s + n[1] * A.c, nu = n[0] * A.c - n[1] * A.s;
-      if (nv <= 1e-9) return;
-      waende.push({ a, b, nu, t: A.t((a[0] + b[0]) / 2, (a[1] + b[1]) / 2) });
-    });
-    nimm(g.aussen, false); if (g.loch) nimm(g.loch, true);
-    waende.sort((x, y) => x.t - y.t);
-    ctx.lineWidth = lw; ctx.strokeStyle = C.gebRand; ctx.lineJoin = "round";
-    for (const w of waende) {
-      const q = [A.p(w.a[0], w.a[1], h), A.p(w.b[0], w.b[1], h), A.p(w.b[0], w.b[1], 0), A.p(w.a[0], w.a[1], 0)];
-      ctx.fillStyle = css(dunkler(C.geb, 0.66 - 0.16 * w.nu));
-      ctx.beginPath(); q.forEach((pt, i) => (i ? ctx.lineTo(pt[0], pt[1]) : ctx.moveTo(pt[0], pt[1]))); ctx.closePath(); ctx.fill(); ctx.stroke();
-    }
-    ctx.beginPath();
-    for (const P of g.loch ? [g.aussen, g.loch] : [g.aussen]) { P.forEach((q, i) => { const a = A.p(q[0], q[1], h); i ? ctx.lineTo(a[0], a[1]) : ctx.moveTo(a[0], a[1]); }); ctx.closePath(); }
-    ctx.fillStyle = css(C.geb); ctx.fill("evenodd"); ctx.stroke();
+    Axo.prisma(ctx, A, g.aussen, { h1: g.hoehe, loch: g.loch, regel: "evenodd", sortiere: "nah", obenZuerst: true, join: "round", kante: C.gebRand, lw, dach: css(C.geb),
+      seite: w => css(dunkler(C.geb, 0.66 - 0.16 * (w.n[0] * A.c - w.n[1] * A.s))) });
   }
   function zeichneAxo(ctx, z, p, F, I, R) {
     const C = FARBE(F), px = F.px, K = I.K, A = ansicht(z, p, R);
@@ -122,9 +98,8 @@
     ctx.strokeStyle = C.strasse; ctx.lineWidth = px * 1.4;
     ctx.beginPath(); for (const s of I.strassen) { const a = A.p(s[0][0], s[0][1]), b = A.p(s[1][0], s[1][1]); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); } ctx.stroke();
     const G = [];
-    for (let bi = 0; bi < I.nGeb; bi++) for (const g of K.je[bi].gebaeude) if (g.behalten) { const m = Geo.schwerpunkt(g.aussen); G.push([A.t(m[0], m[1]), g]); }
-    G.sort((x, y) => x[0] - y[0]);
-    for (const [, g] of G) koerper(ctx, A, g, C, px * 0.7);
+    for (let bi = 0; bi < I.nGeb; bi++) for (const g of K.je[bi].gebaeude) if (g.behalten) G.push(g);
+    for (const g of Axo.maler(G, g => { const m = Geo.schwerpunkt(g.aussen); return A.v(m[0], m[1]); })) koerper(ctx, A, g, C, px * 0.7);
     ctx.restore();
     Karte.text(ctx, de() ? "AXONOMETRIE · ZIEHEN DREHT" : "AXONOMETRY · DRAG TO ROTATE", [R.x + 12 * px, R.y + 14 * px], F.gedaempft, px, 10);
   }
@@ -141,9 +116,9 @@
     if (!zug) return;
     if (zug.art === "griff") { Modell.verschiebe(z, p, zug.g, [x - L.plan.x, y - L.plan.y]); return; }
     if (!window.SIM) return;
-    const d = Math.round(((zug.d - (x - zug.x) * 0.3) % 360 + 360) % 360), n = Math.round(Math.max(10, Math.min(90, zug.n + (y - zug.y) * 0.15)));
-    if (d !== p.drehung) window.SIM.setze("drehung", d);
-    if (n !== p.neigung) window.SIM.setze("neigung", n);
+    const r = Axo.drehen(zug, x, y);
+    if (r.drehung !== p.drehung) window.SIM.setze("drehung", r.drehung);
+    if (r.neigung !== p.neigung) window.SIM.setze("neigung", r.neigung);
   }
 
   const G1 = { de: "1. Straßen (Street Network Generator)", en: "1. Streets (Street Network Generator)" };

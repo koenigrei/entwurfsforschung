@@ -15,15 +15,15 @@
       über der Schwelle 0.8 liegt (Set Difference, Cull Pattern, Network to Segments). So entstehen Maschen.
    3. Write/Analyse Hydrology Network (EPANET) in einer Schleife (Loop Start/End, Iterations): ist die Geschwindigkeit in
       einem Rohr größer als Max. Velocity, nimmt es den nächsten Durchmesser aus „Used Pipe Diameters“ (0.03 … 0.15 m).
-   Die Rohrnetzberechnung steht in hydraulik.js. Die Straßenhierarchie wird wie in ../strassenhierarchie/modell.js berechnet
-   (Funktionen von dort übernommen, weil Apps einander nicht aufrufen). */
+   Gemeinsame Bausteine: Rohrnetzberechnung ../_gemeinsam/hydraulik.js (wie die App „Wasserleitung“), Straßenhierarchie
+   ../_gemeinsam/hierarchie.js (vereinfachte Fassung Hierarchie.analyseEinfach: ungerichteter Segmentgraph, summierte Gewichte). */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
   const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
-                   node ? require("./hydraulik.js") : wurzel.Hydraulik);
+                   node ? require("../_gemeinsam/hydraulik.js") : wurzel.Hydraulik, node ? require("../_gemeinsam/hierarchie.js") : wurzel.Hierarchie);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Hydraulik) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Hydraulik, Hierarchie) {
   "use strict";
 
   /** Voreinstellungen der .gh-Datei (Schieberegler: Wert [Bereich]):
@@ -47,44 +47,18 @@
   /** Voreinstellungen der Straßenhierarchie (wie ../strassenhierarchie, STANDARD) */
   const HIERARCHIE = { kL: 0.5, kW: 0.5, grund: 1, wEingang: 1, wPoi: 0.5, wTertiaer: 1, wSekundaer: 1, wPrimaer: 1, faktor: 1.001 };
 
-  /* ------------------------------------------------ Straßenhierarchie (übernommen aus ../strassenhierarchie/modell.js) */
-  function naechstesSegment(N, q) {
-    let best = -1, bd = Infinity;
-    N.kanten.forEach((e, k) => { const d = Geo.abstandSegment(q, N.knoten[e.a], N.knoten[e.b]).d; if (d < bd) { bd = d; best = k; } });
-    return best;
-  }
-  function gewichteHierarchie(N, poi, eingang, h) {
-    const m = N.kanten.length, w = new Float64Array(m).fill(2 * h.grund);
-    for (const q of eingang) { const k = naechstesSegment(N, q); if (k >= 0) w[k] += h.wEingang * m; }
-    for (const q of poi) { const k = naechstesSegment(N, q); if (k >= 0) w[k] += h.wPoi * m; }
-    return w;
-  }
-  function betweenness(G, g) {
-    const bc = new Float64Array(G.n);
-    for (let s = 0; s < G.n; s++) {
-      if (!g[s]) continue;
-      const dist = Geo.betweennessVon(G.n, i => G.adj[i], s, g, g, bc);
-      for (let t = 0; t < G.n; t++) if (t !== s && dist[t] !== Infinity) { bc[s] += g[s] * g[t]; bc[t] += g[s] * g[t]; }
-    }
-    return bc;
-  }
-  /** Logarithmus → Remap 0…1 → Consecutive Domains / Find Domain → 0 Tertiary, 1 Secondary, 2 Primary */
-  function klassifiziere(bc, h) {
-    const w = [h.wTertiaer, h.wSekundaer, h.wPrimaer], s = w[0] + w[1] + w[2], c = [0];
-    for (let i = 0; i < 3; i++) c.push(c[i] + w[i] / s * h.faktor);
-    const L = Array.from(bc, v => v > 0 ? Math.log(v) : NaN), def = L.filter(Number.isFinite);
-    const mn = Math.min(...def), sp = Math.max(...def) - mn;
-    return Int8Array.from(L, v => {
-      const x = Number.isFinite(v) && sp > 1e-12 ? (v - mn) / sp : 0;
-      for (let i = 0; i < 3; i++) if (x >= c[i] - 1e-12 && x <= c[i + 1] + 1e-12) return i;
-      return -1;
-    });
-  }
-  /** Straßenhierarchie der Beispielstadt: PoI in der Mitte, Stadteingänge an den Rändern links und rechts */
-  function strassenhierarchie(N, poi, eingang, h = HIERARCHIE) {
-    const G = Geo.segmentGraph(N, h.kL, h.kW);
-    return klassifiziere(betweenness(G, gewichteHierarchie(N, poi, eingang, h)), h);
-  }
+  /* ------------------------------------------------ Straßenhierarchie (../_gemeinsam/hierarchie.js, vereinfachte Fassung) */
+  /** nächstes Straßensegment zu q (Geo.naechstesSegment) */
+  const naechstesSegment = Geo.naechstesSegment;
+  /** Gewichte: 2 · grund an jedem Segment, Stadteingänge und PoI addieren wEingang bzw. wPoi × Anzahl Segmente (Hierarchie.gewichteSumme) */
+  const gewichteHierarchie = Hierarchie.gewichteSumme;
+  /** Betweenness auf dem ungerichteten Segmentgraphen, Start und Ziel zählen mit (Hierarchie.betweennessEinfach) */
+  const betweenness = Hierarchie.betweennessEinfach;
+  /** Logarithmus → Remap 0…1 → Consecutive Domains / Find Domain → 0 Tertiary, 1 Secondary, 2 Primary (Hierarchie.klassifiziere).
+      Nur wenn alle Betweenness-Werte 0 sind, liefert Hierarchie −1 statt früher 0 – beide zeichnet und gewichtet die App wie Tertiary. */
+  const klassifiziere = (bc, h) => Hierarchie.klassifiziere(bc, h).klasse;
+  /** Straßenhierarchie der Beispielstadt: PoI in der Mitte, Stadteingänge an den Rändern links und rechts → Klasse je Segment */
+  const strassenhierarchie = (N, poi, eingang, h = HIERARCHIE) => Hierarchie.analyseEinfach(N, poi, eingang, h).klasse;
 
   /* ------------------------------------------------ Szene */
   /** Gelände (1600 m × 1600 m, davon 1600 × 1200 sichtbar) und Stadt (verzogenes Raster 13 × 10, Blöcke ohne Gebäude).

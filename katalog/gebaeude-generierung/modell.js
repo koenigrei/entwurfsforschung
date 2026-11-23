@@ -17,15 +17,18 @@
 
    Die DeCodingSpaces-Komponenten sind kompiliert. Abgleich mit dem rekonstruierten Quelltext der DeCodingSpaces-Toolbox
    (Bauhaus-InfAU/decoding-spaces-toolbox, GPL-3.0; Ablauf, Voreinstellungen und Randfälle aus docs/research/legacy-generation.md
-   §1, §2, §5–§8 und src/DecodingSpaces.Grasshopper/Components/Legacy/LegacySynthesisComponents.cs abgelesen; kein Code übernommen). */
+   §1, §2, §5–§8 und src/DecodingSpaces.Grasshopper/Components/Legacy/LegacySynthesisComponents.cs abgelesen; kein Code übernommen).
+   Gemeinsame Bausteine (katalog/_gemeinsam/): Straßenwachstum und Parzellenteilung aus generierung.js, Flächen aus Linien,
+   Kantenversatz, Prüfungen und konvexes Beschneiden aus flaechen.js. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../../simulationen/_gemeinsam/zufall.js") : wurzel.Zufall);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../../simulationen/_gemeinsam/zufall.js") : wurzel.Zufall,
+                   node ? require("../_gemeinsam/flaechen.js") : wurzel.Flaechen, node ? require("../_gemeinsam/generierung.js") : wurzel.Generierung);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Zufall) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Zufall, Flaechen, Generierung) {
   "use strict";
-  const { sub, add, mul, dot, kreuz, norm, abstand } = Geo;
+  const { sub, add, mul, dot, norm, abstand } = Geo;
 
   /** Voreinstellungen der .gh-Datei (Schieberegler: Wert [Bereich]; feste Eingänge „PD“):
       Street Network Generator: TreeDepth 9 [0..20]; MinLength 30, MaxLength 100 (Spanne: Länge ∈ [30, 130) m), MinDist 20,
@@ -46,21 +49,15 @@
     drehung: 30, neigung: 40
   };
   /** feste Werte im Inneren der kompilierten Komponenten (legacy-generation.md) und eigene Grenzen der App */
-  const INTERN = {
-    freiwinkel: 80,        // SNG: kleinster freier Winkel für einen neuen Arm (_minAngle = 80°)
-    wurzelArme: 3,         // SNG: drei Arm-Plätze je Knoten der Startstraßen
-    wurzelMaxArme: 4,      // SNG: höchster Grad an den Wurzeln
-    fangStart: 1,          // SNG: Rand und Startstraßen werden mit 1 m Fangabstand eingefügt
-    maxKnoten: 20000,      // Obergrenze des Instruktionsbaums (bei TreeDepth 20 wüchse er sonst auf Millionen Knoten)
-    minSegment: 1,         // kürzere Arme werden verworfen
+  const INTERN = Object.assign({}, Generierung.INTERN, {   // SNG: Generierung.INTERN (freiwinkel 80, wurzelArme 3, wurzelMaxArme 4, fangStart 1, minSegment 1, maxKnoten 20000)
     winkelTol: 0.01,       // Parcels: „quasi-kollinear“ (rad)
     kollinear: 1,          // Parcels: Abstand < 1 m zur Blockkante = Straßenkante
     frontTol: 0.5,         // Buildable Area / Building Generation: Front = Anfang, Ende und Mitte ≤ 0,5 m vom Block
     maxEbene: 30,          // Parcels: Schutz gegen endlose Rekursion (im Original Stapelüberlauf bei Schnitt der Länge 0)
     minBreite: 5,          // Parcels: kleinste wirksame PlotWidthThreshold
     zielSaat: 2            // Placement: Seed der Komponente Random
-  };
-  const ART = { RAND: 0, START: 1, NEU: 2 };
+  });
+  const ART = Generierung.ART;
   const MASSSTAB = 1.8;                    // Szene: Katalogbild in Metern (1 Bildpunkt ≈ 1,8 m)
   const STUFEN = [
     { id: "strassen", name: { de: "1 Straßen", en: "1 Streets" } },
@@ -88,297 +85,21 @@
     return { b: 620 * k, h: 450 * k, rand: sk(rand), start: start.map(sk), umgebung: umgebung.map(sk) };
   }
 
-  /* ---------------------------------------------------------------- 1. Street Network Generator
-     Die folgenden Funktionen bis „wachse“ sind aus katalog/netzoptimierung/modell.js übernommen (gleiche Mapper-Logik
-     „Chromosom → Straßennetz“, dort mit Tests); „wachse“ schreibt hier zusätzlich die Reihenfolge der Arme mit. */
-  function netzNeu() { return { P: [], adj: [], E: [] }; }
-  function knotenNeu(G, q) { G.P.push([q[0], q[1]]); G.adj.push([]); return G.P.length - 1; }
-  function kanteNeu(G, a, b, art) { const k = G.E.length; G.E.push({ a, b, art, lebt: true }); G.adj[a].push(k); G.adj[b].push(k); return k; }
-  const gegenueber = (G, v, k) => (G.E[k].a === v ? G.E[k].b : G.E[k].a);
-  const grad = (G, v) => G.adj[v].length;
-  const nachbarn = (G, v) => G.adj[v].map(k => gegenueber(G, v, k));
-  const verbunden = (G, a, b) => G.adj[a].some(k => gegenueber(G, a, k) === b);
-  const amRand = (G, v) => G.adj[v].some(k => G.E[k].art === ART.RAND);
-  function kanteTeilen(G, k, v) {
-    const e = G.E[k]; e.lebt = false;
-    G.adj[e.a] = G.adj[e.a].filter(x => x !== k); G.adj[e.b] = G.adj[e.b].filter(x => x !== k);
-    kanteNeu(G, e.a, v, e.art); kanteNeu(G, v, e.b, e.art);
-  }
-  function naechsterKnoten(G, q, ohne = -1) {
-    let v = -1, d = Infinity;
-    for (let i = 0; i < G.P.length; i++) {
-      if (i === ohne) continue;
-      const di = Math.hypot(G.P[i][0] - q[0], G.P[i][1] - q[1]); if (di < d) { d = di; v = i; }
-    }
-    return { v, d };
-  }
-  function naechsteKante(G, q, ohne = -1) {
-    let best = { k: -1, d: Infinity, q: null, t: 0 };
-    for (let k = 0; k < G.E.length; k++) {
-      const e = G.E[k]; if (!e.lebt || e.a === ohne || e.b === ohne) continue;
-      const r = Geo.abstandSegment(q, G.P[e.a], G.P[e.b]); if (r.d < best.d) best = { k, d: r.d, q: r.q, t: r.t };
-    }
-    return best;
-  }
-  function ersterSchnitt(G, a, b, v1, v2, k0) {
-    let best = null;
-    for (let k = 0; k < G.E.length; k++) {
-      const e = G.E[k];
-      if (!e.lebt || k === k0 || e.a === v1 || e.b === v1 || (v2 >= 0 && (e.a === v2 || e.b === v2))) continue;
-      const s = Geo.segmentSchnitt(a, b, G.P[e.a], G.P[e.b]);
-      if (s && s.t > 1e-9 && s.t < 1 - 1e-9 && (!best || s.t < best.t)) best = { k, t: s.t, p: s.p };
-    }
-    return best;
-  }
-  function knotenAnStrecke(G, a, b, v1, v2, md) {
-    let best = null;
-    for (let i = 0; i < G.P.length; i++) {
-      if (i === v1 || i === v2 || !G.adj[i].length) continue;
-      const r = Geo.abstandSegment(G.P[i], a, b);
-      if (r.d < md && r.t > 1e-9 && r.t < 1 - 1e-9 && (!best || r.t < best.t)) best = { v: i, t: r.t };
-    }
-    return best;
-  }
-  /** Strecke a–b (Rand oder Startstraße) mit Fangabstand tol einfügen; gekreuzte Kanten werden geteilt */
-  function fuegeStreckeEin(G, a, b, art, tol) {
-    const ende = q => {
-      const nv = naechsterKnoten(G, q); if (nv.v >= 0 && nv.d <= tol) return nv.v;
-      const ne = naechsteKante(G, q); const v = knotenNeu(G, ne.k >= 0 && ne.d <= tol ? ne.q : q);
-      if (ne.k >= 0 && ne.d <= tol) kanteTeilen(G, ne.k, v);
-      return v;
-    };
-    const va = ende(a), vb = ende(b);
-    if (va === vb) return [va, vb];
-    const pa = G.P[va], pb = G.P[vb], kette = [];
-    for (let k = 0; k < G.E.length; k++) {
-      const e = G.E[k]; if (!e.lebt || e.a === va || e.b === va || e.a === vb || e.b === vb) continue;
-      const s = Geo.segmentSchnitt(pa, pb, G.P[e.a], G.P[e.b]);
-      if (s && s.t > 1e-9 && s.t < 1 - 1e-9) kette.push({ t: s.t, k, p: s.p });
-    }
-    kette.sort((x, y) => x.t - y.t);
-    let u = va;
-    for (const c of kette) {
-      const e = G.E[c.k]; let v;
-      if (abstand(c.p, G.P[e.a]) <= tol) v = e.a; else if (abstand(c.p, G.P[e.b]) <= tol) v = e.b;
-      else { v = knotenNeu(G, c.p); kanteTeilen(G, c.k, v); }
-      if (v !== u && !verbunden(G, u, v)) kanteNeu(G, u, v, art);
-      u = v;
-    }
-    if (u !== vb && !verbunden(G, u, vb)) kanteNeu(G, u, vb, art);
-    return [va, vb];
-  }
-  /** Grundnetz: Rand (geschlossen) und Startstraßen mit 1 m Fangabstand; eine Wurzel je Stützpunkt der Startstraßen */
-  function grundnetz(S) {
-    const G = netzNeu(), R = S.rand;
-    for (let i = 0; i < R.length; i++) fuegeStreckeEin(G, R[i], R[(i + 1) % R.length], ART.RAND, INTERN.fangStart);
-    for (const pl of S.start) for (let i = 0; i + 1 < pl.length; i++) fuegeStreckeEin(G, pl[i], pl[i + 1], ART.START, INTERN.fangStart);
-    const wurzeln = [];
-    for (const pl of S.start) for (const q of pl) wurzeln.push(naechsterKnoten(G, q).v);
-    return { G, wurzeln };
-  }
-  /** Punkt im äußeren Rand (OuterBoundary fehlt → Rand + 1 m) */
-  function imAussenrand(S, q) {
-    if (Geo.punktInPoly(q, S.rand)) return true;
-    const R = S.rand;
-    for (let i = 0; i < R.length; i++) if (Geo.abstandSegment(q, R[i], R[(i + 1) % R.length]).d <= 1) return true;
-    return false;
-  }
-  /** Einen Arm von pv zum Zielpunkt einfügen (Fangen an Knoten/Kanten im Abstand MinDist, Schnitt an der ersten gekreuzten
-      Straße, Ziel außerhalb des äußeren Rands → verworfen). → {v, zu} oder null */
-  function arm(G, S, pv, ziel, md, maxArme) {
-    let q = ziel, zielV = -1, teilK = -1, zu = false;
-    const nv = naechsterKnoten(G, q, pv);
-    if (nv.v >= 0 && nv.d < md) { if (grad(G, nv.v) >= maxArme) return null; zielV = nv.v; q = G.P[zielV]; }
-    else { const ne = naechsteKante(G, q, pv); if (ne.k >= 0 && ne.d < md && ne.t > 0 && ne.t < 1) { q = ne.q; teilK = ne.k; } }
-    for (let runde = 0; runde < 6; runde++) {
-      let geaendert = false;
-      const s = ersterSchnitt(G, G.P[pv], q, pv, zielV, teilK);
-      if (s) {
-        const e = G.E[s.k], da = abstand(s.p, G.P[e.a]), db = abstand(s.p, G.P[e.b]);
-        if (Math.min(da, db) <= INTERN.fangStart) { zielV = da <= db ? e.a : e.b; q = G.P[zielV]; teilK = -1; }
-        else { zielV = -1; q = s.p; teilK = s.k; }
-        geaendert = true;
-      }
-      const w = knotenAnStrecke(G, G.P[pv], q, pv, zielV, md);
-      if (w) { zielV = w.v; q = G.P[zielV]; teilK = -1; geaendert = true; }
-      if (zielV === pv) return null;
-      if (zielV >= 0 && grad(G, zielV) >= maxArme) return null;
-      if (!geaendert) break;
-    }
-    if (zielV < 0 && teilK < 0 && !imAussenrand(S, q)) return null;
-    if (abstand(G.P[pv], q) < INTERN.minSegment) return null;
-    if (zielV >= 0 && verbunden(G, pv, zielV)) return null;
-    let v = zielV;
-    if (v < 0) { v = knotenNeu(G, q); if (teilK >= 0) { if (G.E[teilK].art === ART.RAND) zu = true; kanteTeilen(G, teilK, v); } }
-    else if (amRand(G, v)) zu = true;
-    kanteNeu(G, pv, v, ART.NEU);
-    return { v, zu };
-  }
-  const richtung = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
-  /** Richtung des neuen Arms relativ zur Herkunft: ein Nachbar → 180° (geradeaus); sonst Winkelhalbierende der größten freien
-      Lücke; Lücke < 80° → null; Lücke ≥ 260° → Versatz 45°/90°/135°/… vom Lückenanfang (teiler) */
-  function armRichtung(P, pv, ref, nb, teiler) {
-    if (nb.length <= 1) return 180;
-    const a0 = richtung(P[pv], P[ref]);
-    const W = [0];
-    for (const v of nb) { const w = ((richtung(P[pv], P[v]) - a0) % 360 + 360) % 360; if (w > 1e-9 && w < 360 - 1e-9) W.push(w); }
-    W.sort((x, y) => x - y);
-    let luecke = -1, anfang = 0;
-    for (let i = 0; i < W.length; i++) {
-      const g = (i + 1 < W.length ? W[i + 1] : 360) - W[i];
-      if (g > luecke + 1e-9) { luecke = g; anfang = W[i]; }
-    }
-    if (luecke < INTERN.freiwinkel) return null;
-    if (luecke >= 260) luecke = 90 + 90 * Math.floor(teiler * Math.ceil(luecke / 90));
-    return anfang + luecke / 2;
-  }
-  /** Gene eines Knotens: Winkel = Next(RandomAngle) − RandomAngle/2, Länge = Next(MaxLength) + MinLength, maxArme = Next(MaxArms − 1) + 2 */
-  function gene(zufall, p) {
-    const ra = Math.max(0, Math.round(p.zufallsWinkel)), ml = Math.max(1, Math.round(p.maxLaenge)), ma = Math.max(1, Math.round(p.maxArme));
-    return { winkel: zufall.ganz(ra) - ra / 2, laenge: zufall.ganz(ml) + p.minLaenge, maxArme: zufall.ganz(ma - 1) + 2, teiler: zufall() };
-  }
-  /** Instruktionsbaum: je Knoten der Startstraßen eine Wurzel mit drei Arm-Plätzen, TreeDepth Ebenen breitenweise; jeder Knoten
-      einen sicheren Platz und k − 1 weitere (k = Next(MaxArms − 1) + 1), ab Ebene 4 nur mit Wahrscheinlichkeit (k + 1)/Ebene */
-  function baum(zufall, nWurzeln, p) {
-    const ma = Math.max(1, Math.round(p.maxArme)), tiefe = Math.max(0, Math.round(p.baumtiefe));
-    const wurzeln = [];
-    let plaetze = [], anzahl = 0;
-    for (let i = 0; i < nWurzeln; i++) { const w = { kinder: [] }; wurzeln.push(w); for (let j = 0; j < INTERN.wurzelArme; j++) plaetze.push(w); }
-    for (let ebene = 1; ebene <= tiefe && plaetze.length; ebene++) {
-      const naechste = [];
-      for (const e of plaetze) {
-        if (anzahl >= INTERN.maxKnoten) break;
-        const c = Object.assign({ kinder: [], ebene }, gene(zufall, p));
-        e.kinder.push(c); anzahl++; naechste.push(c);
-        const k = zufall.ganz(ma - 1) + 1;
-        for (let x = 1; x < k; x++) if (ebene <= 3 || zufall() <= (k + 1) / ebene) naechste.push(c);
-      }
-      plaetze = naechste;
-    }
-    return { wurzeln, anzahl };
-  }
-  /** Wachstum (StreetPattern.GrowStreetPatternNew): Knoten breitenweise; ein Knoten wächst vom Endpunkt seines Elternknotens,
-      wenn dieser offen ist, dessen Grad unter maxArme liegt und eine Lücke ≥ 80° frei ist.
-      → {G, segmente, art, arme: [{a, b, ebene}] in der Reihenfolge des Setzens} */
+  /* ---------------------------------------------------------------- 1. Street Network Generator (_gemeinsam/generierung.js)
+     Grundnetz, Arm, Armrichtung, Gene und Instruktionsbaum wie in netzoptimierung und stadtsynthese; die Knoten merken ihre
+     Ebene, „wachse“ schreibt die Reihenfolge der Arme mit (für den Ablauf je Arm). */
+  const { netzNeu, knotenNeu, kanteNeu, kanteTeilen, fuegeStreckeEin, grundnetz, imAussenrand, arm, richtung, armRichtung, gene } = Generierung;
+  /** Instruktionsbaum (Knoten mit Ebene) → {wurzeln, anzahl} */
+  const baum = (zufall, nWurzeln, p) => Generierung.baum(zufall, nWurzeln, p, { ebene: true });
+  /** Wachstum (StreetPattern.GrowStreetPatternNew) → {G, segmente, art, arme: [{a, b, ebene}] in der Reihenfolge des Setzens} */
   function wachse(b, S, p) {
-    const { G, wurzeln } = grundnetz(S);
-    const md = Math.max(0, p.minAbstand), maxArme = Math.max(2, Math.round(p.maxArme)), arme = [];
-    let ebene = b.wurzeln.map((w, i) => ({ k: w, e: null, pos: wurzeln[i] != null ? wurzeln[i] : -1, zu: false, wurzel: true }));
-    while (ebene.length) {
-      const naechste = [];
-      for (const r of ebene) for (const c of r.k.kinder) naechste.push({ k: c, e: r, pos: -1, zu: false });
-      for (const c of naechste) {
-        const e = c.e;
-        if (e.zu || e.pos < 0) { c.zu = true; continue; }
-        const pv = e.pos, cap = e.wurzel ? INTERN.wurzelMaxArme : e.k.maxArme;
-        if (grad(G, pv) >= cap) { e.zu = c.zu = true; continue; }
-        const nb = nachbarn(G, pv);
-        if (!nb.length) { c.zu = true; continue; }
-        let ref = e.e && e.e.pos >= 0 && e.e.pos !== pv ? e.e.pos : nb[0];
-        if (nb.length === 1) ref = nb[0];
-        const dir = armRichtung(G.P, pv, ref, nb, c.k.teiler);
-        if (dir === null) { c.zu = true; continue; }
-        const th = (richtung(G.P[pv], G.P[ref]) + dir + c.k.winkel) * Math.PI / 180;
-        const ziel = [G.P[pv][0] + c.k.laenge * Math.cos(th), G.P[pv][1] + c.k.laenge * Math.sin(th)];
-        const a = arm(G, S, pv, ziel, md, maxArme);
-        if (!a) { c.zu = true; continue; }
-        c.pos = a.v; c.zu = a.zu;
-        arme.push({ a: G.P[pv].slice(), b: G.P[a.v].slice(), ebene: c.k.ebene });
-      }
-      ebene = naechste;
-    }
-    const segmente = [], art = [];
-    for (const e of G.E) if (e.lebt) { segmente.push([G.P[e.a], G.P[e.b]]); art.push(e.art); }
-    return { G, segmente, art, arme };
+    const w = Generierung.wachse(b, S, p, { arme: true });
+    return { G: w.G, segmente: w.segmente, art: w.art, arme: w.arme };
   }
 
   /* ---------------------------------------------------------------- 2. Blocks */
-  /** Geschlossene Flächen eines ebenen Liniennetzes (Sackgassen weg, Halbkanten, kleinste Zyklen; aus
-      katalog/strassen-zu-parzellen/modell.js übernommen). Begrenzte Flächen haben positive Fläche (Geo.flaecheS). → [{poly, kanten}] */
-  function flaechenAusLinien(N, minFlaeche = 1e-6) {
-    const n = N.knoten.length, m = N.kanten.length, adj = Geo.adjazenz(N), gr = new Int32Array(n), aktiv = new Uint8Array(m).fill(1);
-    N.kanten.forEach(e => { gr[e.a]++; gr[e.b]++; });
-    const stapel = []; for (let v = 0; v < n; v++) if (gr[v] === 1) stapel.push(v);
-    while (stapel.length) {
-      const v = stapel.pop(); if (gr[v] !== 1) continue;
-      for (const { j, k } of adj[v]) if (aktiv[k]) { aktiv[k] = 0; gr[v]--; gr[j]--; if (gr[j] === 1) stapel.push(j); break; }
-    }
-    const rund = N.knoten.map((q, v) => adj[v].filter(x => aktiv[x.k]).map(x => ({ j: x.j, k: x.k, w: Math.atan2(N.knoten[x.j][1] - q[1], N.knoten[x.j][0] - q[0]) }))
-      .sort((a, b) => a.w - b.w));
-    const lage = rund.map(L => { const Mp = new Map(); L.forEach((x, i) => Mp.set(x.k, i)); return Mp; });
-    const halb = (u, k) => 2 * k + (N.kanten[k].a === u ? 0 : 1), besucht = new Uint8Array(2 * m), out = [];
-    for (let k0 = 0; k0 < m; k0++) {
-      if (!aktiv[k0]) continue;
-      for (const u0 of [N.kanten[k0].a, N.kanten[k0].b]) {
-        if (besucht[halb(u0, k0)]) continue;
-        const Z = []; let u = u0, k = k0, sicher = 0;
-        do {
-          besucht[halb(u, k)] = 1; Z.push({ v: u, k });
-          const e = N.kanten[k], v = e.a === u ? e.b : e.a, L = rund[v], nx = L[(lage[v].get(k) - 1 + L.length) % L.length];
-          u = v; k = nx.k;
-        } while (halb(u, k) !== halb(u0, k0) && ++sicher <= 2 * m);
-        let weiter = true;
-        while (weiter && Z.length > 2) {
-          weiter = false;
-          for (let i = 0; i < Z.length; i++) { const j = (i + 1) % Z.length; if (Z[i].k === Z[j].k) { Z.splice(Math.max(i, j), 1); Z.splice(Math.min(i, j), 1); weiter = true; break; } }
-        }
-        if (Z.length < 3) continue;
-        const poly = Z.map(x => N.knoten[x.v]);
-        if (Geo.flaecheS(poly) > minFlaeche) out.push({ poly, kanten: Z.map(x => x.k) });
-      }
-    }
-    return out;
-  }
-
-  /** Jede Kante i des Polygons (positive Fläche) um d[i] parallel verschieben – d > 0 nach außen, d < 0 nach innen – und
-      Nachbarkanten schneiden; verschwindende Kanten fallen heraus (aus katalog/parzellen-versatz/modell.js übernommen). → Polygon | null */
-  function versetzeKanten(poly, d, grenze = 4) {
-    const n = poly.length;
-    let E = [];
-    for (let i = 0; i < n; i++) {
-      const a = poly[i], b = poly[(i + 1) % n], t = norm(sub(b, a)), o = [t[1], -t[0]];
-      E.push({ p: add(a, mul(o, d[i])), t, o, d: d[i], a, i });
-    }
-    const fuss = (q, e) => add(e.p, mul(e.t, dot(sub(q, e.p), e.t)));
-    const ecke = (e1, e2) => {
-      const q = e2.a, cr = kreuz(e1.t, e2.t), f1 = fuss(q, e1), f2 = fuss(q, e2);
-      if (Math.abs(cr) < 1e-9) return abstand(f1, f2) < 1e-9 ? [f1] : [f1, f2];
-      const s = kreuz(sub(e2.p, e1.p), e2.t) / cr, x = add(e1.p, mul(e1.t, s));
-      const auseinander = dot(sub(x, f1), e1.t) > 1e-9;
-      if (auseinander && abstand(x, q) > grenze * Math.max(Math.abs(e1.d), Math.abs(e2.d), 1e-9)) return [f1, f2];
-      return [x];
-    };
-    for (let runde = 0; runde <= n; runde++) {
-      const m = E.length;
-      if (m < 3) return null;
-      const V = E.map((e, j) => ecke(E[(j + m - 1) % m], e));
-      let schlimm = -1, wert = -1e-9;
-      for (let j = 0; j < m; j++) {
-        const von = V[j][V[j].length - 1], bis = V[(j + 1) % m][0], v = dot(sub(bis, von), E[j].t);
-        if (v < wert) { wert = v; schlimm = j; }
-      }
-      if (schlimm < 0) {
-        const P = [].concat(...V);
-        return Geo.flaecheS(P) > 1e-6 ? P : null;
-      }
-      E.splice(schlimm, 1);
-    }
-    return null;
-  }
-  /** einfaches Polygon: keine zwei nicht benachbarten Kanten schneiden sich */
-  function einfach(P) {
-    const n = P.length;
-    for (let i = 0; i < n; i++) for (let j = i + 2; j < n; j++) {
-      if (i === 0 && j === n - 1) continue;
-      const s = Geo.segmentSchnitt(P[i], P[(i + 1) % n], P[j], P[(j + 1) % n]);
-      if (s && s.t > 1e-7 && s.t < 1 - 1e-7 && s.u > 1e-7 && s.u < 1 - 1e-7) return false;
-    }
-    return true;
-  }
-  /** liegt Q (bis auf tol) in P? (alle Ecken innen oder auf dem Rand) */
-  function liegtIn(Q, P, tol = 0.05) {
-    return Q.every(q => Geo.punktInPoly(q, P) || P.some((a, i) => Geo.abstandSegment(q, a, P[(i + 1) % P.length]).d <= tol));
-  }
+  /** Geschlossene Flächen eines ebenen Liniennetzes, Kantenversatz je Kante, einfaches Polygon, Enthaltensein (_gemeinsam/flaechen.js) */
+  const { flaechenAusLinien, versetzeKanten, einfach, liegtIn } = Flaechen;
   /** Blocks: Flächen aus den Straßenlinien (Polygonize), Versatz blockOffset (< 0 verkleinert), Fläche < minBlockArea entfällt,
       sortiert nach Fläche absteigend. → [{roh, poly, A, behalten, grund}] (behaltene zuerst) */
   function bloeckeAus(G, p) {
@@ -400,72 +121,22 @@
      Verfahren nach legacy-generation.md §6.2 (PG): Block so drehen, dass die lange Seite seines kleinsten umschließenden Rechtecks
      waagrecht liegt; Straßenkanten = quasi-kollinear (< 0,01 rad, Abstand < 1 m) mit einer Blockkante; ohne Straßenkante → Blatt;
      Rücken an Rücken bei durchgehenden Streifen; die längste Kante mit 0,5·|e| ≥ PlotWidthThreshold bestimmt die Schnittrichtung
-     (senkrecht zu ihr), Schnitt auf der Mittellinie des Hüllrechtecks. Hilfsfunktionen nach katalog/parzellen-slicing-tree/modell.js. */
-  const dreh = (q, c, w) => { const co = Math.cos(w), si = Math.sin(w), x = q[0] - c[0], y = q[1] - c[1]; return [c[0] + co * x - si * y, c[1] + si * x + co * y]; };
-  function rechteckWinkel(poly) {
-    const H = Geo.konvexeHuelle(poly);
-    let best = { A: Infinity, w: 0 };
-    for (let i = 0; i < H.length; i++) {
-      const a = H[i], b = H[(i + 1) % H.length], phi = Math.atan2(b[1] - a[1], b[0] - a[0]);
-      const Q = H.map(q => dreh(q, [0, 0], -phi)), bb = Geo.bbox(Q), A = bb.b * bb.h;
-      if (A < best.A - 1e-9) best = { A, w: bb.b >= bb.h ? -phi : -phi + Math.PI / 2 };
-    }
-    return best.w;
-  }
-  function kantenVon(poly) { return poly.map((a, i) => { const b = poly[(i + 1) % poly.length]; return { a, b, l: abstand(a, b), i }; }); }
-  const winkelDiff = (u, v) => { let d = Math.abs(Math.atan2(u[1], u[0]) - Math.atan2(v[1], v[0])) % Math.PI; return Math.min(d, Math.PI - d); };
-  function istStrasse(k, wurzel) {
-    const m = Geo.lerp(k.a, k.b, 0.5), d = sub(k.b, k.a);
-    return wurzel.some(r => winkelDiff(d, sub(r.b, r.a)) < INTERN.winkelTol && Geo.abstandSegment(m, r.a, r.b).d < INTERN.kollinear);
-  }
-  function teileKanten(poly, wurzel) {
-    const K = kantenVon(poly).filter(k => k.l > 1e-9), strasse = [], innen = [];
-    for (const k of K) (istStrasse(k, wurzel) ? strasse : innen).push(k);
-    strasse.sort((x, y) => y.l - x.l); innen.sort((x, y) => y.l - x.l);
-    return { strasse, innen };
-  }
-  const senkrecht = k => { const w = Math.abs(Math.atan2(k.b[1] - k.a[1], k.b[0] - k.a[0])) * 180 / Math.PI; return w > 45 && w < 135; };
-  const beruehren = (k, e, tol = 1e-6) => [k.a, k.b].some(q => Geo.abstandSegment(q, e.a, e.b).d < tol) || [e.a, e.b].some(q => Geo.abstandSegment(q, k.a, k.b).d < tol);
-  function parallelAbstand(k, e) {
-    if (winkelDiff(sub(k.b, k.a), sub(e.b, e.a)) >= INTERN.winkelTol) return -1;
-    const n = norm([-(e.b[1] - e.a[1]), e.b[0] - e.a[0]]);
-    return Math.abs(dot(sub(Geo.lerp(k.a, k.b, 0.5), e.a), n));
-  }
-  /** Teilungsregel eines Teils im gedrehten Rahmen → {op: "V"|"H", x|y} oder null (Blatt) */
-  function regel(poly, wurzel, pwt) {
-    const { strasse, innen } = teileKanten(poly, wurzel);
-    if (!strasse.length) return null;
-    let kandidaten = strasse.slice();
-    if (strasse.length >= 2 && innen.length >= 2) {
-      const [i1, i2] = innen, abst = parallelAbstand(i2, i1), gegen = strasse.some(k => !beruehren(k, strasse[0]));
-      if (abst >= pwt && gegen && i1.l > 2 * pwt) kandidaten = kandidaten.concat([i2, i1]).sort((x, y) => y.l - x.l);
-    }
-    const e = kandidaten.find(k => 0.5 * k.l >= pwt);
-    if (!e) return null;
-    const bb = Geo.bbox(poly);
-    return senkrecht(e) ? { op: "H", y: bb.y0 + 0.5 * bb.h } : { op: "V", x: bb.x0 + 0.5 * bb.b };
-  }
-  function teileAchse(poly, r) {
-    const q = r.op === "V" ? [r.x, 0] : [0, r.y], n = r.op === "V" ? [1, 0] : [0, 1];
-    const a = Geo.bereinige(Geo.schneideHalbebene(poly, q, n), 1e-7), b = Geo.bereinige(Geo.schneideHalbebene(poly, q, [-n[0], -n[1]]), 1e-7);
-    const A = Geo.flaeche(poly);
-    if (a.length < 3 || b.length < 3 || Geo.flaeche(a) < 1e-6 * A || Geo.flaeche(b) < 1e-6 * A) return null;
-    return [a, b];
-  }
+     (senkrecht zu ihr), Schnitt auf der Mittellinie des Hüllrechtecks. Generierung.sliceBaum mit der Variante „pg“. */
+  const { rechteckWinkel, kantenVon, winkelDiff } = Generierung;
+  const istStrasse = (k, wurzel) => Generierung.istStrasse(k, wurzel, INTERN.kollinear);
+  const teileKanten = (poly, wurzel) => Generierung.teileKanten(poly, wurzel, INTERN.kollinear);
+  const PG = pwt => ({ breite: pwt, teilung: 0.5, skalierung: INTERN.kollinear, variante: "pg", maxEbene: INTERN.maxEbene });
+  /** Teilungsregel eines Teils im gedrehten Rahmen → {op: "V"|"H", x|y, …} oder null (Blatt) */
+  const regel = (poly, wurzel, pwt) => Generierung.sliceRegel(poly, wurzel, PG(pwt));
+  function teileAchse(poly, r) { const s = Generierung.sliceTeile(poly, r); return s && s.kinder; }
   /** Parzellen eines Blocks (Blätter der Zweiteilung) in Weltkoordinaten, Kante 0 = längste Straßenkante */
   function parzellen(block, p) {
-    const pwt = Math.max(INTERN.minBreite, p.parzellenBreite), c = Geo.schwerpunkt(block), w = rechteckWinkel(block);
-    const wurzelPoly = block.map(q => dreh(q, c, w)), wurzel = kantenVon(wurzelPoly), out = [];
-    (function rek(poly, ebene) {
-      const r = ebene < INTERN.maxEbene ? regel(poly, wurzel, pwt) : null, s = r && teileAchse(poly, r);
-      if (s) { rek(s[0], ebene + 1); rek(s[1], ebene + 1); return; }
-      out.push(poly.map(q => dreh(q, c, -w)));
-    })(wurzelPoly, 0);
-    return out.map(P => parzelle(Geo.bereinige(P, 1e-6), block));
+    const pwt = Math.max(INTERN.minBreite, p.parzellenBreite);
+    return Generierung.sliceBlaetter(Generierung.sliceBaum(block, PG(pwt))).map(k => parzelle(Geo.bereinige(k.poly, 1e-6), block));
   }
   /** Front einer Kante: Anfang, Ende und Mitte höchstens 0,5 m vom Blockrand (Buildable Area / Building Generation) */
   function amBlock(a, b, block) {
-    const d = q => { let m = Infinity; for (let i = 0; i < block.length; i++) m = Math.min(m, Geo.abstandSegment(q, block[i], block[(i + 1) % block.length]).d); return m; };
+    const d = q => Flaechen.randAbstand(q, block);
     return d(a) <= INTERN.frontTol && d(b) <= INTERN.frontTol && d(Geo.lerp(a, b, 0.5)) <= INTERN.frontTol;
   }
   /** Parzelle mit Frontkanten; Eckfolge so gedreht, dass Kante 0 die längste Frontkante ist → {poly, front, A, frontLaenge} */
@@ -522,10 +193,9 @@
     return kantenVon(B).map(k => k.l > 1e-6 && F.some(f => winkelDiff(sub(k.b, k.a), sub(f.b, f.a)) < INTERN.winkelTol &&
       Math.abs(Math.abs(dot(sub(Geo.lerp(k.a, k.b, 0.5), f.a), norm([-(f.b[1] - f.a[1]), f.b[0] - f.a[0]]))) - road) <= INTERN.frontTol));
   }
-  /** Polygon P mit dem konvexen Polygon K beschneiden (Halbebenen der Kanten von K, positive Fläche) */
+  /** Polygon P mit dem konvexen Polygon K beschneiden (Halbebenen der Kanten von K, positive Fläche; Flaechen.clip) */
   function beschneide(P, K) {
-    let Q = P;
-    for (let i = 0; i < K.length && Q.length >= 3; i++) Q = Geo.schneideHalbebene(Q, K[i], aussenNormale(K[i], K[(i + 1) % K.length]));
+    let Q = Flaechen.clip(P, Flaechen.halbebenen(K));
     Q = Q.length >= 3 ? Geo.bereinige(Q, 1e-6) : [];
     return Q.length >= 3 && Geo.flaeche(Q) > 1e-3 ? Q : null;
   }

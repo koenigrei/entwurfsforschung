@@ -80,6 +80,15 @@
     return { b: o.b, h: o.h, knoten: K, strassen, bloecke, zellen: zellen.map(z => z.map(k => K[k])), gebaeude, hindernisse, platz, kirche, opt: o };
   }
 
+  /** Quartier der Parzellen-Apps: verzogenes Straßenraster 720 × 500 m (7 × 6 Knoten, Straßen 14 m), nur Blöcke (Gebäude, Platz
+      und Kirche aus), alle Blöcke mit positiver Fläche (Geo.flaecheS > 0) – an Stelle von „Polygons from lines“ aus einem
+      Straßennetz. opt ergänzt oder ersetzt die Werte für Szenen.stadt. → wie stadt */
+  function quartier(zufall, opt = {}) {
+    const s = stadt(zufall, Object.assign({ b: 720, h: 500, nx: 7, ny: 6, strasse: 14, gebaeude: false, platz: false, kirche: false }, opt));
+    s.bloecke = s.bloecke.map(b => Geo.flaecheS(b) < 0 ? b.slice().reverse() : b);
+    return s;
+  }
+
   /** Blockrand: Streifen der Tiefe o.tiefe entlang jeder Blockkante, in Gebäude der Breite o.breite geteilt, einzelne Lücken */
   function blockrand(zufall, poly, o) {
     const innen = Geo.versetze(poly, o.tiefe), out = [];
@@ -190,5 +199,5 @@
   /** Hangneigung in Grad (Winkel zwischen Geländenormale und Senkrechter) */
   function neigung(G, x, y) { const g = gradient(G, x, y); return Math.atan(Math.hypot(g[0], g[1])) * 180 / Math.PI; }
 
-  return { stadt, blockrand, glatt, aufPolylinie, rauschen, gelaende, glaette, hoehe, gradient, neigung };
+  return { stadt, quartier, blockrand, glatt, aufPolylinie, rauschen, gelaende, glaette, hoehe, gradient, neigung };
 });

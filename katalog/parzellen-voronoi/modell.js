@@ -9,22 +9,19 @@
    „Keeps each parcel connected to the street.“ Das Glätten kann sehr kurze Straßenfronten zusammenlegen. Ein Schritt ist eine Phase eines Blocks (Punkte → Zellen → Glätten). */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/flaechen.js") : wurzel.Flaechen);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Flaechen) {
   "use strict";
 
   /** Voreinstellungen der .gh-Datei: Cell Distance 59 [10..100], Snapping 0,3 [0,1..0,5]; Network Smooth an, „Snap to anchor points only“ = false */
   const STANDARD = { abstand: 59, snapping: 0.3, glaetten: true, nurAnker: false };
   const TOL = 1e-6;
 
-  /** Beispielquartier: verzogenes Straßenraster, nur Blöcke (Gebäude und Platz aus) */
-  function quartier(zufall) {
-    const s = Szenen.stadt(zufall, { b: 720, h: 500, nx: 7, ny: 6, strasse: 14, gebaeude: false, platz: false, kirche: false });
-    s.bloecke = s.bloecke.map(b => Geo.flaecheS(b) < 0 ? b.slice().reverse() : b);
-    return s;
-  }
+  /** Beispielquartier (Szenen.quartier): verzogenes Straßenraster, nur Blöcke (Gebäude und Platz aus) */
+  const quartier = zufall => Szenen.quartier(zufall);
 
   /** Divide Distance: Punkte auf der geschlossenen Blockkurve ab der ersten Ecke, jeder im (geraden) Abstand d zum vorigen.
       Der nächste Punkt ist der erste Schnitt des Kreises um den vorigen Punkt mit dem weiteren Kurvenverlauf; Ende, wenn die Kurve
@@ -57,12 +54,8 @@
     return Geo.voronoi(punkte, block).map(z => Geo.bereinige(z, 1e-7)).filter(z => z.length >= 3 && Geo.flaeche(z) > 1e-6);
   }
 
-  /** Abstand eines Punktes zum Blockrand */
-  function randAbstand(q, block) {
-    let m = Infinity;
-    for (let i = 0; i < block.length; i++) m = Math.min(m, Geo.abstandSegment(q, block[i], block[(i + 1) % block.length]).d);
-    return m;
-  }
+  /** Abstand eines Punktes zum Blockrand (Flaechen.randAbstand) */
+  const randAbstand = Flaechen.randAbstand;
 
   /** Netz der Zellen: gemeinsame Ecken (Toleranz), je Ecke „am Rand“ oder „innen“; Zellen als Indexlisten */
   function netzAusZellen(Z, block) {

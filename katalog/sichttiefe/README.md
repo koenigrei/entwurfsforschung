@@ -18,6 +18,7 @@ Online: https://entwurfsforschung.de/lab/parametric-planning-catalogue/sichttief
 | `modell.js` | Modelllogik ohne DOM – in Node testbar (Raster, symmetrisches Shadowcasting, Breitensuche) |
 | `app.js` | Bedienung und Darstellung: Parameter, Zeichnen, Legende, Kennzahlen |
 | `../_gemeinsam/geo.js`, `szenen.js`, `karte.js` | Geometrie, Beispielszenen (Stadt), Zeichenhilfen – gemeinsam für alle Apps des Katalogs |
+| `../_gemeinsam/raster.js` | Rasterverfahren, hier symmetrisches Shadowcasting (Sichtbarkeit zwischen Zellen) – gemeinsam mit anderen Apps, Tests in `../_gemeinsam/test/raster.test.mjs` |
 | `../../simulationen/_gemeinsam/sim.js`, `sim.css`, `zufall.js` | Rahmen der Lab-Apps (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
 | `test/modell.test.mjs` | Tests des Modells |
 | `app.json` | Metadaten für die Übersichtsseite (Titel, Vorschautext, Eintrag im DeCodingSpaces Lab) |

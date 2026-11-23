@@ -11,10 +11,11 @@
    „List Item“ wählt eine der 17 Kenngrößen, „Bounds“ und „Gradient“ färben die Zellen vom kleinsten zum größten Wert. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/karte.js") : wurzel.Karte);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Karte) {
   "use strict";
 
   /** Voreinstellungen der .gh-Datei: Cell Size 2 (1…10), Viewing Angle 360 (0…360), Viewing Range 100 (1…200), Rays 360 (1…720), Liste „Area“ */
@@ -24,86 +25,13 @@
   /** Blickrichtung der .gh-Datei: Unit Y (Norden) – in Bildschirmkoordinaten (y nach unten) also −90° */
   const RICHTUNG = -Math.PI / 2;
   /** Farbverlauf der Komponente „Gradient“ in der .gh-Datei (Farbe, Lage des Griffs) */
-  const VERLAUF = { farben: [[0, 0, 139], [50, 178, 206], [87, 166, 31], [255, 215, 0], [255, 0, 0]], faktoren: [0, 0.2536, 0.5009, 0.7482, 1] };
+  const VERLAUF = { farben: Karte.GRADIENT_GH, faktoren: [0, 0.2536, 0.5009, 0.7482, 1] };
 
-  /** Farbe des Verlaufs bei t ∈ [0, 1] → [r, g, b] (linear zwischen den Griffen) */
-  function verlauf(t, V = VERLAUF) {
-    const f = V.faktoren, c = V.farben;
-    t = Math.max(0, Math.min(1, isFinite(t) ? t : 0));
-    if (t <= f[0]) return c[0].slice();
-    for (let i = 1; i < f.length; i++) if (t <= f[i]) {
-      const u = (t - f[i - 1]) / ((f[i] - f[i - 1]) || 1);
-      return [0, 1, 2].map(k => Math.round(c[i - 1][k] + (c[i][k] - c[i - 1][k]) * u));
-    }
-    return c[c.length - 1].slice();
-  }
+  /** Farbe des Verlaufs bei t ∈ [0, 1] → [r, g, b] (linear zwischen den Griffen, jenseits des letzten Griffs dessen Farbe; Karte.verlauf) */
+  const verlauf = (t, V = VERLAUF) => Karte.verlauf(t, V);
 
-  /* ---------------------------------------------------------------- schneller Isovist (Vorschlag für _gemeinsam/geo.js) */
-  /** Schneidet das Segment ab das achsparallele Rechteck [x0, x1] × [y0, y1]? (Liang–Barsky; rand > 0 vergrößert, < 0 verkleinert das Rechteck) */
-  function segmentRechteck(a, b, x0, y0, x1, y1, rand = 1e-7) {
-    x0 -= rand; y0 -= rand; x1 += rand; y1 += rand;
-    let t0 = 0, t1 = 1;
-    const dx = b[0] - a[0], dy = b[1] - a[1], P = [-dx, dx, -dy, dy], Q = [a[0] - x0, x1 - a[0], a[1] - y0, y1 - a[1]];
-    for (let i = 0; i < 4; i++) {
-      if (P[i] === 0) { if (Q[i] < 0) return false; continue; }
-      const r = Q[i] / P[i];
-      if (P[i] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
-    }
-    return t0 <= t1;
-  }
-  /** Raster der Hindernissegmente (Weite g): je Rasterzelle die Segmente, die sie berühren */
-  function segmentRaster(hindernisse, g = 5) {
-    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    for (const s of hindernisse) for (const p of s) { if (p[0] < x0) x0 = p[0]; if (p[1] < y0) y0 = p[1]; if (p[0] > x1) x1 = p[0]; if (p[1] > y1) y1 = p[1]; }
-    if (!hindernisse.length) { x0 = y0 = 0; x1 = y1 = 1; }
-    x0 -= g; y0 -= g; x1 += g; y1 += g;
-    const nx = Math.max(1, Math.ceil((x1 - x0) / g)), ny = Math.max(1, Math.ceil((y1 - y0) / g));
-    const listen = Array.from({ length: nx * ny }, () => []);
-    hindernisse.forEach((s, k) => {
-      const i0 = Math.max(0, Math.floor((Math.min(s[0][0], s[1][0]) - x0) / g) - 1), i1 = Math.min(nx - 1, Math.floor((Math.max(s[0][0], s[1][0]) - x0) / g) + 1);
-      const j0 = Math.max(0, Math.floor((Math.min(s[0][1], s[1][1]) - y0) / g) - 1), j1 = Math.min(ny - 1, Math.floor((Math.max(s[0][1], s[1][1]) - y0) / g) + 1);
-      for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++)
-        if (segmentRechteck(s[0], s[1], x0 + i * g, y0 + j * g, x0 + (i + 1) * g, y0 + (j + 1) * g)) listen[j * nx + i].push(k);
-    });
-    return { x0, y0, g, nx, ny, zellen: listen.map(L => Int32Array.from(L)), stempel: new Int32Array(hindernisse.length), lauf: 0 };
-  }
-  /** Isovist wie Geo.isovist (gleiche Strahlen, gleiche Längen, gleiches getroffenes Segment), aber jeder Strahl prüft nur die
-      Segmente der Rasterzellen, die er durchläuft (Amanatides–Woo), und hört beim ersten Treffer auf. Etwa 40-mal schneller. */
-  function isovistRaster(o, hindernisse, R, opt) {
-    const { x0, y0, g, nx, ny, zellen, stempel } = R;
-    const fx = (o[0] - x0) / g, fy = (o[1] - y0) / g;
-    if (!(fx >= 0 && fy >= 0 && fx < nx && fy < ny)) return Geo.isovist(o, hindernisse, opt);
-    const winkel = Math.max(0, Math.min(360, opt.winkel == null ? 360 : opt.winkel)) * Math.PI / 180;
-    const n = Math.max(1, Math.round(opt.strahlen || 360)), r = opt.reichweite || 100, dir = opt.richtung || 0;
-    const voll = winkel >= 2 * Math.PI - 1e-9;
-    const punkte = [], laengen = new Float64Array(n), treffer = new Int32Array(n), winkelListe = new Float64Array(n);
-    const i00 = Math.floor(fx), j00 = Math.floor(fy);
-    for (let s = 0; s < n; s++) {
-      const a = voll ? dir + 2 * Math.PI * s / n : dir - winkel / 2 + (n === 1 ? winkel / 2 : winkel * s / (n - 1));
-      const d = [Math.cos(a), Math.sin(a)], lauf = ++R.lauf;
-      let i = i00, j = j00, tmin = r, hit = -1;
-      const si = d[0] > 0 ? 1 : d[0] < 0 ? -1 : 0, sj = d[1] > 0 ? 1 : d[1] < 0 ? -1 : 0;
-      let tx = si > 0 ? (x0 + (i + 1) * g - o[0]) / d[0] : si < 0 ? (x0 + i * g - o[0]) / d[0] : Infinity;
-      let ty = sj > 0 ? (y0 + (j + 1) * g - o[1]) / d[1] : sj < 0 ? (y0 + j * g - o[1]) / d[1] : Infinity;
-      const dtx = si ? g / Math.abs(d[0]) : Infinity, dty = sj ? g / Math.abs(d[1]) : Infinity;
-      while (true) {
-        const L = zellen[j * nx + i];
-        for (let q = 0; q < L.length; q++) {
-          const k = L[q]; if (stempel[k] === lauf) continue; stempel[k] = lauf;
-          const sg = hindernisse[k], t = Geo.strahlSegment(o, d, sg[0], sg[1]);
-          // gleiche Regel wie Geo.isovist: kleinstes t, bei Gleichstand das Segment mit dem kleineren Index
-          if (t < tmin || (t === tmin && hit >= 0 && k < hit)) { tmin = t; hit = k; }
-        }
-        const aus = Math.min(tx, ty);
-        if (tmin <= aus) break;
-        if (tx < ty) { i += si; tx += dtx; } else { j += sj; ty += dty; }
-        if (i < 0 || j < 0 || i >= nx || j >= ny) break;
-      }
-      laengen[s] = tmin; treffer[s] = hit; winkelListe[s] = a;
-      punkte.push([o[0] + d[0] * tmin, o[1] + d[1] * tmin]);
-    }
-    return { o, punkte, laengen, treffer, winkel: winkelListe, voll, reichweite: r, hindernisse };
-  }
+  /* Schneller Isovist über ein Segmentraster: Geo.segmentRechteck, Geo.segmentRaster, Geo.isovistRaster (../_gemeinsam/geo.js) */
+  const { segmentRechteck, segmentRaster, isovistRaster } = Geo;
 
   /* ---------------------------------------------------------------- Analysis Grid */
   /** Berührt die Strecke a–b ein Hindernis (Schnitt oder Abstand ≤ tol)? Sucht nur in den Zellen des Segmentrasters R um die Strecke. */
@@ -247,20 +175,10 @@
   /** Mittelwert der berechneten Zellen */
   const mittel = (z, key) => z.berechnet ? z.summe[key] / z.berechnet : NaN;
 
-  /** Fünf Kenngrößen ohne prüfbare Definition in der DeCodingSpaces-Toolbox v2 (dort gestrichen): die App rechnet sie nach eigenen
-      Definitionen (siehe QUELLE.md) und kennzeichnet sie in Auswahl, Kennzahlen und Beschriftung mit „*“ */
-  const EIGENE_DEFINITION = ["areaDist", "circularity", "convexDeficiency", "dispersion", "elongation"];
-  const FUSSNOTE = { de: "* eigene Definition (in Toolbox v2 gestrichen)", en: "* own definition (dropped in toolbox v2)" };
-  /** Name einer Kenngröße {de, en}; bei eigener Definition mit angehängtem „ *“ (geschütztes Leerzeichen, damit der Stern nicht allein umbricht) */
-  function kenngroesseName(k) {
-    const e = Geo.ISOVIST_MASSE.find(m => m[0] === k), s = EIGENE_DEFINITION.includes(k) ? " *" : "";
-    return { de: e[2] + s, en: e[1] + s };
-  }
-  /** Eintrag der Auswahlliste: „Name (English) *“ */
-  function kenngroesseOption(k) {
-    const e = Geo.ISOVIST_MASSE.find(m => m[0] === k), s = EIGENE_DEFINITION.includes(k) ? " *" : "";
-    return { wert: k, name: { de: `${e[2]} (${e[1]})${s}`, en: e[1] + s } };
-  }
+  /** Fünf Kenngrößen ohne prüfbare Definition in der DeCodingSpaces-Toolbox v2 (dort gestrichen) werden nach eigenen Definitionen
+      gerechnet (siehe QUELLE.md) und mit „*“ gekennzeichnet – Liste, Fußnote und Namen stehen in ../_gemeinsam/geo.js */
+  const EIGENE_DEFINITION = Geo.ISOVIST_EIGENE_DEFINITION, FUSSNOTE = Geo.ISOVIST_FUSSNOTE;
+  const kenngroesseName = Geo.isovistMassName, kenngroesseOption = Geo.isovistMassOption;
 
   return { STANDARD, EIGENE_DEFINITION, FUSSNOTE, kenngroesseName, kenngroesseOption, KENNGROESSEN, RICHTUNG, VERLAUF, verlauf, segmentRechteck, segmentRaster, isovistRaster, blockiert, analyseRaster, zellMitte, zelleBei,
            erzeuge, baueRaster, leere, isovistAn, rechneZelle, fertig, schritt, rechneAlle, aendere, waehle, imGebaeude, setzeFuellpunkt, anteil, mittel };

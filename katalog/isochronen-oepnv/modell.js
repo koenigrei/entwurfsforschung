@@ -10,13 +10,15 @@
    wer auf der zweiten Ebene wieder einsteigt, steigt um. Dijkstra ab einem oder mehreren Startpunkten liefert die Reisezeit je
    Knoten; daraus entstehen Reisezeiten auf Straßen, Gebäuden und einem Raster sowie Isochronen in Stufen (5/10/15/20 min).
    Zwei Szenarien (A = Bestand, B = mit neuer Linie, dichterem Takt, schnelleren Fahrzeugen oder ohne Linie 1) werden
-   gleichzeitig gerechnet und verglichen. Ein Schritt = die Front beider Suchen wächst um ein Zeitintervall Δt. */
+   gleichzeitig gerechnet und verglichen. Ein Schritt = die Front beider Suchen wächst um ein Zeitintervall Δt.
+   Abstandstransformation und Isolinien (Marching Squares) aus ../_gemeinsam/raster.js. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/raster.js") : wurzel.Raster);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Raster) {
   "use strict";
 
   /** Voreinstellungen (Original nicht zugänglich: Werte nach der Modellbeschreibung und üblichen Planungsannahmen).
@@ -212,7 +214,8 @@
   }
   /** Reisezeit-Raster (Zellen der Weite R.zelle über b × h): Proben entlang aller Straßen (Abstand zelle/2) und auf dem Weg von jedem
       Startpunkt zur Straße; von dort quer zu Fuß in die Blöcke (Luftlinie, Abstandstransformation mit zwei Durchläufen, Nachbarn gerade
-      und diagonal), aber höchstens quer m weit – sonst liefe man durch die Häuser. Werte > h (Horizont) werden Infinity. → Float32Array nx · ny */
+      und diagonal, Raster.abstandsTransformation), aber höchstens quer m weit – sonst liefe man durch die Häuser. Werte > h (Horizont)
+      werden Infinity. → Float32Array nx · ny */
   function reiseRaster(N, tK, anker, v, R, h = Infinity, quer = QUER) {
     const { nx, ny, zelle } = R, T = new Float32Array(nx * ny).fill(Infinity), D = new Float32Array(nx * ny).fill(Infinity);
     const probe = (x, y, t) => {
@@ -230,34 +233,13 @@
       const n = Math.max(1, Math.ceil(a.d / (zelle / 2)));
       for (let q = 0; q <= n; q++) probe(a.q[0] + (a.fuss[0] - a.q[0]) * q / n, a.q[1] + (a.fuss[1] - a.q[1]) * q / n, a.d * q / n / v);
     }
-    const dg = zelle * Math.SQRT2;
-    const nimm = (o, u, l) => { const d = D[u] + l; if (d <= quer) { const t = T[u] + l / v; if (t < T[o]) { T[o] = t; D[o] = d; } } };
-    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
-      const o = j * nx + i;
-      if (i > 0) nimm(o, o - 1, zelle);
-      if (j > 0) { nimm(o, o - nx, zelle); if (i > 0) nimm(o, o - nx - 1, dg); if (i < nx - 1) nimm(o, o - nx + 1, dg); }
-    }
-    for (let j = ny - 1; j >= 0; j--) for (let i = nx - 1; i >= 0; i--) {
-      const o = j * nx + i;
-      if (i < nx - 1) nimm(o, o + 1, zelle);
-      if (j < ny - 1) { nimm(o, o + nx, zelle); if (i < nx - 1) nimm(o, o + nx + 1, dg); if (i > 0) nimm(o, o + nx - 1, dg); }
-    }
+    Raster.abstandsTransformation(T, D, R, v, quer);
     if (h < Infinity) for (let o = 0; o < T.length; o++) if (T[o] > h) T[o] = Infinity;
     return T;
   }
-  /** Isochrone (Höhenlinie der Reisezeit) zum Wert w auf dem Raster (marching squares über die Zellmitten) → [[[x, y], [x, y]], …].
-      Unerreichte Zellen zählen als deckel. */
-  function kontur(T, R, w, deckel = 1e6) {
-    const { nx, ny, zelle } = R, S = [], val = o => Math.min(T[o], deckel);
-    for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {
-      const a = val(j * nx + i), b = val(j * nx + i + 1), c = val((j + 1) * nx + i + 1), d = val((j + 1) * nx + i), P = [];
-      const kante = (h1, h2, x1, y1, x2, y2) => { if ((h1 < w) !== (h2 < w)) { const t = (w - h1) / (h2 - h1); P.push([(x1 + (x2 - x1) * t + 0.5) * zelle, (y1 + (y2 - y1) * t + 0.5) * zelle]); } };
-      kante(a, b, i, j, i + 1, j); kante(b, c, i + 1, j, i + 1, j + 1); kante(c, d, i + 1, j + 1, i, j + 1); kante(d, a, i, j + 1, i, j);
-      if (P.length >= 2) S.push([P[0], P[1]]);
-      if (P.length === 4) S.push([P[2], P[3]]);
-    }
-    return S;
-  }
+  /** Isochrone (Höhenlinie der Reisezeit) zum Wert w auf dem Raster (marching squares über die Zellmitten, Raster.kontur)
+      → [[[x, y], [x, y]], …]. Unerreichte Zellen zählen als deckel. */
+  const kontur = Raster.kontur;
   /** Stufe einer Reisezeit: k = 0…STUFEN−1 für k·stufe ≤ t < (k+1)·stufe (die letzte schließt STUFEN·stufe ein), STUFEN = später,
       −1 = (noch) nicht erreicht */
   const stufeVon = (t, stufe) => t === Infinity || t !== t ? -1 : t > STUFEN * stufe ? STUFEN : Math.min(STUFEN - 1, Math.floor(t / stufe));

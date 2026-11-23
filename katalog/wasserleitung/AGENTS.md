@@ -17,9 +17,10 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  hydraulik.js             Hydraulik: Rohrnetzlöser ohne DOM (neu, iteration, loese, ergebnisse) – auch von ../wassernetz/ benutzt;
+                           Tests in _gemeinsam/test/hydraulik.test.mjs mit den Prüfnetzen Testnet.inp, hydroanalysis1.inp
 katalog/wasserleitung/
-  index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
-  hydraulik.js             Rohrnetzlöser ohne DOM (Hydraulik: neu, iteration, loese, ergebnisse) – gleich in ../wassernetz/
+  index.html               statische Seite; lädt die Rahmen-Skripte, die gemeinsamen Dateien, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
   app.js                   Sim.starte({...}): Parameter, zeichne, legende, kennzahlen, klick, aktionen
   test/*.test.mjs          node --test
@@ -27,7 +28,7 @@ katalog/wasserleitung/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `hydraulik.js` (Änderungen am Löser in beiden Apps gleich halten). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/hydraulik.js` (gemeinsam mit `wassernetz`; Änderungen am Löser dort mit eigenem Test in `_gemeinsam/test/hydraulik.test.mjs`, danach `node --test` in `_gemeinsam`, `wasserleitung` und `wassernetz`). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -51,7 +52,7 @@ katalog/wasserleitung/
 | `pruefeVersorgung(z, p)` | Erweiterung „iterativ“: Verbraucher ohne Druck abhängen, Leitung hinter negativem Druck abschneiden |
 | `setzeKurve(z, p, k, x, y)` | Stützpunkt des Graph Mappers setzen und neu rechnen |
 | `rohrWert`, `knotenWert`, `zuWenigDruck`, `bilanz` | Werte nach Werteliste, pinke Verbraucher, Kennzahlen |
-| `Hydraulik.neu/iteration/loese/ergebnisse/bilanzfehler` | Löser (hydraulik.js): Zustand, eine Iteration (A H = F mit Cholesky), ganz lösen, Ausgaben wie EPANET, Probe Massenbilanz |
+| `Hydraulik.neu/iteration/loese/ergebnisse/bilanzfehler` | Löser (`../_gemeinsam/hydraulik.js`): Zustand, eine Iteration (A H = F mit Cholesky), ganz lösen, Ausgaben wie EPANET, Probe Massenbilanz |
 
 Zustand `z`: `kurve` (Graph Mapper), `P` (Profil), `netz` (Knoten, Leitungen), `S` (Löser: `Q`, `Hk`, `iter`, `fehler`), `erg` (Ergebnisse), `verlauf` (relative Änderung je Iteration), `versorgt`, `bis`, `durchgang`, `fertig`.
 
@@ -65,7 +66,6 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 
 ## Ideen für Weiterentwicklung
 
-- `hydraulik.js` nach `katalog/_gemeinsam/` verschieben (wird auch von `wassernetz` benutzt).
 - Druckabhängige Entnahme (pressure-driven analysis wie EPANET 2.2) statt der einfachen Erweiterung „iterativ“.
 - Zeitreihe: Behälter leert sich über den Tag (Tankvolumen, Verbrauchsmuster), Pumpe mit Kennlinie statt konstanter Leistung.
 - Export als EPANET-.inp-Datei, damit das Netz in EPANET geprüft werden kann.

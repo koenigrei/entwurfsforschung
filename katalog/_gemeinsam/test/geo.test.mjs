@@ -172,6 +172,77 @@ test("segmentClosenessVon: Kette metrisch – NC, TD, Integration, harmonisch, d
   nah(C.nain, Math.pow(3, 1.2) / 32);
 });
 
+test("Polylinien: Länge, nächster Anteil, Ecken abrunden (Bézier-Mitte = ¼·p0 + ½·Ecke + ¼·p2)", () => {
+  assert.equal(G.polylinienLaenge([[0, 0], [3, 4]]), 5); assert.equal(G.polylinienLaenge([[1, 1]]), 0);
+  assert.equal(G.naechsterAnteil([[0, 0], [10, 0], [10, 10]], [10, 5]), 0.75);
+  assert.equal(G.naechsterAnteil([[0, 0], [10, 0]], [-5, 3]), 0); assert.equal(G.naechsterAnteil([[2, 2], [2, 2]], [0, 0]), 0);
+  const Q = G.rundeEcken([[0, 0], [10, 0], [10, 10]], 3, 2);
+  assert.deepEqual(Q, [[0, 0], [7, 0], [9.25, 0.75], [10, 3], [10, 10]]);
+  // kurze Kanten begrenzen den Abstand auf ⅓; zwei Punkte bleiben (als Kopie)
+  assert.deepEqual(G.rundeEcken([[0, 0], [3, 0], [3, 3]], 4, 1), [[0, 0], [2, 0], [3, 1], [3, 3]]);
+  const P = [[0, 0], [1, 1]], R = G.rundeEcken(P); assert.deepEqual(R, P); assert.notEqual(R[0], P[0]);
+});
+
+test("Radius (nachgerechnet): Kette aus 100-m-Segmenten, Radius 250 m erreicht zwei Nachbarn, Rn alle", () => {
+  const K = G.netz([0, 1, 2, 3, 4].map(i => [[i * 100, 0], [(i + 1) * 100, 0]])), RG = G.richtungsGraph(K);
+  const A = G.segmentAbstaende(RG, G.zustandsSuche(RG, 0, { radius: 250 }));
+  assert.deepEqual([...A.meter], [0, 100, 200, Infinity, Infinity]);
+  const B = G.segmentAbstaende(RG, G.zustandsSuche(RG, 0, { radius: Infinity }));
+  assert.deepEqual([...B.meter], [0, 100, 200, 300, 400]);
+  // ohne Radius gleich wie Radius Infinity; genau auf dem Radius zählt noch
+  assert.deepEqual([...G.segmentAbstaende(RG, G.zustandsSuche(RG, 0)).meter], [...B.meter]);
+  assert.deepEqual([...G.segmentAbstaende(RG, G.zustandsSuche(RG, 0, { radius: 200 })).meter], [0, 100, 200, Infinity, Infinity]);
+  // Closeness im Radius: nur die zwei erreichten Segmente
+  const C = G.segmentClosenessVon(RG, 0, { radius: 250 });
+  assert.equal(C.nc, 3); nah(C.td, A.kosten[1] + A.kosten[2]); nah(C.td, 100 + 200);   // Standard kL = 1: Kosten = Meter
+  assert.equal(G.segmentClosenessVon(RG, 0).nc, 5);
+});
+
+test("Betweenness mit Radius und aus einer fertigen Suche: gleich wie segmentBetweennessVon", () => {
+  const K = G.netz([0, 1, 2, 3, 4].map(i => [[i * 100, 0], [(i + 1) * 100, 0]])), RG = G.richtungsGraph(K);
+  const a = new Float64Array(5), b = new Float64Array(5), c = new Float64Array(5);
+  for (let s = 0; s < 5; s++) {
+    G.segmentBetweennessVon(RG, s, null, null, a, { radius: 150 });
+    G.segmentBetweennessAus(RG, G.zustandsSuche(RG, s, { radius: 150 }), null, null, b);
+    G.segmentBetweennessVon(RG, s, null, null, c);
+  }
+  // Radius 150 m: nur direkte Nachbarn erreichbar, nichts liegt dazwischen; global trägt die Mitte am meisten
+  assert.deepEqual([...a], [0, 0, 0, 0, 0]); assert.deepEqual([...b], [...a]);
+  assert.deepEqual([...c], [0, 6, 8, 6, 0]);
+  const d = new Float64Array(5);
+  for (let s = 0; s < 5; s++) G.segmentBetweennessVon(RG, s, null, null, d, { radius: 250 });
+  assert.deepEqual([...d], [0, 2, 2, 2, 0]);
+  const e = new Float64Array(5); G.segmentBetweennessAus(RG, G.zustandsSuche(RG, 2), new Float64Array(5), null, e);
+  assert.deepEqual([...e], [0, 0, 0, 0, 0]);   // Ursprungsgewicht 0
+});
+
+test("isovistRaster: gleiche Strahlen, Längen und Treffer wie isovist; außerhalb des Rasters ohne Raster", () => {
+  const st = S.stadt(zufall(6)), H = [];
+  for (const g of st.gebaeude) G.kanten(g.poly || g).forEach(k => H.push(k));
+  const R = G.segmentRaster(H, 5);
+  assert.ok(R.nx > 1 && R.ny > 1 && R.zellen.length === R.nx * R.ny);
+  for (const [o, opt] of [[[300, 200], { strahlen: 180, reichweite: 100 }], [[120, 90], { strahlen: 90, reichweite: 60, winkel: 120, richtung: 1 }], [[-500, -500], { strahlen: 36 }]]) {
+    const a = G.isovist(o, H, opt), b = G.isovistRaster(o, H, R, opt);
+    assert.deepEqual([...b.treffer], [...a.treffer]);
+    for (let i = 0; i < a.laengen.length; i++) nah(b.laengen[i], a.laengen[i], 1e-9);
+    assert.equal(b.voll, a.voll);
+  }
+  // leere Hindernisliste: Raster 1 × 1 um den Ursprung, Kreis
+  const L = G.segmentRaster([], 5); assert.ok(L.nx >= 1 && L.ny >= 1);
+  assert.ok(G.segmentRechteck([0, 0], [10, 10], 4, 4, 6, 6)); assert.ok(!G.segmentRechteck([0, 0], [10, 0], 4, 4, 6, 6));
+});
+
+test("Isovist-Kennzeichnung: fünf eigene Definitionen mit „ *“, Fußnote, Auswahleintrag", () => {
+  assert.deepEqual(G.ISOVIST_EIGENE_DEFINITION, ["areaDist", "circularity", "convexDeficiency", "dispersion", "elongation"]);
+  for (const k of G.ISOVIST_EIGENE_DEFINITION) assert.ok(G.ISOVIST_MASSE.some(m => m[0] === k), k);
+  assert.deepEqual(G.isovistMassName("circularity"), { de: "Kreisähnlichkeit *", en: "Circularity *" });
+  assert.deepEqual(G.isovistMassName("area"), { de: "Fläche", en: "Area" });
+  assert.deepEqual(G.isovistMassOption("elongation"), { wert: "elongation", name: { de: "Streckung (Elongation) *", en: "Elongation *" } });
+  assert.deepEqual(G.isovistMassOption("area").name, { de: "Fläche (Area)", en: "Area" });
+  assert.equal(G.ISOVIST_MASSE.filter(([k]) => G.isovistMassName(k).de.endsWith(" *")).length, 5);
+  assert.ok(G.ISOVIST_FUSSNOTE.de.startsWith("* eigene Definition") && G.ISOVIST_FUSSNOTE.en.startsWith("* own definition"));
+});
+
 test("Stadt: gleiche Saat, gleiche Szene; Gebäude liegen in Blöcken", () => {
   const a = S.stadt(zufall(3)), b = S.stadt(zufall(3)), c = S.stadt(zufall(4));
   assert.deepEqual(a.knoten, b.knoten); assert.notDeepEqual(a.knoten, c.knoten);

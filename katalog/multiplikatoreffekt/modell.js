@@ -81,26 +81,9 @@
   /* ---------------------------------------------------------------- Netzmaße mit Radius */
 
   /** Kürzeste Wege im gerichteten Segmentgraphen vom Segment s aus, Radius r in m (metrische Länge Mitte zu Mitte; Rangfolge nach
-      Kosten, dann Schritten wie Geo.zustandsSuche). Ein Schritt, der die Länge über r brächte, wird nicht gegangen (Radius beschneidet
-      die Suche, measures.md §3). r = Infinity: global (Rn). → {s, U, T, meter, sigma, P, S} wie Geo.zustandsSuche */
-  function suche(G, s, r = Infinity) {
-    const z = G.z, A = Geo.KOSTEN_AUFLOESUNG;
-    const U = new Float64Array(z).fill(Infinity), T = new Int32Array(z).fill(0x7fffffff), Lm = new Float64Array(z).fill(Infinity);
-    const sigma = new Float64Array(z), P = new Array(z), fest = new Uint8Array(z), S = [], H = new Geo.Heap();
-    for (const st of [2 * s, 2 * s + 1]) { U[st] = 0; T[st] = 0; Lm[st] = 0; sigma[st] = 1; P[st] = []; H.push(0, st, 0); }
-    while (!H.leer) {
-      const v = H.pop(); if (fest[v]) continue; fest[v] = 1; S.push(v);
-      const nb = G.nb[v];
-      for (let q = 0; q < nb.length; q++) {
-        const w = nb[q][0]; if (fest[w]) continue;
-        const l = Lm[v] + nb[q][2]; if (l > r) continue;
-        const u = U[v] + Math.round(nb[q][1] / A), t = T[v] + 1;
-        if (u < U[w] || (u === U[w] && t < T[w])) { U[w] = u; T[w] = t; Lm[w] = l; sigma[w] = sigma[v]; P[w] = [v]; H.push(u, w, t); }
-        else if (u === U[w] && t === T[w]) { sigma[w] += sigma[v]; P[w].push(v); if (l < Lm[w]) Lm[w] = l; }
-      }
-    }
-    return { s, U, T, meter: Lm, sigma, P, S, fest };
-  }
+      Kosten, dann Schritten). Ein Schritt, der die Länge über r brächte, wird nicht gegangen (Radius beschneidet die Suche,
+      measures.md §3). r = Infinity: global (Rn). Steht in ../_gemeinsam/geo.js (Geo.zustandsSuche mit opt.radius). */
+  const suche = (G, s, r = Infinity) => Geo.zustandsSuche(G, s, { radius: r });
 
   /** Exponent des Zählers der Legacy-Closeness mit Radius (review-2026-11.md: „n/Σd … with a radius set it silently becomes n^2.5/Σd“) */
   const LEGACY_EXPONENT = 2.5;
@@ -123,25 +106,9 @@
 
   /** Beitrag des Ursprungssegments s zur gewichteten Betweenness (Paper Gl. 5) über die Suche R: jedes Paar (s, t), t im Radius,
       zählt w_s · w_t, aufgeteilt auf die gleichrangig kürzesten Wege (Brandes, über die Fahrtrichtungen). enden = true (Legacy):
-      Start- und Zielsegment zählen mit (review-2026-11.md: „both endpoints count“). Addiert in bc. */
-  function betweennessVon(G, R, gQ, gZ, bc, enden) {
-    const s = R.s, ws = gQ ? gQ[s] : 1;
-    if (ws === 0) return;
-    const ende = new Float64Array(G.z), delta = new Float64Array(G.z);
-    for (let t = 0; t < G.n; t++) {
-      if (t === s) continue;
-      const B = Geo.besteZustaende(R, t); if (!B.length) continue;
-      const gt = gZ ? gZ[t] : 1; if (gt === 0) continue;
-      let sig = 0; for (const b of B) sig += R.sigma[b];
-      for (const b of B) ende[b] = gt * R.sigma[b] / sig;
-      if (enden) { bc[s] += ws * gt; bc[t] += ws * gt; }
-    }
-    for (let i = R.S.length - 1; i >= 0; i--) {
-      const w = R.S[i], Pw = R.P[w];
-      for (let q = 0; q < Pw.length; q++) { const v = Pw[q]; delta[v] += R.sigma[v] / R.sigma[w] * (ende[w] + delta[w]); }
-      if ((w >> 1) !== s) bc[w >> 1] += ws * delta[w];
-    }
-  }
+      Start- und Zielsegment zählen mit (review-2026-11.md: „both endpoints count“). Addiert in bc. Steht in ../_gemeinsam/geo.js
+      (Geo.segmentBetweennessAus). */
+  function betweennessVon(G, R, gQ, gZ, bc, enden) { Geo.segmentBetweennessAus(G, R, gQ, gZ, bc, { enden }); }
 
   /** Bewegungspotenzial MPC je Segment (4. FWGetPaths, Stream Filter CW/BW): gQ Ursprungs-, gZ Zielgewichte, p.mass, p.radius,
       p.definition, p.closeness ("gl4" | "legacy"). Closeness nutzt die Zielgewichte (Gl. 4 enthält kein Ursprungsgewicht). → Float64Array */

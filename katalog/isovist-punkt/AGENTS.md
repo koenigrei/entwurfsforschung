@@ -14,7 +14,7 @@ simulationen/_gemeinsam/   Rahmen aller Lab-Apps (nicht pro App kopieren)
   sim.js                   Sim.starte(cfg): Ablauf, Bedienfeld, Zeichenfläche, Sprache, Hell/Dunkel, window.SIM
   sim.css                  Gestaltung wie das KI Lab
 katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catalogue
-  geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
+  geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness; Kennzeichnung der Isovist-Kenngrößen (ISOVIST_EIGENE_DEFINITION, ISOVIST_FUSSNOTE, isovistMassName, isovistMassOption)
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
 katalog/isovist-punkt/

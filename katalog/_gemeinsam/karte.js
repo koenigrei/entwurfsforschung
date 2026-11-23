@@ -24,6 +24,23 @@
     return [0, 0.25, 0.5, 0.75, 1].map((t, i) => [farbe(t, skala), i === 0 ? von : i === 4 ? bis : ""]);
   }
 
+  /** Farben der Grasshopper-Komponente „Gradient“ in den Isovist-Modulen: dunkelblau – hellblau – grün – gelb – rot */
+  const GRADIENT_GH = [[0, 0, 139], [50, 178, 206], [87, 166, 31], [255, 215, 0], [255, 0, 0]];
+  /** Farbe eines Verlaufs mit frei liegenden (auch ungleich verteilten) Griffen wie die Grasshopper-Komponente „Gradient“ bei
+      t ∈ [0, 1] → [r, g, b]. V = {farben: [[r, g, b] …], faktoren: [Lage der Griffe, aufsteigend]}: linear zwischen den Griffen,
+      vor dem ersten und hinter dem letzten Griff dessen Farbe; t wird auf 0…1 begrenzt, nicht endliche Werte gelten als 0.
+      Herkunft: katalog/isovist-feld, isovist-objekte, isovist-3d */
+  function verlauf(t, V) {
+    const f = V.faktoren, c = V.farben;
+    t = Math.max(0, Math.min(1, isFinite(t) ? t : 0));
+    if (t <= f[0]) return c[0].slice();
+    for (let i = 1; i < f.length; i++) if (t <= f[i]) {
+      const u = (t - f[i - 1]) / ((f[i] - f[i - 1]) || 1);
+      return [0, 1, 2].map(k => Math.round(c[i - 1][k] + (c[i][k] - c[i - 1][k]) * u));
+    }
+    return c[c.length - 1].slice();
+  }
+
   function pfad(ctx, P, zu = true) { ctx.beginPath(); P.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); if (zu) ctx.closePath(); }
   function poly(ctx, P, fuellung, strich, lw) {
     if (!P || P.length < 2) return;
@@ -80,6 +97,27 @@
     if (opt.hoehenlinien) hoehenlinien(ctx, G, opt.hoehenlinien, dunkel ? "rgba(255,255,255,0.13)" : "rgba(0,0,0,0.14)", F.px * 0.8);
     void papier;
   }
+  /** Zwischenspeicher für gelaendeGespeichert (eine Seite = eine App; zeigt eine Seite mehrere Gelände, gibt sie je eines opt.speicher) */
+  const SPEICHER = {};
+  /** Gelände über einen Zwischenspeicher zeichnen: das Bild von gelaende() wird nur neu gerechnet, wenn sich Bildgröße,
+      Darstellung (hell/dunkel), Höhenraster (Objekt oder Stichproben der Höhen) oder Optionen ändern, sonst nur eingesetzt.
+      opt wie gelaende, dazu: bild (feste Bildpunkte je Seite; ohne: Auflösung der Zeichenfläche, groesse × Maßstab des ctx),
+      pxBild (true: F.px = Modelleinheiten je Bildpunkt des Zwischenbilds, für die Linienstärke der Höhenlinien),
+      speicher (eigenes Objekt statt des gemeinsamen). Braucht den Browser (document.createElement).
+      Herkunft: app.js von serpentinen, ringstrassen, strassen-ueberflutung, wasserbasiertes-wachstum, windrichtung */
+  function gelaendeGespeichert(ctx, G, F, opt = {}) {
+    const sp = opt.speicher || SPEICHER, a = ctx.getTransform().a;
+    const W = opt.bild || Math.max(1, Math.round(G.groesse * a)), s = opt.bild ? opt.bild / G.groesse : a, H = G.h;
+    const k = [W, F.dunkel, opt.hoehenlinien || 0, opt.aufloesung || 0, opt.ton ? opt.ton.join(",") : "", H.length, H[7], H[H.length >> 1], H[H.length - 1], G.max].join("|");
+    if (sp.k !== k || sp.G !== G) {
+      const c = sp.c || document.createElement("canvas"); c.width = W; c.height = W;
+      const x = c.getContext("2d"); x.setTransform(s, 0, 0, s, 0, 0);
+      gelaende(x, G, opt.pxBild ? Object.assign({}, F, { px: 1 / s }) : F, opt);
+      sp.c = c; sp.k = k; sp.G = G;
+    }
+    ctx.drawImage(sp.c, 0, 0, G.groesse, G.groesse);
+    return sp.c;
+  }
   /** Höhenlinien im Abstand dz (marching squares auf dem Höhenraster) */
   function hoehenlinien(ctx, G, dz, farbe_, lw) {
     const n = G.n, H = G.h, z = G.zelle;
@@ -97,5 +135,5 @@
     ctx.strokeStyle = farbe_; ctx.lineWidth = lw; ctx.stroke();
   }
 
-  return { SKALEN, farbeRGB, farbe, skalenLegende, pfad, poly, linie, segmente, punkt, pfeil, text, gelaende, hoehenlinien };
+  return { SKALEN, farbeRGB, farbe, skalenLegende, GRADIENT_GH, verlauf, pfad, poly, linie, segmente, punkt, pfeil, text, gelaende, gelaendeGespeichert, hoehenlinien };
 });

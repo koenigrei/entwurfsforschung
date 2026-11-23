@@ -36,6 +36,8 @@ katalog/parzellen-flaeche/
 
 ## Schnittstelle des Modells
 
+Das Quartier ist `Szenen.quartier` (`../_gemeinsam/szenen.js`).
+
 | Funktion | Aufgabe |
 |---|---|
 | `erzeuge(param, zufall)` | neuer Zustand `z` (enthält `t` = Schrittzahl) |

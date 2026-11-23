@@ -15,4 +15,4 @@ Gilt für alle Dateien dieses Ordners, für `../_gemeinsam/` und für `../../sim
 Das Vorbild – das Grasshopper-Modul „Water Network Analysis“ aus dem Parametric Planning Catalogue (https://github.com/infar-buw/parametric-planning-catalogue, Copyright (c) 2020 infar-buw) – steht unter der MIT-Lizenz; Autorinnen und Autoren des Moduls: DeCodingSpaces – Martin Dennemark. Diese App ist eine Neuumsetzung (kein kopierter Grasshopper-Code); Herkunft und Änderungen stehen in QUELLE.md.
 Schriften Geist und Geist Mono (nur auf der Website eingebunden, nicht Teil dieses Pakets): Vercel, SIL Open Font License 1.1.
 
-Prüfnetze in `test/` (`Testnet.inp`, `hydroanalysis1.inp`): unverändert aus dem Parametric Planning Catalogue (MIT, Copyright (c) 2020 infar-buw).
+Prüfnetze in `katalog/_gemeinsam/test/` (`Testnet.inp`, `hydroanalysis1.inp`, für die Tests des gemeinsamen Lösers `hydraulik.js`): unverändert aus dem Parametric Planning Catalogue (MIT, Copyright (c) 2020 infar-buw).

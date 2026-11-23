@@ -134,7 +134,8 @@
   }
 
   /* ---------------------------------------------------------------- Zustand */
-  const naechstesSegment = (N, q) => Geo.naechstesSegment(N, q);
+  /** Segment am nächsten zum Punkt (Geo.naechstesSegment, ../_gemeinsam/geo.js) */
+  const naechstesSegment = Geo.naechstesSegment;
 
   /** Neuer Zustand: Ursprung unten links, Ziel oben rechts; Suche noch nicht begonnen */
   function erzeuge(param, zufall) {
