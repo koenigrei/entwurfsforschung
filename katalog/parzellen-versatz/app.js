@@ -19,7 +19,6 @@
       { id: "fang", name: { de: "Fangabstand (Snap threshold) m", en: "Snap threshold (m)" }, min: 0, max: 100, schritt: 1, wert: S.fang },
       { id: "versatzMin", gruppe: { de: "Versatz (Remap → Custom offset)", en: "Offset (remap → custom offset)" }, name: { de: "Kleinster Versatz (Offset Min) m", en: "Offset min (m)" }, min: 0, max: 100, schritt: 1, wert: S.versatzMin },
       { id: "versatzMax", name: { de: "Größter Versatz (Offset Max) m", en: "Offset max (m)" }, min: 0, max: 100, schritt: 1, wert: S.versatzMax },
-      { id: "negativ", art: "schalter", name: { de: "Nach innen (Negative Offset)", en: "Inwards (negative offset)" }, wert: S.negativ },
       { id: "staerke", gruppe: { de: "Darstellung", en: "Display" }, name: { de: "Linienstärke Wege (Thickness)", en: "Path line weight (thickness)" }, min: 0, max: 10, schritt: 0.5, wert: S.staerke },
       { id: "original", art: "schalter", name: { de: "Plots vor dem Versatz zeigen", en: "Show plots before offset" }, wert: S.original },
       { id: "gebaeude", art: "schalter", name: { de: "Gebäude und andere Straßen", en: "Buildings and other streets" }, wert: S.gebaeude }
@@ -60,7 +59,7 @@
         const P = z.plots[z.wahl], w = z.werte[z.wahl] || Modell.plotWerte(z, p, P);
         P.poly.forEach((q, j) => {
           const r = P.poly[(j + 1) % P.poly.length], m = Geo.lerp(q, r, 0.5), d = Geo.norm(Geo.sub(r, q)), o = [d[1], -d[0]];
-          const t = Geo.add(m, Geo.mul(o, w[j] / 2));
+          const t = Geo.add(m, Geo.mul(o, -w[j] / 2));
           Karte.text(ctx, zahl(Math.abs(w[j]), 1), t, F.tinte, px, 10, "center");
         });
       }
@@ -77,7 +76,7 @@
       const k = [
         [{ de: "Wegesegmente", en: "Path segments" }, zahl(z.N.kanten.length)],
         [{ de: "Plots versetzt", en: "Plots offset" }, zahl(b.fertig) + " / " + zahl(b.plots)],
-        [{ de: "Versatz je Kante", en: "Offset per edge" }, zahl(lo) + " … " + zahl(hi) + " m"],
+        [{ de: "Versatz je Kante (nach innen)", en: "Offset per edge (inwards)" }, zahl(lo) + " … " + zahl(hi) + " m"],
         [{ de: "Fläche vorher → nachher", en: "Area before → after" }, ha(b.vor) + " → " + ha(b.nach)],
         [{ de: "Anteil Straßenraum (zusätzlich)", en: "Share of street space (added)" }, b.vor > 0 ? zahl(100 * (b.vor - b.nach) / b.vor) + " %" : "–"],
         [{ de: "Plots verschwunden", en: "Plots vanished" }, zahl(b.weg)]

@@ -31,7 +31,7 @@
       Typ „Halle“ und Umriss sind eigene Annahmen (die Datei speichert den Typ nicht lesbar, die Umrisse liegen in der .3dm). */
   const BEISPIELE = {
     horn: {
-      name: { de: "Haus am Horn (Weimar, 1923)", en: "Haus am Horn (Weimar, 1923)" }, b: 17, h: 17, eingang: [8, 16],
+      name: { de: "Haus am Horn (Weimar, 1923)", en: "Haus am Horn (Weimar, 1923)" }, b: 21, h: 21, eingang: [10, 20],   // 21 m: kleinster Umriss, in dem „Kinder 50 m²“ in der Regel passt (QUELLE.md)
       raeume: [["Kinder", 50], ["Dame", 12], ["Flur", 2], ["Herr", 9], ["Bad", 5], ["Nische", 7], ["Wohnzimmer", 30], ["Esszimmer", 7],
         ["Küche", 9], ["Flur", 9, "halle"], ["WC", 2], ["Fremdenz.", 8], ["Windfang", 1, "eingang"], ["Treppe", 2]],
       kanten: [[0, 1], [0, 7], [1, 2], [2, 3], [2, 6], [3, 4], [3, 5], [3, 6], [5, 6], [6, 7], [6, 9], [7, 8], [8, 9], [9, 10], [9, 11], [9, 12], [9, 13]]
@@ -62,7 +62,7 @@
   /** Voreinstellungen: Iterations 250 [1..10000] und MaxAdjDistance 3 [1..5] wie die Schieberegler der .gh-Datei;
       MaxRatio 1.9, zweiseitige Flure, „Corridors as additional spaces“ und „Remove Dead Ends“ wie im Plugin. */
   const STANDARD = {
-    beispiel: "horn", breite: 17, tiefe: 17, form: "rechteck",
+    beispiel: "horn", breite: 21, tiefe: 21, form: "rechteck",
     iterationen: 250, maxAdj: 3, maxRatio: 1.9, flurmodus: "zwei", flurZusatz: true,
     bewertung: "anzahl", nachbearbeitung: "sackgassen", ablauf: "raum"
   };

@@ -25,6 +25,7 @@
 - **Zeitablauf**: Grasshopper hat keinen Zeitablauf; man zieht den Regler. In der App rückt ein Schritt den Standpunkt um „Weg je Schritt“ weiter (Voreinstellung 0,004 der Weglänge); am Ende anhalten (Voreinstellung) oder von vorn. Der Regler „Punkt auf dem Weg“ zeigt die aktuelle Lage und bleibt Startwert für „Zurück“.
 - **Diagramm aus 201 Stellen**: Das Katalogbild ist offenbar aus vielen Reglerstellungen aufgezeichnet. Die App rechnet das Profil auf einmal an 201 gleichmäßig verteilten Stellen; dafür nimmt sie `isovistRaster` (gleiche Strahlen und Treffer wie `Geo.isovist`, aber nur die Segmente der Rasterzellen entlang des Strahls) – rund 60 ms für das ganze Profil bei 360 Strahlen.
 - **Weg zeichnen**: Die Katalogbeschreibung lädt ein, einen eigenen Weg zu konstruieren (in Rhino). In der App zeichnet man ihn mit Rechtsklick/Umschalt und Ziehen (Punkte mindestens 3 m auseinander, nicht in Gebäuden).
+- **Kennzeichnung „*“**: Die fünf Kenngrößen, die die Toolbox v2 mangels prüfbarer Definition gestrichen hat – Fläche (abstandsgewichtet), Kreisähnlichkeit, Konvexitätsdefizit, Dispersion, Streckung –, bleiben sichtbar. Sie sind in der Auswahlliste, in den Kennzahlen und in der Beschriftung der Zeichnung mit „*“ markiert; dazu kommt die Fußnote „* eigene Definition (in Toolbox v2 gestrichen)“ in den Kennzahlen und, solange eine solche Kenngröße gewählt ist, in der Legende. Die Formeln stehen in der Tabelle des Abgleichs und in QUELLE.md der App „Isovist von einem Punkt“.
 
 ## Abgleich mit dem Quelltext
 

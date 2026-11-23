@@ -21,5 +21,5 @@
     "ablauf": "iteration",
     "iterationen": 60
   },
-  "pruef_ausdruck": "(() => { const z = SIM.zustand, A = Modell.anzeige(z, SIM.param), e = Modell.erschliessung(A.gitter, z.W, z.H, A.L, z.prog); return z.fertig && z.best.length === 5 && z.best[0].folge.length >= 11 && e.zusammenhaengend && e.ohneZugang.length === 0; })()"
+  "pruef_ausdruck": "(() => { const z = SIM.zustand, A = Modell.anzeige(z, SIM.param), e = Modell.erschliessung(A.gitter, z.W, z.H, A.L, z.prog); return z.fertig && z.best.length === 5 && z.best[0].folge.length === 14 && e.zusammenhaengend && e.ohneZugang.length === 0; })()"
 }

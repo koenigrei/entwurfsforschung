@@ -221,6 +221,21 @@
   /** Weg der Beispielstadt wiederherstellen */
   function pfadZurueck(z, p) { z.zeichnung = null; z.pfad = wegDurchStadt(z.szene); z.anteil = 0; z.profil = null; rechne(z, p); }
 
-  return { STANDARD, KENNGROESSEN, PROFIL_N, segmentRechteck, segmentRaster, isovistRaster, rundeEcken, wegDurchStadt, naechsterAnteil, laenge,
+  /** Fünf Kenngrößen ohne prüfbare Definition in der DeCodingSpaces-Toolbox v2 (dort gestrichen): die App rechnet sie nach eigenen
+      Definitionen (siehe QUELLE.md) und kennzeichnet sie in Auswahl, Kennzahlen und Beschriftung mit „*“ */
+  const EIGENE_DEFINITION = ["areaDist", "circularity", "convexDeficiency", "dispersion", "elongation"];
+  const FUSSNOTE = { de: "* eigene Definition (in Toolbox v2 gestrichen)", en: "* own definition (dropped in toolbox v2)" };
+  /** Name einer Kenngröße {de, en}; bei eigener Definition mit angehängtem „ *“ (geschütztes Leerzeichen, damit der Stern nicht allein umbricht) */
+  function kenngroesseName(k) {
+    const e = Geo.ISOVIST_MASSE.find(m => m[0] === k), s = EIGENE_DEFINITION.includes(k) ? " *" : "";
+    return { de: e[2] + s, en: e[1] + s };
+  }
+  /** Eintrag der Auswahlliste: „Name (English) *“ */
+  function kenngroesseOption(k) {
+    const e = Geo.ISOVIST_MASSE.find(m => m[0] === k), s = EIGENE_DEFINITION.includes(k) ? " *" : "";
+    return { wert: k, name: { de: `${e[2]} (${e[1]})${s}`, en: e[1] + s } };
+  }
+
+  return { STANDARD, EIGENE_DEFINITION, FUSSNOTE, kenngroesseName, kenngroesseOption, KENNGROESSEN, PROFIL_N, segmentRechteck, segmentRaster, isovistRaster, rundeEcken, wegDurchStadt, naechsterAnteil, laenge,
            erzeuge, isovistBei, rechne, profil, amZiel, schritt, aendere, imGebaeude, geheZu, setzePfad, zeichneBeginn, zeichneWeiter, pfadZurueck };
 });

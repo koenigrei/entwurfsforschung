@@ -27,6 +27,15 @@
 - **Teiler wählbar**: Voreinstellung ist die Grundfläche wie in der Datei. Zusätzlich lässt sich durch den Umfang teilen (Treffer je Meter Fassade), weil eine Fläche große Blöcke benachteiligt, deren Tiefe man vom Standpunkt aus gar nicht sieht.
 - **Zeitablauf**: Grasshopper hat keinen Zeitablauf; im GIF wird der Standpunkt mit der Maus verschoben. In der App wandert der Standpunkt bei „Start“ einen geschlossenen Rundweg um den Platz entlang (`rundweg`, Straßenmitten ohne Randstraßen, Ecken mit 4 m gerundet); Klick oder Ziehen setzt ihn frei, der nächste Schritt geht vom nächsten Wegpunkt weiter. Rechtsklick stellt die Blickrichtung ein (im Original der Regler).
 - **Dunkle Darstellung**: Das Dunkelblau des untersten Griffs ist auf Schwarz kaum zu sehen; dort wird es leicht aufgehellt. Gesehene Kanten bekommen bei gefärbten Gebäuden einen Rand in der Hintergrundfarbe.
+- **Kenngrößen mit „*“**: Diese App zeigt von den 17 Isovist-Kenngrößen nur die Fläche. Die fünf in der Toolbox v2 gestrichenen Kenngrößen (mit „*“ gekennzeichnet in den Apps „Isovist von einem Punkt“, „Isovistenfeld“ und „Isovist entlang eines Weges“) kommen hier nicht vor.
+- **Linearer Farbverlauf für das Maß „sichtbare Länge“** (Runde 3, 23.11.2026): Für die Strahltreffer bleibt der gestauchte Verlauf des Originals; für die sichtbare Länge (beide Teiler) gilt ein linearer Verlauf mit denselben Farben an den Griffen 0 / 0,25 / 0,5 / 0,75 / 1 (wie der Gradient im Modul „Isovist Field“). Die Legende nennt die Werte an den Griffen. Begründung aus der Verteilung in den Beispielszenen (Saaten 1–12, je 40 Standpunkte auf dem Rundweg, 480 Standpunkte, 85.040 Gebäudewerte):
+  - 89,7 % der Gebäudewerte sind 0 (nicht gesehen); sie bleiben dunkelblau.
+  - „Sichtbare Länge ÷ Umfang“ der gesehenen Gebäude (n = 8.765): Mittel 0,20, Standardabweichung 0,11, Schiefe 0,73, Median 0,20, 10-%-Quantil 0,058, 90-%-Quantil 0,32, größter Wert 0,63 (ein Gebäude zeigt selten mehr als die Hälfte seines Umfangs).
+  - Gefärbt wird, wie im Original (Bounds → Gradient), relativ zum größten Wert am Standpunkt. Diese Werte verteilen sich fast gleichmäßig: Mittel 0,49, Schiefe 0,26. Fünf gleich breite Stufen enthalten 16 / 24 / 27 / 17 / 15 % der gesehenen Gebäude.
+  - Mit den Griffen des Originals landen dagegen 0,8 / 6,3 / 8,6 / 47,7 / 36,6 % in den fünf Farben, also 84 % in Gelb oder Rot. Das war das „fast alles rot“ der Runde 2.
+  - „Sichtbare Länge ÷ Grundfläche“ ist ähnlich gleichmäßig (18 / 26 / 22 / 17 / 17 %, Schiefe 0,29).
+  - Zum Vergleich die Strahltreffer: 74 / 12 / 5 / 3 / 6 %, Schiefe 2,05. Für diese stark schiefe Verteilung ist der gestauchte Verlauf des Originals sinnvoll und bleibt.
+  - Eine Einteilung nach Quantilen ist deshalb nicht nötig. Der Test „Verteilung …“ in `test/modell.test.mjs` prüft die gleichmäßige Verteilung auf vier Saaten nach.
 
 ## Abgleich mit dem Quelltext
 

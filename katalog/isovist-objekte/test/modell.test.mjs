@@ -132,3 +132,21 @@ test("gleiche Saat → gleiche Sichtbarkeit, andere Saat → andere", () => {
   assert.deepEqual(Array.from(a.s.geb), Array.from(b.s.geb));
   assert.notDeepEqual(Array.from(a.s.geb), Array.from(c.s.geb));
 });
+
+test("Farbverlauf je Maß: Strahltreffer wie im Original, sichtbare Länge linear", () => {
+  assert.equal(M.verlaufFuer("strahlen"), M.VERLAUF); assert.equal(M.verlaufFuer("laenge"), M.VERLAUF_LINEAR);
+  assert.deepEqual(M.VERLAUF_LINEAR.faktoren, [0, 0.25, 0.5, 0.75, 1]);
+  assert.deepEqual(M.verlauf(0.5, M.VERLAUF_LINEAR), [87, 166, 31]); assert.deepEqual(M.verlauf(0.6, M.VERLAUF), [255, 0, 0]); assert.notDeepEqual(M.verlauf(0.6, M.VERLAUF_LINEAR), [255, 0, 0]);
+});
+
+test("Verteilung „sichtbare Länge ÷ Umfang“: bezogen auf den Höchstwert gleichmäßig über fünf lineare Stufen (Begründung des linearen Verlaufs)", () => {
+  const S = require("../../_gemeinsam/szenen.js"), p = Object.assign({}, P, { mass: "laenge", bezug: "umfang" }), t = [];
+  for (let s = 1; s <= 4; s++) {
+    const z = M.erzeuge(p, zufall(s));
+    for (let i = 0; i < 20; i++) { z.anteil = i / 20; z.o = S.aufPolylinie(z.pfad, z.anteil).p; M.rechne(z, p); for (const x of z.s.gebN) if (x > 0) t.push(x / z.s.maxG); }
+  }
+  const h = [0, 0, 0, 0, 0]; t.forEach(x => h[Math.min(4, Math.floor(x * 5))]++);
+  for (const c of h) assert.ok(c / t.length > 0.08 && c / t.length < 0.4, `Stufe ${(100 * c / t.length).toFixed(0)} %`);
+  // zum Vergleich: mit den Griffen des Originals landen die meisten Gebäude in den beiden obersten Farben
+  const g = M.VERLAUF.faktoren; assert.ok(t.filter(x => x >= g[3]).length / t.length > 0.7);
+});

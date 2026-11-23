@@ -5,8 +5,8 @@
    Verfahren wie die Schaltung der .gh-Datei: Wege als Kurven (Paths) → Network to Segments (Kurven nach dem Umwandlungswinkel
    in Strecken, an Schnitten geteilt) → Network Smooth (Knoten im Fangabstand zusammenlegen) → CityGraph (Betweenness Centrality,
    Length Coefficient 1, Angular Coefficient 0) → Polygons from lines (geschlossene Flächen des Liniennetzes, jede Kante trägt den
-   Wert ihres Wegsegments: Synchronized values) → Remap Numbers (Betweenness → Offset Min … Offset Max, Vorzeichen aus dem
-   Schalter Negative Offset) → Custom offset (jede Plotkante parallel um ihren eigenen Wert verschoben, Nachbarkanten geschnitten).
+   Wert ihres Wegsegments: Synchronized values) → Remap Numbers (Betweenness → Offset Min … Offset Max, immer nach innen und
+   nie unter 0) → Custom offset (jede Plotkante parallel um ihren eigenen Wert verschoben, Nachbarkanten geschnitten).
    Ein Schritt = ein Plot erhält seinen Versatz. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
@@ -19,9 +19,10 @@
 
   /** Voreinstellungen der .gh-Datei (Schieberegler: Wert [Bereich]):
       umwandeln: Toggle → ConvertCurves (true) · winkel: ConversionAngle 0.517 [0..1] (Bogenmaß) · fang: Snap threshold 19 [0..100] m
-      versatzMin: Offset Min 7 [0..100] m · versatzMax: Offset Max 18 [0..100] m · negativ: Negative Offset (true)
+      versatzMin: Offset Min 7 [0..100] m · versatzMax: Offset Max 18 [0..100] m (Abstände ≥ 0, immer nach innen;
+      den Schalter Negative Offset gibt es in der App nicht – siehe QUELLE.md)
       staerke: Thickness 2 [0..10] (Custom Preview Lineweights der Wege) */
-  const STANDARD = { umwandeln: true, winkel: 0.517, fang: 19, versatzMin: 7, versatzMax: 18, negativ: true, staerke: 2,
+  const STANDARD = { umwandeln: true, winkel: 0.517, fang: 19, versatzMin: 7, versatzMax: 18, staerke: 2,
                      original: true, gebaeude: true };
   const B = 800, H = 560;
 
@@ -191,8 +192,10 @@
   /* ---------------------------------------------------------------- Remap und Custom offset */
   /** Bounds → Remap Numbers: Wert x aus [lo, hi] der Betweenness auf [a, b]; ohne Spannweite → a */
   function remap(x, lo, hi, a, b) { return hi - lo > 1e-12 ? a + (x - lo) / (hi - lo) * (b - a) : a; }
-  /** Zielbereich des Versatzes: Offset Min/Max × Negative(Negative Offset). Negativ = nach innen (Plot schrumpft). */
-  function zielbereich(p) { const s = p.negativ ? -1 : 1; return [s * p.versatzMin, s * p.versatzMax]; }
+  /** Versatz als Abstand in Metern: nie negativ (auch nicht bei Werten aus der Adresse), nicht-Zahlen → 0 */
+  function abstandM(v) { const x = Number(v); return Number.isFinite(x) && x > 0 ? x : 0; }
+  /** Zielbereich des Versatzes [Offset Min, Offset Max] als Abstände ≥ 0 nach innen (der Plot schrumpft, der Straßenraum wächst) */
+  function zielbereich(p) { return [abstandM(p.versatzMin), abstandM(p.versatzMax)]; }
 
   /** Custom offset: jede Kante i des Polygons (positive Fläche) um d[i] parallel verschieben – d > 0 nach außen, d < 0 nach innen –
       und benachbarte Kanten schneiden. Laufen Nachbarkanten auseinander (Außenecke beim Vergrößern, Innenecke beim Verkleinern)
@@ -253,14 +256,16 @@
   /** Versatz aller schon bearbeiteten Plots zurücksetzen (t = 0) */
   function leere(z) { z.k = 0; z.t = 0; z.erg = []; z.werte = []; }
 
-  /** Versatzwerte der Kanten eines Plots: Synchronized values → Remap auf Offset Min … Max */
+  /** Versatzwerte der Kanten eines Plots: Synchronized values → Remap auf Offset Min … Max (Abstände ≥ 0) */
   function plotWerte(z, p, P) {
     const [a, b] = zielbereich(p);
-    return P.kanten.map(k => remap(z.bc[k], z.bounds[0], z.bounds[1], a, b));
+    return P.kanten.map(k => abstandM(remap(z.bc[k], z.bounds[0], z.bounds[1], a, b)));
   }
+  /** Custom offset eines Plots: jede Kante um ihren Abstand nach innen (versetzeKanten erwartet innen als negatives Vorzeichen) */
+  function versetzeNachInnen(poly, w) { return versetzeKanten(poly, w.map(d => -abstandM(d))); }
   function versetzePlot(z, p, i) {
     const w = plotWerte(z, p, z.plots[i]);
-    z.werte[i] = w; z.erg[i] = versetzeKanten(z.plots[i].poly, w);
+    z.werte[i] = w; z.erg[i] = versetzeNachInnen(z.plots[i].poly, w);
   }
 
   function erzeuge(param, zufall) {
@@ -284,7 +289,7 @@
     if (id === "umwandeln" || id === "winkel" || id === "fang") {
       const lief = z.t > 0; baueNetz(z, p); z.wahl = -1;
       if (lief) rechneAlles(z, p);
-    } else if (id === "versatzMin" || id === "versatzMax" || id === "negativ") {
+    } else if (id === "versatzMin" || id === "versatzMax") {
       for (let i = 0; i < z.k; i++) versetzePlot(z, p, i);
     }
   }
@@ -301,5 +306,5 @@
   }
 
   return { STANDARD, bezier, weg, szene, vereinfache, teileAnSchnitten, zuSegmenten, glaette, betweenness, flaechenAusLinien,
-           remap, zielbereich, versetzeKanten, baueNetz, leere, plotWerte, erzeuge, schritt, fertig, rechneAlles, aendere, plotBei, bilanz };
+           remap, abstandM, zielbereich, versetzeKanten, versetzeNachInnen, baueNetz, leere, plotWerte, erzeuge, schritt, fertig, rechneAlles, aendere, plotBei, bilanz };
 });

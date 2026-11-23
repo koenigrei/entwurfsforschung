@@ -30,9 +30,10 @@
       stoerung: „Temporal disruption“ (Temporal | Permanent disruption)
       k: „k (konstant weight)“ 1 [0..10] · d: „d (disruptor force)“ 300 [0..1000000] · iterationen: Loop Start Repeat 29 [0..100]
       darstellung: „display log values“ (display original values | display log values) · werte: „value preview Off“
+      closeness: "gl4" = Paper Gl. 4 (Standard), "legacy" = Legacy-Komponente 2019 ((Σw)^2,5 / Σd·w mit Radius, siehe closenessVon)
       verlauf: Browse History (0 = laufende Iteration) · definition: "dcs2020" = Legacy-Komponenten (Winkel θ/180°, Start- und
       Zielsegment zählen bei der Betweenness mit), "standard" = DeCodingSpaces-Toolbox v2 (θ/90°, Start und Ziel zählen nicht) */
-  const STANDARD = { mass: "closeness", radius: "r600", modus: "beide", stoerung: "temporaer", k: 1, d: 300, iterationen: 29,
+  const STANDARD = { mass: "closeness", closeness: "gl4", radius: "r600", modus: "beide", stoerung: "temporaer", k: 1, d: 300, iterationen: 29,
                      definition: "dcs2020", zeige: "mpc", darstellung: "log", verlauf: 0, werte: false, diagramme: true };
   /** Radius der Werteliste in m (Global radius N = unbegrenzt) */
   const RADIUS = { r600: 600, rn: Infinity };
@@ -101,16 +102,23 @@
     return { s, U, T, meter: Lm, sigma, P, S, fest };
   }
 
-  /** Gewichtete Closeness des Segments s (Paper Gl. 4): Σ w_k / Σ d_sk · w_k über alle im Radius erreichten Segmente k ≠ s,
-      d = Winkelkosten des kürzesten Weges. Ohne erreichbares Gewicht oder ohne messbaren Abstand (Σ d·w = 0) → 0. */
-  function closenessVon(G, R, w) {
+  /** Exponent des Zählers der Legacy-Closeness mit Radius (review-2026-11.md: „n/Σd … with a radius set it silently becomes n^2.5/Σd“) */
+  const LEGACY_EXPONENT = 2.5;
+
+  /** Gewichtete Closeness des Segments s über alle im Radius erreichten Segmente k ≠ s, d = Winkelkosten des kürzesten Weges.
+      legacy = false (Paper Gl. 4): Σ w_k / Σ d_sk · w_k.
+      legacy = true (Legacy-Komponente 2019 mit gesetztem Radius): (Σ w_k)^2,5 / Σ d_sk · w_k. Annahme für die gewichtete Fassung:
+      wie in Gl. 4 tritt die gewichtete Anzahl Σ w_k an die Stelle der Anzahl n der ungewichteten Legacy-Formel n^2,5/Σd.
+      Ohne erreichbares Gewicht oder ohne messbaren Abstand (Σ d·w = 0) → 0. */
+  function closenessVon(G, R, w, legacy = false) {
     const A = Geo.segmentAbstaende(G, R).kosten;
     let zaehler = 0, nenner = 0;
     for (let k = 0; k < G.n; k++) {
       if (k === R.s || A[k] === Infinity) continue;
       const wk = w ? w[k] : 1; zaehler += wk; nenner += A[k] * wk;
     }
-    return nenner > 0 ? zaehler / nenner : 0;
+    if (!(nenner > 0)) return 0;
+    return (legacy ? Math.pow(zaehler, LEGACY_EXPONENT) : zaehler) / nenner;
   }
 
   /** Beitrag des Ursprungssegments s zur gewichteten Betweenness (Paper Gl. 5) über die Suche R: jedes Paar (s, t), t im Radius,
@@ -136,14 +144,15 @@
   }
 
   /** Bewegungspotenzial MPC je Segment (4. FWGetPaths, Stream Filter CW/BW): gQ Ursprungs-, gZ Zielgewichte, p.mass, p.radius,
-      p.definition. Closeness nutzt die Zielgewichte (Gl. 4 enthält kein Ursprungsgewicht). → Float64Array */
+      p.definition, p.closeness ("gl4" | "legacy"). Closeness nutzt die Zielgewichte (Gl. 4 enthält kein Ursprungsgewicht). → Float64Array */
   function bewegungspotenzial(G, gQ, gZ, p) {
     const r = RADIUS[p.radius] ?? Infinity, n = G.n, M = new Float64Array(n);
     if (p.mass === "betweenness") {
       const enden = p.definition !== "standard";
       for (let s = 0; s < n; s++) { if (gQ && gQ[s] === 0) continue; betweennessVon(G, suche(G, s, r), gQ, gZ, M, enden); }
     } else {
-      for (let s = 0; s < n; s++) M[s] = closenessVon(G, suche(G, s, r), gZ);
+      const legacy = p.closeness === "legacy" && r < Infinity;      // ohne Radius ist auch die Legacy-Formel n/Σd = Gl. 4
+      for (let s = 0; s < n; s++) M[s] = closenessVon(G, suche(G, s, r), gZ, legacy);
     }
     return M;
   }
@@ -242,7 +251,7 @@
       Rückkopplung von vorn; Darstellung → nichts zu rechnen */
   function aendere(z, p, id) {
     if (id === "definition") baueGraph(z, p);
-    else if (id === "mass" || id === "radius") neueReferenz(z, p);
+    else if (id === "mass" || id === "radius" || id === "closeness") neueReferenz(z, p);
     else if (id === "modus" || id === "stoerung" || id === "k" || id === "d") leere(z, p);
   }
 
@@ -276,7 +285,7 @@
              top10: konzentration(w, 0.1), disruptorAnteil: summe(w) > 0 ? sd / summe(w) : NaN };
   }
 
-  return { STANDARD, RADIUS, LOG_VERSATZ, DISRUPTOREN, strassennetz, suche, closenessVon, betweennessVon, bewegungspotenzial,
+  return { STANDARD, RADIUS, LOG_VERSATZ, LEGACY_EXPONENT, DISRUPTOREN, strassennetz, suche, closenessVon, betweennessVon, bewegungspotenzial,
            anfangsGewichte, summe, normiereTemporaer, normiereDauerhaft, logWert, r2,
            erzeuge, baueGraph, neueReferenz, leere, schritt, fertig, aendere, disruptorBei, schalteDisruptor, gezeigt, konzentration, kennwerte };
 });
