@@ -62,7 +62,8 @@
     ctx.fillStyle = restFarbe(F); ctx.fillRect(0, 0, B, H);
     ctx.save(); ctx.beginPath(); ctx.rect(0, 0, B, H); ctx.clip(); ctx.strokeStyle = F.dunkel ? "#5c5c63" : "#b3b0a8"; ctx.lineWidth = 1;
     ctx.beginPath(); for (let d = -H; d < B; d += 8) { ctx.moveTo(d, H); ctx.lineTo(d + H, 0); } ctx.stroke(); ctx.restore();
-    for (const r of R) { ctx.fillStyle = z.programm && Modell.PROGRAMME[z.programm].raeume[r.id][1] === "Court" ? hofFarbe(F) : planFarbe(F); ctx.fillRect(r.x1, r.y1, r.x2 - r.x1, r.y2 - r.y1); }
+    const raumVon = r => r.r == null ? r.id : r.r;                      // L-Räume: Schenkel gehört zum Raum r
+    for (const r of R) { ctx.fillStyle = z.programm && Modell.PROGRAMME[z.programm].raeume[raumVon(r)][1] === "Court" ? hofFarbe(F) : planFarbe(F); ctx.fillRect(r.x1, r.y1, r.x2 - r.x1, r.y2 - r.y1); }
     ctx.fillStyle = F.akzent; ctx.globalAlpha = 0.6;                   // verbliebene Überlappungen
     for (let i = 0; i < R.length; i++) for (let k = i + 1; k < R.length; k++) {
       const x1 = Math.max(R[i].x1, R[k].x1), x2 = Math.min(R[i].x2, R[k].x2), y1 = Math.max(R[i].y1, R[k].y1), y2 = Math.min(R[i].y2, R[k].y2);
@@ -71,6 +72,18 @@
     ctx.globalAlpha = 1;
     ctx.strokeStyle = F.tinte; ctx.lineWidth = wand; ctx.lineCap = "square";
     for (const r of R) ctx.strokeRect(r.x1, r.y1, r.x2 - r.x1, r.y2 - r.y1);
+    // L-Räume: keine Wand zwischen Hauptteil und Schenkel
+    ctx.strokeStyle = planFarbe(F); ctx.lineWidth = wand + 1.5 * F.px; ctx.lineCap = "butt";
+    for (const S of R) {
+      if (raumVon(S) === S.id) continue;
+      const Hp = R.find(q => q.id === raumVon(S)); if (!Hp) continue;
+      const y1 = Math.max(Hp.y1, S.y1) + wand, y2 = Math.min(Hp.y2, S.y2) - wand, x1 = Math.max(Hp.x1, S.x1) + wand, x2 = Math.min(Hp.x2, S.x2) - wand;
+      ctx.beginPath();
+      if (Math.abs(Hp.x2 - S.x1) <= 2 || Math.abs(S.x2 - Hp.x1) <= 2) { const x = Math.abs(Hp.x2 - S.x1) <= 2 ? (Hp.x2 + S.x1) / 2 : (S.x2 + Hp.x1) / 2; if (y2 > y1) { ctx.moveTo(x, y1); ctx.lineTo(x, y2); } }
+      else if (Math.abs(Hp.y2 - S.y1) <= 2 || Math.abs(S.y2 - Hp.y1) <= 2) { const y = Math.abs(Hp.y2 - S.y1) <= 2 ? (Hp.y2 + S.y1) / 2 : (S.y2 + Hp.y1) / 2; if (x2 > x1) { ctx.moveTo(x1, y); ctx.lineTo(x2, y); } }
+      ctx.stroke();
+    }
+    ctx.strokeStyle = F.tinte; ctx.lineWidth = wand; ctx.lineCap = "square";
     // Türen: Wand öffnen, Türblatt und Schwenkbereich in den erschlossenen Raum (beim Eingang in den Flur)
     const mitte = id => { const r = R.find(q => q.id === id); return r ? [(r.x1 + r.x2) / 2, (r.y1 + r.y2) / 2] : [B / 2, H / 2]; };
     ctx.lineCap = "butt";
@@ -101,8 +114,10 @@
     // Beschriftung: Name und Fläche im Grundriss (ohne Raumprogramm: Raumnummer)
     ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = F.tinte;
     for (const r of R) {
-      const cx = (r.x1 + r.x2) / 2, cy = (r.y1 + r.y2) / 2, A = (r.x2 - r.x1) * (r.y2 - r.y1);
-      const m = W && W.raeume.find(q => q.id === r.id), mangel = m && (m.zuSchmal || m.zuKlein);
+      if (raumVon(r) !== r.id) continue;                                 // Schenkel: Beschriftung steht im Hauptteil
+      const cx = (r.x1 + r.x2) / 2, cy = (r.y1 + r.y2) / 2, teile = R.filter(q => raumVon(q) === r.id);
+      const A = W ? W.raeume.find(q => q.id === r.id).flaeche * Modell.PX_M * Modell.PX_M : teile.reduce((q, t) => q + (t.x2 - t.x1) * (t.y2 - t.y1), 0);
+      const M2 = W && W.raeume.filter(q => q.raum === r.id), m = M2 && { zuSchmal: M2.some(q => q.zuSchmal), zuKlein: M2.some(q => q.zuKlein) }, mangel = m && (m.zuSchmal || m.zuKlein);
       ctx.font = `${12 * F.px}px "Geist", system-ui, sans-serif`; ctx.fillStyle = mangel ? F.akzentText : F.tinte;
       ctx.fillText(z.programm ? raumName(z, r.id) : (en() ? "Room " : "Raum ") + r.id, cx, cy - 7 * F.px);
       ctx.font = `${10 * F.px}px "Geist Mono", ui-monospace, monospace`; ctx.fillStyle = mangel ? F.akzentText : F.gedaempft;
@@ -128,7 +143,7 @@
     for (const g of G) { ctx.beginPath(); ctx.arc(g.x, g.y, 2.5 * F.px, 0, 2 * Math.PI); ctx.fill(); }
   }
   /** Die Wahl der Nachbarschaften (Stern/Wohnung), die Mindestmaße und die Lösungssuche wirken nur mit Raumprogramm: sonst ausblenden */
-  function auswahlGrundriss(z) {
+  function auswahlGrundriss(z, p) {
     const d = z.programm ? "" : "none";                                 // style statt hidden: .zeile setzt display selbst
     for (const id of ["p-grundrissTopo", "p-mindest"]) {
       const e = document.getElementById(id), zeile = e && e.closest(".zeile");
@@ -136,6 +151,31 @@
     }
     const L = document.getElementById("loesungen");
     if (L && L.hidden !== !z.programm) L.hidden = !z.programm;
+    lWahl(z, p);
+  }
+  /** L-förmige Räume wählbar je Raum (neu): Kästchen unter „Mindestmaße“; der Wert steckt im verborgenen Regler lform (Bitmaske, in der Adresse) */
+  let lSchluessel = "";
+  function lWahl(z, p) {
+    const lz = document.getElementById("p-lform"), zl = lz && lz.closest(".zeile");
+    if (zl && zl.style.display !== "none") zl.style.display = "none";
+    const mz = document.getElementById("p-mindest"), mzeile = mz && mz.closest(".zeile"); if (!mzeile) return;
+    let box = document.getElementById("l-wahl");
+    if (!box) { box = document.createElement("div"); box.id = "l-wahl"; box.className = "l-wahl"; mzeile.after(box); }
+    const zeigen = !!(z.programm && z.mindest), d = zeigen ? "" : "none";
+    if (box.style.display !== d) box.style.display = d;
+    if (!zeigen) return;
+    const maske = (p && p.lform) || 0, k = [z.programm, maske, en()].join("|");
+    if (k === lSchluessel) return;
+    lSchluessel = k;
+    const R = Modell.PROGRAMME[z.programm].raeume;
+    box.innerHTML = `<div class="l-titel">${en() ? "L-shaped allowed (new)" : "L-förmig erlaubt (neu)"}</div>` + R.map((q, i) => {
+      const ok = Modell.lMoeglich(z.programm, i), an = ok && Math.floor(maske / 2 ** i) % 2 === 1;
+      return `<label class="${ok ? "" : "aus"}" title="${ok ? "" : (en() ? "too small for two legs of minimum width" : "zu klein für zwei Schenkel mit Mindestbreite")}"><input type="checkbox" data-raum="${i}"${an ? " checked" : ""}${ok ? "" : " disabled"}> ${en() ? q[1] : q[0]}</label>`;
+    }).join("");
+    box.querySelectorAll("input").forEach(e => e.addEventListener("change", () => {
+      let m = 0; box.querySelectorAll("input:checked").forEach(c => { m += 2 ** +c.dataset.raum; });
+      SIM.setze("lform", m);
+    }));
   }
 
   const fassungen = Object.keys(FA);
@@ -160,6 +200,7 @@
       { id: "grundrissTopo", gruppe: G_F, name: { de: "Nachbarschaften im Grundriss", en: "Adjacencies in the floor plan" }, art: "auswahl", wert: S.grundrissTopo, neustart: true,
         optionen: [{ wert: "stern", name: { de: "Stern: alle am Flur (Buch)", en: "Star: all at the hall (book)" } },
                    { wert: "wohnung", name: { de: "Wohnung mit Eingang (angenommen)", en: "Flat with entrance (assumed)" } }] },
+      { id: "lform", gruppe: G_F, name: { de: "L-förmige Räume (Bitmaske)", en: "L-shaped rooms (bit mask)" }, min: 0, max: 1023, wert: S.lform, neustart: true },
       { id: "mindest", gruppe: G_F, name: { de: "Mindestmaße (Breite, Fläche; neu)", en: "Minimum dimensions (width, area; new)" }, art: "schalter", wert: S.mindest, neustart: true },
       { id: "raeume", gruppe: G_ES, name: { de: "Räume (Rooms, nicht im Grundriss)", en: "Rooms (not in floor plan)" }, min: 2, max: 40, wert: S.raeume, neustart: true },
       { id: "mu", gruppe: G_ES, name: { de: "Eltern μ (Population)", en: "Parents μ (population)" }, min: 1, max: 30, wert: S.mu, neustart: true },
@@ -185,7 +226,7 @@
     zeichne(ctx, z, p, F) {
       const b = Modell.beste(z), G = b.g;
       ctx.fillStyle = F.dunkel ? F.flaeche : F.papier; ctx.fillRect(0, 0, B, H);
-      auswahlGrundriss(z);
+      auswahlGrundriss(z, p);
       if (p.plan) { zeichnePlan(ctx, z, p, F, b); if (p.topo) zeichneNachbarn(ctx, z, p, F, G); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); if (p.verlauf) { if (quer()) diagramm(ctx, z, F, B + LUECKE, 0, RECHTS, H); else diagramm(ctx, z, F, 0, H + 8, B, UNTEN - 8); } return; }
       // Räume der besten Lösung (PhenotypeGdi): grau, Wände in Papierfarbe (dunkel) bzw. schwarz (hell)
       ctx.lineWidth = 2; ctx.strokeStyle = F.dunkel ? F.papier : F.tinte;
@@ -208,7 +249,7 @@
       if (p.nummern || z.programm) {
         ctx.font = `${11 * F.px}px "Geist Mono", ui-monospace, monospace`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         ctx.fillStyle = F.dunkel ? F.tinte : F.papier;
-        for (const g of G) ctx.fillText(z.programm ? raumName(z, g.id) : String(g.id), g.x + (z.programm ? 0 : 8 * F.px), g.y - 8 * F.px);
+        for (const g of G) ctx.fillText(z.programm ? raumName(z, g.r == null ? g.id : g.r) + (g.r != null && g.r !== g.id ? " (L)" : "") : String(g.id), g.x + (z.programm ? 0 : 8 * F.px), g.y - 8 * F.px);
         ctx.textBaseline = "alphabetic";
       }
       // Umgebungsrechteck (dicker Rahmen wie im Original)
@@ -241,7 +282,7 @@
         k.push([{ de: "Grundriss gefüllt", en: "Plan filled" }, proz(gefuellt(R))]);
       }
       if (z.mindest) {
-        const W = Modell.planPruefung(b, z.paare, z.programm, 300), n = q => W.raeume.filter(r => r[q]).length;
+        const W = Modell.planPruefung(b, z.paare, z.programm, 300), n = q => new Set(W.raeume.filter(r => r[q]).map(r => r.raum)).size;
         k.push([{ de: "Zu schmal · zu klein", en: "Too narrow · too small" }, `${n("zuSchmal")} · ${n("zuKlein")}`]);
         k.push([{ de: "Plan gültig", en: "Plan valid" }, W.gueltig ? { de: "ja", en: "yes" } : { de: "nein", en: "no" }]);
       }
@@ -254,7 +295,7 @@
   const $ = id => document.getElementById(id);
   const ZEIT_MAX = 90000;                                              // Suche endet spätestens nach 90 s
   let suche = null, karten = [], gewaehlt = -1, schluessel = "";
-  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu].join("|");
+  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu, p.lform].join("|");
   const text = o => en() ? o.en : o.de;
   function status(t) { $("l-status").textContent = t; }
   function zeichneKarten() {

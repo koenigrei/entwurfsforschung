@@ -413,3 +413,45 @@ test("Suche: gleiche Saat, gleiche Treffer (wiederholbar)", () => {
   const lauf2 = () => { const S = M.sucheNeu(fassung("grundriss6"), zufall, { anzahl: 2, saat: 5, laeufe: 20 }); while (!S.fertig) M.sucheWeiter(S, 123); return S.treffer.map(t => [t.saat, t.t]); };
   assert.deepEqual(lauf2(), lauf2());
 });
+
+/* ---------------------------------------------------------------- L-förmige Räume (neu, 23.11.2026) */
+
+test("L-Räume: nur wo die Fläche für zwei Schenkel mit Mindestbreite reicht; Hauptteil und Schenkel teilen die Fläche", () => {
+  assert.deepEqual(M.PROGRAMME.sechs.raeume.map((_, i) => M.lMoeglich("sechs", i)), [true, true, true, false, true, true]);
+  assert.deepEqual(M.lRaeume("sechs", 1 + 2 + 8), [0, 1]);                 // Eltern (Bit 3) ist zu klein und fällt weg
+  const z = M.erzeuge(fassung("grundriss6", { lform: 3 }), zufall(1));
+  assert.equal(z.n, 8); assert.equal(z.nRaeume, 6); assert.deepEqual(z.lraeume, [0, 1]);
+  for (const e of z.eltern) {
+    for (const raum of [0, 1]) {
+      const T = e.g.filter(g => g.r === raum);
+      assert.equal(T.length, 2);
+      assert.ok(nah(T.reduce((q, g) => q + g.a, 0), M.PROGRAMME.sechs.raeume[raum][2] * 2500 * 0.96, 1e-6));
+    }
+  }
+  assert.equal(M.erzeuge(fassung("grundriss6", { lform: 3, mindest: false }), zufall(1)).n, 6);   // L nur mit Mindestmaßen
+  const I = { g: [M.gen(0, 100, 100, 150, 200, null, 0.4, 60, 0), M.gen(6, 300, 100, 100, 100, null, 0.4, 60, 0)] };
+  for (let i = 0; i < 50; i++) M.variiereAnteil(I, 1, zufall(i + 1), -1);
+  assert.ok(nah(I.g[0].a + I.g[1].a, 40000, 1e-6) && I.g[1].a >= 1.05 * 3600 - 1e-6);
+});
+
+test("L-Räume: Plan-Prüfung verlangt bündige Teile mit Kontakt ≥ Mindestbreite, Türen zählen an jedem Teil", () => {
+  // 6 Räume, Flur als L: senkrechter Streifen (x 220–280) und waagerechter Schenkel unten links bündig mit dem Feldrand
+  const r = (id, x1, y1, x2, y2, raum) => { const g = M.gen(id, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, null, 0.4, 0, raum); return g; };
+  const L = { g: [r(1, 0, 0, 220, 330), r(2, 280, 340, 500, 430), r(0, 220, 0, 280, 340, 0), r(6, 0, 340, 280, 430, 0)] };
+  // Wohnen oben links, Schenkel des Flurs unten von 0 bis 280 (bündig mit Flur rechts? nein: rechts 280 = Flur rechts → bündig)
+  const P = [[0, 1], [0, 2]];
+  const W = M.planPruefung(L, P, "sechs");
+  assert.equal(W.fehlt, 0, "Türen am Hauptteil oder am Schenkel");
+  assert.ok(W.lform < 0.02, `L-Fehlbetrag ${W.lform}`);
+  assert.equal(M.tueren(M.grundriss(L, 1), [[0, 2]], 45).length, 1);       // die Küche grenzt nur an den Schenkel: Tür über den Schenkel
+  // Feld ganz belegt (kein Wachsen): Schenkel mittig rechts am Flur → T-Form, nicht bündig
+  const T = { g: [r(1, 0, 0, 220, 430), r(0, 220, 0, 280, 430, 0), r(2, 280, 0, 500, 150), r(6, 280, 150, 500, 250, 0), r(5, 280, 250, 500, 430)] };
+  assert.ok(nah(M.planPruefung(T, P, "sechs").lform, 3, 1e-6));            // kleinster Versatz 150 px = 3 m
+});
+
+test("Suche mit L-förmigem Flur und Wohnen: drei gültige Grundrisse, jeder mit bündigem L", () => {
+  const p = fassung("grundriss6", { lform: 3, grundrissTopo: "wohnung" }), S = M.sucheNeu(p, zufall, { anzahl: 3, saat: 1, laeufe: 40 });
+  while (!S.fertig) M.sucheWeiter(S, 400);
+  assert.ok(S.treffer.length >= 3, `nur ${S.treffer.length} Treffer in ${S.laeufe} Läufen`);
+  for (const T of M.waehleVerschiedene(S.treffer, 3)) { assert.ok(T.wert.gueltig && T.wert.lform < 0.02); assert.equal(T.ind.g.length, 8); }
+});

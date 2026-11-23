@@ -16,7 +16,8 @@
    - Neu (23.11.2026, nicht im Original): In den Grundriss-Fassungen mit „Mindestmaße“ gelten Mindestbreiten je Raum im Erbgut,
      ein drittes Kriterium f3 bewertet den abgeleiteten Plan (Türen, Breiten, Flächen, Überlappung) und ersetzt f2 in der Selektion;
      eine Suche (sucheNeu, sucheWeiter) sammelt gültige Grundrisse aus vielen kurzen Läufen, bessert Beinahe-Lösungen nach
-     (örtliche Suche, memetisch) und wählt möglichst verschiedene aus (Maximin).
+     (örtliche Suche, memetisch) und wählt möglichst verschiedene aus (Maximin). L-förmige Räume (wählbar je Raum, Regler lform):
+     ein Raum aus zwei Rechtecken (Hauptteil + Schenkel), eine innere Feder hält sie an einer Ecke bündig zusammen.
    Ein Schritt = eine Generation (REvo.Run). */
 (function (wurzel, fabrik) {
   const M = fabrik();
@@ -44,19 +45,19 @@
                   (dann mit Belegung 100 %). */
   const FASSUNGEN = {
     einpassung: { ablauf: "einpassung", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 25, mu: 1, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 2, mindest: false },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 2, mindest: false, lform: 0 },
     kollision:  { ablauf: "einpassung", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 10, mu: 1, druck: 1, plus: true, elite: false, kreuzung: false, kreuzRate: 0.75,
-                  repForce: 0.5, repRate: 1, propForce: 0.1, propRate: 0.5, daempfung: 0.5, rlap: 50, federRunden: 2, mindest: false },
+                  repForce: 0.5, repRate: 1, propForce: 0.1, propRate: 0.5, daempfung: 0.5, rlap: 50, federRunden: 2, mindest: false, lform: 0 },
     topologie:  { ablauf: "topologie", topologie: "stern", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 8, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10, mindest: false },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10, mindest: false, lform: 0 },
     gang:       { ablauf: "topologie", topologie: "gang", belegung: 0.75, minSeite: 0.75, grundrissTopo: "stern", raeume: 16, mu: 10, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10, mindest: false },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 10, mindest: false, lform: 0 },
     grundriss6: { ablauf: "topologie", topologie: "programm", programm: "sechs", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 6, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true, lform: 0 },
     grundriss8: { ablauf: "topologie", topologie: "programm", programm: "acht", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 8, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true },
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true, lform: 0 },
     grundriss10:{ ablauf: "topologie", topologie: "programm", programm: "zehn", belegung: 0.96, minSeite: 0.4, grundrissTopo: "stern", raeume: 10, mu: 20, druck: 2, plus: true, elite: false, kreuzung: true, kreuzRate: 0.75,
-                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true }
+                  repForce: 0.25, repRate: 1, propForce: 0.25, propRate: 1, daempfung: 0.5, rlap: 50, federRunden: 5, mindest: true, lform: 0 }
   };
 
   /** Maßstab der Grundrisse: 50 px = 1 m. Das Feld 500 × 430 ist also 10 × 8,6 m = 86 m² – genau die Summe der Raumprogramme
@@ -87,7 +88,7 @@
                ["Bad 2", "Bathroom 2", 4, 1.4], ["Essen", "Dining", 10, 2.4]],
       paare: [[0, -1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 7], [2, 1], [2, 9], [9, 6], [3, 8]] }
   };
-  const REGLER = ["belegung", "minSeite", "grundrissTopo", "raeume", "mu", "druck", "plus", "elite", "kreuzung", "kreuzRate", "repForce", "repRate", "propForce", "propRate", "daempfung", "rlap", "federRunden", "mindest"];
+  const REGLER = ["belegung", "minSeite", "grundrissTopo", "raeume", "mu", "druck", "plus", "elite", "kreuzung", "kreuzRate", "repForce", "repRate", "propForce", "propRate", "daempfung", "rlap", "federRunden", "mindest", "lform"];
 
   function pick(o, ks) { const r = {}; ks.forEach(k => { r[k] = o[k]; }); return r; }
 
@@ -109,9 +110,10 @@
 
   /* ---------------------------------------------------------------- Räume (Gene) */
   /** Gen: Raumnummer id, Mittelpunkt (x, y), Breite w, Höhe h, Fläche a (bleibt fest), Geschwindigkeit (vx, vy) für die Federn */
-  /** mb: Mindestbreite in px (neu, nur mit Mindestmaßen; 0 = keine) */
-  const gen = (id, x, y, w, h, a, ms, mb) => ({ id, x, y, w, h, a: a == null ? w * h : a, vx: 0, vy: 0, ms: ms || 0.75, mb: mb || 0 });
-  const kopieGen = g => ({ id: g.id, x: g.x, y: g.y, w: g.w, h: g.h, a: g.a, vx: 0, vy: 0, ms: g.ms, mb: g.mb });
+  /** mb: Mindestbreite in px (neu, nur mit Mindestmaßen; 0 = keine); r: Raum, zu dem das Gen gehört (sonst id; beim Schenkel
+      eines L-förmigen Raums dessen Raumnummer) */
+  const gen = (id, x, y, w, h, a, ms, mb, r) => ({ id, x, y, w, h, a: a == null ? w * h : a, vx: 0, vy: 0, ms: ms || 0.75, mb: mb || 0, r: r == null ? id : r });
+  const kopieGen = g => ({ id: g.id, x: g.x, y: g.y, w: g.w, h: g.h, a: g.a, vx: 0, vy: 0, ms: g.ms, mb: g.mb, r: g.r });
   const kopie = ind => ({ g: ind.g.map(kopieGen), fo: ind.fo, fd: ind.fd, f3: ind.f3 });
   const links = g => g.x - g.w / 2, oben = g => g.y - g.h / 2, rechts = g => g.x + g.w / 2, unten = g => g.y + g.h / 2;
 
@@ -404,16 +406,41 @@
 
   /** Startpopulation (REvo-Konstruktor, GrowPolys): Mittelpunkte zufällig im Feld, Flächen siehe flaechen();
       Breite √Fläche + Zufall −10 … 9 (höchstens Feldbreite / 2), Höhe aus der Fläche – je Individuum neu */
-  function startPopulation(mu, n, zufall, belegung, programm, minSeite, mindest) {
+  /* ---------------------------------------------------------------- L-förmige Räume (neu, 23.11.2026) */
+  /** Ein L-Raum besteht aus Hauptteil (Gen id = Raumnummer, 60 % der Fläche) und Schenkel (Gen id = Räume + k, r = Raumnummer, 40 %).
+      Möglich nur mit Mindestmaßen und wenn die Fläche für zwei Teile reicht, die beide in jeder Richtung die Mindestbreite haben
+      (Fläche ≥ 2,2 · Mindestbreite²). lform ist eine Bitmaske der Raumnummern (Bit i = Raum i darf L-förmig sein). */
+  const L_ANTEIL = 0.6;
+  function lMoeglich(programm, i) { const q = programm && PROGRAMME[programm].raeume[i]; return !!q && q[3] > 0 && q[2] >= 2.2 * q[3] * q[3]; }
+  function lRaeume(programm, maske) {
+    if (!programm || !maske) return [];
+    return PROGRAMME[programm].raeume.map((_, i) => i).filter(i => Math.floor(maske / 2 ** i) % 2 === 1 && lMoeglich(programm, i));
+  }
+  /** Fläche zwischen Hauptteil und Schenkel verschieben (Mutation, Summe bleibt), jeder Teil behält mindestens 1,05 · Mindestbreite² */
+  function variiereAnteil(ind, rate, zufall, gesperrt) {
+    for (const S of ind.g) {
+      if (S.r === S.id || !(zufall() < rate)) continue;
+      const H = ind.g.find(g => g.id === S.r); if (!H || H.id === gesperrt || S.id === gesperrt) continue;
+      const summe = H.a + S.a, min = 1.05 * S.mb * S.mb;
+      H.a = Math.min(summe - min, Math.max(min, H.a + normal(zufall, 0.08 * summe))); S.a = summe - H.a;
+      setzeBreite(H, H.w); setzeBreite(S, S.w);
+    }
+  }
+  /** Innere Federn der L-Räume: [Hauptteil, Schenkel, Mindestbreite px] */
+  const innere = ind => ind.g.filter(g => g.r !== g.id).map(g => [g.r, g.id, g.mb]);
+
+  function startPopulation(mu, n, zufall, belegung, programm, minSeite, mindest, L) {
     const A = flaechen(n, belegung == null ? 0.75 : belegung, programm), P = [];
+    const T = A.map((a, i) => [i, i, (L || []).includes(i) ? a * L_ANTEIL : a]);                 // [Gen, Raum, Fläche]
+    (L || []).forEach((i, k) => T.push([A.length + k, i, A[i] * (1 - L_ANTEIL)]));
     for (let k = 0; k < mu; k++) {
       const G = [];
-      for (let i = 0; i < n; i++) {
-        const a = A[i], x = zufall.ganz(BREITE), y = zufall.ganz(HOEHE);
+      for (const [id, raum, a] of T) {
+        const x = zufall.ganz(BREITE), y = zufall.ganz(HOEHE);
         let w = Math.sqrt(a) + zufall.ganz(20) - 10;
         if (w > Math.trunc(BREITE / 2)) w = Math.trunc(BREITE / 2);
-        const mb = programm && mindest ? (PROGRAMME[programm].raeume[i][3] || 0) * PX_M : 0;
-        const g = gen(i, x, y, w, a / w, a, minSeite, mb);
+        const mb = programm && mindest ? (PROGRAMME[programm].raeume[raum][3] || 0) * PX_M : 0;
+        const g = gen(id, x, y, w, a / w, a, minSeite, mb, raum);
         if (mb) setzeBreite(g, g.w);                                     // Mindestbreite gleich am Start
         G.push(g);
       }
@@ -424,11 +451,12 @@
 
   function erzeuge(param, zufall) {
     const p = Object.assign({}, STANDARD, param), F = FASSUNGEN[p.fassung] || FASSUNGEN.einpassung;
-    const prog = F.programm || null, n = prog ? PROGRAMME[prog].raeume.length : Math.max(2, Math.round(p.raeume)), mu = Math.max(1, Math.round(p.mu));
+    const prog = F.programm || null, nR = prog ? PROGRAMME[prog].raeume.length : Math.max(2, Math.round(p.raeume)), mu = Math.max(1, Math.round(p.mu));
+    const L = prog && p.mindest ? lRaeume(prog, p.lform) : [], n = nR + L.length;        // n = Gene (Räume + Schenkel)
     const bel = Math.min(1, Math.max(0.05, p.belegung == null ? 0.75 : p.belegung));
-    const z = { t: 0, zufall, n, mu, ablauf: F.ablauf, topologie: F.topologie, programm: prog, belegung: bel,
-                paare: prog ? (p.grundrissTopo === "wohnung" ? PROGRAMME[prog].paare.map(q => q.slice()) : nachbarn(n, "stern")) : nachbarn(n, F.topologie),
-                eltern: startPopulation(mu, n, zufall, bel, prog, p.minSeite, p.mindest), kinder: 0, aufteilung: null, gesperrt: -1, verlauf: [], verlaufD: [], dichte: 1, rlap: p.rlap,
+    const z = { t: 0, zufall, n, nRaeume: nR, lraeume: L, mu, ablauf: F.ablauf, topologie: F.topologie, programm: prog, belegung: bel,
+                paare: prog ? (p.grundrissTopo === "wohnung" ? PROGRAMME[prog].paare.map(q => q.slice()) : nachbarn(nR, "stern")) : nachbarn(n, F.topologie),
+                eltern: startPopulation(mu, nR, zufall, bel, prog, p.minSeite, p.mindest, L), kinder: 0, aufteilung: null, gesperrt: -1, verlauf: [], verlaufD: [], dichte: 1, rlap: p.rlap,
                 mindest: !!(prog && p.mindest) };
     for (const e of z.eltern) { e.fd = distanzen(e, z.paare, p.rlap); if (z.mindest) e.f3 = planPruefung(e, z.paare, prog).f3; }
     merke(z);
@@ -513,8 +541,10 @@
         // Federn und Kollisionserkennung im Wechsel (Original: Federn, Kollision, Federn; neu: jede Federrunde endet mit Kollision,
         // sonst bleiben die Überlappungen der Federn stehen; mit federRunden = 2 genau der bisherige Ablauf)
         const runden = Math.max(1, Math.round(p.federRunden == null ? 2 : p.federRunden));
+        if (z.lraeume && z.lraeume.length) variiereAnteil(c, 0.2, zuf, ges);
         for (let r = 0; r < runden; r++) {
           federn(c, P, p.daempfung, p.rlap, ges);
+          if (z.lraeume && z.lraeume.length) for (const [a, b, rl] of innere(c)) federn(c, [[a, b]], p.daempfung, rl, ges);   // L: Teile zusammenhalten
           entwickle(c, zuf, ges, p.propForce, p.propRate, p.repForce, p.repRate);
         }
         K.push(c);
@@ -556,7 +586,7 @@
       anderen Raum oder an das Umgebungsrechteck stößt. Stehen sich zwei Räume gegenüber, wachsen beide in kleinen Schritten
       (höchstens 4 px je Durchgang, Reihenfolge wechselnd), bis sie sich etwa in der Mitte treffen. Überlappungen bleiben, wie sie sind. Ergebnis: Rechtecke {id, x1, y1, x2, y2}. */
   function grundriss(ind, durchgaenge, teile) {
-    const R = ind.g.map(g => ({ id: g.id, x1: links(g), y1: oben(g), x2: rechts(g), y2: unten(g) }));
+    const R = ind.g.map(g => ({ id: g.id, r: g.r == null ? g.id : g.r, x1: links(g), y1: oben(g), x2: rechts(g), y2: unten(g) }));
     for (const r of R) { r.x1 = Math.max(0, r.x1); r.y1 = Math.max(0, r.y1); r.x2 = Math.min(BREITE, r.x2); r.y2 = Math.min(HOEHE, r.y2); }
     const quer = (a1, a2, b1, b2) => Math.min(a2, b2) - Math.max(a1, b1) > 0.5;   // Projektionen überdecken sich echt
     // neu (Mindestmaße): Überlappungen bis „teile“ px Tiefe werden geteilt – die Wand rückt in die Mitte der Überlappung
@@ -599,26 +629,34 @@
       überdecken; die Tür (Breite breite) sitzt in der Mitte der gemeinsamen Kante. Nachbar −1: Eingang in der Außenwand.
       Ergebnis: [{a, b, senkrecht, x, y, l}] – Mittelpunkt, Länge, senkrecht = Tür in einer senkrechten Wand. */
   function tueren(R, paare, breite) {
-    const T = [], f = id => R.find(r => r.id === id), tol = 2, min = breite + 10;
-    for (const [a, b] of paare) {
-      const A = f(a); if (!A) continue;
-      if (b === -1) {
-        const kanten = [[A.x1 <= tol, true, 0, A.y1, A.y2], [A.x2 >= BREITE - tol, true, BREITE, A.y1, A.y2],
-                        [A.y1 <= tol, false, 0, A.x1, A.x2], [A.y2 >= HOEHE - tol, false, HOEHE, A.x1, A.x2]];
-        const k = kanten.filter(q => q[0] && q[4] - q[3] >= min).sort((p, q) => (q[4] - q[3]) - (p[4] - p[3]))[0];
-        if (k) T.push(k[1] ? { a, b, senkrecht: true, x: k[2], y: (k[3] + k[4]) / 2, l: breite } : { a, b, senkrecht: false, x: (k[3] + k[4]) / 2, y: k[2], l: breite });
-        continue;
-      }
-      const B = f(b); if (!B) continue;
+    const T = [], teile = id => R.filter(q => (q.r == null ? q.id : q.r) === id), tol = 2, min = breite + 10;
+    // je Paar von Rechtecken die Tür an der gemeinsamen Kante; bei L-Räumen (mehrere Rechtecke) die längste Kante
+    const zwischen = (A, B, a, b) => {
       const oy = Math.min(A.y2, B.y2) - Math.max(A.y1, B.y1), ox = Math.min(A.x2, B.x2) - Math.max(A.x1, B.x1);
       const my = (Math.max(A.y1, B.y1) + Math.min(A.y2, B.y2)) / 2, mx = (Math.max(A.x1, B.x1) + Math.min(A.x2, B.x2)) / 2;
-      if (oy >= min && Math.abs(A.x2 - B.x1) <= tol) T.push({ a, b, senkrecht: true, x: (A.x2 + B.x1) / 2, y: my, l: breite });
-      else if (oy >= min && Math.abs(B.x2 - A.x1) <= tol) T.push({ a, b, senkrecht: true, x: (B.x2 + A.x1) / 2, y: my, l: breite });
-      else if (ox >= min && Math.abs(A.y2 - B.y1) <= tol) T.push({ a, b, senkrecht: false, x: mx, y: (A.y2 + B.y1) / 2, l: breite });
-      else if (ox >= min && Math.abs(B.y2 - A.y1) <= tol) T.push({ a, b, senkrecht: false, x: mx, y: (B.y2 + A.y1) / 2, l: breite });
+      if (oy >= min && Math.abs(A.x2 - B.x1) <= tol) return [oy, { a, b, senkrecht: true, x: (A.x2 + B.x1) / 2, y: my, l: breite }];
+      if (oy >= min && Math.abs(B.x2 - A.x1) <= tol) return [oy, { a, b, senkrecht: true, x: (B.x2 + A.x1) / 2, y: my, l: breite }];
+      if (ox >= min && Math.abs(A.y2 - B.y1) <= tol) return [ox, { a, b, senkrecht: false, x: mx, y: (A.y2 + B.y1) / 2, l: breite }];
+      if (ox >= min && Math.abs(B.y2 - A.y1) <= tol) return [ox, { a, b, senkrecht: false, x: mx, y: (B.y2 + A.y1) / 2, l: breite }];
+      return null;
+    };
+    const eingang = (A, a, b) => {
+      const kanten = [[A.x1 <= tol, true, 0, A.y1, A.y2], [A.x2 >= BREITE - tol, true, BREITE, A.y1, A.y2],
+                      [A.y1 <= tol, false, 0, A.x1, A.x2], [A.y2 >= HOEHE - tol, false, HOEHE, A.x1, A.x2]];
+      const k = kanten.filter(q => q[0] && q[4] - q[3] >= min).sort((p, q) => (q[4] - q[3]) - (p[4] - p[3]))[0];
+      if (!k) return null;
+      return [k[4] - k[3], k[1] ? { a, b, senkrecht: true, x: k[2], y: (k[3] + k[4]) / 2, l: breite } : { a, b, senkrecht: false, x: (k[3] + k[4]) / 2, y: k[2], l: breite }];
+    };
+    for (const [a, b] of paare) {
+      const AA = teile(a); if (!AA.length) continue;
+      let best = null;
+      if (b === -1) for (const A of AA) { const t = eingang(A, a, b); if (t && (!best || t[0] > best[0])) best = t; }
+      else for (const A of AA) for (const B of teile(b)) { const t = zwischen(A, B, a, b); if (t && (!best || t[0] > best[0])) best = t; }
+      if (best) T.push(best[1]);
     }
     return T;
   }
+
 
   /* ---------------------------------------------------------------- Plan prüfen und Lösungen suchen (neu, 23.11.2026) */
   const TUER_PX = 45;                                                    // Türbreite 0,9 m
@@ -630,32 +668,51 @@
       gueltig: alle Türen, Breiten und Flächen auf 1 cm bzw. 0,01 m² genau, Überlappung unter 0,05 m². */
   function planPruefung(ind, paare, programm, durchgaenge) {
     const R = grundriss(ind, durchgaenge || PLAN_DURCHGAENGE, TEILE_PX), T = tueren(R, paare, TUER_PX), P = PROGRAMME[programm].raeume;
-    const raeume = [];
-    let breite = 0, flaeche = 0, ue = 0, tuer = 0;
+    const raeume = [], schnitt = (a, c) => Math.max(0, Math.min(a.x2, c.x2) - Math.max(a.x1, c.x1)) * Math.max(0, Math.min(a.y2, c.y2) - Math.max(a.y1, c.y1));
+    let breite = 0, flaeche = 0, ue = 0, tuer = 0, lform = 0;
+    const teile = id => R.filter(q => q.r === id), raumIds = [...new Set(R.map(q => q.r))];
+    const istFlaeche = {};
+    for (const id of raumIds) {                                           // Fläche je Raum: alle Teile, ohne ihre gegenseitige Überlappung
+      const T2 = teile(id); let a = T2.reduce((q, t) => q + (t.x2 - t.x1) * (t.y2 - t.y1), 0);
+      for (let i = 0; i < T2.length; i++) for (let k = i + 1; k < T2.length; k++) a -= schnitt(T2[i], T2[k]);
+      istFlaeche[id] = a / (PX_M * PX_M);
+      flaeche += Math.max(0, P[id][2] * 0.95 - istFlaeche[id]);
+    }
     for (const r of R) {
-      const w = Math.min(r.x2 - r.x1, r.y2 - r.y1) / PX_M, a = (r.x2 - r.x1) * (r.y2 - r.y1) / (PX_M * PX_M);
-      const db = Math.max(0, (P[r.id][3] || 0) - w), da = Math.max(0, P[r.id][2] * 0.95 - a);
-      breite += db; flaeche += da;
-      raeume.push({ id: r.id, breite: w, flaeche: a, zuSchmal: db > 0.01, zuKlein: da > 0.01 });
+      const w = Math.min(r.x2 - r.x1, r.y2 - r.y1) / PX_M, db = Math.max(0, (P[r.r][3] || 0) - w);
+      breite += db;
+      raeume.push({ id: r.id, raum: r.r, breite: w, flaeche: istFlaeche[r.r], zuSchmal: db > 0.01, zuKlein: P[r.r][2] * 0.95 - istFlaeche[r.r] > 0.01 });
     }
-    for (let i = 0; i < R.length; i++) for (let k = i + 1; k < R.length; k++) {
-      const a = R[i], c = R[k], ox = Math.min(a.x2, c.x2) - Math.max(a.x1, c.x1), oy = Math.min(a.y2, c.y2) - Math.max(a.y1, c.y1);
-      if (ox > 0 && oy > 0) ue += ox * oy / (PX_M * PX_M);
-    }
-    const noetig = TUER_PX + 10, f = id => R.find(r => r.id === id);
-    for (const [a, b] of paare) {
-      const A = f(a); if (!A) continue;
-      if (b === -1) {                                                     // Eingang: Abstand zur Außenwand + fehlende Wandlänge
-        const d = Math.min(A.x1, BREITE - A.x2, A.y1, HOEHE - A.y2), l = Math.max(A.x2 - A.x1, A.y2 - A.y1);
-        tuer += (Math.max(0, d) + Math.max(0, noetig - l)) / PX_M; continue;
-      }
-      const B = f(b); if (!B) continue;
+    for (let i = 0; i < R.length; i++) for (let k = i + 1; k < R.length; k++) ue += schnitt(R[i], R[k]) / (PX_M * PX_M);
+    // Fehlbetrag einer Kontaktkante in px: Abstand + fehlende Länge der gemeinsamen Kante (gleitend)
+    const kontakt = (A, B, noetig) => {
       const gx = Math.max(A.x1, B.x1) - Math.min(A.x2, B.x2), gy = Math.max(A.y1, B.y1) - Math.min(A.y2, B.y2);   // > 0 Lücke, < 0 Überdeckung
-      tuer += Math.min(Math.max(0, gx) + Math.max(0, noetig + gy), Math.max(0, gy) + Math.max(0, noetig + gx)) / PX_M;
+      return Math.min(Math.max(0, gx) + Math.max(0, noetig + gy), Math.max(0, gy) + Math.max(0, noetig + gx));
+    };
+    const noetig = TUER_PX + 10;
+    for (const [a, b] of paare) {
+      const AA = teile(a); if (!AA.length) continue;
+      let d = Infinity;
+      if (b === -1) for (const A of AA) {                                 // Eingang: Abstand zur Außenwand + fehlende Wandlänge
+        const ab = Math.min(A.x1, BREITE - A.x2, A.y1, HOEHE - A.y2), l = Math.max(A.x2 - A.x1, A.y2 - A.y1);
+        d = Math.min(d, Math.max(0, ab) + Math.max(0, noetig - l));
+      }
+      else for (const A of AA) for (const B of teile(b)) d = Math.min(d, kontakt(A, B, noetig));
+      if (d < Infinity) tuer += d / PX_M;
+    }
+    // L-Räume: Hauptteil und Schenkel berühren sich auf mindestens der Mindestbreite und liegen an einem Ende bündig
+    for (const S of R) {
+      if (S.r === S.id) continue;
+      const H = R.find(q => q.id === S.r); if (!H) continue;
+      const mb = (P[S.r][3] || 0) * PX_M;
+      lform += kontakt(H, S, mb) / PX_M;
+      const gx = Math.max(H.x1, S.x1) - Math.min(H.x2, S.x2), gy = Math.max(H.y1, S.y1) - Math.min(H.y2, S.y2);
+      if (Math.abs(gx) <= 2 && gy < 0) lform += Math.min(Math.abs(H.y1 - S.y1), Math.abs(H.y2 - S.y2)) / PX_M;       // senkrechte Kontaktkante
+      else if (Math.abs(gy) <= 2 && gx < 0) lform += Math.min(Math.abs(H.x1 - S.x1), Math.abs(H.x2 - S.x2)) / PX_M;  // waagerechte
     }
     const fehlt = paare.length - T.length;
-    return { f3: fehlt * 2 + tuer * 3 + breite * 10 + flaeche + ue * 5, fehlt, tuer, breite, flaeche, ue, raeume,
-             gueltig: fehlt === 0 && breite < 0.01 && flaeche < 0.01 && ue < 0.05 };
+    return { f3: fehlt * 2 + tuer * 3 + breite * 10 + flaeche + ue * 5 + lform * 3, fehlt, tuer, breite, flaeche, ue, lform, raeume,
+             gueltig: fehlt === 0 && breite < 0.01 && flaeche < 0.01 && ue < 0.05 && lform < 0.02 };
   }
 
   /** Örtliche Nachbesserung (memetisch): einzelne Räume ein wenig verschieben oder ihre Proportion ändern, behalten, was f3 nicht
@@ -760,5 +817,5 @@
            setzeBreite, setzeBreite50, pruefeRand, proportion, abstossen, entwickle, verschiebe, variiereGroesse, variiereGroesseVoll,
            inversion, kreuzung, nachbarn, ringAbstand, zusatzAbstand, zusatzUeberlappung, paarDistanz, distanzen, erfuellt,
            federVektor, federn, aussen, grundriss, tueren, planPruefung, nachbessern, planAbstand, waehleVerschiedene,
-           sucheNeu, sucheWeiter, zustandAusTreffer, startPopulation, erzeuge, schritt, aendere, beste, ziehe, loslassen };
+           sucheNeu, sucheWeiter, zustandAusTreffer, lMoeglich, lRaeume, variiereAnteil, startPopulation, erzeuge, schritt, aendere, beste, ziehe, loslassen };
 });
