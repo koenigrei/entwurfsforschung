@@ -140,8 +140,8 @@
    "datum": "2026-11-21",
    "bild": "Apps/_werkzeuge/site/img/bergdoerfer_wand.webp",
    "vorschau": {
-    "de": "159 italienische Bergdörfer als einheitliche Schwarzpläne mit Höhenlinien, Straßen und Gebäuden – Material für einen Generator aus Gelände und Dorf.",
-    "en": "159 Italian mountain villages as uniform figure-ground plans with contours, streets and buildings – material for a generator of terrain and village."
+    "de": "332 Bergdörfer aus 13 Ländern Südeuropas als einheitliche Schwarzpläne mit Höhenlinien, Straßen und Gebäuden, geordnet nach Land, Region und Dichte – Material für einen Generator aus Gelände und Dorf.",
+    "en": "332 mountain villages from 13 countries of southern Europe as uniform figure-ground plans with contours, streets and buildings, ordered by country, region and density – material for a generator of terrain and village."
    },
    "ziel": "lab/bergdoerfer/",
    "start": "index.html",
@@ -149,7 +149,8 @@
     "index.html": "Apps/bergdoerfer/dist/index.html",
     "app.js": "Apps/bergdoerfer/dist/app.js",
     "stil.css": "Apps/bergdoerfer/dist/stil.css",
-    "bilderwand.js": "Apps/bergdoerfer/dist/bilderwand.js"
+    "bilderwand.js": "Apps/bergdoerfer/dist/bilderwand.js",
+    "gruppen.js": "Apps/bergdoerfer/dist/gruppen.js"
    },
    "ordner": {
     "daten": "Apps/bergdoerfer/dist/daten"
