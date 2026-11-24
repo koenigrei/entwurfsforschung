@@ -2,7 +2,17 @@
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0 */
 (function () {
   "use strict";
-  const S = Modell.STANDARD, FA = Modell.FASSUNGEN, B = Modell.BREITE, H = Modell.HOEHE;
+  // Seite (neu, 23.11.2026): "packung" (lab/kremlas/) oder "palladio" (lab/kremlas/palladio/, Vorbilder aus vorbilder_palladio.js)
+  const SEITE = window.KREMLAS_SEITE || "packung", FA = Modell.FASSUNGEN;
+  const VORBILDER = Object.keys(FA).filter(f => f.startsWith(SEITE === "palladio" ? "pal_" : "§"));
+  const START = VORBILDER.includes("pal_emo") ? "pal_emo" : VORBILDER[0];   // Villa Emo: schon ein einzelner Lauf wird gültig (Saat 1: 97 % Ähnlichkeit)
+  const S = SEITE === "palladio" && VORBILDER.length
+    ? Object.assign({}, Modell.STANDARD, ...Modell.REGLER.map(k => ({ [k]: FA[START][k] })), { fassung: START, plan: true, topo: false, vorbild: true })
+    : Object.assign({ vorbild: false }, Modell.STANDARD);
+  // Feld je Zustand (Vorbilder haben eigene Maße): vor dem Zeichnen setzen, B und H danach lesen
+  let B = Modell.BREITE, H = Modell.HOEHE;
+  const feld = z => { Modell.setzeFeld(z && z.feld); B = Modell.BREITE; H = Modell.HOEHE; };
+  const mitVorbild = z => !!(z && z.programm && Modell.PROGRAMME[z.programm].vorbild);
   const G_F = { de: "Fassung", en: "Version" }, G_ES = { de: "Evolutionsstrategie", en: "Evolution strategy" },
         G_K = { de: "Kollisionserkennung", en: "Collision detection" }, G_T = { de: "Topologie", en: "Topology" }, G_D = { de: "Darstellung", en: "Display" };
   const en = () => document.documentElement.lang === "en";
@@ -44,7 +54,7 @@
   }
 
   /* ---------- Grundrissansicht: Räume wachsen in die Restflächen (Modell.grundriss), Wände, Türen, Namen, m² ---------- */
-  const TUER = Modell.TUER_PX;                                         // Türbreite 0,9 m bei 50 px = 1 m
+  // Türbreite 0,9 m, folgt dem Maßstab des Feldes (Modell.TUER_PX)
   const planFarbe = F => F.dunkel ? "#2b2b30" : "#fbfaf7", hofFarbe = F => F.dunkel ? "#23362a" : "#e3efe2", restFarbe = F => F.dunkel ? "#4a4a50" : "#c9c7c0";
   const raumName = (z, id) => { const r = Modell.PROGRAMME[z.programm].raeume[id]; return r ? (en() ? r[1] : r[0]) : String(id); };
   const qm = a => (a / (Modell.PX_M * Modell.PX_M)).toLocaleString(en() ? "en" : "de", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " m²";
@@ -57,7 +67,7 @@
   const planVon = (z, b) => Modell.grundriss(b, 300, z.mindest ? Modell.TEILE_PX : 0);
   const pruefungVon = (z, b) => z.mindest ? Modell.planPruefung(b, z.paare, z.programm, 300) : null;
   function zeichnePlan(ctx, z, p, F, b) {
-    const R = planVon(z, b), T = Modell.tueren(R, z.paare, TUER), wand = 3 * F.px, W = pruefungVon(z, b);
+    const R = planVon(z, b), T = Modell.tueren(R, z.paare, Modell.TUER_PX), wand = 3 * F.px, W = pruefungVon(z, b);
     // Restflächen schraffiert: erst alles grau, dann die Räume darüber
     ctx.fillStyle = restFarbe(F); ctx.fillRect(0, 0, B, H);
     ctx.save(); ctx.beginPath(); ctx.rect(0, 0, B, H); ctx.clip(); ctx.strokeStyle = F.dunkel ? "#5c5c63" : "#b3b0a8"; ctx.lineWidth = 1;
@@ -128,6 +138,20 @@
     ctx.textBaseline = "alphabetic";
   }
 
+  /** Vorbild (neu): Räume des Vorbilds gestrichelt über dem Plan, in der Spiegelung mit der größten Ähnlichkeit */
+  function zeichneVorbild(ctx, z, F, b) {
+    const V = Modell.PROGRAMME[z.programm].vorbild, A = Modell.aehnlichkeit(b, z.programm), k = Modell.PX_M;
+    const sx = A && A.gespiegelt.x, sy = A && A.gespiegelt.y;
+    ctx.save(); ctx.strokeStyle = F.akzentText; ctx.lineWidth = 2 * F.px; ctx.setLineDash([6 * F.px, 4 * F.px]);
+    for (const raum of V) for (const t of raum) {
+      let x1 = t[0] * k, y1 = t[1] * k, x2 = t[2] * k, y2 = t[3] * k;
+      if (sx) [x1, x2] = [B - x2, B - x1];
+      if (sy) [y1, y2] = [H - y2, H - y1];
+      ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+    }
+    ctx.restore();
+  }
+
   /** Nachbarschaften (DrawConnections): Linien zwischen den Mittelpunkten, erfüllte durchgezogen, offene gestrichelt;
       der Eingang (Nachbar −1) als Linie zur nächsten Feldkante. Im Grundriss gelten die Rechtecke der Packung. */
   function zeichneNachbarn(ctx, z, p, F, G) {
@@ -145,9 +169,11 @@
   /** Die Wahl der Nachbarschaften (Stern/Wohnung), die Mindestmaße und die Lösungssuche wirken nur mit Raumprogramm: sonst ausblenden */
   function auswahlGrundriss(z, p) {
     const d = z.programm ? "" : "none";                                 // style statt hidden: .zeile setzt display selbst
-    for (const id of ["p-grundrissTopo", "p-mindest"]) {
-      const e = document.getElementById(id), zeile = e && e.closest(".zeile");
-      if (zeile && zeile.style.display !== d) zeile.style.display = d;
+    const sichtbar = { "p-grundrissTopo": !!z.programm && !mitVorbild(z), "p-mindest": !!z.programm, "p-naehe": mitVorbild(z), "p-vorbild": mitVorbild(z),
+                       "p-raeume": !z.programm };
+    for (const [id, an] of Object.entries(sichtbar)) {
+      const e = document.getElementById(id), zeile = e && e.closest(".zeile"), dd = an ? "" : "none";
+      if (zeile && zeile.style.display !== dd) zeile.style.display = dd;
     }
     const L = document.getElementById("loesungen");
     if (L && L.hidden !== !z.programm) L.hidden = !z.programm;
@@ -161,7 +187,7 @@
     const mz = document.getElementById("p-mindest"), mzeile = mz && mz.closest(".zeile"); if (!mzeile) return;
     let box = document.getElementById("l-wahl");
     if (!box) { box = document.createElement("div"); box.id = "l-wahl"; box.className = "l-wahl"; mzeile.after(box); }
-    const zeigen = !!z.programm, d = zeigen ? "" : "none";             // in allen Grundriss-Fassungen sichtbar; ohne Mindestmaße ausgegraut
+    const zeigen = !!z.programm && !mitVorbild(z), d = zeigen ? "" : "none";   // in allen Grundriss-Fassungen sichtbar (nicht bei Vorbildern); ohne Mindestmaße ausgegraut
     if (box.style.display !== d) box.style.display = d;
     if (!zeigen) return;
     const maske = (p && p.lform) || 0, k = [z.programm, maske, en(), !!z.mindest].join("|");
@@ -189,8 +215,8 @@
     saat: 1,
     tempo: { min: 1, max: 30, wert: 1 },
     parameter: [
-      { id: "fassung", gruppe: G_F, name: { de: "Fassung", en: "Version" }, art: "auswahl", wert: S.fassung, neustart: true, folgen,
-        optionen: [{ wert: "einpassung", name: { de: "Einpassung (ohne Topologie)", en: "Fitting (no topology)" } },
+      { id: "fassung", gruppe: G_F, name: SEITE === "palladio" ? { de: "Villa (Vorbild)", en: "Villa (model)" } : { de: "Fassung", en: "Version" }, art: "auswahl", wert: S.fassung, neustart: true, folgen,
+        optionen: SEITE === "palladio" ? VORBILDER.map(f => ({ wert: f, name: { de: Modell.PROGRAMME[FA[f].programm].titel, en: Modell.PROGRAMME[FA[f].programm].titel } })) : [{ wert: "einpassung", name: { de: "Einpassung (ohne Topologie)", en: "Fitting (no topology)" } },
                    { wert: "kollision", name: { de: "Kollision allein", en: "Collision only" } },
                    { wert: "topologie", name: { de: "Topologie: Stern", en: "Topology: star" } },
                    { wert: "gang", name: { de: "Topologie: Gang", en: "Topology: corridor" } },
@@ -203,6 +229,7 @@
         optionen: [{ wert: "stern", name: { de: "Stern: alle am Flur (Buch)", en: "Star: all at the hall (book)" } },
                    { wert: "wohnung", name: { de: "Wohnung mit Eingang (angenommen)", en: "Flat with entrance (assumed)" } }] },
       { id: "lform", gruppe: G_F, name: { de: "L-förmige Räume (Bitmaske)", en: "L-shaped rooms (bit mask)" }, min: 0, max: 1023, wert: S.lform, neustart: true },
+      { id: "naehe", gruppe: G_F, name: { de: "Nähe zum Vorbild (0 = freie Varianten, 1 = rekonstruieren; neu)", en: "Closeness to the model (0 = free variants, 1 = reconstruct; new)" }, min: 0, max: 1, schritt: 0.1, wert: S.naehe || 0, format: proz },
       { id: "mindest", gruppe: G_F, name: { de: "Mindestmaße (Breite, Fläche; neu)", en: "Minimum dimensions (width, area; new)" }, art: "schalter", wert: S.mindest, neustart: true },
       { id: "raeume", gruppe: G_ES, name: { de: "Räume (Rooms, nicht im Grundriss)", en: "Rooms (not in floor plan)" }, min: 2, max: 40, wert: S.raeume, neustart: true },
       { id: "mu", gruppe: G_ES, name: { de: "Eltern μ (Population)", en: "Parents μ (population)" }, min: 1, max: 30, wert: S.mu, neustart: true },
@@ -220,16 +247,18 @@
       { id: "federRunden", gruppe: G_T, name: { de: "Federrunden je Kind (Original 2)", en: "Spring rounds per child (original 2)" }, min: 1, max: 20, wert: S.federRunden },
       { id: "topo", gruppe: G_D, name: { de: "Topologie zeigen", en: "Show topology" }, art: "schalter", wert: S.topo },
       { id: "plan", gruppe: G_D, name: { de: "Grundriss ableiten (Wände, Türen)", en: "Derive floor plan (walls, doors)" }, art: "schalter", wert: S.plan },
+      { id: "vorbild", gruppe: G_D, name: { de: "Vorbild zeigen (gestrichelt)", en: "Show model (dashed)" }, art: "schalter", wert: S.vorbild },
       { id: "nummern", gruppe: G_D, name: { de: "Raumnummern", en: "Room numbers" }, art: "schalter", wert: S.nummern },
       { id: "verlauf", gruppe: G_D, name: { de: "Verlauf zeigen", en: "Show chart" }, art: "schalter", wert: S.verlauf, groesseNeu: true }
     ],
-    groesse: (z, p) => !p.verlauf ? { b: B, h: H } : quer() ? { b: B + LUECKE + RECHTS, h: H } : { b: B, h: H + UNTEN },
+    groesse: (z, p) => (feld(z), !p.verlauf) ? { b: B, h: H } : quer() ? { b: B + LUECKE + RECHTS, h: H } : { b: B, h: H + UNTEN },
     klick(z, p, x, y, taste, phase) { if (taste === "links") Modell.ziehe(z, x, y, phase); },
     zeichne(ctx, z, p, F) {
+      feld(z);
       const b = Modell.beste(z), G = b.g;
       ctx.fillStyle = F.dunkel ? F.flaeche : F.papier; ctx.fillRect(0, 0, B, H);
       auswahlGrundriss(z, p);
-      if (p.plan) { zeichnePlan(ctx, z, p, F, b); if (p.topo) zeichneNachbarn(ctx, z, p, F, G); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); if (p.verlauf) { if (quer()) diagramm(ctx, z, F, B + LUECKE, 0, RECHTS, H); else diagramm(ctx, z, F, 0, H + 8, B, UNTEN - 8); } return; }
+      if (p.plan) { zeichnePlan(ctx, z, p, F, b); if (p.vorbild && mitVorbild(z)) zeichneVorbild(ctx, z, F, b); if (p.topo) zeichneNachbarn(ctx, z, p, F, G); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); if (p.verlauf) { if (quer()) diagramm(ctx, z, F, B + LUECKE, 0, RECHTS, H); else diagramm(ctx, z, F, 0, H + 8, B, UNTEN - 8); } return; }
       // Räume der besten Lösung (PhenotypeGdi): grau, Wände in Papierfarbe (dunkel) bzw. schwarz (hell)
       ctx.lineWidth = 2; ctx.strokeStyle = F.dunkel ? F.papier : F.tinte;
       for (const g of G) {
@@ -262,13 +291,16 @@
       }
     },
     legende: (F, p, z) => {
+      const vb = p.vorbild && mitVorbild(z) ? [[F.akzentText, { de: "Vorbild (gestrichelt)", en: "Model (dashed)" }]] : [];
       const L = p.plan ? [[planFarbe(F), { de: "Raum", en: "Room" }], ...(z && z.programm ? [[hofFarbe(F), { de: "Hof", en: "Court" }]] : []), [F.tinte, { de: "Wand, Tür", en: "Wall, door" }], [restFarbe(F), { de: "Restfläche", en: "Leftover space" }], [F.akzent, { de: "Überlappung", en: "Overlap" }]]
                        : [[raumFarbe(F), { de: "Raum", en: "Room" }], [F.akzent, { de: "Überlappung", en: "Overlap" }]];
+      if (p.plan) L.push(...vb);
       if (p.topo) L.push([ORANGE, { de: "Nachbarschaft (gestrichelt: offen)", en: "Adjacency (dashed: open)" }]);
       if (p.verlauf) { L.push([GRUEN(F), { de: "Verlauf Sg", en: "chart Sg" }]); if (z && mitTopo(z)) L.push([BLAU(F), { de: "Verlauf f2", en: "chart f2" }]); }
       return L;
     },
     kennzahlen(z, p) {
+      feld(z);
       const b = Modell.beste(z), m = z.paare.length;
       const k = [[{ de: "Generation", en: "Generation" }, zahl(z.t)],
                  [{ de: "Überlappung Sg (f1)", en: "Overlap Sg (f1)" }, zahl(b.fo)],
@@ -279,7 +311,7 @@
       if (z.aufteilung) k.push([{ de: "Auswahl nach f1 · f2", en: "Selected by f1 · f2" }, `${z.aufteilung[0]} · ${z.aufteilung[1]}`]);
       k.push([{ de: "Belegung", en: "Coverage" }, proz(z.belegung)]);
       if (p.plan) {
-        const R = planVon(z, b), T = Modell.tueren(R, z.paare, TUER);
+        const R = planVon(z, b), T = Modell.tueren(R, z.paare, Modell.TUER_PX);
         k.push([{ de: "Türen im Grundriss", en: "Doors in the plan" }, `${T.length} / ${m}`]);
         k.push([{ de: "Grundriss gefüllt", en: "Plan filled" }, proz(gefuellt(R))]);
       }
@@ -287,6 +319,10 @@
         const W = Modell.planPruefung(b, z.paare, z.programm, 300), n = q => new Set(W.raeume.filter(r => r[q]).map(r => r.raum)).size;
         k.push([{ de: "Zu schmal · zu klein", en: "Too narrow · too small" }, `${n("zuSchmal")} · ${n("zuKlein")}`]);
         k.push([{ de: "Plan gültig", en: "Plan valid" }, W.gueltig ? { de: "ja", en: "yes" } : { de: "nein", en: "no" }]);
+        if (mitVorbild(z)) {
+          const A = Modell.aehnlichkeit(b, z.programm), sp = A.gespiegelt.x || A.gespiegelt.y;
+          k.push([{ de: "Ähnlichkeit zum Vorbild", en: "Similarity to the model" }, { de: proz(A.mittel) + (sp ? " (gespiegelt)" : ""), en: proz(A.mittel) + (sp ? " (mirrored)" : "") }]);
+        }
       }
       if (z.gesperrt >= 0) k.push([{ de: "Gezogen", en: "Dragged" }, { de: `Raum ${z.gesperrt}`, en: `room ${z.gesperrt}` }]);
       return k;
@@ -297,12 +333,13 @@
   const $ = id => document.getElementById(id);
   const ZEIT_MAX = 90000;                                              // Suche endet spätestens nach 90 s
   let suche = null, karten = [], gewaehlt = -1, schluessel = "";
-  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu, p.lform].join("|");
+  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu, p.lform, p.naehe].join("|");
   const text = o => en() ? o.en : o.de;
   function status(t) { $("l-status").textContent = t; }
   function zeichneKarten() {
     const box = $("l-karten"); box.innerHTML = "";
     const F = Sim.farben();
+    feld(window.SIM && SIM.zustand);
     karten.forEach((T, i) => {
       const b = document.createElement("button"); b.type = "button"; b.className = "l-karte"; b.setAttribute("aria-pressed", i === gewaehlt);
       const c = document.createElement("canvas"), w = 240, dpr = Math.min(window.devicePixelRatio || 1, 2), k = w / B;
@@ -311,10 +348,11 @@
       const zk = { programm: T.programm, paare: T.paare, mindest: true }, Fk = Object.assign({}, F, { px: 1 / k * 0.75 });
       zeichnePlan(ctx, zk, {}, Fk, T.ind);
       ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H);
-      const t = Modell.tueren(planVon(zk, T.ind), T.paare, TUER).length;
+      const t = Modell.tueren(planVon(zk, T.ind), T.paare, Modell.TUER_PX).length;
       const u = document.createElement("span"); u.className = "mono";
       u.textContent = `${i + 1} · ${text({ de: "Saat", en: "seed" })} ${T.saat} · ${text({ de: "Generation", en: "generation" })} ${T.t}` +
-        ` · ${text({ de: "Türen", en: "doors" })} ${t}/${T.paare.length}` + (T.nachgebessert ? ` · ${text({ de: "nachgebessert", en: "refined" })}` : "");
+        ` · ${text({ de: "Türen", en: "doors" })} ${t}/${T.paare.length}` + (T.nachgebessert ? ` · ${text({ de: "nachgebessert", en: "refined" })}` : "") +
+        (Modell.PROGRAMME[T.programm].vorbild ? ` · ${text({ de: "Ähnlichkeit", en: "similarity" })} ${proz(Modell.aehnlichkeit(T.ind, T.programm).mittel)}` : "");
       b.append(c, u);
       b.addEventListener("click", () => {
         const p = SIM.param, z = Modell.zustandAusTreffer(p, T, Zufall.zufall(T.saat * 7919 + T.t));
@@ -328,8 +366,11 @@
     const S = suche, n = S.anzahl, dt = ((performance.now() - S.t0) / 1000).toLocaleString(en() ? "en" : "de", { maximumFractionDigits: 1 });
     karten = Modell.waehleVerschiedene(S.S.treffer, n); gewaehlt = -1; zeichneKarten();
     const h = S.S.treffer.length;
-    status(h >= n ? text({ de: `${karten.length} Grundrisse aus ${h} Treffern in ${S.S.laeufe} Läufen (${dt} s), möglichst verschieden gewählt. Klick lädt einen in die Ansicht oben.`,
-                             en: `${karten.length} floor plans from ${h} hits in ${S.S.laeufe} runs (${dt} s), chosen to differ as much as possible. Click one to load it above.` })
+    const gleich = S.S.doppelt ? text({ de: ` ${S.S.doppelt} weitere Treffer waren gleich (auch gespiegelt).`, en: ` ${S.S.doppelt} further hits were the same (also mirrored).` }) : "";
+    status(h >= n ? text({ de: `${karten.length} Grundrisse aus ${h} Treffern in ${S.S.laeufe} Läufen (${dt} s), möglichst verschieden gewählt.${gleich} Klick lädt einen in die Ansicht oben.`,
+                             en: `${karten.length} floor plans from ${h} hits in ${S.S.laeufe} runs (${dt} s), chosen to differ as much as possible.${gleich} Click one to load it above.` })
+          : h && S.S.doppelt ? text({ de: `${h} verschiedene${h === 1 ? "r" : ""} Grundriss${h === 1 ? "" : "e"} in ${S.S.laeufe} Läufen (${dt} s).${gleich} Für Varianten die Nähe zum Vorbild senken. Klick lädt einen in die Ansicht oben.`,
+                                    en: `${h} different floor plan${h === 1 ? "" : "s"} in ${S.S.laeufe} runs (${dt} s).${gleich} For variants, lower the closeness to the model. Click one to load it above.` })
                   : text({ de: `${abgebrochen ? "Abgebrochen" : "Zeit oder Läufe aufgebraucht"}: ${h} gültige Grundrisse in ${S.S.laeufe} Läufen (${dt} s).` + (h ? " Klick lädt einen in die Ansicht oben." : " Mehr Räume oder Sterntopologie machen es schwerer; im Stern mit zehn Räumen reicht die Wandlänge des Flurs kaum für alle Mindestbreiten."),
                            en: `${abgebrochen ? "Stopped" : "Time or runs used up"}: ${h} valid floor plans in ${S.S.laeufe} runs (${dt} s).` + (h ? " Click one to load it above." : " More rooms or the star topology make it harder; with ten rooms in a star, the hall's walls are barely long enough for every minimum width.") }));
     $("l-suche").disabled = false; $("l-stopp").disabled = true; suche = null;

@@ -21,7 +21,8 @@ HIER = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HIER)
 AUS = os.path.join(HIER, "_pruefung")
 # Eigene Lab-Projekte im Rahmen der Frühen Simulationen (KREMLAS, eigene Kachel seit 23.11.2026): Quellordner, Adresse, Archivpräfix
-EIGENE = {"kremlas": (os.path.join(REPO, "kremlas"), "/lab/kremlas/", "../../archiv/")}
+EIGENE = {"kremlas": (os.path.join(REPO, "kremlas"), "/lab/kremlas/", "../../archiv/", ""),
+          "kremlas-palladio": (os.path.join(REPO, "kremlas", "palladio"), "/lab/kremlas/palladio/", "../../../archiv/", "../")}   # Ordner, Adresse, Archiv, Präfix der Projektdateien
 sys.path.insert(0, REPO)
 import bauen  # noqa: E402  (Schrift-Quellen und geist.css wie im Bau)
 
@@ -34,7 +35,7 @@ class Server(http.server.SimpleHTTPRequestHandler):
         p = urllib.parse.unquote(urllib.parse.urlsplit(pfad).path)
         if p.startswith("/lab/simulationen/"):
             return os.path.join(HIER, *p[len("/lab/simulationen/"):].split("/"))
-        for ordner, adresse, _ in EIGENE.values():
+        for ordner, adresse, _, _ in sorted(EIGENE.values(), key=lambda e: -len(e[1])):   # längste Adresse zuerst
             if p.startswith(adresse):
                 return os.path.join(ordner, *p[len(adresse):].split("/"))
         if p.startswith("/schrift/") and p.endswith(".ttf"):
@@ -59,7 +60,7 @@ def apps_aus_bestand():
 
 def pruefe_app(browser, basis, aid):
     befunde = []
-    ordner, adresse, archiv = EIGENE.get(aid, (os.path.join(HIER, aid), f"/lab/simulationen/{aid}/", "../../../archiv/"))
+    ordner, adresse, archiv, pre = EIGENE.get(aid, (os.path.join(HIER, aid), f"/lab/simulationen/{aid}/", "../../../archiv/", ""))
     meta = json.load(open(os.path.join(ordner, "app.json"), encoding="utf-8"))
     for thema in ("dark", "light"):
         for breite in (1440, 390):
@@ -90,9 +91,9 @@ def pruefe_app(browser, basis, aid):
             if sw[0] > sw[1]:
                 befunde.append(f"{ort}: waagerechtes Scrollen ({sw[0]} > {sw[1]} px)")
             if thema == "dark" and breite == 1440:
-                kopf = pg.evaluate("""[!!document.querySelector('link[rel=help][href="AGENTS.md"]'), !!document.querySelector('meta[name=source][content="quellcode.zip"]'),
-                                       !!document.querySelector('a[href="quellcode.zip"]'), !!document.querySelector('a[href="AGENTS.md"]'),
-                                       !!document.querySelector('a[href^="ARCHIV"]'), getComputedStyle(document.body).backgroundColor]""".replace("ARCHIV", archiv))
+                kopf = pg.evaluate("""[!!document.querySelector('link[rel=help][href="PREAGENTS.md"]'), !!document.querySelector('meta[name=source][content="PREquellcode.zip"]'),
+                                       !!document.querySelector('a[href="PREquellcode.zip"]'), !!document.querySelector('a[href="PREAGENTS.md"]'),
+                                       !!document.querySelector('a[href^="ARCHIV"]'), getComputedStyle(document.body).backgroundColor]""".replace("ARCHIV", archiv).replace("PRE", pre))
                 for ok, was in zip(kopf[:5], ("<link rel=help href=AGENTS.md>", "<meta name=source content=quellcode.zip>", "Link quellcode.zip", "Link AGENTS.md", "Link zur Archivseite")):
                     if not ok:
                         befunde.append(f"{aid}: {was} fehlt")

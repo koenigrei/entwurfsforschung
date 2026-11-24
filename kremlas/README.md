@@ -18,6 +18,11 @@ Online: https://entwurfsforschung.de/lab/kremlas/ (eigenes Projekt im KI Lab; bi
 
 Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einnehmen (30–100 %, im Original fest 75 %). Regler **kürzeste Seite**: Untergrenze als Anteil von √Fläche (Original fest 0,75). Regler **Federrunden**: wie oft je Kind Federn und Kollisionserkennung abwechseln (Original 2; Topologie und Gang 10, Grundriss 5). Die Wahl Stern/Wohnung erscheint nur in den Grundriss-Fassungen; „Topologie zeigen“ legt die Nachbarschaften dort als Linien über den Grundriss. Schalter **Mindestmaße** (neu, Grundriss-Fassungen): Mindestbreite je Raum (Flur 1,20 m nach DIN 18040-2, sonst angenommen), Fläche ≥ 95 %, Plan-Bewertung f3 in der Selektion. **Lösungen** unter der Zeichenfläche: *Grundrisse suchen* sammelt die eingestellte Zahl gültiger Grundrisse (voreingestellt 3) aus vielen kurzen Läufen; ein Klick auf eine Karte lädt den Grundriss in die Einzelansicht. **L-förmig erlaubt** (Kästchen je Raum unter „Mindestmaße“): ein Raum aus zwei bündigen Rechtecken, wenn seine Fläche dafür reicht.
 
+## Tabs
+
+- **Dichte Packung** (`index.html`): die App wie oben.
+- **Palladio-Villen** (`palladio/index.html`): acht Villen Palladios als Vorbilder, Rekonstruktion (Nähe zum Vorbild 1) und Varianten (0), Ähnlichkeit zum Vorbild; Daten in `vorbilder_palladio.js` aus `werkzeuge/vorbilder_palladio.cjs`.
+
 ## Starten
 
 - Doppelklick auf `index.html` genügt (klassische Skripte, keine Module, kein Build).

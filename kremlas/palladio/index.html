@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KREMLAS · Palladio-Villen · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Palladios Villen mit der Methode von KREMLAS nachgeneriert: Raumprogramm, Flächen, Türen und Symmetrie aus der Palladio-Grammatik, dichte Packung mit Evolutionsstrategie, Federn und Kollisionserkennung, Ähnlichkeit zum Vorbild. Rekonstruktion und Varianten.">
+<meta name="source" content="../quellcode.zip">
+<link rel="help" href="../AGENTS.md">
+<link rel="license" href="../LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+<style>
+/* Lösungen: gefundene Grundrisse als Karten (neu, 23.11.2026) */
+.loesungen { padding: 16px var(--g) 24px; border-bottom: 1px solid var(--line); }
+.loesungen[hidden] { display: none; }
+.l-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.l-kopf h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin: 0 6px 0 0; }
+.l-kopf label { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.l-kopf input { width: 4.5em; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; font: inherit; }
+.l-kopf .knopf { padding: 7px 14px; }
+.l-kopf .knopf:disabled { opacity: .45; cursor: default; }
+#l-status { flex: 1 1 260px; font-size: 12px; }
+#l-karten { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 14px; }
+.l-karte { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 6px; cursor: pointer; text-align: left; font-size: 11px; }
+.l-karte:hover { border-color: var(--ink); }
+.l-karte[aria-pressed="true"] { border-color: var(--accent-text); box-shadow: 0 0 0 1px var(--accent-text); }
+.l-karte canvas { display: block; max-width: 100%; height: auto; }
+.loesungen .hinweis { font-size: 12px; margin: 10px 0 0; max-width: 90ch; }
+/* L-förmige Räume je Raum (neu) */
+.l-wahl { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 0 10px; padding: 8px 10px; font-size: 13px; border: 1px solid var(--accent-text); border-radius: 4px; }
+.l-wahl .l-titel { flex-basis: 100%; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-text); }
+.l-wahl .l-hinweis { flex-basis: 100%; color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+.l-wahl label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.l-wahl label.aus { color: var(--muted); cursor: default; }
+
+/* Tab-Leiste der KREMLAS-Seiten (neu) */
+.k-tabs { display: flex; flex-wrap: wrap; gap: 0 4px; padding: 0 var(--g); border-bottom: 1px solid var(--line); }
+.k-tabs a { padding: 10px 12px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; }
+.k-tabs a:hover { color: var(--ink); }
+.k-tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent-text); }
+</style>
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../../../">← <span lang="de">KI Lab</span><span lang="en">AI Lab</span></a>
+  <h1><span lang="de">KREMLAS · Palladio-Villen</span><span lang="en">KREMLAS · Palladian villas</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+<nav class="k-tabs mono" aria-label="KREMLAS"><a href=".././"><span lang="de">Dichte Packung</span><span lang="en">Dense packing</span></a><a href="../palladio/" aria-current="page"><span lang="de">Palladio-Villen</span><span lang="en">Palladian villas</span></a></nav>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <p class="hinweis mono"><span lang="de">ein Schritt = eine Generation · gezeigt wird die beste Lösung · Federn wirken nur in den Fassungen mit Topologie und im Grundriss · Raum mit der Maus ziehen: er bleibt, bis die Taste losgelassen wird, die anderen weichen aus</span><span lang="en">one step = one generation · the best solution is shown · springs act only in the topology and floor plan versions · drag a room with the mouse: it stays put until you release, the others make way</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="loesungen" id="loesungen" hidden aria-label="Lösungen">
+  <div class="l-kopf">
+    <h2 class="mono"><span lang="de">Lösungen</span><span lang="en">Solutions</span></h2>
+    <label for="l-anzahl"><span lang="de">Anzahl</span><span lang="en">Number</span> <input type="number" id="l-anzahl" min="1" max="12" step="1" value="3"></label>
+    <button class="knopf haupt" type="button" id="l-suche"><span lang="de">Grundrisse suchen</span><span lang="en">Search floor plans</span></button>
+    <button class="knopf" type="button" id="l-stopp" disabled><span lang="de">Stopp</span><span lang="en">Stop</span></button>
+    <span class="mono hinweis" id="l-status"></span>
+  </div>
+  <div id="l-karten"></div>
+  <p class="hinweis mono"><span lang="de">Gesucht werden Grundrisse, die funktionieren: jede geforderte Nachbarschaft mit Tür, keine Überlappung, jeder Raum mindestens so breit wie seine Mindestbreite und mindestens 95 % seiner Fläche. Die Suche startet viele kurze Läufe mit neuen Saaten, ab der eingestellten Saat, bessert Beinahe-Lösungen nach und wählt unter den Treffern möglichst verschiedene. Ein Klick auf eine Karte lädt den Grundriss in die Ansicht oben; dort lässt er sich weiterrechnen und mit der Maus bearbeiten. L-förmige Räume wählen Sie rechts im Bedienfeld unter <em>Fassung</em> im Kasten <em>L-förmige Räume</em>.</span><span lang="en">The search looks for floor plans that work: a door for every required adjacency, no overlap, every room at least as wide as its minimum width and at least 95 % of its area. It starts many short runs with new seeds, beginning at the current seed, refines near-solutions and picks hits that differ as much as possible. Click a card to load the floor plan into the view above, where you can keep evolving it or edit it with the mouse. Choose L-shaped rooms in the control panel on the right, under <em>Version</em>, in the box <em>L-shaped rooms</em>.</span></p>
+</section>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Vorbilder</span><span lang="en">Models</span></div>
+    <div><span lang="de">Acht Villen Palladios aus der</span><span lang="en">Eight villas by Palladio from the</span> <a href="../../palladio/"><span lang="de">Konzeptstudie Palladio</span><span lang="en">Palladio Concept Study</span></a></div>
+    <a class="weiter mono" href="../quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="../AGENTS.md">AGENTS.md</a>
+    <a href="../../../lab/methode/kremlas/"><span lang="de">Methode</span><span lang="en">Method</span></a>
+    <a href="../QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+    <a href="../../../archiv/floor-plans/"><span lang="de">Archivseite KREMLAS</span><span lang="en">KREMLAS archive page</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Kann die evolutionäre Methode von KREMLAS die Grundrisse von Palladios Villen wiederfinden? Vorbild sind die acht Villen der <a href="../../palladio/">Konzeptstudie Palladio</a>: Raumaufteilungen, die Palladio in den <em>Quattro Libri</em> verwendet, erzeugt mit der Palladio-Grammatik von Stiny und Mitchell und bewertet nach Stiny und Gips. KREMLAS bekommt davon nur, was ein Raumprogramm enthält: den Umriss der Villa, die Räume mit ihren Flächen und Formen, die Türen als geforderte Nachbarschaften und die Spiegelachse. Wo die Räume liegen, muss die dichte Packung selbst finden.</p>
+      <p><strong>Übersetzung.</strong> Ein Raum ist die Fläche seiner Rasterzellen samt der Wände dazwischen, nach außen um eine halbe Wandstärke erweitert. So füllen die Räume das Innere der Villa lückenlos, wie die Raumprogramme im KREMLAS-Buch. Maße in Meter, ein Vicentiner Fuß zu 0,357 m. Die großen Säle sind oft kreuz-, T- oder I-förmig. Sie werden zeilenweise in zwei oder drei Rechtecke zerlegt, die eine innere Feder zusammenhält, wie bei den L-förmigen Räumen der Dichten Packung. Die Mindestbreite eines Raums ist hier 0,8 · seine kürzeste Seite im Vorbild, als Spielraum für Varianten.</p>
+      <p><strong>Neu im Verfahren.</strong> Spiegelsymmetrie: Räume auf der Achse bleiben mittig, die übrigen bilden Paare, die nach jeder Entwicklung auf ihre gemittelte, gespiegelte Lage gebracht werden. Eine Mutation <em>Raumtausch</em> lässt zwei Räume ähnlicher Fläche ihre Plätze tauschen, Spiegelpaare immer beidseitig. Sonst bliebe die einmal gefundene Reihenfolge der Räume fast fest. Der Regler <em>Nähe zum Vorbild</em> nimmt die Abweichung vom Vorbild in die Bewertung f3 auf. Bei 0 sucht KREMLAS freie Varianten mit demselben Programm, bei 1 rekonstruiert es. Dann läuft jeder Lauf bis zum Ende, und es zählt der gültige Plan, der dem Vorbild am nächsten kommt.</p>
+      <p><strong>Ähnlichkeit.</strong> Je Raum zählt die Überdeckung seiner Fläche im Plan mit der Fläche im Vorbild (Schnitt durch Vereinigung), gemittelt über alle Räume. Gespiegelte Grundrisse gelten als gleich: Verglichen wird mit dem Plan selbst und seinen Spiegelungen links/rechts und vorn/hinten. Mit <em>Vorbild zeigen</em> liegt das Vorbild gestrichelt über dem Plan.</p>
+      <p><strong>Gemessen</strong> (Nähe 1, drei Grundrisse, höchstens zwölf Läufe zu 400 Generationen): Die beste Ähnlichkeit lag bei Angarano und Ragona bei 98 %, bei Zeno, Badoer und Emo bei 97 %, bei Saraceno bei 92 % und bei Malcontenta mit dem Kreuzsaal bei 82 %. Die Villa Pisani mit dem I-förmigen Saal aus drei Teilen gelingt kaum, dort fehlen meist Türen (48 %). Mit Nähe 0 entstehen gültige, symmetrische Varianten, die dem Vorbild weniger gleichen.</p>
+      <p>Quellen: T. Elezkurtaj, G. Franck (2002): Algorithmic Support of Creative Architectural Design. <em>Umbau</em> 19, 129–137, <a href="https://www.researchgate.net/publication/255606960_Algorithmic_Support_of_Creative_Architectural_Design">ResearchGate</a> (Ausgangspunkt von KREMLAS). G. Stiny, W. J. Mitchell (1978): The Palladian grammar. <em>Environment and Planning B</em> 5(1), 5–18, <a href="https://doi.org/10.1068/b050005">doi:10.1068/b050005</a>. G. Stiny, J. Gips (1978): An evaluation of Palladian plans. <em>Environment and Planning B</em> 5(2), 199–206, <a href="https://doi.org/10.1068/b050199">doi:10.1068/b050199</a>. A. Palladio (1570): <em>I quattro libri dell’architettura</em>, Venedig. D. Donath, R. König, F. Petzold (Hrsg.) (2012): <em>KREMLAS</em>, Weimar, urn:nbn:de:gbv:wim2-20120509-16504. Die Übersetzung der Vorbilder macht <code>werkzeuge/vorbilder_palladio.cjs</code> (im Quellcode).</p>
+    </div>
+    <div lang="en">
+      <p>Can the evolutionary method of KREMLAS find Palladio's villa plans again? The models are the eight villas of the <a href="../../palladio/">Palladio Concept Study</a>: room layouts that Palladio uses in the <em>Quattro Libri</em>, generated with Stiny and Mitchell's Palladian grammar and evaluated after Stiny and Gips. KREMLAS receives only what a room programme contains: the outline of the villa, the rooms with their areas and shapes, the doors as required adjacencies, and the mirror axis. Where the rooms go, the dense packing has to find out itself.</p>
+      <p><strong>Translation.</strong> A room is the area of its grid cells including the walls between them, extended outwards by half a wall thickness. The rooms thus fill the interior of the villa without gaps, like the room programmes in the KREMLAS book. Dimensions in metres, one Vicentine foot taken as 0.357 m. The large halls are often cross-, T- or I-shaped. They are cut row by row into two or three rectangles held together by an inner spring, as with the L-shaped rooms of the dense packing. Here a room's minimum width is 0.8 · its shortest side in the model, leaving room for variants.</p>
+      <p><strong>New in the method.</strong> Mirror symmetry: rooms on the axis stay centred, the others form pairs that are brought to their averaged, mirrored position after every development step. A <em>room swap</em> mutation lets two rooms of similar area exchange their places, mirror pairs always on both sides. Otherwise the order of rooms found early would stay almost fixed. The <em>closeness to the model</em> slider adds the deviation from the model to the assessment f3. At 0, KREMLAS searches for free variants with the same programme; at 1, it reconstructs. Each run then continues to the end, and the valid plan closest to the model counts.</p>
+      <p><strong>Similarity.</strong> For each room, the overlap of its area in the plan with its area in the model counts (intersection over union), averaged over all rooms. Mirrored floor plans count as equal: the plan is compared as it is and mirrored left/right and front/back. With <em>show model</em>, the model is drawn dashed over the plan.</p>
+      <p><strong>Measured</strong> (closeness 1, three floor plans, at most twelve runs of 400 generations): the best similarity was 98 % for Angarano and Ragona, 97 % for Zeno, Badoer and Emo, 92 % for Saraceno and 82 % for Malcontenta with its cross-shaped hall. Villa Pisani, with an I-shaped hall of three parts, hardly works; doors are usually missing (48 %). With closeness 0, valid symmetric variants emerge that resemble the model less.</p>
+      <p>Sources: T. Elezkurtaj, G. Franck (2002): Algorithmic Support of Creative Architectural Design. <em>Umbau</em> 19, 129–137, <a href="https://www.researchgate.net/publication/255606960_Algorithmic_Support_of_Creative_Architectural_Design">ResearchGate</a> (starting point of KREMLAS). G. Stiny, W. J. Mitchell (1978): The Palladian grammar. <em>Environment and Planning B</em> 5(1), 5–18, <a href="https://doi.org/10.1068/b050005">doi:10.1068/b050005</a>. G. Stiny, J. Gips (1978): An evaluation of Palladian plans. <em>Environment and Planning B</em> 5(2), 199–206, <a href="https://doi.org/10.1068/b050199">doi:10.1068/b050199</a>. A. Palladio (1570): <em>I quattro libri dell’architettura</em>, Venice. D. Donath, R. König, F. Petzold (eds.) (2012): <em>KREMLAS</em>, Weimar, urn:nbn:de:gbv:wim2-20120509-16504. The models are translated by <code>werkzeuge/vorbilder_palladio.cjs</code> (in the source code).</p>
+    </div>
+  </div>
+</section>
+
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="../quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="../AGENTS.md">AGENTS.md</a>
+  <a href="../LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script>window.KREMLAS_SEITE = "palladio";</script>
+<script src="../vorbilder_palladio.js"></script>
+<script src="../modell.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

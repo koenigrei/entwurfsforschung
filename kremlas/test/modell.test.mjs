@@ -457,3 +457,59 @@ test("Suche mit L-förmigem Flur und Wohnen: drei gültige Grundrisse, jeder mit
   assert.ok(S.treffer.length >= 3, `nur ${S.treffer.length} Treffer in ${S.laeufe} Läufen`);
   for (const T of M.waehleVerschiedene(S.treffer, 3)) { assert.ok(T.wert.gueltig && T.wert.lform < 0.02); assert.equal(T.ind.g.length, 8); }
 });
+
+/* ---------------------------------------------------------------- Palladio-Villen nachgenerieren (neu, 23.11.2026) */
+const VB = require("../vorbilder_palladio.js");
+M.registriere(VB);
+const villa = (v, q) => Object.assign({}, M.STANDARD, ...M.REGLER.map(k => ({ [k]: M.FASSUNGEN["pal_" + v][k] })), { fassung: "pal_" + v }, q);
+
+test("Vorbilder Palladio: acht Villen, Räume füllen das Feld, Symmetrie aus Achse und Spiegelpaaren", () => {
+  assert.equal(VB.liste.length, 8);
+  for (const pid of VB.liste) {
+    const P = M.PROGRAMME[pid], A = P.raeume.reduce((s, r) => s + r[2], 0);
+    assert.ok(nah(A, P.feld.b * P.feld.h, 0.05), `${pid}: ${A} m² statt ${P.feld.b * P.feld.h}`);
+    const S = P.symmetrie, alle = [...S.achse, ...S.paare.flat()].sort((a, b) => a - b);
+    assert.deepEqual(alle, P.raeume.map((_, i) => i), `${pid}: jeder Raum auf der Achse oder in einem Paar`);
+    assert.ok(P.paare.some(([a, b]) => b === -1), `${pid}: Eingang`);
+  }
+  assert.deepEqual(M.PROGRAMME.pal_malcontenta.raeume[8][4].teile.length, 3);   // Kreuzsaal aus drei Teilen
+});
+
+test("Feld je Programm: Villa im eigenen Maßstab, danach wieder 500 × 430 px und 50 px = 1 m", () => {
+  const z = M.erzeuge(villa("emo"), zufall(1)), F = M.PROGRAMME.pal_emo.feld;
+  assert.ok(nah(M.BREITE / M.PX_M, F.b, 1e-9) && nah(M.HOEHE / M.PX_M, F.h, 1e-9) && nah(Math.max(M.BREITE, M.HOEHE), 500, 1e-9));
+  assert.ok(nah(M.TUER_PX, 0.9 * M.PX_M, 1e-9));
+  M.erzeuge(fassung("grundriss6"), zufall(1));
+  assert.equal(M.BREITE, 500); assert.equal(M.HOEHE, 430); assert.equal(M.PX_M, 50);
+  M.schritt(z, villa("emo")); assert.ok(nah(M.BREITE / M.PX_M, F.b, 1e-9), "schritt setzt das Feld des Zustands");
+});
+
+test("Symmetrie: Spiegelpaare gespiegelt, Achsenräume mittig, auch nach Generationen und Raumtausch", () => {
+  const p = villa("emo"), z = M.erzeuge(p, zufall(2));
+  for (let t = 0; t < 30; t++) M.schritt(z, p);
+  for (const e of z.eltern) {
+    for (const [a, b] of z.sym.paare) { const A = e.g.find(g => g.id === a), Bg = e.g.find(g => g.id === b);
+      assert.ok(nah(A.x, M.BREITE - Bg.x, 1e-6) && nah(A.y, Bg.y, 1e-6) && nah(A.w, Bg.w, 1e-6), `Paar ${a}/${b}`); }
+    for (const id of z.sym.achse) assert.ok(nah(e.g.find(g => g.id === id).x, M.BREITE / 2, 1e-6));
+    for (const g of e.g) assert.ok(nah(g.w * g.h, g.a, 1e-6));
+  }
+});
+
+test("Ähnlichkeit: das Vorbild selbst und seine Spiegelung gelten als deckungsgleich (1)", () => {
+  const p = villa("emo"); M.erzeuge(p, zufall(1));
+  const V = M.PROGRAMME.pal_emo.vorbild, k = M.PX_M, Bm = M.BREITE / k;
+  const ausVorbild = spiegel => ({ g: V.map((teile, raum) => { const t = teile[0], x0 = spiegel ? Bm - t[2] : t[0], x1 = spiegel ? Bm - t[0] : t[2];
+    return M.gen(raum, (x0 + x1) / 2 * k, (t[1] + t[3]) / 2 * k, (x1 - x0) * k, (t[3] - t[1]) * k, null, 0.4, 0, raum); }), fo: 0, fd: 0 });
+  const A = M.aehnlichkeit(ausVorbild(false), "pal_emo");
+  assert.ok(A.mittel > 0.999, `${A.mittel}`); assert.equal(A.gespiegelt.x, false);
+  const S = M.aehnlichkeit(ausVorbild(true), "pal_emo");
+  assert.ok(S.mittel > 0.999, `${S.mittel}`);
+});
+
+test("Rekonstruktion: Villa Emo mit Nähe 1 wiedergefunden (gültig, über 90 % ähnlich)", () => {
+  const p = villa("emo", { naehe: 1 }), S = M.sucheNeu(p, zufall, { anzahl: 1, ziel: 1, saat: 1, laeufe: 4, generationen: 400 });
+  while (!S.fertig) M.sucheWeiter(S, 400);
+  assert.ok(S.treffer.length >= 1, `kein Treffer in ${S.laeufe} Läufen`);
+  const T = S.treffer[0];
+  assert.ok(T.wert.gueltig && M.aehnlichkeit(T.ind, T.programm).mittel > 0.9, `Ähnlichkeit ${M.aehnlichkeit(T.ind, T.programm).mittel}`);
+});

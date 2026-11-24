@@ -10,6 +10,7 @@ Wie findet ein Computer einen Grundriss, wenn nur die Räume, ihre Flächen und 
 
 ## Vorbild und Quellen
 
+- Ausgangspunkt der gesamten Entwicklung: T. Elezkurtaj, G. Franck (2002): *Algorithmic Support of Creative Architectural Design.* Umbau 19, S. 129–137, https://www.researchgate.net/publication/255606960_Algorithmic_Support_of_Creative_Architectural_Design.
 - Originalprogramm: C#-Projektmappe `Einpassung_21.sln` (Reinhard König, Computational Planning Group), Repository cpg_all, `Source/Kremlas/` (https://bitbucket.org/koenigr/cpg_all).
 - D. Donath, R. König, F. Petzold (Hrsg.): *KREMLAS. Entwicklung einer kreativen evolutionären Entwurfsmethode für Layoutprobleme in Architektur und Städtebau.* Weimar: Verlag der Bauhaus-Universität 2012, urn:nbn:de:gbv:wim2-20120509-16504 (Kap. 5, 9, 12).
 - Raumprogramme mit 8 und 10 Räumen: Buch Tab. 8 und 9 (Szenarien nach Flemming et al. 1992); 6 Räume angenommen.
@@ -28,9 +29,13 @@ Kein Korpus echter Grundrisse. Maßstab ist das Originalprogramm (Quelltext, Vor
 
 Hybride Evolutionsstrategie (μ+λ) bzw. (μ,λ): Rekombination (Partially Mapped Crossover über die Raumnummern), Mutation (Verschiebung N(0, σ), Proportionsänderung, Inversion), danach „Entwicklung“ jedes Kindes durch Kollisionserkennung (Rand, Proportionsänderung, Abstoßen). Mit Topologie ziehen virtuelle Federn geforderte Nachbarn zusammen; Federn und Kollisionserkennung wechseln je Kind mehrmals ab (Federrunden). Selektion getrennt nach f1 (Überlappung Sg) und f2 (Distanzen) wie im Original; mit Mindestmaßen ersetzt f3 (Bewertung des abgeleiteten Plans: Türen gleitend gemessen, Breiten, Flächen, Überlappung, L-Form) das Kriterium f2. Die Lösungssuche startet viele kurze Läufe mit neuen Saaten, bessert Beinahe-Lösungen örtlich nach (memetisch) und wählt unter den Treffern möglichst verschiedene (Maximin).
 
+## Vorbilder nachgenerieren (Palladio)
+
+Tab `palladio/`: Raumprogramm, Türen und Spiegelachse von acht Villen aus der Palladio-Grammatik (G. Stiny, W. J. Mitchell 1978, doi:10.1068/b050005; G. Stiny, J. Gips 1978, doi:10.1068/b050199); Räume mit halben Wänden, Säle aus Teilen, Feld in Metern. Die Packung bekommt keine Lagen, nur das Programm. Neu: Spiegelsymmetrie, Raumtausch, Ähnlichkeit (Schnitt durch Vereinigung je Raum, gespiegelte Pläne gleich), Regler Nähe zum Vorbild (Rekonstruktion bis Varianten). Ergebnis: sechs von acht Villen mit 92–98 % Ähnlichkeit rekonstruiert, Malcontenta 82 %, Pisani (I-Saal) 48 %.
+
 ## Prüfer
 
-- `node --test` im Ordner `kremlas/` (40 Tests, 23.11.2026): Regeln des Originals nachgerechnet (Rundung wie C#, Kollision, Federn, Selektion), Verhalten über mehrere Saaten (Stern gelöst, Grundriss mit Türen), Plan-Prüfung an Hand-Beispielen, Suche wiederholbar.
+- `node --test` im Ordner `kremlas/` (45 Tests, 23.11.2026): Regeln des Originals nachgerechnet (Rundung wie C#, Kollision, Federn, Selektion), Verhalten über mehrere Saaten (Stern gelöst, Grundriss mit Türen), Plan-Prüfung an Hand-Beispielen, Suche wiederholbar.
 - `py -3.14 simulationen/pruefe_apps.py kremlas`: Browser, hell/dunkel, 1440/390 px, `pruef_ausdruck` (gültiger Plan nach 400 Generationen).
 - Plan gültig, wenn jede geforderte Nachbarschaft eine Tür hat (gemeinsame Wand ≥ 1,1 m), Überlappung < 0,05 m², jeder Raum seine Mindestbreite und ≥ 95 % seiner Fläche hat, L-Teile sich auf der Mindestbreite berühren und bündig liegen.
 

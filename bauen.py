@@ -613,10 +613,11 @@ def kremlas():
                 for f in sorted(dateien):
                     if f != "quellcode.zip" and ".local." not in f:
                         zf.write(os.path.join(wurzel, f), (name + "/" + os.path.relpath(os.path.join(wurzel, f), basis)).replace(os.sep, "/"))
-    for f in os.listdir(d):                                            # alle Seiten des Projekts (später Tabs Palladio, Siza)
-        if f.endswith(".html"):
-            p_ = os.path.join(d, f); t_ = versionieren(open(p_, encoding="utf-8").read(), d)   # erst lesen, dann schreiben
-            open(p_, "w", encoding="utf-8").write(t_)
+    for wurzel, _, dateien in os.walk(d):                               # alle Seiten des Projekts, auch die Tabs (palladio/ …)
+        for f in dateien:
+            if f.endswith(".html"):
+                p_ = os.path.join(wurzel, f); t_ = versionieren(open(p_, encoding="utf-8").read(), wurzel)   # erst lesen, dann schreiben
+                open(p_, "w", encoding="utf-8").write(t_)
 
 
 KAT = os.path.join(HIER, "katalog")
