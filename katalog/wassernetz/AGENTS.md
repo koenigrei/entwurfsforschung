@@ -17,9 +17,11 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  hierarchie.js            Hierarchie: Straßenhierarchie aus gewichteter Betweenness (hier die vereinfachte Fassung analyseEinfach)
+  hydraulik.js             Hydraulik: Rohrnetzlöser ohne DOM (neu, iteration, loese, ergebnisse) – auch von ../wasserleitung/ benutzt;
+                           Tests in _gemeinsam/test/hydraulik.test.mjs mit den Prüfnetzen Testnet.inp, hydroanalysis1.inp
 katalog/wassernetz/
-  index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
-  hydraulik.js             Rohrnetzlöser ohne DOM (Hydraulik: neu, iteration, loese, ergebnisse) – gleich in ../wasserleitung/
+  index.html               statische Seite; lädt die Rahmen-Skripte, die gemeinsamen Dateien, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
   app.js                   Sim.starte({...}): Parameter, zeichne, legende, kennzahlen, klick, aktionen
   test/*.test.mjs          node --test
@@ -27,7 +29,7 @@ katalog/wassernetz/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `szenen.js` und `hydraulik.js` (Änderungen am Löser in beiden Apps gleich halten). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `szenen.js`, `hierarchie.js` und `hydraulik.js` (gemeinsam mit anderen Apps; Änderungen dort mit eigenem Test in `_gemeinsam/test/`, danach `node --test` in `_gemeinsam` und in allen Apps, die die Datei nutzen). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -43,7 +45,7 @@ katalog/wassernetz/
 | `schritt(z, param)` | ein Schritt; erhöht `z.t` |
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
 | `szene(zufall)` | Gelände, Stadt, Straßennetz mit Höhen je Knoten, Kantenlängen im Raum, Straßenhierarchie, Blöcke mit Schwerpunkt, Fläche, nächstem Knoten |
-| `strassenhierarchie(N, poi, eingang)`, `gewichteHierarchie`, `betweenness`, `klassifiziere` | Straßenhierarchie wie `../strassenhierarchie/` (übernommen) |
+| `strassenhierarchie(N, poi, eingang)`, `gewichteHierarchie`, `betweenness`, `klassifiziere`, `naechstesSegment` | Straßenhierarchie: Verweise auf `../_gemeinsam/hierarchie.js` (`Hierarchie.analyseEinfach`, `gewichteSumme`, `betweennessEinfach`, `klassifiziere(…).klasse`) und `Geo.naechstesSegment` |
 | `kantenGewicht(klasse, p)`, `bedarfBlock(A, p)` | Gewicht je Straßenklasse; Bedarf eines Blocks in L/s = DemandPerHousehold [L/Tag] × Haushalte / 86 400 × Spitzenfaktor (5 ergibt den Faktor 0.00005787 der Datei) |
 | `wegebaum(Sz, s, cost)`, `kantenweg(baum, N, t)` | Dijkstra-Baum vom Behälter; Kanten des Weges zu einem Knoten |
 | `kombiniere(wegeL, wegeH, laenge, schwelle)` | Wassernetz: Hierarchiewege + Zusatzkanten der Längenwege bis zur Schwelle (Set Difference, Mass Addition, Remap, Cull) |
@@ -52,7 +54,7 @@ katalog/wassernetz/
 | `schritt`, `rechneAlles`, `fertig` | Phasen „wege“ → „netz“ → „dimension“ → „analyse“ |
 | `setzeTank(z, p, q)` | Hochbehälter versetzen (nächster Straßenknoten) |
 | `druckBar(z, c)`, `knotenWert(z, c, art)`, `bilanz(z, p)` | Druck je Verbraucher in bar (Round(m) / 10), Knotenwerte, Kennzahlen (Maschen, Durchmesser, Druckbereich …) |
-| `Hydraulik.neu/iteration/loese/ergebnisse/bilanzfehler` | Löser (hydraulik.js) |
+| `Hydraulik.neu/iteration/loese/ergebnisse/bilanzfehler` | Löser (`../_gemeinsam/hydraulik.js`) |
 
 Zustand `z`: `Sz` (Szene), `tank`, `tankKnoten`, `verbraucher`, `baumL`/`baumH`, `wegeL`/`wegeH`, `phase`, `k`, `K` (Kombination), `rohre` (Kantenindizes), `dIdx` (Index im Gene Pool je Rohr), `durchgang`, `vergroessert`, `netz`, `S`, `erg`, `fertig`.
 
@@ -66,7 +68,6 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 
 ## Ideen für Weiterentwicklung
 
-- `hydraulik.js` nach `katalog/_gemeinsam/` verschieben (wird auch von `wasserleitung` benutzt); die übernommene Straßenhierarchie ebenso (z. B. `_gemeinsam/hierarchie.js`).
 - Echtes Straßennetz und Gelände laden (GeoJSON, Höhenmodell); Behälter als Reservoir oder mehrere Behälter.
 - Kosten des Netzes (Rohrlänge × Preis je Durchmesser) gegen Ausfallsicherheit (Maschen) abwägen; Ausfall einzelner Rohre simulieren.
 - Druckzonen oder Druckminderer, wenn Drücke über 16 bar liegen.

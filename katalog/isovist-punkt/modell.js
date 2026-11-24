@@ -67,20 +67,10 @@
 
   function aendere(z, p) { rechne(z, p); }
 
-  /** Fünf Kenngrößen ohne prüfbare Definition in der DeCodingSpaces-Toolbox v2 (dort gestrichen): die App rechnet sie nach eigenen
-      Definitionen (siehe QUELLE.md) und kennzeichnet sie in Auswahl, Kennzahlen und Beschriftung mit „*“ */
-  const EIGENE_DEFINITION = ["areaDist", "circularity", "convexDeficiency", "dispersion", "elongation"];
-  const FUSSNOTE = { de: "* eigene Definition (in Toolbox v2 gestrichen)", en: "* own definition (dropped in toolbox v2)" };
-  /** Name einer Kenngröße {de, en}; bei eigener Definition mit angehängtem „ *“ (geschütztes Leerzeichen, damit der Stern nicht allein umbricht) */
-  function kenngroesseName(k) {
-    const e = Geo.ISOVIST_MASSE.find(m => m[0] === k), s = EIGENE_DEFINITION.includes(k) ? " *" : "";
-    return { de: e[2] + s, en: e[1] + s };
-  }
-  /** Eintrag der Auswahlliste: „Name (English) *“ */
-  function kenngroesseOption(k) {
-    const e = Geo.ISOVIST_MASSE.find(m => m[0] === k), s = EIGENE_DEFINITION.includes(k) ? " *" : "";
-    return { wert: k, name: { de: `${e[2]} (${e[1]})${s}`, en: e[1] + s } };
-  }
+  /** Fünf Kenngrößen ohne prüfbare Definition in der DeCodingSpaces-Toolbox v2 (dort gestrichen) werden nach eigenen Definitionen
+      gerechnet (siehe QUELLE.md) und mit „*“ gekennzeichnet – Liste, Fußnote und Namen stehen in ../_gemeinsam/geo.js */
+  const EIGENE_DEFINITION = Geo.ISOVIST_EIGENE_DEFINITION, FUSSNOTE = Geo.ISOVIST_FUSSNOTE;
+  const kenngroesseName = Geo.isovistMassName, kenngroesseOption = Geo.isovistMassOption;
 
   return { STANDARD, EIGENE_DEFINITION, FUSSNOTE, kenngroesseName, kenngroesseOption, erzeuge, schritt, aendere, rechne, richtung, winkelGH, imGebaeude, setzeStandpunkt, blickeZu };
 });

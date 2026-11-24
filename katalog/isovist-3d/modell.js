@@ -17,10 +17,11 @@
    abstand je Prisma) und prüft dann je Neigungswinkel nur noch die Höhe – schnell genug für flüssige Bedienung. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/karte.js") : wurzel.Karte);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Karte) {
   "use strict";
   const D2R = Math.PI / 180;
 
@@ -34,20 +35,11 @@
   /** Geschosshöhe der Beispielstadt (m), Geschosse 3…7; Kirchenschiff und Turm (m) */
   const GESCHOSS = 3.2, SCHIFF = 18, TURM = 42;
   /** Farbverlauf der Gradient-Komponente der .gh-Datei (Farbe, Lage des Griffs) und die beiden Colour Swatches */
-  const VERLAUF = { farben: [[0, 0, 139], [50, 178, 206], [87, 166, 31], [255, 215, 0], [255, 0, 0]], faktoren: [0, 0.0341, 0.0977, 0.1977, 0.5614] };
+  const VERLAUF = { farben: Karte.GRADIENT_GH, faktoren: [0, 0.0341, 0.0977, 0.1977, 0.5614] };
   const GRAU = [173, 173, 173], GELB = [255, 204, 0];
 
-  /** Farbe des Verlaufs bei t ∈ [0, 1] → [r, g, b] (linear zwischen den Griffen, jenseits des letzten Griffs dessen Farbe) */
-  function verlauf(t, V = VERLAUF) {
-    const f = V.faktoren, c = V.farben;
-    t = Math.max(0, Math.min(1, isFinite(t) ? t : 0));
-    if (t <= f[0]) return c[0].slice();
-    for (let i = 1; i < f.length; i++) if (t <= f[i]) {
-      const u = (t - f[i - 1]) / ((f[i] - f[i - 1]) || 1);
-      return [0, 1, 2].map(k => Math.round(c[i - 1][k] + (c[i][k] - c[i - 1][k]) * u));
-    }
-    return c[c.length - 1].slice();
-  }
+  /** Farbe des Verlaufs bei t ∈ [0, 1] → [r, g, b] (linear zwischen den Griffen, jenseits des letzten Griffs dessen Farbe; Karte.verlauf) */
+  const verlauf = (t, V = VERLAUF) => Karte.verlauf(t, V);
 
   /* ---------------------------------------------------------------- Richtungen */
   /** Blickrichtung der .gh-Datei: Unit X um Unit Z gedreht um a Grad (gegen den Uhrzeigersinn, 0 = Osten, 90 = Norden).

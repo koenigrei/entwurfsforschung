@@ -12,18 +12,9 @@
   /** Straßenfarbe nach der Zeit t (Reihenfolge des Wachstums) wie im Katalogbild: früh blaugrün, spät gelb und rot */
   const strassenFarbe = (t, F) => { const c = Karte.farbeRGB(0.1 + 0.9 * t, "spektral"); return F.dunkel ? `rgb(${c[0]},${c[1]},${c[2]})` : `rgb(${c.map(v => Math.round(v * 0.74)).join(",")})`; };
 
-  /** Gelände einmal je Größe, Darstellung und Glättung in ein Bild rechnen und danach nur noch einsetzen */
-  const cache = { schluessel: "", c: null };
-  function gelaende(ctx, G, F) {
-    const a = ctx.getTransform().a, W = Math.max(1, Math.round(G.groesse * a)), k = [W, F.dunkel, G.h[5050], G.h[777], G.max].join("|");
-    if (cache.schluessel !== k) {
-      const c = cache.c || document.createElement("canvas"); c.width = W; c.height = W;
-      const x = c.getContext("2d"); x.setTransform(a, 0, 0, a, 0, 0);
-      Karte.gelaende(x, G, Object.assign({}, F, { px: 1 / a }), { hoehenlinien: 20 });
-      cache.c = c; cache.schluessel = k;
-    }
-    ctx.drawImage(cache.c, 0, 0, G.groesse, G.groesse);
-  }
+  /** Gelände einmal je Größe, Darstellung und Glättung in ein Bild rechnen und danach nur noch einsetzen (Karte.gelaendeGespeichert;
+      Linienstärke der Höhenlinien nach den Bildpunkten des Zwischenbilds) */
+  const gelaende = (ctx, G, F) => Karte.gelaendeGespeichert(ctx, G, F, { hoehenlinien: 20, pxBild: true });
 
   Sim.starte({
     modell: Modell,

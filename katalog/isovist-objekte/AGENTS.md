@@ -14,9 +14,9 @@ simulationen/_gemeinsam/   Rahmen aller Lab-Apps (nicht pro App kopieren)
   sim.js                   Sim.starte(cfg): Ablauf, Bedienfeld, Zeichenfläche, Sprache, Hell/Dunkel, window.SIM
   sim.css                  Gestaltung wie das KI Lab
 katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catalogue
-  geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
+  geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness; Polylinien (naechsterAnteil, rundeEcken)
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
-  karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien; Verlauf mit frei liegenden Griffen (verlauf, GRADIENT_GH – ohne DOM, auch in modell.js)
 katalog/isovist-objekte/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
@@ -26,7 +26,7 @@ katalog/isovist-objekte/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `szenen.js` und `karte.js` (nur die DOM-freie Farbfunktion `Karte.verlauf`). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -47,8 +47,8 @@ katalog/isovist-objekte/
 | `rechne(z, p)` | Isovist (`Geo.isovist`) und Sichtbarkeit neu |
 | `blick(a)`, `richtungZu(o, q)` | Angle Direction (Unit Y gegen den Uhrzeigersinn) → Bildschirmwinkel; Angle Direction zu einem Punkt |
 | `setzeStandpunkt(z, p, q)`, `imGebaeude(z, q)` | Standpunkt frei versetzen (nicht in Gebäude) |
-| `rundweg(szene)`, `rundeEcken(P, r, teile)`, `naechsterAnteil(P, q)` | geschlossener Weg um den Platz auf den Straßenmitten; Ecken runden; nächster Wegpunkt |
-| `verlauf(t)` | Farbe des (gestauchten) Gradient der .gh-Datei |
+| `rundweg(szene)`, `rundeEcken(P, r, teile)`, `naechsterAnteil(P, q)` | geschlossener Weg um den Platz auf den Straßenmitten; Ecken runden; nächster Wegpunkt (`Geo.rundeEcken`, `Geo.naechsterAnteil`) |
+| `verlauf(t)` | Farbe des (gestauchten) Gradient der .gh-Datei (`Karte.verlauf`) |
 
 Zustand `z`: `O` (siehe `objekte`), `pfad`, `anteil`, `o` (Standpunkt), `iso`, `s` (Ergebnis von `sichtbarkeit`).
 

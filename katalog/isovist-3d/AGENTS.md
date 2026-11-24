@@ -17,6 +17,7 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  axonometrie.js           Axo: Prismen in Axonometrie/Schrägansicht – Projektion, Malerverfahren, Wände und Dach, Drehen per Ziehen (nur app.js)
 katalog/isovist-3d/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
@@ -35,6 +36,8 @@ katalog/isovist-3d/
 7. **Namensnennung** bleibt: „Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic“, Lizenz CC BY 4.0; Vorbild Parametric Planning Catalogue (MIT) nennen.
 
 ## Schnittstelle des Modells
+
+Projektion, Malerverfahren, Prismen und Drehen per Ziehen in app.js kommen aus `../_gemeinsam/axonometrie.js` (Axo).
 
 | Funktion | Aufgabe |
 |---|---|

@@ -18,6 +18,8 @@ simulationen/_gemeinsam/   Rahmen aller Lab-Apps (nicht pro App kopieren)
 katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catalogue
   geo.js                   Geo: Polygone (Fläche, Schwerpunkt, Halbebenen-Schnitt, Versatz), Strahlen, Netze
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  flaechen.js              Flaechen: Teilen an Schnitten, offene Enden verlängern, Flächen aus Linien, Kantenversatz je Kante, konvexe Polygonoperationen
+  axonometrie.js           Axo: Prismen in Axonometrie/Schrägansicht – Projektion, Malerverfahren, Wände und Dach, Drehen per Ziehen (nur app.js)
 katalog/baublock-generator/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
@@ -27,7 +29,7 @@ katalog/baublock-generator/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`. Zufall nur aus der übergebenen Funktion `zufall`: sie liefert in `erzeuge` die Basissaat `z.basis`, daraus leitet `zufallAus(mische(…))` die Folge je Variante und Aktion ab (eigene Saat je Aktion). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `flaechen.js`. Zufall nur aus der übergebenen Funktion `zufall`: sie liefert in `erzeuge` die Basissaat `z.basis`, daraus leitet `zufallAus(mische(…))` die Folge je Variante und Aktion ab (eigene Saat je Aktion). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -36,6 +38,8 @@ katalog/baublock-generator/
 7. **Namensnennung** bleibt: „Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic“, Lizenz CC BY 4.0; Vorbild DigiWo / DeCodingSpaces Lab und Paper nennen. Aus der DeCodingSpaces Toolbox (GPL-3.0) nur Definitionen ablesen, keinen Code übernehmen.
 
 ## Schnittstelle des Modells
+
+`clip`, `ohne`, `halbebenen`, `schnitt` rufen die konvexen Polygonoperationen aus `../_gemeinsam/flaechen.js` (Flaechen, Mindestfläche 0,05 m²). Die Axonometrie in app.js nutzt `../_gemeinsam/axonometrie.js` (Axo).
 
 | Funktion | Aufgabe |
 |---|---|

@@ -42,7 +42,7 @@ Zufall nur mit Saat (`simulationen/_gemeinsam/zufall.js`); Regler und Klick rech
 
 Treue zum Modul und erwartetes Verhalten, nicht Echtheit gegen reale Städte:
 
-- **`node --test`** je App und für `_gemeinsam/`: nachgerechnete Beispiele (Isovist im leeren Raum = Kreis, Raum 20 × 20 m, Verdeckung hinter einer Wand; T-Kreuzung mit beiden Kostenformeln; Rohr, parallele Rohre und Masche gegen Handrechnung bzw. Hardy-Cross), Grenzfälle, gleiche Saat → gleicher Lauf, ein Verhalten aus der Katalogbeschreibung (z. B. jede Parzelle behält eine Straßenkante, Eingangssegmente werden Hauptstraßen, steile Straßen quer zum Hang sind stark betroffen). Stand 23.11.2026: 33 Apps mit 519 Tests und 22 gemeinsame Tests, alle grün.
+- **`node --test`** je App und für `_gemeinsam/`: nachgerechnete Beispiele (Isovist im leeren Raum = Kreis, Raum 20 × 20 m, Verdeckung hinter einer Wand; T-Kreuzung mit beiden Kostenformeln; Rohr, parallele Rohre und Masche gegen Handrechnung bzw. Hardy-Cross), Grenzfälle, gleiche Saat → gleicher Lauf, ein Verhalten aus der Katalogbeschreibung (z. B. jede Parzelle behält eine Straßenkante, Eingangssegmente werden Hauptstraßen, steile Straßen quer zum Hang sind stark betroffen). Stand 23.11.2026 (Runde 3): 33 Apps und 81 gemeinsame Tests, alle grün.
 - **Gegenprobe an Originaldaten:** Die Rohrdurchmesser aus der Dimensionierungsschleife des Originals (`hydroanalysis1.inp`, 708 Knoten) ergeben im eigenen Löser höchstens 1,49 m/s bei der Grenze 1,5 m/s und Drücke von 2,5 bis 15,9 bar – genau der Bereich, den das Modul anstrebt.
 - **`pruef_ausdruck`** in `app.json` (fachliche Kennzahl nach den Vorschauschritten) und **`katalog/pruefe_apps.py`** (Browser, hell/dunkel, 1440/390 px, Start/Pause/Schritt/Zurück, Pflichtlinks, kein waagerechtes Scrollen, Kachelbilder); **`pruefe.py`** prüft den Bau (Pflichtdateien, Link zum Katalogeintrag, Quellcode-Paket, Begründung jedes nicht umgesetzten Moduls). Bildschirmfotos werden angesehen.
 
@@ -53,7 +53,7 @@ Gar nicht im Sinne eines Stils: Die Module sind Analyse- und Planungswerkzeuge. 
 ## Was trägt
 
 - **.gh ohne Rhino lesen:** GH_IO.dll → `GH_Archive.Serialize_Xml()`, dann kleine Auszugsskripte für Regler, Verdrahtung, Cluster und Skripte (`katalog/REZEPT.md`).
-- **Gemeinsame Bausteine:** `Geo.isovist`/`isovistMasse`, `Geo.richtungsGraph` mit `segmentBetweennessVon`/`segmentClosenessVon`, `Geo.voronoi`, `Szenen.stadt`/`gelaende`, `Karte.gelaende` – getestet in `_gemeinsam/test/`.
+- **Gemeinsame Bausteine** in `katalog/_gemeinsam/` (Runde 3 aufgeräumt, 23.11.2026): `geo.js` (Isovist, gerichteter Segmentgraph mit Radius, Voronoi, Polylinien), `szenen.js` (Stadt, Quartier, Gelände), `karte.js` (Farbskalen, Verlauf, Gelände mit Zwischenspeicher), `axonometrie.js`, `flaechen.js`, `generierung.js` (Instruktionsbaum, Slicing Tree), `hierarchie.js`, `hydraulik.js`, `raster.js` (Priority-Flood, Shadowcasting, Marching Squares) – 81 Tests in `_gemeinsam/test/`. Beim Umzug blieb das Verhalten jeder App gleich: Fingerabdruck des Zustands nach den Vorschauschritten (fester Saat, 6 Stellen, SHA-1) vorher = nachher für alle 33 Apps, Zeichnungen der Axonometrie-Apps pixelgleich.
 - **Quelltext als Schiedsrichter:** Vermutungen aus Runde 1 (ungerichteter Graph, eigene Kostenformel, Isovist-Momente, Slicing-Tree-Regeln, Network Smooth) wurden am Toolbox-Quelltext geprüft und korrigiert; die Apps nennen beide Definitionen, wo das Original von der heutigen abweicht.
 - **Ein Schritt = ein Rechenschritt** macht Verfahren sichtbar (Suchfront, wachsende Betweenness, Schnitt für Schnitt, Iteration des Gradientenverfahrens).
 
@@ -67,6 +67,6 @@ Gar nicht im Sinne eines Stils: Die Module sind Analyse- und Planungswerkzeuge. 
 
 ## Offen
 
-- Doppelte Bausteine nach `_gemeinsam/` ziehen: `hydraulik.js` (wasserleitung, wassernetz), Straßenhierarchie (strassenhierarchie, wassernetz), Flächen aus Linien und Kantenversatz (parzellen-versatz, strassen-zu-parzellen, stadtsynthese, gebaeude-generierung), Instruktionsbaum und Slicing Tree (netzoptimierung, stadtsynthese, gebaeude-generierung), Prismen-Axonometrie (isovist-3d, stadtsynthese, gebaeude-generierung, baublock-generator), Radius in der Segmentsuche (multiplikatoreffekt).
-- Lab: „Dynamic Urban Development Model“ als Kopplung von Stadtdynamik und Stadtsynthese; echte Windrose aus dem Global Wind Atlas (CC BY 4.0) mitliefern?
-- Ungeklärt ohne den alten Quelltext: Bedeutung von „d“ in der Legacy-Kostenformel, Glättung in Flow Paths, PISA-Selektor der Netzoptimierung, Faktor 0.00005787 im Wassernetz.
+- Noch nicht vereinheitlicht (leicht abweichende Fassungen): `remap` 0…1 (serpentinen, ringstrassen, nutzungsverteilung, wasserbasiertes-wachstum), Polylinien-Glättung offen/geschlossen (serpentinen, ringstrassen), `imGebaeude` (Isovist-Apps).
+- Lab: „Dynamic Urban Development Model“ als Kopplung von Stadtdynamik und Stadtsynthese; echte Windrose für Weimar aus dem Global Wind Atlas (CC BY 4.0, Zitiersatz und Davis et al. 2023) – die Daten liegen nur hinter einer internen API und müssen einmal im Browser („Plot data“) geholt werden.
+- Ungeklärt ohne den alten Quelltext: Bedeutung von „d“ in der Legacy-Kostenformel, Glättung in Flow Paths, PISA-Selektor der Netzoptimierung, Faktor 0.00005787 im Wassernetz (jetzt als Spitzenfaktor 5 ausgewiesen, Annahme).

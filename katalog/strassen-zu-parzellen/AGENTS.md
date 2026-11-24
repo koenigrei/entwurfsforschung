@@ -17,6 +17,7 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  flaechen.js              Flaechen: Teilen an Schnitten, offene Enden verlängern, Flächen aus Linien, Kantenversatz je Kante, konvexe Polygonoperationen
 katalog/strassen-zu-parzellen/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
@@ -26,7 +27,7 @@ katalog/strassen-zu-parzellen/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `flaechen.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -35,6 +36,8 @@ katalog/strassen-zu-parzellen/
 7. **Namensnennung** bleibt: „Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic“, Lizenz CC BY 4.0; Vorbild Parametric Planning Catalogue (MIT) nennen.
 
 ## Schnittstelle des Modells
+
+`teileAnSchnitten`, `verlaengere` und `flaechenAusLinien` stehen in `../_gemeinsam/flaechen.js` (Flaechen) und bleiben als Exporte von modell.js erhalten.
 
 | Funktion | Aufgabe |
 |---|---|
@@ -67,4 +70,3 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 - Eigenes Gelände (Höhenraster, GeoTIFF) und Straßen (GeoJSON) laden statt der Beispielszene.
 - Neigung nicht nur im Mittelpunkt, sondern als Mittel oder Höchstwert über die Plotfläche (robuster bei großen Plots am Hangfuß).
 - Mindestgröße der Plots (MinBlockSize der Komponente) als Regler; Plots am Netzrand, die nur durch Stiche begrenzt sind, kennzeichnen.
-- `flaechenAusLinien`, `teileAnSchnitten` nach `katalog/_gemeinsam/geo.js` verschieben (auch „Parzellen mit eigenem Kantenversatz“ braucht sie).

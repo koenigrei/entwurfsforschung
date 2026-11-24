@@ -22,7 +22,7 @@
     ende: z => Modell.fertig(z),
     zeichne(ctx, z, p, F) {
       const px = F.px;
-      Karte.gelaende(ctx, z.G, F, { hoehenlinien: 20 });
+      Karte.gelaendeGespeichert(ctx, z.G, F, { hoehenlinien: 20 });   // Gelände nur bei Änderung neu rechnen
       if (p.zeigeStart) {
         ctx.fillStyle = F.dunkel ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)"; ctx.beginPath();
         for (const w of z.wege) if (!w.eigen) { const q = w.pkt[0]; ctx.moveTo(q[0] + px, q[1]); ctx.arc(q[0], q[1], px, 0, 2 * Math.PI); }

@@ -175,10 +175,14 @@
     "bilderwand.js": "Apps/bergdoerfer/dist/bilderwand.js",
     "gruppen.js": "Apps/bergdoerfer/dist/gruppen.js",
     "ebenen.js": "Apps/bergdoerfer/dist/ebenen.js",
-    "einzel.js": "Apps/bergdoerfer/dist/einzel.js"
+    "einzel.js": "Apps/bergdoerfer/dist/einzel.js",
+    "nachbau.html": "Apps/bergdoerfer/dist/nachbau.html",
+    "nachbau.js": "Apps/bergdoerfer/dist/nachbau.js",
+    "zentralitaet.js": "Apps/bergdoerfer/dist/zentralitaet.js"
    },
    "ordner": {
-    "daten": "Apps/bergdoerfer/dist/daten"
+    "daten": "Apps/bergdoerfer/dist/daten",
+    "nachbau": "Apps/bergdoerfer/dist/nachbau"
    }
   },
   {

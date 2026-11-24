@@ -15,12 +15,12 @@
    Die Grasshopper-Dateien sind nicht mehr erreichbar; alles ist nach Seite, Bildern und Paper neu umgesetzt (QUELLE.md). */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/flaechen.js") : wurzel.Flaechen);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Flaechen) {
   "use strict";
-  const { sub, add, mul, dot, norm, abstand, flaeche, flaecheS, schwerpunkt, schneideHalbebene, punktInPoly, geradeSchnittPoly, versetze, bereinige, abstandSegment } = Geo;
+  const { sub, add, mul, dot, norm, abstand, flaeche, flaecheS, schwerpunkt, punktInPoly, geradeSchnittPoly, versetze, bereinige, abstandSegment } = Geo;
   const EPS = 1e-7, KLEIN = 0.05;   // Flächen unter 0,05 m² gelten als leer (Rundungsreste beim Schneiden)
 
   /* ---------------------------------------------------------------- Regeln: Abstandsflächen und Dichte */
@@ -118,34 +118,17 @@
     return f;
   }
 
-  /* ---------------------------------------------------------------- Halbebenen und konvexe Polygone */
+  /* ---------------------------------------------------------------- Halbebenen und konvexe Polygone (_gemeinsam/flaechen.js) */
   /** Halbebene {x : (x − p) · n ≤ 0} */
-  const HE = (p, n) => ({ p, n });
-  const gegen = h => HE(h.p, [-h.n[0], -h.n[1]]);
+  const HE = Flaechen.halbebene;
   /** gegen den Uhrzeigersinn ausrichten (flaecheS > 0) */
   const ccw = P => (flaecheS(P) < 0 ? P.slice().reverse() : P);
-  /** Polygon auf den Schnitt der Halbebenen beschneiden; [] wenn leer */
-  function clip(poly, H) {
-    let P = poly;
-    for (const h of H) { if (P.length < 3) return []; P = schneideHalbebene(P, h.p, h.n); }
-    return P.length >= 3 && flaeche(P) > KLEIN ? P : [];
-  }
+  /** Polygon auf den Schnitt der Halbebenen beschneiden; [] wenn leer (Flächen unter KLEIN gelten als leer) */
+  const clip = (poly, H) => Flaechen.clip(poly, H, KLEIN);
   /** poly ohne den Schnitt der Halbebenen H → Liste konvexer Teile (poly konvex) */
-  function ohne(poly, H) {
-    const out = []; let rest = poly;
-    for (const h of H) {
-      const a = clip(rest, [gegen(h)]);
-      if (a.length) out.push(a);
-      rest = clip(rest, [h]);
-      if (!rest.length) break;
-    }
-    return out;
-  }
+  const ohne = (poly, H) => Flaechen.ohne(poly, H, KLEIN);
   /** Halbebenen eines konvexen Polygons (Innenseite) */
-  function halbebenen(P) {
-    P = ccw(P);
-    return P.map((a, i) => { const b = P[(i + 1) % P.length], e = norm(sub(b, a)); return HE(a, [e[1], -e[0]]); });
-  }
+  const halbebenen = P => Flaechen.halbebenen(P);
   const schnitt = (A, B) => clip(A, halbebenen(B));
   const istKonvex = P => {
     let s = 0;

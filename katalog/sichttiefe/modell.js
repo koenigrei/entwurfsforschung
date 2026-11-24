@@ -12,13 +12,15 @@
       + „List Item 0“ nehmen je Zelle den kleinsten Wert. Nicht erreichbare Zellen bekommen „+Infinity“ (Panel → Replace Items).
    Sichttiefe 1 = vom Start direkt sichtbar, 2 = ein Richtungswechsel nötig usw. („number of turns“).
    Die Sichtbarkeit rechnet diese Datei mit symmetrischem Shadowcasting (Zellmitte zu Zellmitte, nach dem Verfahren von
-   Albert Ford, 2021, eigene Umsetzung): Zelle B ist von A sichtbar genau dann, wenn A von B sichtbar ist. */
+   Albert Ford, 2021, eigene Umsetzung; Raster.sichtbar in ../_gemeinsam/raster.js): Zelle B ist von A sichtbar genau dann,
+   wenn A von B sichtbar ist. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/raster.js") : wurzel.Raster);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Raster) {
   "use strict";
 
   /** Voreinstellungen der .gh-Datei: gridSize 2 (0…10), 100 Rechtecke (Number Slider 100 [0..100]) für die Szene „Rechtecke“;
@@ -74,34 +76,11 @@
   }
 
   /* ---------------------------------------------------------------- Sichtbarkeit: symmetrisches Shadowcasting */
-  /** Ruft sieh(k) für jede freie Zelle auf, die von der Zelle s aus sichtbar ist (ohne s selbst). Eine Zelle gilt als sichtbar,
-      wenn ihre Mitte von der Mitte von s aus frei zu sehen ist; gesperrte Zellen und der Rand verdecken als volle Quadrate.
-      Vier Quadranten, zeilenweise mit Neigungen als Brüche ganzer Zahlen (exakt, ohne Rundungsfehler). */
-  function sichtbar(R, s, sieh) {
-    const { nx, ny, gesperrt } = R, ox = s % nx, oy = (s - ox) / nx;
-    const wand = (x, y) => x < 0 || y < 0 || x >= nx || y >= ny || gesperrt[y * nx + x] === 1;
-    for (let q = 0; q < 4; q++) {
-      // Quadrant: (Tiefe d, Spalte c) → Zelle
-      const tx = q === 0 ? (d, c) => ox + c : q === 1 ? (d, c) => ox + c : q === 2 ? (d, c) => ox + d : (d, c) => ox - d;
-      const ty = q === 0 ? (d, c) => oy - d : q === 1 ? (d, c) => oy + d : q === 2 ? (d, c) => oy + c : (d, c) => oy + c;
-      const scan = (d, sn, sd, en, ed) => {
-        // Spalten von round_ties_up(d·sn/sd) bis round_ties_down(d·en/ed)
-        const cMin = Math.floor((2 * d * sn + sd) / (2 * sd)), cMax = Math.ceil((2 * d * en - ed) / (2 * ed));
-        let vor = 0;   // 0: keine, 1: Wand, 2: frei
-        for (let c = cMin; c <= cMax; c++) {
-          const x = tx(d, c), y = ty(d, c), w = wand(x, y);
-          if (!w && c * sd >= d * sn && c * ed <= d * en) sieh(y * nx + x);
-          if (vor === 1 && !w) { sn = 2 * c - 1; sd = 2 * d; }
-          if (vor === 2 && w) scan(d + 1, sn, sd, 2 * c - 1, 2 * d);
-          vor = w ? 1 : 2;
-        }
-        if (vor === 2) scan(d + 1, sn, sd, en, ed);
-      };
-      scan(1, -1, 1, 1, 1);
-    }
-  }
-  /** sieht Zelle a die Zelle b? (für Tests und die Anzeige) */
-  function sieht(R, a, b) { let ja = false; sichtbar(R, a, k => { if (k === b) ja = true; }); return ja; }
+  /** Ruft sieh(k) für jede freie Zelle auf, die von der Zelle s aus sichtbar ist (ohne s selbst; Raster.sichtbar). Eine Zelle gilt
+      als sichtbar, wenn ihre Mitte von der Mitte von s aus frei zu sehen ist; gesperrte Zellen und der Rand verdecken als volle Quadrate. */
+  const sichtbar = Raster.sichtbar;
+  /** sieht Zelle a die Zelle b? (für Tests und die Anzeige; Raster.sieht) */
+  const sieht = Raster.sieht;
 
   /* ---------------------------------------------------------------- Zustand und Breitensuche */
   function erzeuge(param, zufall) {

@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const M = require("../modell.js");
-const H = require("../hydraulik.js");
+const H = require("../../_gemeinsam/hydraulik.js");
 const Geo = require("../../_gemeinsam/geo.js");
 const { zufall } = require("../../../simulationen/_gemeinsam/zufall.js");
 const P = Object.assign({}, M.STANDARD);
