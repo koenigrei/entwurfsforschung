@@ -57,7 +57,7 @@ SCHRIFTEN = [("Geist", 300, "Geist-Light"), ("Geist", 400, "Geist-Regular"), ("G
              ("Geist Mono", 500, "GeistMono-Medium"), ("Geist Mono", 600, "GeistMono-SemiBold")]
 SCHRIFT_QUELLEN = [REPO / "site" / "schrift", Path(os.environ.get("LOCALAPPDATA", "")) / "Microsoft" / "Windows" / "Fonts",
                    Path("C:/Windows/Fonts")]
-RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="display:flex;align-items:center;min-height:34px;padding:0 16px;margin:0;'
+RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="display:flex;flex-wrap:wrap;row-gap:4px;align-items:center;min-height:34px;padding:4px 16px;margin:0;'
             'background:#000;border-bottom:1px solid #2a2a2e;position:relative;z-index:2147483000;font:500 12px/1 Geist Mono,ui-monospace,monospace;'
             'letter-spacing:.06em;text-transform:uppercase"><a href="{z}" style="color:#fff;text-decoration:none" '
             'title="Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab">← Entwurfsforschung · KI Lab</a>'
@@ -304,6 +304,21 @@ def _version(ordner: Path, html: str) -> str:
     return re.sub(r'(src|href)="([^"]+\.(?:js|css|svg|png))"', ersetze, html)
 
 
+def _stand(pfad: Path) -> str | None:
+    """Datum der letzten Änderung (letzter Commit, bei uncommitteten Änderungen Änderungszeit) als „24.11.2026“."""
+    import datetime
+    if not pfad.is_file():
+        return None
+    wurzel = AUTOPUBLISH
+    rel = str(pfad.relative_to(wurzel))
+    d = None
+    if not subprocess.run(["git", "status", "--porcelain", "--", rel], cwd=wurzel, capture_output=True, text=True).stdout.strip():
+        t = subprocess.run(["git", "log", "-1", "--format=%cs", "--", rel], cwd=wurzel, capture_output=True, text=True).stdout.strip()
+        d = datetime.date.fromisoformat(t) if t else None
+    d = d or datetime.date.fromtimestamp(pfad.stat().st_mtime)
+    return f"{d.day}.{d.month}.{d.year}"
+
+
 def bearbeite_viewer(build: Path) -> None:
     """Wie die anderen Lab-Apps (bauen.py, lokal()): Schrift vom eigenen Server, dunkel als Voreinstellung mit demselben
     Speicher wie das Lab, Rückweg ins Lab, Cache-Kennungen."""
@@ -329,7 +344,11 @@ def bearbeite_viewer(build: Path) -> None:
     if n != 1:
         sys.exit("index.html: Zeile für die Darstellung nicht gefunden (Viewer geändert?)")
     if "ef-zurueck" not in html:
-        html = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + RUECKWEG.format(z="../../"), html, count=1)   # sichtbare Leiste oben (22.11.2026)
+        leiste = RUECKWEG.format(z="../../")
+        st = " · ".join(x for x in [f"Dokumentation {_stand(AUTOPUBLISH / 'METHODE.md')}", f"App {_stand(AUTOPUBLISH / 'viewer' / 'app.js')}"] if "None" not in x)   # Zeitstempel (25.11.2026)
+        leiste = leiste.replace('<a href="../../lab/methode/', f'<span class="ef-stand" style="margin-left:auto;color:#8a8a8f" title="Stand der Dokumentation und der App · Documentation and app as of">{st}</span>'
+                                '<a href="../../lab/methode/', 1).replace("margin-left:auto;color:#9ea0f3", "margin-left:1.5em;color:#9ea0f3", 1) if st else leiste
+        html = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + leiste, html, count=1)   # sichtbare Leiste oben (22.11.2026)
     html = _version(build, html)
     (build / "index.html").write_text(html, encoding="utf-8")
     app = (build / "app.js").read_text(encoding="utf-8")

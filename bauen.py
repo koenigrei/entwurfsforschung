@@ -5,7 +5,7 @@ bis die Angaben aus dem Impressum-Generator vorliegen). Alle Seiten teilen vorla
 --alt: Adresse der alten Website; seit 22.11.2026 ohne Wirkung (WordPress gelöscht, der Link „Alte Website“ ist aus vorlage.html entfernt).
 Schrift: Geist (SIL Open Font License) aus den lokal installierten Windows-Schriften, selbst ausgeliefert (keine Google Fonts).
 """
-import html, json, os, re, shutil, sys
+import glob, html, json, os, re, shutil, sys
 from PIL import Image
 
 HIER = os.path.dirname(os.path.abspath(__file__))
@@ -86,19 +86,20 @@ def titelbild(titel, ziel):
     return im.width, im.height
 
 
-RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="display:flex;align-items:center;min-height:34px;padding:0 16px;margin:0;'
+RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="display:flex;flex-wrap:wrap;row-gap:4px;align-items:center;min-height:34px;padding:4px 16px;margin:0;'
             'background:#000;border-bottom:1px solid #2a2a2e;position:relative;z-index:2147483000;font:500 12px/1 Geist Mono,ui-monospace,monospace;'
             'letter-spacing:.06em;text-transform:uppercase"><a href="{z}" style="color:#fff;text-decoration:none" '
             'title="Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab">← Entwurfsforschung · KI Lab</a></nav>')
 
 
-def rueckweg(z, methode=None):
-    """Rückweg-Leiste; mit methode (Adresse der Methodenseite) rechts der Link „Methode · Method“ (23.11.2026)."""
+def rueckweg(z, methode=None, stand=""):
+    """Rückweg-Leiste; rechts der Zeitstempel (stand_leiste) und mit methode (Adresse der Methodenseite) der Link „Methode · Method“."""
     t = RUECKWEG.format(z=z)
+    rechts = stand or ""
     if methode:
-        t = t.replace("</a></nav>", f'</a><a href="{methode}" style="margin-left:auto;color:#9ea0f3;text-decoration:none" '
-                                    f'title="Wie das Projekt arbeitet · How the project works">Methode · Method</a></nav>')
-    return t
+        rechts += (f'<a href="{methode}" style="margin-left:{"1.5em" if stand else "auto"};color:#9ea0f3;text-decoration:none" '
+                   f'title="Wie das Projekt arbeitet · How the project works">Methode · Method</a>')
+    return t.replace("</a></nav>", "</a>" + rechts + "</nav>") if rechts else t
 
 
 def versionieren(t, ordner):
@@ -115,9 +116,61 @@ def versionieren(t, ordner):
     return re.sub(r'(src|href)="([^"]+\.(?:js|css|webp|png|jpg|jpeg|gif|svg|ttf|woff2?|zip))"', ersetze, t)
 
 
-def lokal(pfad, zur_wurzel, methode=None):
+def stand_datum(pfad):
+    """Datum der letzten Änderung einer Datei: letzter Commit in ihrem Repo, bei uncommitteten Änderungen die Änderungszeit (Zeitstempel, Nutzer 24./25.11.2026)."""
+    import datetime, subprocess
+    wurzel = os.path.dirname(os.path.abspath(pfad))
+    while wurzel and not os.path.exists(os.path.join(wurzel, ".git")) and os.path.dirname(wurzel) != wurzel:
+        wurzel = os.path.dirname(wurzel)
+    try:
+        rel = os.path.relpath(pfad, wurzel)
+        if not subprocess.run(["git", "status", "--porcelain", "--", rel], cwd=wurzel, capture_output=True, text=True).stdout.strip():
+            d = subprocess.run(["git", "log", "-1", "--format=%cs", "--", rel], cwd=wurzel, capture_output=True, text=True).stdout.strip()
+            if d:
+                return datetime.date.fromisoformat(d)
+    except (OSError, ValueError):
+        pass
+    return datetime.date.fromtimestamp(os.path.getmtime(pfad))
+
+
+def stand_text(pfade):
+    """Jüngstes Datum der vorhandenen Dateien als „24.11.2026“, sonst None."""
+    ds = [stand_datum(f) for f in pfade if f and os.path.isfile(f)]
+    return f"{max(ds).day}.{max(ds).month}.{max(ds).year}" if ds else None
+
+
+def stand_leiste(doku, app):
+    """Zeitstempel für die Rückweg-Leiste: „Dokumentation 23.11.2026 · App 24.11.2026“."""
+    teile = [f"Dokumentation {doku}" if doku else "", f"App {app}" if app else ""]
+    t = " · ".join(x for x in teile if x)
+    return (f'<span class="ef-stand" style="margin-left:auto;color:#8a8a8f" title="Stand der Dokumentation und der App · Documentation and app as of">{t}</span>'
+            if t else "")
+
+
+def fuss_stempel(t, doku, app):
+    """Zeitstempel in der Fußzeile der Simulations-, Katalog- und KREMLAS-Seiten, gleich hinter der Namensnennung."""
+    if not (doku or app) or "ef-stand" in t:
+        return t
+    de = " · ".join(x for x in [f"Stand Dokumentation {doku}" if doku else "", f"Stand App {app}" if app else ""] if x)
+    en = " · ".join(x for x in [f"documentation as of {doku}" if doku else "", f"app as of {app}" if app else ""] if x)
+    span = f'\n  <span class="ef-stand"><span lang="de">{de}</span><span lang="en">{en}</span></span>'
+    return re.sub(r'(<footer class="fuss mono">\s*<span>.*?</span></span>)', lambda m: m.group(1) + span, t, count=1, flags=re.S)
+
+
+def stand_zeile(basis):
+    """Zeitstempel einer Übersicht (Frühe Simulationen, Katalog): jüngste Dokumentation bzw. App aller Apps unter basis (25.11.2026)."""
+    doku = stand_text([f for n in ("index.html", "README.md", "QUELLE.md", "AGENTS.md") for f in glob.glob(os.path.join(basis, "*", n))])
+    app = stand_text([f for n in ("modell.js", "app.js") for f in glob.glob(os.path.join(basis, "*", n))] + glob.glob(os.path.join(basis, "_gemeinsam", "*.js")))
+    if not (doku or app):
+        return ""
+    de = " · ".join(x for x in [f"Stand Dokumentation {doku}" if doku else "", f"Stand App {app}" if app else ""] if x)
+    en = " · ".join(x for x in [f"documentation as of {doku}" if doku else "", f"app as of {app}" if app else ""] if x)
+    return f'<p class="ef-stand mono" style="color:var(--muted);font-size:12px"><span class="nur-de">{de}</span><span class="nur-en">{en}</span></p>'
+
+
+def lokal(pfad, zur_wurzel, methode=None, stand=""):
     """Google Fonts und three.js vom CDN in einer App-Datei durch Kopien auf dem eigenen Server ersetzen (keine Inhalte Dritter);
-    oben die Rückweg-Leiste, mit methode auch der Link zur Methodenbeschreibung."""
+    oben die Rückweg-Leiste, mit methode auch der Link zur Methodenbeschreibung, mit stand der Zeitstempel (stand_leiste)."""
     t = open(pfad, encoding="utf-8").read()
     t = re.sub(r'<link[^>]+href="https://fonts\.(?:googleapis|gstatic)\.com"[^>]*>\s*', "", t)
     t = re.sub(r'<link[^>]+href="https://fonts\.googleapis\.com/css2[^"]*"[^>]*>', f'<link rel="stylesheet" href="{zur_wurzel}schrift/geist.css">', t)
@@ -125,16 +178,17 @@ def lokal(pfad, zur_wurzel, methode=None):
         t = t.replace(u, f"{zur_wurzel}vendor/three.r128.min.js")
     t = versionieren(t, os.path.dirname(pfad))
     if "ef-zurueck" not in t:                                         # Rückweg ins Lab in jeder App (Nutzer 21.11.2026)
-        t = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + rueckweg(zur_wurzel, methode), t, count=1)   # sichtbare Leiste oben (22.11.2026, vorher kleines Etikett unten links)
+        t = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + rueckweg(zur_wurzel, methode, stand), t, count=1)   # sichtbare Leiste oben (22.11.2026, vorher kleines Etikett unten links)
     elif methode and methode not in t:                                 # eigener Rückweg der App (z. B. Palladio): Methodenlink gleich dahinter
         m = re.search(r'<a\b[^>]*class="[^"]*ef-zurueck[^"]*"[^>]*>.*?</a>', t, flags=re.S)
         if m:
             t = t[:m.end()] + (f' <a class="ef-methode" href="{methode}" style="margin-left:1em;color:#9ea0f3;text-decoration:none;font:500 12px/1 Geist Mono,ui-monospace,monospace;'
-                               f'letter-spacing:.06em;text-transform:uppercase" title="Wie das Projekt arbeitet · How the project works">Methode · Method</a>') + t[m.end():]
+                               f'letter-spacing:.06em;text-transform:uppercase" title="Wie das Projekt arbeitet · How the project works">Methode · Method</a>'
+                               + (stand.replace('margin-left:auto', 'margin-left:1em;font:500 12px/1 Geist Mono,ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase') if stand else "")) + t[m.end():]
     open(pfad, "w", encoding="utf-8").write(t)
 
 
-def lernbereich(p, z, Q, methode=None, methode_datei=None):
+def lernbereich(p, z, Q, methode=None, methode_datei=None, stand=""):
     """Baut einen Lernbereich des KI Lernlabors (Planungsgrundlagen/Apps/<p["lernbereich"]>) mit dessen eigenem Werkzeug
     (Apps/_werkzeuge/build_apps.py, Modus LERNLABOR_EINZELN) nach z: index.html, en.html, img/ und die App-Dateien daneben.
     Die App-Dateien bekommen den Rückweg zur Beschreibung, die Beschreibung den Rückweg ins Lab (Nutzer 23.11.2026)."""
@@ -155,7 +209,7 @@ def lernbereich(p, z, Q, methode=None, methode_datei=None):
             bki_aus_zip(os.path.join(z, f))
     if methode_datei:                                                  # vor dem Versionieren (?v= hängt am Inhalt der Pakete)
         methode_in_zips(z, methode_datei)
-    zur_beschreibung = (rueckweg("index.html", methode).replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Beschreibung")
+    zur_beschreibung = (rueckweg("index.html", methode, stand).replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Beschreibung")
                         .replace("Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab", "Zurück zur Beschreibung · Back to the description"))
     for f in sorted(os.listdir(z)):
         if not f.endswith(".html"):
@@ -165,7 +219,7 @@ def lernbereich(p, z, Q, methode=None, methode_datei=None):
             t = open(pfad, encoding="utf-8").read()
             if "ef-zurueck" not in t:
                 open(pfad, "w", encoding="utf-8").write(re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + zur_beschreibung, t, count=1))
-        lokal(pfad, zur_wurzel, methode)
+        lokal(pfad, zur_wurzel, methode, stand)
 
 
 def seite(vorlage, pfad, main, base, titel, seite_, alt):
@@ -352,7 +406,7 @@ def methode_seite(vorlage, alt, pid, titel, quelle, zurueck_href, autoren, jahr)
               f'<li><a href="{zurueck_href}">→ {zwei(titel["de"], titel.get("en"))}</a></li>'
               f'<li><a href="../">→ {zwei("Alle Methoden", "All methods")}</a></li></ul></aside>')
     e = {"titel": {"de": "Methode: " + titel["de"], "en": "Method: " + titel.get("en", titel["de"])}, "kategorie": {"de": "Methode", "en": "Method"},
-         "jahr": jahr, "autoren": autoren}
+         "jahr": jahr, "autoren": autoren, "stand": stand_text([quelle])}
     seite(vorlage, os.path.join(d, "index.html"),
           artikel(e, md_html(text), "../../../", eltern=(titel["de"], titel.get("en")), eltern_href=zurueck_href, kasten=kasten),
           "../../../", f"Methode: {titel['de']} · Entwurfsforschung", "lab", alt)
@@ -375,7 +429,8 @@ def artikel(e, inhalt, base, unterseiten=None, eltern=None, zu_unter="", eltern_
     eltern/eltern_href: Rückweg zur übergeordneten Seite (Eintrag oder Unterseite). inhalt_en: englische Fassung (archiv_uebersetzung/)."""
     t = e["titel"]; k = e["kategorie"]
     meta = (f'<div class="meta mono"><span data-t="kategorie">Kategorie</span><b>{zwei(k["de"], k.get("en"))}</b>'
-            f'<span>{zwei("Jahr", "Year")}</span><b>{e["jahr"]}</b><span>{zwei("Autor", "Author")}</span><b>{html.escape(e["autoren"])}</b></div>')
+            f'<span>{zwei("Jahr", "Year")}</span><b>{e["jahr"]}</b><span>{zwei("Autor", "Author")}</span><b>{html.escape(e["autoren"])}</b>'
+            + (f'<span>{zwei("Stand Dokumentation", "Documentation as of")}</span><b>{e["stand"]}</b>' if e.get("stand") else "") + '</div>')   # Zeitstempel (25.11.2026)
     liste = ""
     if unterseiten:
         liste = ('<div class="unterseiten"><span class="mono" data-t="unterseiten">Seiten</span>'
@@ -426,7 +481,9 @@ def bauen(alt="/"):
             continue
         os.makedirs(z, exist_ok=True)
         if p.get("lernbereich"):                                       # Lernbereich des KI Lernlabors als eigene Seite (Konzeptstudie, Nutzer 23.11.2026)
-            lernbereich(p, z, Q, mhref, mq)
+            lb = os.path.join(Q, "Apps", p["lernbereich"])                # Stand: Dokumentation = lernbereich.py, App = dist/*.html
+            lernbereich(p, z, Q, mhref, mq, stand_leiste(stand_text([os.path.join(lb, "lernbereich.py")]),
+                                                     stand_text(glob.glob(os.path.join(lb, "dist", "*.html")))))
         for ziel, quelle in p.get("dateien", {}).items():
             shutil.copy(os.path.join(Q, quelle), os.path.join(z, ziel))
         for ziel, quelle in p.get("ordner", {}).items():
@@ -435,7 +492,7 @@ def bauen(alt="/"):
             methode_in_zips(z, mq, list(p["dateien"]))
         for ziel in p.get("dateien", {}):                              # erst alles kopieren, dann versionieren (?v= braucht die Zieldateien)
             if ziel.endswith(".html"):
-                lokal(os.path.join(z, ziel), zur_wurzel, mhref)
+                lokal(os.path.join(z, ziel), zur_wurzel, mhref, stand_leiste(stand_text([mq]), stand_text([os.path.join(Q, q) for q in p["dateien"].values()])))
         if p["start"] != "index.html":
             open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"], q=(f'<link rel="code-repository" href="{p["quellcode"]}"><link rel="license" href="https://creativecommons.org/licenses/by/4.0/">' if p.get("quellcode") else "")))
         lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
@@ -563,7 +620,9 @@ def simulationen(vorlage, alt):
                 zf.write(METHODEN["simulationen"], "METHODE.md")
         ih = os.path.join(d, "index.html")                             # ?v= an app.js, modell.js, sim.js, sim.css … gegen den Cloudflare-Cache
         if os.path.isfile(ih):                                         # (23.11.2026: geänderte app.js kam 4 h lang nicht an); erst lesen, dann schreiben
-            h_ = versionieren(open(ih, encoding="utf-8").read(), d)
+            h_ = fuss_stempel(open(ih, encoding="utf-8").read(), stand_text([os.path.join(q, f) for f in ("index.html", "README.md", "QUELLE.md", "AGENTS.md")]),
+                              stand_text([os.path.join(q, f) for f in ("modell.js", "app.js")]))   # Zeitstempel (25.11.2026)
+            h_ = versionieren(h_, d)
             open(ih, "w", encoding="utf-8").write(h_)
         bild = os.path.join(q, "vorschau.png")
         if os.path.exists(bild):
@@ -587,7 +646,7 @@ def simulationen(vorlage, alt):
                   f'<p class="nur-en">{len(karten)} of {n_alle} programs are done here.{eigen_en} {html.escape(en[2])}</p>'
                   f'<p><a href="../../archiv/raumprozesse/simulationsprogramme/"><span class="nur-de">Originale im Archiv</span><span class="nur-en">Originals in the archive</span></a>'
                   + (' · <a href="../../lab/methode/simulationen/"><span class="nur-de">Methode</span><span class="nur-en">Method</span></a>' if METHODEN.get("simulationen") else "")
-                  + '</p></div></section>')
+                  + '</p>' + stand_zeile(SIM) + '</div></section>')
     seite(vorlage, os.path.join(ziel, "index.html"),
           FILTER.format(id="simulationen", folge="", daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
           "../../", "Frühe Simulationen · Entwurfsforschung", "lab", alt)
@@ -616,7 +675,10 @@ def kremlas():
     for wurzel, _, dateien in os.walk(d):                               # alle Seiten des Projekts, auch die Tabs (palladio/ …)
         for f in dateien:
             if f.endswith(".html"):
-                p_ = os.path.join(wurzel, f); t_ = versionieren(open(p_, encoding="utf-8").read(), wurzel)   # erst lesen, dann schreiben
+                p_ = os.path.join(wurzel, f); quelle = os.path.join(KREM, os.path.relpath(wurzel, d))   # Zeitstempel je Seite (25.11.2026)
+                t_ = fuss_stempel(open(p_, encoding="utf-8").read(), stand_text([os.path.join(quelle, x) for x in ("index.html", "README.md", "QUELLE.md", "AGENTS.md", "METHODE.md")]),
+                                  stand_text(glob.glob(os.path.join(KREM, "*.js")) + glob.glob(os.path.join(quelle, "*.js"))))
+                t_ = versionieren(t_, wurzel)   # erst lesen, dann schreiben
                 open(p_, "w", encoding="utf-8").write(t_)
 
 
@@ -653,7 +715,9 @@ def katalog(vorlage, alt):
             if METHODEN.get("parametric-planning-catalogue"):            # Methode des Bereichs (23.11.2026)
                 zf.write(METHODEN["parametric-planning-catalogue"], "METHODE.md")
         ih = os.path.join(d, "index.html")
-        h_ = versionieren(open(ih, encoding="utf-8").read(), d)       # ?v= gegen den Cloudflare-Cache (erst lesen, dann schreiben)
+        h_ = fuss_stempel(open(ih, encoding="utf-8").read(), stand_text([os.path.join(q, f) for f in ("index.html", "README.md", "QUELLE.md", "AGENTS.md")]),
+                          stand_text([os.path.join(q, f) for f in ("modell.js", "app.js")] + glob.glob(os.path.join(KAT, "_gemeinsam", "*.js"))))   # Zeitstempel (25.11.2026)
+        h_ = versionieren(h_, d)       # ?v= gegen den Cloudflare-Cache (erst lesen, dann schreiben)
         open(ih, "w", encoding="utf-8").write(h_)
         bild = os.path.join(q, "vorschau.png")
         if os.path.exists(bild):
@@ -698,7 +762,7 @@ def katalog(vorlage, alt):
                   f'<p><a href="{html.escape(K["url"])}">{zwei("Original: Parametric Planning Catalogue", "Original: Parametric Planning Catalogue")}</a> · '
                   f'<a href="{html.escape(K["repo"])}">GitHub infar-buw/parametric-planning-catalogue</a> · {zwei("Lizenz des Katalogs: MIT", "Catalogue license: MIT")}'
                   + (f' · <a href="../../lab/methode/parametric-planning-catalogue/">{zwei("Methode", "Method")}</a>' if METHODEN.get("parametric-planning-catalogue") else "")
-                  + '</p></div></section>'
+                  + '</p>' + stand_zeile(KAT) + '</div></section>'
                   f'<section class="ueber" id="bestand"><div><h2>{zwei("Alle Module", "All modules")}</h2></div><div><ul class="bestand">{"".join(zeilen)}</ul></div></section>'
                   + lab_abschnitt(B, lab_karten, liste))
     seite(vorlage, os.path.join(ziel, "index.html"),
