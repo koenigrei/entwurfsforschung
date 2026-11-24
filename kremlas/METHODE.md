@@ -33,9 +33,13 @@ Hybride Evolutionsstrategie (μ+λ) bzw. (μ,λ): Rekombination (Partially Mappe
 
 Tab `palladio/`: Raumprogramm, Türen und Spiegelachse von acht Villen aus der Palladio-Grammatik (G. Stiny, W. J. Mitchell 1978, doi:10.1068/b050005; G. Stiny, J. Gips 1978, doi:10.1068/b050199); Räume mit halben Wänden, Säle aus Teilen, Feld in Metern. Die Packung bekommt keine Lagen, nur das Programm. Neu: Spiegelsymmetrie, Raumtausch, Ähnlichkeit (Schnitt durch Vereinigung je Raum, gespiegelte Pläne gleich), Regler Nähe zum Vorbild (Rekonstruktion bis Varianten). Ergebnis: sechs von acht Villen mit 92–98 % Ähnlichkeit rekonstruiert, Malcontenta 82 %, Pisani (I-Saal) 48 %.
 
+## Vorbilder nachgenerieren (Siza/Duarte)
+
+Tab `siza/`: sechs Häuser der Malagueira-Grammatik (J. P. Duarte 2005, doi:10.1068/b31124; eigene Rekonstruktion, keine Korpusdaten), Erd- und Obergeschoss getrennt; im OG Treppe und Luftraum fest; Türen 0,80 m wie in der Grammatik. Einstellungen je Vorbild abgestimmt (`werkzeuge/abstimmen.cjs`). Erdgeschosse meist 96–100 % ähnlich, Obergeschosse mit Fluren aus Teilen 54–99 %.
+
 ## Prüfer
 
-- `node --test` im Ordner `kremlas/` (45 Tests, 23.11.2026): Regeln des Originals nachgerechnet (Rundung wie C#, Kollision, Federn, Selektion), Verhalten über mehrere Saaten (Stern gelöst, Grundriss mit Türen), Plan-Prüfung an Hand-Beispielen, Suche wiederholbar.
+- `node --test` im Ordner `kremlas/` (50 Tests, 24.11.2026): Regeln des Originals nachgerechnet (Rundung wie C#, Kollision, Federn, Selektion), Verhalten über mehrere Saaten (Stern gelöst, Grundriss mit Türen), Plan-Prüfung an Hand-Beispielen, Suche wiederholbar.
 - `py -3.14 simulationen/pruefe_apps.py kremlas`: Browser, hell/dunkel, 1440/390 px, `pruef_ausdruck` (gültiger Plan nach 400 Generationen).
 - Plan gültig, wenn jede geforderte Nachbarschaft eine Tür hat (gemeinsame Wand ≥ 1,1 m), Überlappung < 0,05 m², jeder Raum seine Mindestbreite und ≥ 95 % seiner Fläche hat, L-Teile sich auf der Mindestbreite berühren und bündig liegen.
 

@@ -513,3 +513,55 @@ test("Rekonstruktion: Villa Emo mit Nähe 1 wiedergefunden (gültig, über 90 % 
   const T = S.treffer[0];
   assert.ok(T.wert.gueltig && M.aehnlichkeit(T.ind, T.programm).mittel > 0.9, `Ähnlichkeit ${M.aehnlichkeit(T.ind, T.programm).mittel}`);
 });
+
+/* ---------------------------------------------------------------- Siza/Duarte nachgenerieren (neu, 24.11.2026) */
+const VS = require("../vorbilder_siza.js");
+M.registriere(VS);
+const haus = (v, q) => Object.assign({}, M.STANDARD, ...M.REGLER.map(k => ({ [k]: M.FASSUNGEN["sz_" + v][k] })), { fassung: "sz_" + v }, q);
+
+test("Vorbilder Siza: sechs Häuser je Erd- und Obergeschoss, Räume füllen das Grundstück 8 × 12 m, Treppe und Luftraum im OG fest", () => {
+  assert.equal(VS.liste.length, 12);
+  for (const pid of VS.liste) {
+    const P = M.PROGRAMME[pid], A = P.raeume.reduce((s, r) => s + r[2], 0);
+    assert.ok(nah(A, 96, 0.01), `${pid}: ${A} m²`);
+    assert.deepEqual([P.feld.b, P.feld.h], [8, 12]);
+    if (pid.endsWith("_og")) assert.ok(P.raeume.some(r => r[0] === "Treppe" && r[4] && r[4].fest) && P.raeume.some(r => r[0].startsWith("Luftraum") && r[4] && r[4].fest), pid);
+  }
+  assert.ok(M.PROGRAMME.sz_ab_eg.paare.some(([a, b]) => b === -1), "Eingang vom Hof zur Straße");
+});
+
+test("Feste Räume bleiben an der Stelle des Vorbilds, Teile in Ketten hängen an ihrem Anker", () => {
+  const p = haus("dn_og"), z = M.erzeuge(p, zufall(1));
+  for (let t = 0; t < 20; t++) M.schritt(z, p);
+  for (const e of z.eltern) for (const [id, x0, y0, x1, y1] of z.fest) {
+    const g = e.g.find(q => q.id === id);
+    assert.ok(nah(g.x, (x0 + x1) / 2 * M.PX_M, 1e-6) && nah(g.y, (y0 + y1) / 2 * M.PX_M, 1e-6) && nah(g.w, (x1 - x0) * M.PX_M, 1e-6), `fester Raum ${id}`);
+  }
+  const flur = M.PROGRAMME.sz_dn_og.raeume.find(r => r[0] === "Flur")[4];
+  assert.ok(flur.teile.length >= 3 && flur.anker.length === flur.teile.length && flur.anker[0] === -1);
+  const kette = z.eltern[0].g.filter(g => g.r !== g.id && M.PROGRAMME.sz_dn_og.raeume[g.r][0] === "Flur");
+  assert.ok(kette.every(g => g.an != null), "jeder Teil des Flurs hat einen Anker");
+});
+
+test("Rekonstruktion Siza: Typ Ab im Erdgeschoss mit Nähe 1 wiedergefunden (gültig, über 85 % ähnlich)", () => {
+  const p = haus("ab_eg", { naehe: 1 }), S = M.sucheNeu(p, zufall, { anzahl: 1, ziel: 1, saat: 1, laeufe: 6, generationen: 400 });   // abgestimmte Voreinstellung der Fassung
+  while (!S.fertig) M.sucheWeiter(S, 400);
+  assert.ok(S.treffer.length >= 1, `kein Treffer in ${S.laeufe} Läufen`);
+  const T = S.treffer[0];
+  assert.ok(T.wert.gueltig && M.aehnlichkeit(T.ind, T.programm).mittel > 0.85, `Ähnlichkeit ${M.aehnlichkeit(T.ind, T.programm).mittel}`);
+});
+
+test("Abgestimmte Voreinstellungen: jede Vorbild-Fassung trägt starr, Federrunden und Belegung aus werkzeuge/abstimmung.json", () => {
+  const A = require("../werkzeuge/abstimmung.json");
+  for (const [f, e] of Object.entries(A)) {
+    assert.equal(M.FASSUNGEN[f].starr, e.starr, f); assert.equal(M.FASSUNGEN[f].federRunden, e.federRunden, f); assert.equal(M.FASSUNGEN[f].belegung, e.belegung, f);
+  }
+  assert.equal(Object.keys(A).length, 20);
+});
+
+test("Rekonstruktion Saraceno mit abgestimmter Voreinstellung (starre T-Form): gültig und über 85 % ähnlich", () => {
+  const p = villa("saraceno"), S = M.sucheNeu(p, zufall, { anzahl: 1, ziel: 1, saat: 1, laeufe: 8, generationen: 400 });
+  while (!S.fertig) M.sucheWeiter(S, 400);
+  assert.ok(S.treffer.length >= 1, `kein Treffer in ${S.laeufe} Läufen`);
+  assert.ok(M.aehnlichkeit(S.treffer[0].ind, S.treffer[0].programm).mittel > 0.85);
+});

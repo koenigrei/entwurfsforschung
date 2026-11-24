@@ -1,0 +1,162 @@
+{
+ "pal_angarano": {
+  "starr": false,
+  "federRunden": 2,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.996,
+  "treffer": 1,
+  "laeufe": 3
+ },
+ "pal_badoer": {
+  "starr": false,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.994,
+  "treffer": 1,
+  "laeufe": 3
+ },
+ "pal_emo": {
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.994,
+  "treffer": 1,
+  "laeufe": 4
+ },
+ "pal_malcontenta": {
+  "starr": true,
+  "federRunden": 5,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.93,
+  "treffer": 1,
+  "laeufe": 8
+ },
+ "pal_pisani": {
+  "starr": true,
+  "federRunden": 2,
+  "belegung": 0.96,
+  "aehnlichkeit": 0.859,
+  "treffer": 3,
+  "laeufe": 7
+ },
+ "pal_ragona": {
+  "starr": false,
+  "federRunden": 5,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.999,
+  "treffer": 3,
+  "laeufe": 3
+ },
+ "pal_saraceno": {
+  "starr": true,
+  "federRunden": 2,
+  "belegung": 0.94,
+  "aehnlichkeit": 0.933,
+  "treffer": 3,
+  "laeufe": 8
+ },
+ "pal_zeno": {
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.99,
+  "treffer": 1,
+  "laeufe": 3
+ },
+ "sz_ab_eg": {
+  "starr": false,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.959,
+  "treffer": 3,
+  "laeufe": 3
+ },
+ "sz_ab_og": {
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.96,
+  "aehnlichkeit": 0.609,
+  "treffer": 2,
+  "laeufe": 6
+ },
+ "sz_bb_eg": {
+  "starr": false,
+  "federRunden": 2,
+  "belegung": 0.96,
+  "aehnlichkeit": 0.966,
+  "treffer": 1,
+  "laeufe": 8
+ },
+ "sz_bb_og": {
+  "starr": true,
+  "federRunden": 5,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.941,
+  "treffer": 1,
+  "laeufe": 8
+ },
+ "sz_dn_eg": {
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.985,
+  "treffer": 2,
+  "laeufe": 4
+ },
+ "sz_dn_og": {
+  "starr": false,
+  "federRunden": 5,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.544,
+  "treffer": 1,
+  "laeufe": 8
+ },
+ "sz_t2_eg": {
+  "starr": false,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.998,
+  "treffer": 1,
+  "laeufe": 3
+ },
+ "sz_t2_og": {
+  "starr": true,
+  "federRunden": 2,
+  "belegung": 0.94,
+  "aehnlichkeit": 0.988,
+  "treffer": 1,
+  "laeufe": 3
+ },
+ "sz_t4_eg": {
+  "starr": true,
+  "federRunden": 5,
+  "belegung": 0.96,
+  "aehnlichkeit": 0.731,
+  "treffer": 2,
+  "laeufe": 8
+ },
+ "sz_t4_og": {
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.94,
+  "aehnlichkeit": 0.945,
+  "treffer": 1,
+  "laeufe": 8
+ },
+ "sz_t5_eg": {
+  "starr": true,
+  "federRunden": 5,
+  "belegung": 0.94,
+  "aehnlichkeit": 0.699,
+  "treffer": 1,
+  "laeufe": 8
+ },
+ "sz_t5_og": {
+  "starr": false,
+  "federRunden": 5,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.687,
+  "treffer": 1,
+  "laeufe": 8
+ }
+}

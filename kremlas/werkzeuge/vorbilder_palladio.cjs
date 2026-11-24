@@ -15,6 +15,7 @@
    - Symmetrie: Räume, deren Mittelpunkt auf der Achse liegt, sind Achsenräume; die übrigen bilden Spiegelpaare. */
 "use strict";
 const fs = require("fs"), path = require("path");
+const ABSTIMMUNG = (() => { try { return JSON.parse(fs.readFileSync(path.join(__dirname, "abstimmung.json"), "utf-8")); } catch (e) { return {}; } })();
 const KERN = process.argv[2] || "C:/LocalOnlyData/GitHub/Planungsgrundlagen/_prozess/konzepte/2026-11-22_Palladio_Grammatik/prototyp/kern.js";
 const P = require(path.resolve(KERN));
 const FUSS = 0.357, WAND = P.WAND, H = WAND / 2;
@@ -91,7 +92,7 @@ for (const v of P.PALLADIO) {
     symmetrie: { achse, paare },
     vorbild: raeume.map(r => r.teile.map(t => [t.x0, t.y0, t.x1, t.y1].map(q => Math.round(q * 1000) / 1000)))
   };
-  fassungen[pid] = { programm: pid };
+  fassungen[pid] = Object.assign({ programm: pid }, ABSTIMMUNG[pid] ? { starr: ABSTIMMUNG[pid].starr, federRunden: ABSTIMMUNG[pid].federRunden, belegung: ABSTIMMUNG[pid].belegung } : {});   // Voreinstellung aus werkzeuge/abstimmung.json
   liste.push(pid);
 }
 const kopf = `/* Vorbilder Palladio für KREMLAS – erzeugt mit werkzeuge/vorbilder_palladio.cjs (nicht von Hand bearbeiten).

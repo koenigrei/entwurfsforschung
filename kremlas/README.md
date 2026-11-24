@@ -21,6 +21,7 @@ Regler **Belegung**: Anteil des Umgebungsrechtecks, den die Räume zusammen einn
 ## Tabs
 
 - **Dichte Packung** (`index.html`): die App wie oben.
+- **Siza/Duarte** (`siza/index.html`): sechs Häuser der Malagueira-Grammatik, Erd- und Obergeschoss, Rekonstruktion und Varianten; Daten `vorbilder_siza.js` aus `werkzeuge/vorbilder_siza.cjs`.
 - **Palladio-Villen** (`palladio/index.html`): acht Villen Palladios als Vorbilder, Rekonstruktion (Nähe zum Vorbild 1) und Varianten (0), Ähnlichkeit zum Vorbild; Daten in `vorbilder_palladio.js` aus `werkzeuge/vorbilder_palladio.cjs`.
 
 ## Starten

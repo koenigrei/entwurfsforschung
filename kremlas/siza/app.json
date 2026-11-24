@@ -1,0 +1,11 @@
+{
+  "id": "kremlas-siza",
+  "titel": {"de": "KREMLAS · Siza/Duarte", "en": "KREMLAS · Siza/Duarte"},
+  "vorschau": {"de": "Häuser Álvaro Sizas in der Malagueira mit der Methode von KREMLAS nachgeneriert: Rekonstruktion und Varianten.", "en": "Álvaro Siza's Malagueira houses regenerated with the KREMLAS method: reconstruction and variants."},
+  "jahr": 2026,
+  "datum": "2026-11-24",
+  "vorschau_saat": 1,
+  "vorschau_schritte": 400,
+  "vorschau_param": {},
+  "pruef_ausdruck": "SIM.zustand.t === 400 && SIM.zustand.programm === 'sz_ab_eg' && SIM.zustand.paare.some(([a, b]) => b === -1)"
+}

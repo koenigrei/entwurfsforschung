@@ -32,6 +32,11 @@
 /* L-förmige Räume je Raum (neu) */
 .l-wahl { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 0 10px; padding: 8px 10px; font-size: 13px; border: 1px solid var(--accent-text); border-radius: 4px; }
 .l-wahl .l-titel { flex-basis: 100%; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-text); }
+/* Vorbild unter dem erzeugten Plan (neu) */
+.k-vorbild { margin: 6px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.k-vorbild[hidden] { display: none; }
+.k-vorbild canvas { display: block; border: 1px solid var(--line); background: var(--surface); }
+.k-vorbild figcaption { font-size: 11px; }
 .l-wahl .l-hinweis { flex-basis: 100%; color: var(--muted); font-size: 12px; margin-bottom: 2px; }
 .l-wahl label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .l-wahl label.aus { color: var(--muted); cursor: default; }
@@ -53,12 +58,13 @@
     <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
   </div>
 </header>
-<nav class="k-tabs mono" aria-label="KREMLAS"><a href="./" aria-current="page"><span lang="de">Dichte Packung</span><span lang="en">Dense packing</span></a><a href="palladio/"><span lang="de">Palladio-Villen</span><span lang="en">Palladian villas</span></a></nav>
+<nav class="k-tabs mono" aria-label="KREMLAS"><a href="./" aria-current="page"><span lang="de">Dichte Packung</span><span lang="en">Dense packing</span></a><a href="palladio/"><span lang="de">Palladio-Villen</span><span lang="en">Palladian villas</span></a><a href="siza/"><span lang="de">Siza/Duarte</span><span lang="en">Siza/Duarte</span></a></nav>
 
 <main class="sim">
   <div class="buehne">
     <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
     <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <figure class="k-vorbild" id="k-vorbild" hidden><figcaption class="mono hinweis" id="k-vorbild-titel"></figcaption><canvas id="vorbild-leinwand" aria-label="Vorbild im gleichen Maßstab"></canvas></figure>
     <p class="hinweis mono"><span lang="de">ein Schritt = eine Generation · gezeigt wird die beste Lösung · Federn wirken nur in den Fassungen mit Topologie und im Grundriss · Raum mit der Maus ziehen: er bleibt, bis die Taste losgelassen wird, die anderen weichen aus</span><span lang="en">one step = one generation · the best solution is shown · springs act only in the topology and floor plan versions · drag a room with the mouse: it stays put until you release, the others make way</span></p>
   </div>
   <aside class="steuerung" id="steuerung"></aside>

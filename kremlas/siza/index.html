@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KREMLAS · Siza/Duarte · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<meta name="description" content="Häuser Álvaro Sizas in der Malagueira mit der Methode von KREMLAS nachgeneriert: Raumprogramm, Türen, Treppe und Luftraum aus der Formgrammatik nach José P. Duarte, dichte Packung mit Evolutionsstrategie, Federn und Kollisionserkennung, Ähnlichkeit zum Vorbild. Rekonstruktion und Varianten, Erdgeschoss und Obergeschoss.">
+<meta name="source" content="../quellcode.zip">
+<link rel="help" href="../AGENTS.md">
+<link rel="license" href="../LICENSE.md">
+<script>try { const t = localStorage.getItem("entwurfsforschung-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; const l = localStorage.getItem("entwurfsforschung-sprache"); if (l === "en") document.documentElement.lang = "en"; } catch (e) {}</script>
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<link rel="stylesheet" href="../../simulationen/_gemeinsam/sim.css">
+<style>
+/* Lösungen: gefundene Grundrisse als Karten (neu, 23.11.2026) */
+.loesungen { padding: 16px var(--g) 24px; border-bottom: 1px solid var(--line); }
+.loesungen[hidden] { display: none; }
+.l-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.l-kopf h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin: 0 6px 0 0; }
+.l-kopf label { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.l-kopf input { width: 4.5em; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; font: inherit; }
+.l-kopf .knopf { padding: 7px 14px; }
+.l-kopf .knopf:disabled { opacity: .45; cursor: default; }
+#l-status { flex: 1 1 260px; font-size: 12px; }
+#l-karten { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 14px; }
+.l-karte { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 6px; cursor: pointer; text-align: left; font-size: 11px; }
+.l-karte:hover { border-color: var(--ink); }
+.l-karte[aria-pressed="true"] { border-color: var(--accent-text); box-shadow: 0 0 0 1px var(--accent-text); }
+.l-karte canvas { display: block; max-width: 100%; height: auto; }
+.loesungen .hinweis { font-size: 12px; margin: 10px 0 0; max-width: 90ch; }
+/* L-förmige Räume je Raum (neu) */
+.l-wahl { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 0 10px; padding: 8px 10px; font-size: 13px; border: 1px solid var(--accent-text); border-radius: 4px; }
+.l-wahl .l-titel { flex-basis: 100%; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-text); }
+/* Vorbild unter dem erzeugten Plan (neu) */
+.k-vorbild { margin: 6px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.k-vorbild[hidden] { display: none; }
+.k-vorbild canvas { display: block; border: 1px solid var(--line); background: var(--surface); }
+.k-vorbild figcaption { font-size: 11px; }
+.l-wahl .l-hinweis { flex-basis: 100%; color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+.l-wahl label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.l-wahl label.aus { color: var(--muted); cursor: default; }
+
+/* Tab-Leiste der KREMLAS-Seiten (neu) */
+.k-tabs { display: flex; flex-wrap: wrap; gap: 0 4px; padding: 0 var(--g); border-bottom: 1px solid var(--line); }
+.k-tabs a { padding: 10px 12px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; }
+.k-tabs a:hover { color: var(--ink); }
+.k-tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent-text); }
+</style>
+</head>
+<body>
+<header class="kopf">
+  <a class="marke" href="../../../" aria-label="Entwurfsforschung – KI Lab"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  <a class="bereich mono" href="../../../">← <span lang="de">KI Lab</span><span lang="en">AI Lab</span></a>
+  <h1><span lang="de">KREMLAS · Siza/Duarte</span><span lang="en">KREMLAS · Siza/Duarte</span></h1>
+  <div class="werkzeug">
+    <button class="sprache" type="button" data-lang="de" aria-pressed="true">DE</button><span class="sprache-trenn">/</span><button class="sprache" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+  </div>
+</header>
+<nav class="k-tabs mono" aria-label="KREMLAS"><a href="../"><span lang="de">Dichte Packung</span><span lang="en">Dense packing</span></a><a href="../palladio/"><span lang="de">Palladio-Villen</span><span lang="en">Palladian villas</span></a><a href="../siza/" aria-current="page"><span lang="de">Siza/Duarte</span><span lang="en">Siza/Duarte</span></a></nav>
+
+<main class="sim">
+  <div class="buehne">
+    <canvas id="leinwand" aria-label="Zeichenfläche der Simulation"></canvas>
+    <div class="unterzeile mono"><span class="legende" id="legende"></span><span id="status"></span></div>
+    <figure class="k-vorbild" id="k-vorbild" hidden><figcaption class="mono hinweis" id="k-vorbild-titel"></figcaption><canvas id="vorbild-leinwand" aria-label="Vorbild im gleichen Maßstab"></canvas></figure>
+    <p class="hinweis mono"><span lang="de">ein Schritt = eine Generation · gezeigt wird die beste Lösung · Federn wirken nur in den Fassungen mit Topologie und im Grundriss · Raum mit der Maus ziehen: er bleibt, bis die Taste losgelassen wird, die anderen weichen aus</span><span lang="en">one step = one generation · the best solution is shown · springs act only in the topology and floor plan versions · drag a room with the mouse: it stays put until you release, the others make way</span></p>
+  </div>
+  <aside class="steuerung" id="steuerung"></aside>
+</main>
+
+<section class="loesungen" id="loesungen" hidden aria-label="Lösungen">
+  <div class="l-kopf">
+    <h2 class="mono"><span lang="de">Lösungen</span><span lang="en">Solutions</span></h2>
+    <label for="l-anzahl"><span lang="de">Anzahl</span><span lang="en">Number</span> <input type="number" id="l-anzahl" min="1" max="12" step="1" value="3"></label>
+    <button class="knopf haupt" type="button" id="l-suche"><span lang="de">Grundrisse suchen</span><span lang="en">Search floor plans</span></button>
+    <button class="knopf" type="button" id="l-stopp" disabled><span lang="de">Stopp</span><span lang="en">Stop</span></button>
+    <span class="mono hinweis" id="l-status"></span>
+  </div>
+  <div id="l-karten"></div>
+  <p class="hinweis mono"><span lang="de">Gesucht werden Grundrisse, die funktionieren: jede geforderte Nachbarschaft mit Tür, keine Überlappung, jeder Raum mindestens so breit wie seine Mindestbreite und mindestens 95 % seiner Fläche. Die Suche startet viele kurze Läufe mit neuen Saaten, ab der eingestellten Saat, bessert Beinahe-Lösungen nach und wählt unter den Treffern möglichst verschiedene. Ein Klick auf eine Karte lädt den Grundriss in die Ansicht oben; dort lässt er sich weiterrechnen und mit der Maus bearbeiten. L-förmige Räume wählen Sie rechts im Bedienfeld unter <em>Fassung</em> im Kasten <em>L-förmige Räume</em>.</span><span lang="en">The search looks for floor plans that work: a door for every required adjacency, no overlap, every room at least as wide as its minimum width and at least 95 % of its area. It starts many short runs with new seeds, beginning at the current seed, refines near-solutions and picks hits that differ as much as possible. Click a card to load the floor plan into the view above, where you can keep evolving it or edit it with the mouse. Choose L-shaped rooms in the control panel on the right, under <em>Version</em>, in the box <em>L-shaped rooms</em>.</span></p>
+</section>
+
+<section class="text-teil">
+  <aside>
+    <div class="mono hinweis"><span lang="de">Vorbilder</span><span lang="en">Models</span></div>
+    <div><span lang="de">Sechs Häuser aus der</span><span lang="en">Six houses from the</span> <a href="../../duarte-siza/"><span lang="de">Konzeptstudie Duarte/Siza</span><span lang="en">Duarte/Siza Concept Study</span></a></div>
+    <a class="weiter mono" href="../quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+    <a href="../AGENTS.md">AGENTS.md</a>
+    <a href="../../../lab/methode/kremlas/"><span lang="de">Methode</span><span lang="en">Method</span></a>
+    <a href="../QUELLE.md"><span lang="de">Quelle und Änderungen</span><span lang="en">Source and changes</span></a>
+    <a href="../../../archiv/floor-plans/"><span lang="de">Archivseite KREMLAS</span><span lang="en">KREMLAS archive page</span></a>
+  </aside>
+  <div class="text">
+    <div lang="de">
+      <p>Gelingt der Methode von KREMLAS auch ein Haus Álvaro Sizas aus der Malagueira in Évora? Vorbild sind sechs Häuser der <a href="../../duarte-siza/">Konzeptstudie Duarte/Siza</a>, erzeugt mit unserer Rekonstruktion der Formgrammatik von José P. Duarte: die Typen Ab (Hof vorn) und Bb (Hof hinten), Duartes neues Haus und Häuser mit zwei, vier und fünf Zimmern. Daten aus Duartes Korpus werden nicht verwendet. Jedes Haus steht als Erdgeschoss und als Obergeschoss zur Wahl. KREMLAS bekommt das Grundstück von 8 × 12 m, die Räume mit Flächen und Formen, die Türen der Grammatik als geforderte Nachbarschaften und den Eingang vom Hof oder Gang zur Straße. Wo die Räume liegen, findet die dichte Packung. Unter dem erzeugten Grundriss steht das Vorbild im gleichen Maßstab.</p>
+      <p><strong>Übersetzung.</strong> Die Räume der Grammatik füllen das Grundstück, die Höfe zählen als Räume. Räume gleicher Funktion, die sich berühren, bilden einen Raum aus Teilen, etwa der Flur im Obergeschoss. Jeder Teil hängt an dem Teil, den er im Vorbild berührt. Im Obergeschoss stehen Treppe und Luftraum über den Höfen fest an der Stelle des Vorbilds, den Rest ordnet KREMLAS. Türen sind wie in der Grammatik 0,80 m breit, die gemeinsame Wand muss mindestens so lang sein. Siza setzt Türen in 1,1 m schmale Gänge. Mit der Türregel der Dichten Packung (1,10 m gemeinsame Wand) wären sieben der zwölf Vorbilder selbst ungültig gewesen. Mindestbreite wie bei Palladio: 0,8 · kürzeste Seite im Vorbild.</p>
+      <p><strong>Verfahren.</strong> Wie im Tab Palladio: Raumtausch, Nähe zum Vorbild, Ähnlichkeit mit Spiegelungen, starre Raumform, dazu feste Räume. Ohne Spiegelachse. Die Einstellungen sind je Haus und Geschoss abgestimmt und voreingestellt: starre Form, Federrunden und Belegung, 18 Einstellungen, je höchstens acht Läufe zu 400 Generationen.</p>
+      <p><strong>Gemessen</strong> (beste Ähnlichkeit mit abgestimmter Voreinstellung). Erdgeschoss: zwei Zimmer 100 %, Duartes neues Haus 98 %, Typ Bb 97 %, Typ Ab 96 %, vier Zimmer 73 %, fünf Zimmer 70 %. Obergeschoss: zwei Zimmer 99 %, vier Zimmer 95 %, Typ Bb 94 %, fünf Zimmer 69 %, Typ Ab 61 %, Duartes neues Haus 54 %. Schwer sind die Geschosse mit vielen kleinen Räumen an schmalen Gängen und Fluren, die aus mehreren Teilen bestehen. Dort findet KREMLAS gültige Grundrisse, aber oft in anderer Anordnung als das Vorbild.</p>
+      <p>Quellen: T. Elezkurtaj, G. Franck (2002): Algorithmic Support of Creative Architectural Design. <em>Umbau</em> 19, 129–137, <a href="https://www.researchgate.net/publication/255606960_Algorithmic_Support_of_Creative_Architectural_Design">ResearchGate</a> (Ausgangspunkt von KREMLAS). J. P. Duarte (2005): Towards the mass customization of housing: the grammar of Siza's houses at Malagueira. <em>Environment and Planning B</em> 32(3), 347–380, <a href="https://doi.org/10.1068/b31124">doi:10.1068/b31124</a>. D. Donath, R. König, F. Petzold (Hrsg.) (2012): <em>KREMLAS</em>, Weimar, urn:nbn:de:gbv:wim2-20120509-16504. Die Übersetzung der Vorbilder macht <code>werkzeuge/vorbilder_siza.cjs</code> (im Quellcode).</p>
+    </div>
+    <div lang="en">
+      <p>Can the KREMLAS method also manage one of Álvaro Siza's houses at Malagueira in Évora? The models are six houses of the <a href="../../duarte-siza/">Duarte/Siza Concept Study</a>, generated with our reconstruction of José P. Duarte's shape grammar: types Ab (court at the front) and Bb (court at the back), Duarte's new house, and houses with two, four and five bedrooms. No data from Duarte's corpus are used. Each house can be chosen as ground floor and as upper floor. KREMLAS receives the 8 × 12 m plot, the rooms with their areas and shapes, the doors of the grammar as required adjacencies, and the entrance from the court or corridor to the street. The dense packing finds where the rooms go. Below the generated floor plan, the model is shown at the same scale.</p>
+      <p><strong>Translation.</strong> The rooms of the grammar fill the plot; the courts count as rooms. Rooms of the same function that touch form one room made of parts, such as the hall on the upper floor. Each part hangs on the part it touches in the model. On the upper floor, the stair and the void above the courts are fixed where they are in the model; KREMLAS arranges the rest. Doors are 0.80 m wide as in the grammar, and the shared wall must be at least that long. Siza places doors in corridors only 1.1 m wide. With the door rule of the dense packing (1.10 m of shared wall), seven of the twelve models would themselves have been invalid. Minimum width as for Palladio: 0.8 · shortest side in the model.</p>
+      <p><strong>Method.</strong> As in the Palladio tab: room swap, closeness to the model, similarity including mirrored plans, rigid room shape, plus fixed rooms. There is no mirror axis. The settings are tuned and preset for each house and floor: rigid shape, spring rounds and coverage, 18 settings, each for at most eight runs of 400 generations.</p>
+      <p><strong>Measured</strong> (best similarity with the tuned preset). Ground floor: two bedrooms 100 %, Duarte's new house 98 %, type Bb 97 %, type Ab 96 %, four bedrooms 73 %, five bedrooms 70 %. Upper floor: two bedrooms 99 %, four bedrooms 95 %, type Bb 94 %, five bedrooms 69 %, type Ab 61 %, Duarte's new house 54 %. The hard cases are floors with many small rooms along narrow corridors and halls made of several parts. There KREMLAS finds valid floor plans, but often in a different arrangement than the model.</p>
+      <p>Sources: T. Elezkurtaj, G. Franck (2002): Algorithmic Support of Creative Architectural Design. <em>Umbau</em> 19, 129–137, <a href="https://www.researchgate.net/publication/255606960_Algorithmic_Support_of_Creative_Architectural_Design">ResearchGate</a> (starting point of KREMLAS). J. P. Duarte (2005): Towards the mass customization of housing: the grammar of Siza's houses at Malagueira. <em>Environment and Planning B</em> 32(3), 347–380, <a href="https://doi.org/10.1068/b31124">doi:10.1068/b31124</a>. D. Donath, R. König, F. Petzold (eds.) (2012): <em>KREMLAS</em>, Weimar, urn:nbn:de:gbv:wim2-20120509-16504. The models are translated by <code>werkzeuge/vorbilder_siza.cjs</code> (in the source code).</p>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss mono">
+  <span>Prof. Dr. Reinhard König <span lang="de">in Zusammenarbeit mit Claude von Anthropic</span><span lang="en">in collaboration with Claude by Anthropic</span></span>
+  <a href="../quellcode.zip" download><span lang="de">Quellcode · Weiterentwickeln</span><span lang="en">Source code · Develop further</span></a>
+  <a href="../AGENTS.md">AGENTS.md</a>
+  <a href="../LICENSE.md">CC BY 4.0</a>
+  <a href="../../../impressum/"><span lang="de">Impressum</span><span lang="en">Legal notice</span></a>
+</footer>
+
+<script src="../../simulationen/_gemeinsam/zufall.js"></script>
+<script src="../../simulationen/_gemeinsam/sim.js"></script>
+<script>window.KREMLAS_SEITE = "siza";</script>
+<script src="../vorbilder_siza.js"></script>
+<script src="../modell.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

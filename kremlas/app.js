@@ -4,9 +4,9 @@
   "use strict";
   // Seite (neu, 23.11.2026): "packung" (lab/kremlas/) oder "palladio" (lab/kremlas/palladio/, Vorbilder aus vorbilder_palladio.js)
   const SEITE = window.KREMLAS_SEITE || "packung", FA = Modell.FASSUNGEN;
-  const VORBILDER = Object.keys(FA).filter(f => f.startsWith(SEITE === "palladio" ? "pal_" : "§"));
-  const START = VORBILDER.includes("pal_emo") ? "pal_emo" : VORBILDER[0];   // Villa Emo: schon ein einzelner Lauf wird gültig (Saat 1: 97 % Ähnlichkeit)
-  const S = SEITE === "palladio" && VORBILDER.length
+  const VORBILDER = Object.keys(FA).filter(f => f.startsWith(SEITE === "palladio" ? "pal_" : SEITE === "siza" ? "sz_" : "§"));
+  const START = VORBILDER.includes("pal_emo") ? "pal_emo" : VORBILDER[0];   // Villa Emo: schon ein einzelner Lauf wird gültig (Saat 1: 97 % Ähnlichkeit); Siza: Typ Ab, Erdgeschoss
+  const S = SEITE !== "packung" && VORBILDER.length
     ? Object.assign({}, Modell.STANDARD, ...Modell.REGLER.map(k => ({ [k]: FA[START][k] })), { fassung: START, plan: true, topo: false, vorbild: true })
     : Object.assign({ vorbild: false }, Modell.STANDARD);
   // Feld je Zustand (Vorbilder haben eigene Maße): vor dem Zeichnen setzen, B und H danach lesen
@@ -73,7 +73,7 @@
     ctx.save(); ctx.beginPath(); ctx.rect(0, 0, B, H); ctx.clip(); ctx.strokeStyle = F.dunkel ? "#5c5c63" : "#b3b0a8"; ctx.lineWidth = 1;
     ctx.beginPath(); for (let d = -H; d < B; d += 8) { ctx.moveTo(d, H); ctx.lineTo(d + H, 0); } ctx.stroke(); ctx.restore();
     const raumVon = r => r.r == null ? r.id : r.r;                      // L-Räume: Schenkel gehört zum Raum r
-    for (const r of R) { ctx.fillStyle = z.programm && Modell.PROGRAMME[z.programm].raeume[raumVon(r)][1] === "Court" ? hofFarbe(F) : planFarbe(F); ctx.fillRect(r.x1, r.y1, r.x2 - r.x1, r.y2 - r.y1); }
+    for (const r of R) { ctx.fillStyle = z.programm && ["Court", "Open to sky"].includes(Modell.PROGRAMME[z.programm].raeume[raumVon(r)][1]) ? hofFarbe(F) : planFarbe(F); ctx.fillRect(r.x1, r.y1, r.x2 - r.x1, r.y2 - r.y1); }
     ctx.fillStyle = F.akzent; ctx.globalAlpha = 0.6;                   // verbliebene Überlappungen
     for (let i = 0; i < R.length; i++) for (let k = i + 1; k < R.length; k++) {
       const x1 = Math.max(R[i].x1, R[k].x1), x2 = Math.min(R[i].x2, R[k].x2), y1 = Math.max(R[i].y1, R[k].y1), y2 = Math.min(R[i].y2, R[k].y2);
@@ -152,6 +152,38 @@
     ctx.restore();
   }
 
+  /** Vorbild als eigener Plan unter dem erzeugten Grundriss (neu, Wunsch Reinhard 24.11.2026): gleicher Maßstab, so ausgerichtet
+      (gespiegelt), wie es dem erzeugten Plan am besten entspricht; Wände, Türen, Namen und Flächen wie oben */
+  function zeichneVorbildPlan(z, p, F, b) {
+    const fig = document.getElementById("k-vorbild"); if (!fig) return;
+    const zeigen = !!(p.plan && mitVorbild(z));
+    if (fig.hidden !== !zeigen) fig.hidden = !zeigen;
+    if (!zeigen) return;
+    const P = Modell.PROGRAMME[z.programm], A = Modell.aehnlichkeit(b, z.programm), k = Modell.PX_M, sx = A.gespiegelt.x, sy = A.gespiegelt.y;
+    const n = P.raeume.length; let weiter = n;
+    const I = { g: [], fo: 0, fd: 0 };
+    P.vorbild.forEach((teile, raum) => teile.forEach((t, j) => {
+      let x1 = t[0] * k, y1 = t[1] * k, x2 = t[2] * k, y2 = t[3] * k;
+      if (sx) [x1, x2] = [B - x2, B - x1];
+      if (sy) [y1, y2] = [H - y2, H - y1];
+      const g = Modell.gen(j ? weiter++ : raum, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, null, 0.4, 0, raum);
+      I.g.push(g);
+    }));
+    const lw = document.getElementById("leinwand"), cssK = parseFloat(lw.style.width) / lw._b;   // CSS-Pixel je Modellpixel wie oben
+    const c = document.getElementById("vorbild-leinwand"), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.round(B * cssK), h = Math.round(H * cssK);
+    if (c.style.width !== w + "px") { c.style.width = w + "px"; c.style.height = h + "px"; c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    const ctx = c.getContext("2d"); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, c.width, c.height);
+    ctx.setTransform(cssK * dpr, 0, 0, cssK * dpr, 0, 0);
+    const Fv = Object.assign({}, F, { px: 1 / cssK });
+    zeichnePlan(ctx, Object.assign({}, z, { mindest: false }), p, Fv, I);
+    ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H);
+    const titel = document.getElementById("k-vorbild-titel"), sp = sx || sy;
+    const t = en() ? `Model: ${P.titel_en || P.titel}` + (sp ? " (mirrored to match the plan above)" : "") + ` · similarity ${proz(A.mittel)}`
+                   : `Vorbild: ${P.titel}` + (sp ? " (gespiegelt wie der Plan oben)" : "") + ` · Ähnlichkeit ${proz(A.mittel)}`;
+    if (titel.textContent !== t) titel.textContent = t;
+  }
+
   /** Nachbarschaften (DrawConnections): Linien zwischen den Mittelpunkten, erfüllte durchgezogen, offene gestrichelt;
       der Eingang (Nachbar −1) als Linie zur nächsten Feldkante. Im Grundriss gelten die Rechtecke der Packung. */
   function zeichneNachbarn(ctx, z, p, F, G) {
@@ -169,7 +201,7 @@
   /** Die Wahl der Nachbarschaften (Stern/Wohnung), die Mindestmaße und die Lösungssuche wirken nur mit Raumprogramm: sonst ausblenden */
   function auswahlGrundriss(z, p) {
     const d = z.programm ? "" : "none";                                 // style statt hidden: .zeile setzt display selbst
-    const sichtbar = { "p-grundrissTopo": !!z.programm && !mitVorbild(z), "p-mindest": !!z.programm, "p-naehe": mitVorbild(z), "p-vorbild": mitVorbild(z),
+    const sichtbar = { "p-grundrissTopo": !!z.programm && !mitVorbild(z), "p-mindest": !!z.programm, "p-naehe": mitVorbild(z), "p-vorbild": mitVorbild(z), "p-starr": mitVorbild(z),
                        "p-raeume": !z.programm };
     for (const [id, an] of Object.entries(sichtbar)) {
       const e = document.getElementById(id), zeile = e && e.closest(".zeile"), dd = an ? "" : "none";
@@ -215,8 +247,8 @@
     saat: 1,
     tempo: { min: 1, max: 30, wert: 1 },
     parameter: [
-      { id: "fassung", gruppe: G_F, name: SEITE === "palladio" ? { de: "Villa (Vorbild)", en: "Villa (model)" } : { de: "Fassung", en: "Version" }, art: "auswahl", wert: S.fassung, neustart: true, folgen,
-        optionen: SEITE === "palladio" ? VORBILDER.map(f => ({ wert: f, name: { de: Modell.PROGRAMME[FA[f].programm].titel, en: Modell.PROGRAMME[FA[f].programm].titel } })) : [{ wert: "einpassung", name: { de: "Einpassung (ohne Topologie)", en: "Fitting (no topology)" } },
+      { id: "fassung", gruppe: G_F, name: SEITE === "palladio" ? { de: "Villa (Vorbild)", en: "Villa (model)" } : SEITE === "siza" ? { de: "Haus und Geschoss (Vorbild)", en: "House and floor (model)" } : { de: "Fassung", en: "Version" }, art: "auswahl", wert: S.fassung, neustart: true, folgen,
+        optionen: SEITE !== "packung" ? VORBILDER.map(f => { const P = Modell.PROGRAMME[FA[f].programm]; return { wert: f, name: { de: P.titel, en: P.titel_en || P.titel } }; }) : [{ wert: "einpassung", name: { de: "Einpassung (ohne Topologie)", en: "Fitting (no topology)" } },
                    { wert: "kollision", name: { de: "Kollision allein", en: "Collision only" } },
                    { wert: "topologie", name: { de: "Topologie: Stern", en: "Topology: star" } },
                    { wert: "gang", name: { de: "Topologie: Gang", en: "Topology: corridor" } },
@@ -230,6 +262,7 @@
                    { wert: "wohnung", name: { de: "Wohnung mit Eingang (angenommen)", en: "Flat with entrance (assumed)" } }] },
       { id: "lform", gruppe: G_F, name: { de: "L-förmige Räume (Bitmaske)", en: "L-shaped rooms (bit mask)" }, min: 0, max: 1023, wert: S.lform, neustart: true },
       { id: "naehe", gruppe: G_F, name: { de: "Nähe zum Vorbild (0 = freie Varianten, 1 = rekonstruieren; neu)", en: "Closeness to the model (0 = free variants, 1 = reconstruct; new)" }, min: 0, max: 1, schritt: 0.1, wert: S.naehe || 0, format: proz },
+      { id: "starr", gruppe: G_F, name: { de: "Starre Raumform (zusammengesetzte Räume wie im Vorbild; neu)", en: "Rigid room shape (composite rooms as in the model; new)" }, art: "schalter", wert: !!S.starr, neustart: true },
       { id: "mindest", gruppe: G_F, name: { de: "Mindestmaße (Breite, Fläche; neu)", en: "Minimum dimensions (width, area; new)" }, art: "schalter", wert: S.mindest, neustart: true },
       { id: "raeume", gruppe: G_ES, name: { de: "Räume (Rooms, nicht im Grundriss)", en: "Rooms (not in floor plan)" }, min: 2, max: 40, wert: S.raeume, neustart: true },
       { id: "mu", gruppe: G_ES, name: { de: "Eltern μ (Population)", en: "Parents μ (population)" }, min: 1, max: 30, wert: S.mu, neustart: true },
@@ -258,6 +291,7 @@
       const b = Modell.beste(z), G = b.g;
       ctx.fillStyle = F.dunkel ? F.flaeche : F.papier; ctx.fillRect(0, 0, B, H);
       auswahlGrundriss(z, p);
+      zeichneVorbildPlan(z, p, F, b);
       if (p.plan) { zeichnePlan(ctx, z, p, F, b); if (p.vorbild && mitVorbild(z)) zeichneVorbild(ctx, z, F, b); if (p.topo) zeichneNachbarn(ctx, z, p, F, G); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); if (p.verlauf) { if (quer()) diagramm(ctx, z, F, B + LUECKE, 0, RECHTS, H); else diagramm(ctx, z, F, 0, H + 8, B, UNTEN - 8); } return; }
       // Räume der besten Lösung (PhenotypeGdi): grau, Wände in Papierfarbe (dunkel) bzw. schwarz (hell)
       ctx.lineWidth = 2; ctx.strokeStyle = F.dunkel ? F.papier : F.tinte;
@@ -333,7 +367,7 @@
   const $ = id => document.getElementById(id);
   const ZEIT_MAX = 90000;                                              // Suche endet spätestens nach 90 s
   let suche = null, karten = [], gewaehlt = -1, schluessel = "";
-  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu, p.lform, p.naehe].join("|");
+  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu, p.lform, p.naehe, p.starr].join("|");
   const text = o => en() ? o.en : o.de;
   function status(t) { $("l-status").textContent = t; }
   function zeichneKarten() {
@@ -390,7 +424,7 @@
     const n = Math.max(1, Math.min(12, parseInt($("l-anzahl").value, 10) || 3)); $("l-anzahl").value = n;
     SIM.pause();
     const p = Object.assign({}, SIM.param);
-    suche = { anzahl: n, t0: performance.now(), S: Modell.sucheNeu(p, Zufall.zufall, { anzahl: n, saat: SIM.saat, ziel: Math.max(n + 2, Math.ceil(n * 1.5)), laeufe: 400 }) };
+    suche = { anzahl: n, t0: performance.now(), S: Modell.sucheNeu(p, Zufall.zufall, { anzahl: n, saat: SIM.saat, ziel: Math.max(n + 2, Math.ceil(n * 1.5)), laeufe: 400, generationen: mitVorbild(z) ? 400 : 200 }) };
     schluessel = schluesselVon(p); karten = []; gewaehlt = -1; zeichneKarten();
     $("l-suche").disabled = true; $("l-stopp").disabled = false;
     takt();

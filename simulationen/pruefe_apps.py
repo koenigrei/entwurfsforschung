@@ -22,7 +22,8 @@ REPO = os.path.dirname(HIER)
 AUS = os.path.join(HIER, "_pruefung")
 # Eigene Lab-Projekte im Rahmen der Frühen Simulationen (KREMLAS, eigene Kachel seit 23.11.2026): Quellordner, Adresse, Archivpräfix
 EIGENE = {"kremlas": (os.path.join(REPO, "kremlas"), "/lab/kremlas/", "../../archiv/", ""),
-          "kremlas-palladio": (os.path.join(REPO, "kremlas", "palladio"), "/lab/kremlas/palladio/", "../../../archiv/", "../")}   # Ordner, Adresse, Archiv, Präfix der Projektdateien
+          "kremlas-palladio": (os.path.join(REPO, "kremlas", "palladio"), "/lab/kremlas/palladio/", "../../../archiv/", "../"),
+          "kremlas-siza": (os.path.join(REPO, "kremlas", "siza"), "/lab/kremlas/siza/", "../../../archiv/", "../")}   # Ordner, Adresse, Archiv, Präfix der Projektdateien
 sys.path.insert(0, REPO)
 import bauen  # noqa: E402  (Schrift-Quellen und geist.css wie im Bau)
 
