@@ -7,6 +7,7 @@
   quellcode.zip (App + _gemeinsam), Pflichtlinks und Hinweise im <head>, Archivlink gültig, modell.js ohne DOM, Tests grün (node --test)
 - Parametric Planning Catalogue (katalog/bestand.json, 23.11.2026): dieselben Pflichten je App, Link zum Katalogeintrag statt Archivlink,
   quellcode.zip mit katalog/<app>/, katalog/_gemeinsam/ und simulationen/_gemeinsam/, Begründung für jedes nicht umgesetzte Modul
+- Wissensbasis (25.11.2026): Seite DE/EN, KI-Lab_Wissensbasis.zip vollständig und ohne private Angaben, Einzeldateien, eine Kachel „anfang“
 """
 import json, os, re, subprocess, sys, zipfile
 
@@ -92,6 +93,7 @@ def pruefe(site=SITE, projekte=None):
     b += pruefe_bki(site)
     b += pruefe_simulationen(site)
     b += pruefe_katalog(site)
+    b += pruefe_wissensbasis(site, P)
     imp = os.path.join(site, "impressum", "index.html")
     if os.path.exists(imp):
         t = open(imp, encoding="utf-8").read()
@@ -100,6 +102,62 @@ def pruefe(site=SITE, projekte=None):
         for muss in ("Windischenstr. 20", "99423 Weimar", "§ 18 Abs. 2 MStV", "Datenschutz"):
             if muss not in t:
                 b.append(f"impressum: „{muss}“ fehlt")
+    return b
+
+
+def pruefe_wissensbasis(site, P):
+    """Wissensbasis lab/wissensbasis/ (Nutzer 25.11.2026): höchstens eine Kachel mit „anfang“ (steht in allen Sortierungen vorn); Seite
+    deutsch und englisch mit Link auf Paket und Methode; KI-Lab_Wissensbasis.zip vollständig (Startdateien, Methodenkatalog, METHODE.md
+    aller Projekte, Skills mit name/description, Rezepte, Lizenz und Namensnennung) und frei von privaten Angaben; alle lokalen Links da."""
+    sys.path.insert(0, HIER)
+    from wissensbasis.paket import privat_befunde, WURZEL, ZIP, ATTRIBUTION
+    b = []
+    anfang = [p["id"] for p in P if p.get("anfang")]
+    if len(anfang) > 1:
+        b.append(f"projekte.json: mehr als eine Kachel mit „anfang“ ({', '.join(anfang)})")
+    p = next((p for p in P if p["id"] == "wissensbasis"), None)
+    if not p:
+        return b
+    d = os.path.join(site, p["ziel"])
+    idx = os.path.join(d, "index.html")
+    if not os.path.isfile(idx):
+        return b + ["wissensbasis: index.html fehlt"]
+    h = open(idx, encoding="utf-8").read()
+    for muss, was in (('class="nur-de"', "deutsche Fassung"), ('class="nur-en"', "englische Fassung"), (f'href="{ZIP}', "Link auf das Paket"),
+                      ("lab/methode/wissensbasis/", "Link auf die Methode"), ('href="../methode/"', "Link auf die Methodenübersicht"), ("<pre>", "Prompts")):
+        if muss not in h:
+            b.append(f"wissensbasis/index.html: {was} fehlt")
+    if "{{" in h:
+        b.append("wissensbasis/index.html: Platzhalter {{…}}")
+    for ziel in re.findall(r'href="([^"]+)"', h):                       # lokale Links: Einzeldateien, Projekte, Methoden
+        if re.match(r"^(?:[a-z]+:|#|\$\{)", ziel):                         # fremde Adressen, mailto:, Anker, Vorlagen-JS
+            continue
+        ziel = re.split(r"[?#]", ziel)[0]
+        z = os.path.normpath(os.path.join(d, ziel))
+        if not (os.path.isfile(z) or os.path.isfile(os.path.join(z, "index.html"))) and not any(ziel.startswith(f"../../{q['ziel']}") for q in P if q.get("nur_kachel")):
+            b.append(f"wissensbasis/index.html: Link {ziel} führt ins Leere")
+    zp = os.path.join(d, ZIP)
+    if not os.path.isfile(zp):
+        return b + [f"wissensbasis: {ZIP} fehlt"]
+    with zipfile.ZipFile(zp) as zf:
+        inhalt = {n[len(WURZEL) + 1:]: zf.read(n).decode("utf-8") for n in zf.namelist() if not n.endswith("/")}
+    muss = ["AGENTS.md", "CLAUDE.md", "LIESMICH.md", "PROJEKTE.md", "methoden/README.md", "methoden/VORLAGE_METHODE.md",
+            "rezepte/simulationen/REZEPT.md", "rezepte/katalog/REZEPT.md", ".claude/skills/generative-studie/SKILL.md"]
+    muss += [f"methoden/projekte/{q['id']}/METHODE.md" for q in P if q.get("methode")]
+    for f in muss:
+        if f not in inhalt:
+            b.append(f"wissensbasis: {ZIP} ohne {f}")
+    for n, t in inhalt.items():
+        b += [f"wissensbasis: {x}" for x in privat_befunde(n, t)]
+        if n.endswith("SKILL.md") and not re.match(r"---\nname: \S+\ndescription: .+\n---\n", t):
+            b.append(f"wissensbasis: {n} ohne Kopf mit name und description")
+        if not os.path.isfile(os.path.join(d, "dateien", *n.replace(".claude/skills/", "skills/").split("/"))):
+            b.append(f"wissensbasis: Einzeldatei zu {n} fehlt")
+    L = inhalt.get("LIESMICH.md", "")
+    if "CC BY 4.0" not in L or ATTRIBUTION not in L:
+        b.append("wissensbasis: LIESMICH.md ohne CC BY 4.0 oder Namensnennung")
+    if "@AGENTS.md" not in inhalt.get("CLAUDE.md", ""):
+        b.append("wissensbasis: CLAUDE.md bindet AGENTS.md nicht ein")
     return b
 
 
