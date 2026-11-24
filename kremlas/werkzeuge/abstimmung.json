@@ -1,162 +1,162 @@
 {
  "pal_angarano": {
-  "starr": false,
-  "federRunden": 2,
-  "belegung": 0.98,
-  "aehnlichkeit": 0.996,
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.94,
+  "aehnlichkeit": 1,
   "treffer": 1,
   "laeufe": 3
  },
  "pal_badoer": {
   "starr": false,
-  "federRunden": 10,
-  "belegung": 0.98,
-  "aehnlichkeit": 0.994,
+  "federRunden": 5,
+  "belegung": 0.94,
+  "aehnlichkeit": 0.999,
   "treffer": 1,
   "laeufe": 3
  },
  "pal_emo": {
   "starr": true,
-  "federRunden": 10,
+  "federRunden": 2,
   "belegung": 0.98,
-  "aehnlichkeit": 0.994,
+  "aehnlichkeit": 0.998,
   "treffer": 1,
-  "laeufe": 4
+  "laeufe": 5
  },
  "pal_malcontenta": {
   "starr": true,
   "federRunden": 5,
-  "belegung": 0.98,
-  "aehnlichkeit": 0.93,
+  "belegung": 0.94,
+  "aehnlichkeit": 0.99,
   "treffer": 1,
   "laeufe": 8
  },
  "pal_pisani": {
   "starr": true,
-  "federRunden": 2,
-  "belegung": 0.96,
-  "aehnlichkeit": 0.859,
-  "treffer": 3,
-  "laeufe": 7
- },
- "pal_ragona": {
-  "starr": false,
   "federRunden": 5,
   "belegung": 0.98,
-  "aehnlichkeit": 0.999,
+  "aehnlichkeit": 0.88,
   "treffer": 3,
+  "laeufe": 4
+ },
+ "pal_ragona": {
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 1,
+  "treffer": 1,
   "laeufe": 3
  },
  "pal_saraceno": {
-  "starr": true,
-  "federRunden": 2,
-  "belegung": 0.94,
-  "aehnlichkeit": 0.933,
+  "starr": false,
+  "federRunden": 5,
+  "belegung": 0.96,
+  "aehnlichkeit": 0.999,
   "treffer": 3,
-  "laeufe": 8
+  "laeufe": 4
  },
  "pal_zeno": {
   "starr": true,
   "federRunden": 10,
   "belegung": 0.98,
-  "aehnlichkeit": 0.99,
+  "aehnlichkeit": 0.999,
   "treffer": 1,
   "laeufe": 3
  },
  "sz_ab_eg": {
-  "starr": false,
+  "starr": true,
   "federRunden": 10,
   "belegung": 0.98,
-  "aehnlichkeit": 0.959,
-  "treffer": 3,
-  "laeufe": 3
+  "aehnlichkeit": 0.956,
+  "treffer": 2,
+  "laeufe": 7
  },
  "sz_ab_og": {
   "starr": true,
   "federRunden": 10,
-  "belegung": 0.96,
-  "aehnlichkeit": 0.609,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.909,
   "treffer": 2,
-  "laeufe": 6
+  "laeufe": 8
  },
  "sz_bb_eg": {
-  "starr": false,
-  "federRunden": 2,
-  "belegung": 0.96,
-  "aehnlichkeit": 0.966,
-  "treffer": 1,
-  "laeufe": 8
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.998,
+  "treffer": 3,
+  "laeufe": 5
  },
  "sz_bb_og": {
   "starr": true,
-  "federRunden": 5,
-  "belegung": 0.98,
-  "aehnlichkeit": 0.941,
+  "federRunden": 10,
+  "belegung": 0.94,
+  "aehnlichkeit": 0.954,
   "treffer": 1,
   "laeufe": 8
  },
  "sz_dn_eg": {
-  "starr": true,
-  "federRunden": 10,
-  "belegung": 0.98,
-  "aehnlichkeit": 0.985,
-  "treffer": 2,
-  "laeufe": 4
- },
- "sz_dn_og": {
-  "starr": false,
-  "federRunden": 5,
-  "belegung": 0.98,
-  "aehnlichkeit": 0.544,
-  "treffer": 1,
-  "laeufe": 8
- },
- "sz_t2_eg": {
   "starr": false,
   "federRunden": 10,
-  "belegung": 0.98,
-  "aehnlichkeit": 0.998,
-  "treffer": 1,
+  "belegung": 0.94,
+  "aehnlichkeit": 1,
+  "treffer": 3,
   "laeufe": 3
  },
- "sz_t2_og": {
+ "sz_dn_og": {
   "starr": true,
   "federRunden": 2,
   "belegung": 0.94,
-  "aehnlichkeit": 0.988,
+  "aehnlichkeit": 0,
+  "treffer": 0,
+  "laeufe": 8
+ },
+ "sz_t2_eg": {
+  "starr": true,
+  "federRunden": 2,
+  "belegung": 0.96,
+  "aehnlichkeit": 1,
+  "treffer": 2,
+  "laeufe": 6
+ },
+ "sz_t2_og": {
+  "starr": true,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.999,
   "treffer": 1,
   "laeufe": 3
  },
  "sz_t4_eg": {
-  "starr": true,
-  "federRunden": 5,
-  "belegung": 0.96,
-  "aehnlichkeit": 0.731,
-  "treffer": 2,
-  "laeufe": 8
+  "starr": false,
+  "federRunden": 10,
+  "belegung": 0.98,
+  "aehnlichkeit": 0.997,
+  "treffer": 3,
+  "laeufe": 3
  },
  "sz_t4_og": {
   "starr": true,
-  "federRunden": 10,
-  "belegung": 0.94,
-  "aehnlichkeit": 0.945,
+  "federRunden": 5,
+  "belegung": 0.96,
+  "aehnlichkeit": 0.88,
   "treffer": 1,
   "laeufe": 8
  },
  "sz_t5_eg": {
   "starr": true,
-  "federRunden": 5,
-  "belegung": 0.94,
-  "aehnlichkeit": 0.699,
-  "treffer": 1,
-  "laeufe": 8
+  "federRunden": 10,
+  "belegung": 0.96,
+  "aehnlichkeit": 0.995,
+  "treffer": 3,
+  "laeufe": 7
  },
  "sz_t5_og": {
   "starr": false,
   "federRunden": 5,
-  "belegung": 0.98,
-  "aehnlichkeit": 0.687,
-  "treffer": 1,
+  "belegung": 0.96,
+  "aehnlichkeit": 0.768,
+  "treffer": 2,
   "laeufe": 8
  }
 }

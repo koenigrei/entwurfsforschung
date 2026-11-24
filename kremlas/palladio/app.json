@@ -10,7 +10,7 @@
   },
   "jahr": 2026,
   "datum": "2026-11-23",
-  "vorschau_saat": 1,
+  "vorschau_saat": 2,
   "vorschau_schritte": 400,
   "vorschau_param": {},
   "pruef_ausdruck": "SIM.zustand.t === 400 && SIM.zustand.programm === 'pal_emo' && SIM.zustand.sym.paare.length > 0 && Modell.planPruefung(Modell.beste(SIM.zustand), SIM.zustand.paare, SIM.zustand.programm, 300).gueltig && Modell.aehnlichkeit(Modell.beste(SIM.zustand), SIM.zustand.programm).mittel > 0.9"

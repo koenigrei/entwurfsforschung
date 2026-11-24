@@ -142,7 +142,7 @@
     return x2 > x1 && y2 > y1 ? { x1, y1, x2, y2, w: x2 - x1, h: y2 - y1 } : null;
   }
   const schnitt = (A, B) => { const r = schnittRechteck(A, B); return r ? r.w * r.h : 0; };
-  const FELD = { x: BREITE / 2, y: HOEHE / 2, w: BREITE, h: HOEHE };
+  const FELD = { x: BREITE / 2, y: HOEHE / 2, w: BREITE, h: HOEHE };   // folgt setzeFeld (behoben 24.11.2026: vorher fest 500 × 430)
 
   /** Fitness f1 = Sg (RChromosome.Overlap): Summe der paarweisen Schnittflächen plus die Flächenanteile außerhalb des Umgebungsrechtecks */
   function ueberlappung(ind) {
@@ -785,6 +785,7 @@
     else { PX_M = 500 / Math.max(f.b, f.h); BREITE = f.b * PX_M; HOEHE = f.h * PX_M; }
     TUER_PX = (f && f.tuer || 0.9) * PX_M; TEILE_PX = 0.5 * PX_M;          // Türbreite je Programm (Siza 0,8 m), sonst 0,9 m
     RAND_PX = (f && f.tuerRand != null ? f.tuerRand : 0.2) * PX_M;
+    if (typeof FELD !== "undefined") { FELD.x = BREITE / 2; FELD.y = HOEHE / 2; FELD.w = BREITE; FELD.h = HOEHE; }
   }
   const feldVon = programm => programm && PROGRAMME[programm] && PROGRAMME[programm].feld || null;
   const PLAN_DURCHGAENGE = 120;                                          // Wachsen in der Bewertung (Ansicht: 300)
@@ -847,16 +848,17 @@
 
   /** Örtliche Nachbesserung (memetisch): einzelne Räume ein wenig verschieben oder ihre Proportion ändern, behalten, was f3 nicht
       verschlechtert; Schrittweite nimmt ab. Bricht ab, sobald der Plan gültig ist. */
-  function nachbessern(ind, paare, programm, zufall, versuche, sym, fest, starr) {
+  function nachbessern(ind, paare, programm, zufall, versuche, sym, fest, starr, weiter) {
+    // weiter (Rekonstruktion): auch einen gültigen Plan weiter verbessern; angenommen wird nur, was gültig bleibt und f3 (mit Nähe) senkt
     let best = kopie(ind), w = planPruefung(best, paare, programm);
-    for (let v = 0; v < versuche && !w.gueltig; v++) {
+    for (let v = 0; v < versuche && (weiter || !w.gueltig); v++) {
       const c = kopie(best), g = c.g[zufall.ganz(c.g.length)], s = 20 * (1 - v / versuche) + 2, art = zufall.ganz(3);
       if (art === 0) g.x += (zufall() * 2 - 1) * s; else if (art === 1) g.y += (zufall() * 2 - 1) * s; else setzeBreite(g, g.w + (zufall() * 2 - 1) * s);
       formen(c, starr);
       if (sym) symmetrisiere(c, sym, g.id);
       formen(c, starr); fixiere(c, fest);
       const wc = planPruefung(c, paare, programm);
-      if (wc.f3 <= w.f3) { best = c; w = wc; }
+      if (wc.f3 <= w.f3 && (!weiter || !w.gueltig || wc.gueltig)) { best = c; w = wc; }
     }
     best.fo = ueberlappung(best); best.f3 = w.f3;
     return { ind: best, wert: w };
@@ -946,7 +948,10 @@
         if (!rekonstruieren) { treffer = { ind: kopie(e), wert: w, nachgebessert: false }; break; }
         if (!L.bester || w.aehnlich > L.bester.wert.aehnlich) L.bester = { ind: kopie(e), wert: w, nachgebessert: false, t: z.t };   // Rekonstruktion: bis zum Ende laufen, ähnlichsten gültigen merken
       }
-      if (rekonstruieren && z.t >= S.o.generationen && L.bester) { treffer = L.bester; }
+      if (rekonstruieren && z.t >= S.o.generationen && L.bester) {           // ähnlichsten gültigen Plan zum Schluss noch nachbessern
+        const nb = nachbessern(L.bester.ind, z.paare, z.programm, L.zuf, S.o.versuche, z.sym, z.fest, z.starr, true);
+        treffer = nb.wert.gueltig && nb.wert.f3 <= L.bester.wert.f3 ? { ind: nb.ind, wert: nb.wert, nachgebessert: true } : L.bester;
+      }
       if (!treffer && z.t >= S.o.generationen) {
         const E = z.eltern.slice().sort((a, b) => a.f3 - b.f3).slice(0, 3);
         for (const e of E) { const r = nachbessern(e, z.paare, z.programm, L.zuf, S.o.versuche, z.sym, z.fest, z.starr); if (r.wert.gueltig) { treffer = { ind: r.ind, wert: r.wert, nachgebessert: true }; break; } }
