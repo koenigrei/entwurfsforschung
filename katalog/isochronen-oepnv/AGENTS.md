@@ -17,8 +17,10 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  raster.js                Raster: Priority-Flood (ueberlauf), Shadowcasting (sichtbar, sieht), Marching Squares (kontur),
+                           begrenzte Abstandstransformation (abstandsTransformation); Tests in _gemeinsam/test/raster.test.mjs
 katalog/isochronen-oepnv/
-  index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
+  index.html               statische Seite; lädt die Rahmen-Skripte, die gemeinsamen Dateien, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
   app.js                   Sim.starte({...}): Parameter, zeichne, legende, kennzahlen, klick, aktionen
   test/*.test.mjs          node --test
@@ -26,7 +28,7 @@ katalog/isochronen-oepnv/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `szenen.js` und `raster.js` (gemeinsam mit anderen Apps; Änderungen dort mit eigenem Test in `_gemeinsam/test/`, danach `node --test` in `_gemeinsam` und in allen Apps, die die Datei nutzen). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -52,8 +54,8 @@ katalog/isochronen-oepnv/
 | `reisezeiten(G, start)` | dasselbe auf einmal mit `Geo.dijkstra` (Vergleich) |
 | `knotenZeiten(G, S)`, `reiseweg(G, S, k)` | Reisezeit je Straßenknoten (min beider Ebenen); Weg mit Zahl der Fahrten und Umstiege |
 | `zeitAufKante(N, k, s, tK, startKarte, v)` | Reisezeit an der Stelle s einer Straße |
-| `reiseRaster(N, tK, anker, v, R, h, quer)` | Reisezeit-Raster (15-m-Zellen, Querwege ≤ `QUER` = 150 m) |
-| `kontur(T, R, w, deckel)` | Isochrone zum Wert w (marching squares) |
+| `reiseRaster(N, tK, anker, v, R, h, quer)` | Reisezeit-Raster (15-m-Zellen, Querwege ≤ `QUER` = 150 m, `Raster.abstandsTransformation`) |
+| `kontur(T, R, w, deckel)` | Isochrone zum Wert w (marching squares, `Raster.kontur`) |
 | `stufeVon(t, stufe)` | Stufe 0…3, 4 = später, −1 = nicht erreicht |
 | `gebaeudeDaten`, `erreicht`, `bilanz(z, w, min)` | Einwohnerschätzung je Gebäude; Fläche/Einwohner/Haltestellen innerhalb min |
 | `ergebnis(z, "a"\|"b")` | Knotenzeiten und Raster eines Szenarios (zwischengespeichert je `z.version`) |
@@ -77,4 +79,4 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 - Fußwege um Gebäude herum (Sichtgraph) statt Luftlinie in die Blöcke; Gehgeschwindigkeit nach Steigung.
 - Mehr Linien und Verkehrsmittel frei anlegen; Tempo und Takt je Linie statt je Verkehrsmittel.
 - Erreichbarkeitsmaße über viele Startpunkte (z. B. mittlere Reisezeit zu allen Einwohnern, Hansen-Potenzial) als Karte.
-- Vorschlag für `_gemeinsam/`: `kontur` (marching squares auf beliebigem Raster) und eine Abstandstransformation mit Höchstabstand passen auch für andere Apps; `Geo.Heap` könnte ein `oben()` (kleinster Schlüssel ohne Entnehmen) bekommen.
+- Vorschlag für `_gemeinsam/`: `Geo.Heap` könnte ein `oben()` (kleinster Schlüssel ohne Entnehmen) bekommen.

@@ -15,8 +15,15 @@ simulationen/_gemeinsam/   Rahmen aller Lab-Apps (nicht pro App kopieren)
   sim.css                  Gestaltung wie das KI Lab
 katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catalogue
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
-  szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
+  szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz), Quartier und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  axonometrie.js           Axo: Prismen-Axonometrie (nur bei Bedarf einbinden)
+  flaechen.js              Flaechen: Flächen aus Linien, Kantenversatz, konvexe Polygonoperationen
+  generierung.js           Generierung: Instruktionsbaum-Straßenwachstum, Slicing Tree
+  hierarchie.js            Hierarchie: Straßenhierarchie (gewichtete Betweenness, Klassen)
+  hydraulik.js             Hydraulik: Rohrnetzlöser (Gradientenverfahren, Hazen–Williams)
+  raster.js                Raster: Priority-Flood, Shadowcasting, Marching Squares, Abstandstransformation
+  test/                    Tests aller gemeinsamen Bausteine (node --test)
 katalog/{{ID}}/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)

@@ -17,8 +17,10 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Katalogs
   geo.js                   Geo: Polygone (Punkt im Polygon, Schwerpunkt, Hülle) u. a.
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Linien, Text
+  raster.js                Raster: Priority-Flood (ueberlauf), Shadowcasting (sichtbar, sieht), Marching Squares (kontur),
+                           begrenzte Abstandstransformation (abstandsTransformation); Tests in _gemeinsam/test/raster.test.mjs
 katalog/sichttiefe/
-  index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
+  index.html               statische Seite; lädt die Rahmen-Skripte, die gemeinsamen Dateien, modell.js, app.js
   modell.js                reine Logik, kein DOM
   app.js                   Sim.starte({...}): Parameter, zeichne, legende, kennzahlen, klick, aktionen
   test/*.test.mjs          node --test
@@ -26,7 +28,7 @@ katalog/sichttiefe/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `szenen.js` und `raster.js` (gemeinsam mit anderen Apps; Änderungen dort mit eigenem Test in `_gemeinsam/test/`, danach `node --test` in `_gemeinsam` und in allen Apps, die die Datei nutzen). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -42,8 +44,8 @@ katalog/sichttiefe/
 | `schritt(z, param)` | eine Tiefenstufe der Breitensuche; erhöht `z.t` |
 | `aendere(z, param, id)` | Zellgröße → neues Raster, Suche von vorn |
 | `raster(b, h, cs, gebaeude)` | Zellraster („visualGraphGrid“): gesperrt, wenn die Zellmitte in einem Gebäude liegt |
-| `sichtbar(R, s, sieh)` | symmetrisches Shadowcasting: ruft `sieh(k)` für jede von Zelle `s` sichtbare freie Zelle |
-| `sieht(R, a, b)` | sieht Zelle a die Zelle b? |
+| `sichtbar(R, s, sieh)` | symmetrisches Shadowcasting (`Raster.sichtbar`): ruft `sieh(k)` für jede von Zelle `s` sichtbare freie Zelle |
+| `sieht(R, a, b)` | sieht Zelle a die Zelle b? (`Raster.sieht`) |
 | `naechsteFreie(R, q)`, `zellMitte`, `zelleBei` | „Closest Point“ auf die Zellmitten; Umrechnung Zelle ↔ Punkt |
 | `neu(z)`, `fertig(z)`, `rechneAlle(z)` | Suche neu beginnen; keine neue Stufe mehr; alle Stufen rechnen |
 | `weg(z, k)`, `zielZelle(z)` | Weg der wenigsten Richtungswechsel (Startzelle zuerst); gewählte oder tiefste Zelle |

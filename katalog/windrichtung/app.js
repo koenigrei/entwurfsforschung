@@ -11,18 +11,8 @@
   const ROSE = "#d6283c";
   const himmel = g => { const H = en() ? ["N", "NE", "E", "SE", "S", "SW", "W", "NW"] : ["N", "NO", "O", "SO", "S", "SW", "W", "NW"]; return H[Math.round(((g % 360) + 360) % 360 / 45) % 8]; };
 
-  // Gelände einmal als Bild rechnen (je Szene und Darstellung)
-  let gelBild = null, gelSchluessel = null;
-  function gelaende(ctx, z, F) {
-    const G = z.sz.G, k = (F.dunkel ? "d" : "h");
-    if (!gelBild || gelSchluessel !== G || gelBild._k !== k) {
-      const c = document.createElement("canvas"), n = 720; c.width = n; c.height = n;
-      const x = c.getContext("2d"); x.setTransform(n / G.groesse, 0, 0, n / G.groesse, 0, 0);
-      Karte.gelaende(x, G, Object.assign({}, F, { px: G.groesse / n }), { hoehenlinien: 10, aufloesung: 360 });
-      gelBild = c; gelBild._k = k; gelSchluessel = G;
-    }
-    ctx.drawImage(gelBild, 0, 0, G.groesse, G.groesse);
-  }
+  // Gelände einmal als Bild rechnen (je Szene und Darstellung; Karte.gelaendeGespeichert, Bild 720 × 720 Bildpunkte)
+  const gelaende = (ctx, z, F) => Karte.gelaendeGespeichert(ctx, z.sz.G, F, { hoehenlinien: 10, aufloesung: 360, bild: 720, pxBild: true });
 
   /** Windrose wie in der .gh-Datei: Radial-Raster (Ringe, Speichen auf den Sektorgrenzen), je Sektor ein Keil mit der
       bezogenen Häufigkeit als Radius, Beschriftung N/O/S/W; gezeichnet in Herkunftsrichtung (center_degrees + Drehung − 180) */

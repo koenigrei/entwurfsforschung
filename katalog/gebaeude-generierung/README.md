@@ -18,6 +18,9 @@ Online: https://entwurfsforschung.de/lab/parametric-planning-catalogue/gebaeude-
 | `modell.js` | Modelllogik ohne DOM – in Node testbar |
 | `app.js` | Bedienung und Darstellung: Parameter, Zeichnen, Legende, Kennzahlen |
 | `../_gemeinsam/geo.js`, `szenen.js`, `karte.js` | Geometrie und Graphen, Beispielszenen (Stadt, Gelände), Zeichenhilfen – gemeinsam für alle Apps des Katalogs |
+| `../_gemeinsam/flaechen.js` | Flächen aus Linien, Teilen an Schnitten, Kantenversatz je Kante, konvexe Polygonoperationen (Flaechen) – gemeinsam für mehrere Apps des Katalogs |
+| `../_gemeinsam/generierung.js` | Instruktionsbaum, Straßenwachstum und Slicing Tree (Generierung) – gemeinsam für mehrere Apps des Katalogs |
+| `../_gemeinsam/axonometrie.js` | Prismen-Axonometrie für app.js: Projektion, Malerverfahren, Prisma zeichnen, Drehen (Axo) – gemeinsam für mehrere Apps des Katalogs |
 | `../../simulationen/_gemeinsam/sim.js`, `sim.css`, `zufall.js` | Rahmen der Lab-Apps (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
 | `test/modell.test.mjs` | Tests des Modells |
 | `app.json` | Metadaten für die Übersichtsseite (Titel, Vorschautext, Katalogeintrag) |

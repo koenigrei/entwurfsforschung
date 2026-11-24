@@ -18,6 +18,8 @@ Online: https://entwurfsforschung.de/lab/parametric-planning-catalogue/baublock-
 | `modell.js` | Modelllogik ohne DOM – in Node testbar |
 | `app.js` | Bedienung und Darstellung: Parameter, Zeichnen, Legende, Kennzahlen |
 | `../_gemeinsam/geo.js`, `karte.js` | Geometrie (Polygone, Halbebenen-Schnitt, Versatz) und Zeichenhilfen – gemeinsam für alle Apps des Katalogs |
+| `../_gemeinsam/flaechen.js` | Flächen aus Linien, Teilen an Schnitten, Kantenversatz je Kante, konvexe Polygonoperationen (Flaechen) – gemeinsam für mehrere Apps des Katalogs |
+| `../_gemeinsam/axonometrie.js` | Prismen-Axonometrie für app.js: Projektion, Malerverfahren, Prisma zeichnen, Drehen (Axo) – gemeinsam für mehrere Apps des Katalogs |
 | `../../simulationen/_gemeinsam/sim.js`, `sim.css`, `zufall.js` | Rahmen der Lab-Apps (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
 | `test/modell.test.mjs` | Tests des Modells |
 | `app.json` | Metadaten für die Übersichtsseite (Titel, Vorschautext, Katalogeintrag) |

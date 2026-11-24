@@ -10,10 +10,11 @@
    die Gebäude. Beide Färbungen mit „Bounds“ und „Gradient“ vom kleinsten zum größten Wert. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/karte.js") : wurzel.Karte);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Karte) {
   "use strict";
 
   /** Voreinstellungen der .gh-Datei: Angle Direction 0 (0…6,28 rad), Viewing Range 100 (1…200), Viewing Angle 360 (0…360), Rays 360 (1…720);
@@ -22,7 +23,7 @@
   const STANDARD = { richtung: 0, reichweite: 100, winkel: 360, strahlen: 360, bezug: "flaeche", mass: "strahlen", schrittweite: 0.004 };
   /** Farbverlauf beider Gradient-Komponenten der .gh-Datei (Farbe, Lage des Griffs) – stark gestaucht: schon ein Viertel des
       größten Werts ist gelb, ab 56 % rot */
-  const VERLAUF = { farben: [[0, 0, 139], [50, 178, 206], [87, 166, 31], [255, 215, 0], [255, 0, 0]], faktoren: [0, 0.0341, 0.0977, 0.1977, 0.5614] };
+  const VERLAUF = { farben: Karte.GRADIENT_GH, faktoren: [0, 0.0341, 0.0977, 0.1977, 0.5614] };
 
   /** Dieselben Farben mit gleichmäßig verteilten Griffen (wie der Gradient im Modul „Isovist Field“) – für das Maß „sichtbare Länge“,
       dessen Werte (bezogen auf den größten Wert am Standpunkt) gleichmäßig verteilt sind; Kennzahlen der Verteilung in QUELLE.md */
@@ -30,17 +31,8 @@
   /** Farbverlauf je Maß: Strahltreffer → gestauchter Verlauf des Originals, sichtbare Länge → linear */
   const verlaufFuer = mass => mass === "laenge" ? VERLAUF_LINEAR : VERLAUF;
 
-  /** Farbe des Verlaufs bei t ∈ [0, 1] → [r, g, b] (linear zwischen den Griffen, jenseits des letzten Griffs dessen Farbe) */
-  function verlauf(t, V = VERLAUF) {
-    const f = V.faktoren, c = V.farben;
-    t = Math.max(0, Math.min(1, isFinite(t) ? t : 0));
-    if (t <= f[0]) return c[0].slice();
-    for (let i = 1; i < f.length; i++) if (t <= f[i]) {
-      const u = (t - f[i - 1]) / ((f[i] - f[i - 1]) || 1);
-      return [0, 1, 2].map(k => Math.round(c[i - 1][k] + (c[i][k] - c[i - 1][k]) * u));
-    }
-    return c[c.length - 1].slice();
-  }
+  /** Farbe des Verlaufs bei t ∈ [0, 1] → [r, g, b] (linear zwischen den Griffen, jenseits des letzten Griffs dessen Farbe; Karte.verlauf) */
+  const verlauf = (t, V = VERLAUF) => Karte.verlauf(t, V);
 
   /** Blickrichtung der .gh-Datei: Unit Y (Norden) um „Angle Direction“ gegen den Uhrzeigersinn gedreht (Rotate, Bogenmaß).
       In Bildschirmkoordinaten (y nach unten) ist das der Winkel −π/2 − a. */
@@ -81,20 +73,8 @@
   }
 
   /* ---------------------------------------------------------------- Weg für den wandernden Standpunkt */
-  /** Ecken einer Polylinie abrunden (Abstand min(r, ⅓ der Nachbarkanten), Bogen aus „teile“ Stücken) */
-  function rundeEcken(P, r = 4, teile = 4) {
-    if (P.length < 3) return P.map(q => q.slice());
-    const Q = [P[0].slice()];
-    for (let i = 1; i < P.length - 1; i++) {
-      const a = P[i - 1], b = P[i], c = P[i + 1], la = Geo.abstand(a, b), lc = Geo.abstand(b, c);
-      const d = Math.min(r, la / 3, lc / 3);
-      if (d < 1e-9) { Q.push(b.slice()); continue; }
-      const p0 = Geo.lerp(b, a, d / la), p2 = Geo.lerp(b, c, d / lc);
-      for (let k = 0; k <= teile; k++) { const u = k / teile, v = 1 - u; Q.push([v * v * p0[0] + 2 * u * v * b[0] + u * u * p2[0], v * v * p0[1] + 2 * u * v * b[1] + u * u * p2[1]]); }
-    }
-    Q.push(P[P.length - 1].slice());
-    return Q.filter((q, i) => i === 0 || Geo.abstand(q, Q[i - 1]) > 1e-9);
-  }
+  /** Ecken einer Polylinie abrunden (Geo.rundeEcken, ../_gemeinsam/geo.js) */
+  const rundeEcken = Geo.rundeEcken;
   /** Rundweg auf den Straßenmitten (ohne Randstraßen) um den Platz und durch die Nachbarschaft: Kreuzungen im Abstand zwei
       um die Platzecken, verbunden durch kürzeste Wege im Straßennetz, geschlossen, Ecken abgerundet. */
   function rundweg(szene) {
@@ -115,16 +95,8 @@
     const Q = P.filter((q, i) => i === 0 || Geo.abstand(q, P[i - 1]) > 1e-6);
     return rundeEcken(Q, 4, 4);
   }
-  /** Anteil t ∈ [0, 1] des Punkts auf der Polylinie, der q am nächsten liegt */
-  function naechsterAnteil(P, q) {
-    let L = 0, best = Infinity, bestS = 0;
-    for (let i = 0; i < P.length - 1; i++) {
-      const l = Geo.abstand(P[i], P[i + 1]), f = Geo.abstandSegment(q, P[i], P[i + 1]);
-      if (f.d < best) { best = f.d; bestS = L + f.t * l; }
-      L += l;
-    }
-    return L > 0 ? bestS / L : 0;
-  }
+  /** Anteil t ∈ [0, 1] des Punkts auf der Polylinie, der q am nächsten liegt (Geo.naechsterAnteil) */
+  const naechsterAnteil = Geo.naechsterAnteil;
 
   /* ---------------------------------------------------------------- Zustand und Ablauf */
   /** Neuer Zustand: Beispielstadt, Rundweg, Standpunkt auf dem Platz vor der Kirche */

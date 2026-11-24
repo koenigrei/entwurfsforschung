@@ -14,7 +14,7 @@ simulationen/_gemeinsam/   Rahmen aller Lab-Apps (nicht pro App kopieren)
   sim.js                   Sim.starte(cfg): Ablauf, Bedienfeld, Zeichenfläche, Sprache, Hell/Dunkel, window.SIM
   sim.css                  Gestaltung wie das KI Lab
 katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catalogue
-  geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
+  geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness; Segmentsuche, Betweenness und Closeness mit optionalem Radius (zustandsSuche, segmentBetweennessAus)
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
 katalog/multiplikatoreffekt/
@@ -42,9 +42,9 @@ katalog/multiplikatoreffekt/
 | `schritt(z, param)` | ein Schritt; erhöht `z.t` |
 | `aendere(z, param, id)` | Parameter ohne Neustart: Definition → neuer Graph; Maß/Radius → neue Referenz (gleich belastet); Modus, Störung, k, d → Rückkopplung ab Iteration 0; Disruptoren bleiben |
 | `strassennetz(zufall, opt)` | Beispielnetz: `Szenen.stadt` + Diagonalen vom Zentrum + nach innen gerückte Randknoten → `{segmente, b, h, szene}` |
-| `suche(G, s, r)` | kürzeste Wege im gerichteten Segmentgraphen mit Radius r in m (Suche wird beschnitten), Rangfolge Kosten, dann Schritte |
+| `suche(G, s, r)` | kürzeste Wege im gerichteten Segmentgraphen mit Radius r in m (Suche wird beschnitten), Rangfolge Kosten, dann Schritte (`Geo.zustandsSuche` mit `radius`) |
 | `closenessVon(G, R, w, legacy)` | gewichtete Closeness Gl. 4: Σ w_k / Σ d_sk · w_k; `legacy` (Option „Closeness-Formel“, nur mit Radius): (Σ w_k)^2,5 / Σ d_sk · w_k (`LEGACY_EXPONENT`); 0, wenn Σ d·w = 0 |
-| `betweennessVon(G, R, gQ, gZ, bc, enden)` | Beitrag eines Ursprungs zur gewichteten Betweenness Gl. 5 (Brandes, gleich kurze Wege geteilt; `enden` = Legacy) |
+| `betweennessVon(G, R, gQ, gZ, bc, enden)` | Beitrag eines Ursprungs zur gewichteten Betweenness Gl. 5 (Brandes, gleich kurze Wege geteilt; `enden` = Legacy; `Geo.segmentBetweennessAus`) |
 | `bewegungspotenzial(G, gQ, gZ, p)` | MPC aller Segmente (4. FWGetPaths, Ausgang CW oder BW) |
 | `anfangsGewichte(n, dSeg, k, d)` | Cluster „Custom OD weights“ |
 | `normiereTemporaer(M, w)` | Cluster „Normalize (temp disruption)“: MPC · Σw / ΣMPC |

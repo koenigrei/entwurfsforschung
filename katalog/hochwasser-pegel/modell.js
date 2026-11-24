@@ -23,10 +23,11 @@
    Maßnahmen (Paper „Working with the SRTF“): Gebäude anheben, Gräben ziehen, aufforsten. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/raster.js") : wurzel.Raster);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Raster) {
   "use strict";
 
   /** Voreinstellungen: Pegel 0 → 8 m in Schritten von 8 cm, Tiefen ab 24 cm gleich (Paper); Sockel 0,5 m (eigene Annahme);
@@ -70,22 +71,10 @@
     return j * G.n + i;
   };
 
-  /** Überlaufhöhe W je Gitterpunkt (Priority-Flood vom Fluss aus, Vierer-Nachbarschaft): W = max(h, kleinstes W eines Nachbarn
-      auf dem Weg zum Fluss). Bei Pegel L steht Wasser an jedem Punkt mit W < L – auch hinter Wällen erst, wenn L den Wall übersteigt. */
-  function ueberlauf(G) {
-    const n = G.n, W = new Float64Array(n * n).fill(Infinity), fertig = new Uint8Array(n * n), H = new Geo.Heap();
-    for (let k = 0; k < W.length; k++) if (G.fluss[k]) { W[k] = G.h[k]; H.push(W[k], k); }
-    while (!H.leer) {
-      const k = H.pop(); if (fertig[k]) continue; fertig[k] = 1;
-      const i = k % n, j = (k - i) / n, w = W[k];
-      for (const m of [i > 0 ? k - 1 : -1, i < n - 1 ? k + 1 : -1, j > 0 ? k - n : -1, j < n - 1 ? k + n : -1]) {
-        if (m < 0 || fertig[m]) continue;
-        const v = Math.max(G.h[m], w);
-        if (v < W[m]) { W[m] = v; H.push(v, m); }
-      }
-    }
-    return W;
-  }
+  /** Überlaufhöhe W je Gitterpunkt (Priority-Flood vom Fluss aus, Vierer-Nachbarschaft; Raster.ueberlauf in ../_gemeinsam/raster.js):
+      W = max(h, kleinstes W eines Nachbarn auf dem Weg zum Fluss). Bei Pegel L steht Wasser an jedem Punkt mit W < L – auch hinter
+      Wällen erst, wenn L den Wall übersteigt. */
+  const ueberlauf = G => Raster.ueberlauf(G.h, G.n, G.n, G.fluss);
 
   /* ---------------------------------------------------------------- Stadt auf dem Gelände */
   function verschiebe(P, dx, dy) { return P.map(q => [q[0] + dx, q[1] + dy]); }

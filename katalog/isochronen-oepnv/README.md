@@ -18,6 +18,7 @@ Online: https://entwurfsforschung.de/lab/parametric-planning-catalogue/isochrone
 | `modell.js` | Modelllogik ohne DOM – in Node testbar: multimodaler Graph, schrittweiser Dijkstra, Raster, Isochronen, Bearbeiten der Linien |
 | `app.js` | Bedienung und Darstellung: Parameter, Maus, Tafeln A/B/Differenz, Legende, Kennzahlen |
 | `../_gemeinsam/geo.js`, `szenen.js`, `karte.js` | Geometrie und Graphen, Beispielszenen (Stadt, Gelände), Zeichenhilfen – gemeinsam für alle Apps des Katalogs |
+| `../_gemeinsam/raster.js` | Rasterverfahren, hier Abstandstransformation (Querwege) und Marching Squares (Isochronen) – gemeinsam mit anderen Apps, Tests in `../_gemeinsam/test/raster.test.mjs` |
 | `../../simulationen/_gemeinsam/sim.js`, `sim.css`, `zufall.js` | Rahmen der Lab-Apps (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
 | `test/modell.test.mjs` | Tests des Modells |
 | `app.json` | Metadaten für die Übersichtsseite (Titel, Vorschautext, Eintrag im DeCodingSpaces Lab) |

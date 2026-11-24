@@ -1,14 +1,13 @@
 /* Stadtsynthese · Bedienung und Darstellung (Modelllogik in modell.js)
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0
    Zeichenfläche: links der Plan von oben (Umgebung, Gebiet, Stufen der Kette), rechts (schmal: darunter) eine einfache
-   Axonometrie der Baukörper im Gebiet – eigene Parallelprojektion, Zeichenreihenfolge von hinten nach vorn
-   (Muster: simulationen/vba-rekursion/app.js). */
+   Axonometrie der Baukörper im Gebiet – Parallelprojektion aus _gemeinsam/axonometrie.js (Axo), Zeichenreihenfolge von hinten nach vorn. */
 (function () {
   "use strict";
   const S = Modell.STANDARD;
   const de = () => document.documentElement.lang !== "en";
   const zahl = (v, n = 0) => (isFinite(v) ? v : 0).toLocaleString(de() ? "de" : "en", { minimumFractionDigits: n, maximumFractionDigits: n });
-  const D2R = Math.PI / 180, NEIGUNG = 38 * D2R;
+  const D2R = Math.PI / 180, NEIGUNG_GRAD = 38, NEIGUNG = NEIGUNG_GRAD * D2R;
   let zug = -1;                                                // gezogene Ecke des Gebiets
 
   /** Aufteilung der Zeichenfläche (Modelleinheiten; der Plan ist 900 × 640 m): breit nebeneinander, schmal untereinander */
@@ -86,40 +85,22 @@
     Karte.text(ctx, `${z.stufe}/8 · ${de() ? s.de : s.en}${z.stufe === 1 && z.W ? ` · ${de() ? "Ebene" : "level"} ${z.W.nr}` : ""}`, [14 * px, 16 * px], F.tinte, px, 12);
   }
 
-  /* ---------------------------------------------------------------- Axonometrie */
+  /* ---------------------------------------------------------------- Axonometrie (_gemeinsam/axonometrie.js) */
   function ansicht(z, p, A) {
-    const R = z.S.rand, c = Geo.schwerpunkt(R), th = p.drehung * D2R, co = Math.cos(th), si = Math.sin(th), sp = Math.sin(NEIGUNG), cp = Math.cos(NEIGUNG);
+    const R = z.S.rand, c = Geo.schwerpunkt(R), sp = Math.sin(NEIGUNG), cp = Math.cos(NEIGUNG);
     let r = 0; for (const q of R) r = Math.max(r, Geo.abstand(q, c));
     const k = Math.min(A.w * 0.92 / (2 * r), A.h * 0.86 / (2 * r * sp + p.maxHoehe * cp + 1));
     const my = A.y + A.h / 2 + (p.maxHoehe * cp * k) / 2;
-    return {
-      k,
-      v: (x, y) => (x - c[0]) * si + (y - c[1]) * co,
-      p(x, y, h = 0) { const u = (x - c[0]) * co - (y - c[1]) * si, v = (x - c[0]) * si + (y - c[1]) * co; return [A.x + A.w / 2 + k * u, my + k * (v * sp - h * cp)]; },
-      o_v: (ox, oy) => ox * si + oy * co
-    };
+    return Axo.ansicht({ drehung: p.drehung, neigung: NEIGUNG_GRAD, mitte: c, k, ox: A.x + A.w / 2, oy: my });
   }
   function flach(ctx, V, P, fuell, strich, lw) {
     ctx.beginPath(); P.forEach((q, i) => { const s = V.p(q[0], q[1]); i ? ctx.lineTo(s[0], s[1]) : ctx.moveTo(s[0], s[1]); }); ctx.closePath();
     if (fuell) { ctx.fillStyle = fuell; ctx.fill(); } if (strich) { ctx.strokeStyle = strich; ctx.lineWidth = lw; ctx.stroke(); }
   }
+  /** Baukörper: sichtbare Wände (Außennormale zum Betrachter) von hinten nach vorn, Licht von Westen, dann das Dach */
   function prisma(ctx, V, P, h, farbe, kante, lw) {
-    const n = P.length, W = [];
-    for (let i = 0; i < n; i++) {
-      const a = P[i], b = P[(i + 1) % n], d = [b[0] - a[0], b[1] - a[1]], l = Math.hypot(d[0], d[1]); if (l < 1e-6) continue;
-      const ov = V.o_v(d[1] / l, -d[0] / l);                // Außennormale (positive Fläche) in Blickrichtung
-      if (ov <= 0) continue;
-      W.push({ a, b, ov, tiefe: V.v((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), hell: 0.55 + 0.3 * (d[0] / l) * 0.5 + 0.15 * ov });
-    }
-    W.sort((x, y) => x.tiefe - y.tiefe);
-    ctx.lineWidth = lw; ctx.strokeStyle = kante; ctx.lineJoin = "round";
-    for (const w of W) {
-      const q = [V.p(w.a[0], w.a[1]), V.p(w.b[0], w.b[1]), V.p(w.b[0], w.b[1], h), V.p(w.a[0], w.a[1], h)];
-      ctx.beginPath(); q.forEach((s, i) => (i ? ctx.lineTo(s[0], s[1]) : ctx.moveTo(s[0], s[1]))); ctx.closePath();
-      ctx.fillStyle = rgb(schatten(farbe, Math.max(0.35, Math.min(0.95, w.hell)))); ctx.fill(); ctx.stroke();
-    }
-    ctx.beginPath(); P.forEach((q, i) => { const s = V.p(q[0], q[1], h); i ? ctx.lineTo(s[0], s[1]) : ctx.moveTo(s[0], s[1]); }); ctx.closePath();
-    ctx.fillStyle = rgb(farbe); ctx.fill(); ctx.stroke();
+    Axo.prisma(ctx, V, P, { h1: h, kurz: 1e-6, schwelle: 0, sortiere: "nah", join: "round", kante, lw, dach: rgb(farbe),
+      seite: w => rgb(schatten(farbe, Math.max(0.35, Math.min(0.95, 0.55 + 0.3 * (w.d[0] / w.l) * 0.5 + 0.15 * w.vb)))) });
   }
   function axonometrie(ctx, z, p, F, A) {
     const px = F.px, V = ansicht(z, p, A), st = z.stufe;
@@ -135,12 +116,9 @@
     ctx.beginPath(); for (const s of netz) { const a = V.p(s[0][0], s[0][1]), b = V.p(s[1][0], s[1][1]); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
     ctx.strokeStyle = F.gedaempft; ctx.lineWidth = px * 0.9; ctx.stroke();
     if (st >= 7) {
-      const L = [];
-      for (const g of z.gebaeude) for (const t of g.teile) {
-        let mx = -Infinity; for (const q of t) mx = Math.max(mx, V.v(q[0], q[1]));
-        L.push({ t, h: g.hoehe, typ: g.typ, mx });
-      }
-      L.sort((a, b) => a.mx - b.mx);
+      const T = [];
+      for (const g of z.gebaeude) for (const t of g.teile) T.push({ t, h: g.hoehe, typ: g.typ });
+      const L = Axo.maler(T, x => { let mx = -Infinity; for (const q of x.t) mx = Math.max(mx, V.v(q[0], q[1])); return mx; });
       const kante = F.dunkel ? "rgba(0,0,0,0.55)" : "rgba(40,40,50,0.55)";
       for (const x of L) prisma(ctx, V, x.t, x.h, TYP_FARBE[x.typ], kante, px * 0.5);
     }

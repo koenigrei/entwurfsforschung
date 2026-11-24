@@ -8,18 +8,8 @@
   const pz = v => zahl(v * 100, 0) + " %", grad = v => zahl(v * 180 / Math.PI, 1) + "°";
   const PFEIL = F => F.dunkel ? "rgba(200,200,205,0.75)" : "rgba(70,70,78,0.7)";
 
-  /** Gelände einmal je Größe, Darstellung und Höhenlinienabstand in ein Bild rechnen und danach nur noch einsetzen */
-  const cache = { schluessel: "", c: null };
-  function gelaende(ctx, G, F, dz) {
-    const a = ctx.getTransform().a, W = Math.max(1, Math.round(G.groesse * a)), k = [W, F.dunkel, dz, G.h.length, G.h[7], G.max].join("|");
-    if (cache.schluessel !== k) {
-      const c = cache.c || document.createElement("canvas"); c.width = W; c.height = W;
-      const x = c.getContext("2d"); x.setTransform(a, 0, 0, a, 0, 0);
-      Karte.gelaende(x, G, F, { hoehenlinien: dz > 0 ? dz : 0 });
-      cache.c = c; cache.schluessel = k;
-    }
-    ctx.drawImage(cache.c, 0, 0, G.groesse, G.groesse);
-  }
+  /** Gelände einmal je Größe, Darstellung und Höhenlinienabstand in ein Bild rechnen und danach nur noch einsetzen (Karte.gelaendeGespeichert) */
+  const gelaende = (ctx, G, F, dz) => Karte.gelaendeGespeichert(ctx, G, F, { hoehenlinien: dz > 0 ? dz : 0 });
 
   Sim.starte({
     modell: Modell,

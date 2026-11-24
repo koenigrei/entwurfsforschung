@@ -1,4 +1,4 @@
-/* Wasserleitung: Druck und Durchfluss · Bedienung und Darstellung (Modelllogik in modell.js, Löser in hydraulik.js)
+/* Wasserleitung: Druck und Durchfluss · Bedienung und Darstellung (Modelllogik in modell.js, Löser in ../_gemeinsam/hydraulik.js)
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0 */
 (function () {
   "use strict";

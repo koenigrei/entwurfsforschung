@@ -1,5 +1,5 @@
 /* Isovist 3D · Bedienung und Darstellung (Modelllogik in modell.js)
-   Stadt in eigener Axonometrie (Parallelprojektion, drehbar per Ziehen), Prismen von hinten nach vorn gezeichnet, Strahlen nach
+   Stadt in Axonometrie (Parallelprojektion aus _gemeinsam/axonometrie.js, drehbar per Ziehen), Prismen von hinten nach vorn gezeichnet, Strahlen nach
    Kategorie gefärbt darüber; kleine Draufsicht unten rechts zum Setzen des Standpunkts.
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0 */
 (function () {
@@ -31,24 +31,16 @@
   const ausEinsatz = (E, x, y) => [(x - E.x) / E.k, (y - E.y) / E.k];
   const inEinsatz = (E, q) => [E.x + q[0] * E.k, E.y + q[1] * E.k];
 
-  /* ---------------------------------------------------------------- Projektion */
-  /** Ansicht: Drehung θ um die Hochachse, Neigung φ; x nach Osten, y nach Süden, z nach oben. Bei φ = 90° ist es der Plan. */
+  /* ---------------------------------------------------------------- Projektion (_gemeinsam/axonometrie.js) */
+  /** Ansicht: Drehung θ um die Hochachse, Neigung φ; x nach Osten, y nach Süden, z nach oben. Bei φ = 90° ist es der Plan.
+      Axo.ansicht liefert p(x, y, h), tiefe(x, y, h) (größer = weiter hinten) und vorn(nx, ny). */
   function ansicht(z, p) {
-    const th = p.drehung * D2R, ph = p.neigung * D2R, c = Math.cos(th), s = Math.sin(th), cp = Math.cos(ph), sp = Math.sin(ph);
+    const ph = p.neigung * D2R, cp = Math.cos(ph), sp = Math.sin(ph);
     const zoom = p.zoom || 1, f = Math.min(1, (zoom - 1) / 2);
-    const mx = z.b / 2 + (z.o[0] - z.b / 2) * f, my = z.h / 2 + (z.o[1] - z.h / 2) * f, mz = 10;
+    const mx = z.b / 2 + (z.o[0] - z.b / 2) * f, my = z.h / 2 + (z.o[1] - z.h / 2) * f;
     const r = Math.hypot(z.b, z.h) / 2;
     const k = Math.min((B * 0.94) / (2 * r), (H * 0.9) / (2 * r * sp + 50 * cp)) * zoom;
-    const cx = B / 2 - 70, cy = H / 2 - 10;
-    return {
-      c, s, cp, sp, k,
-      /** Bildpunkt [x, y] eines Raumpunkts */
-      p(x, y, q) { const dx = x - mx, dy = y - my, u = dx * c - dy * s, w = dx * s + dy * c; return [cx + k * u, cy + k * (w * sp - (q - mz) * cp)]; },
-      /** Tiefe (größer = weiter hinten) */
-      tiefe(x, y, q) { const dx = x - mx, dy = y - my, w = dx * s + dy * c; return -(w * cp + (q - mz) * sp); },
-      /** zeigt eine waagerechte Normale [nx, ny] zum Betrachter? */
-      vorn(nx, ny) { return nx * s + ny * c > 1e-9; }
-    };
+    return Axo.ansicht({ drehung: p.drehung, neigung: p.neigung, mitte: [mx, my], mz: 10, k, ox: B / 2 - 70, oy: H / 2 - 10 });
   }
 
   function flaeche(ctx, P, fuell, strich, lw) {
@@ -59,21 +51,9 @@
 
   /** Ein Prisma: sichtbare Seitenflächen (nach Tiefe sortiert), dann das Dach */
   function zeichnePrisma(ctx, A, q, farbe, F) {
-    const P = q.poly, n = P.length, ccw = Geo.flaecheS(P) > 0, kante = css(mal(farbe, F.dunkel ? 0.42 : 0.55)), lw = 0.6 * F.px;
-    const seiten = [];
-    for (let i = 0; i < n; i++) {
-      const a = P[i], b = P[(i + 1) % n], ex = b[0] - a[0], ey = b[1] - a[1], l = Math.hypot(ex, ey) || 1;
-      // Außennormale: bei positiver Fläche (flaecheS > 0) ist es (ey, −ex), sonst (−ey, ex)
-      const nx = (ccw ? ey : -ey) / l, ny = (ccw ? -ex : ex) / l;
-      if (!A.vorn(nx, ny)) continue;
-      seiten.push([A.tiefe((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, q.H / 2), a, b, nx, ny]);
-    }
-    seiten.sort((u, v) => v[0] - u[0]);
-    for (const [, a, b, nx, ny] of seiten) {
-      const licht = 0.5 + 0.3 * (nx * -0.6 + ny * -0.8 + 1) / 2;     // Licht von Nordwesten, Dach am hellsten
-      flaeche(ctx, [A.p(a[0], a[1], 0), A.p(b[0], b[1], 0), A.p(b[0], b[1], q.H), A.p(a[0], a[1], q.H)], css(mal(farbe, licht)), kante, lw);
-    }
-    flaeche(ctx, P.map(v => A.p(v[0], v[1], q.H)), css(farbe), kante, lw);
+    // Außennormale nach dem Umlaufsinn des Grundrisses; Licht von Nordwesten, Dach am hellsten
+    Axo.prisma(ctx, A, q.poly, { h1: q.H, normale: "auto", sortiere: "fern", hMitte: q.H / 2, kante: css(mal(farbe, F.dunkel ? 0.42 : 0.55)), lw: 0.6 * F.px,
+      dach: css(farbe), seite: w => css(mal(farbe, 0.5 + 0.3 * (w.n[0] * -0.6 + w.n[1] * -0.8 + 1) / 2)) });
   }
 
   /* ---------------------------------------------------------------- Ziehen dreht die Ansicht, Klick in der Draufsicht setzt den Standpunkt */
@@ -89,9 +69,9 @@
       return;
     }
     if (phase === "unten" || !window.SIM) return;
-    const d = Math.round(((zug.d - (x - zug.x) * 0.3) % 360 + 360) % 360), n = Math.round(Math.max(10, Math.min(90, zug.n + (y - zug.y) * 0.15)));
-    if (d !== p.drehung) window.SIM.setze("drehung", d);
-    if (n !== p.neigung) window.SIM.setze("neigung", n);
+    const r = Axo.drehen(zug, x, y);
+    if (r.drehung !== p.drehung) window.SIM.setze("drehung", r.drehung);
+    if (r.neigung !== p.neigung) window.SIM.setze("neigung", r.neigung);
   }
 
   const ISO = { de: "Isovist 3D", en: "Isovist 3D" }, GEB = { de: "Gebäude", en: "Buildings" }, ABL = { de: "Abspielen", en: "Playback" }, ANS = { de: "Ansicht", en: "View" };
@@ -133,8 +113,8 @@
       flaeche(ctx, [[0, 0], [z.b, 0], [z.b, z.h], [0, z.h]].map(q => A.p(q[0], q[1], 0)), F.dunkel ? "#101013" : "#f2f2f4", F.linie, px);
       if (z.szene.platz) flaeche(ctx, z.szene.platz.map(q => A.p(q[0], q[1], 0)), F.dunkel ? "#18181d" : "#e6e6ea", null);
       // Gebäude von hinten nach vorn
-      const ord = z.S.prismen.map((q, i) => { const c = Geo.schwerpunkt(q.poly); return [A.tiefe(c[0], c[1], q.H / 2), i]; }).sort((u, v) => v[0] - u[0]);
-      for (const [, i] of ord) { const q = z.S.prismen[i]; zeichnePrisma(ctx, A, q, gebFarbe(W.t[q.obj], p, F), F); }
+      const ord = Axo.maler(z.S.prismen, q => { const c = Geo.schwerpunkt(q.poly); return A.tiefe(c[0], c[1], q.H / 2); }, true);
+      for (const q of ord) zeichnePrisma(ctx, A, q, gebFarbe(W.t[q.obj], p, F), F);
       // Strahlen nach Kategorie (je Kategorie ein Pfad). Gezeichnet wird ein Raster aus höchstens etwa 50 × 50 Strahlen (jede
       // k-te Spalte und Zeile), damit die Gebäude darunter lesbar bleiben; gerechnet wird mit allen.
       const o3 = A.p(z.o[0], z.o[1], e), sk = Math.max(1, Math.round(Math.max(Er.nh, Er.nv) / 50));

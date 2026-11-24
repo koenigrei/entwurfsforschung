@@ -17,6 +17,9 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  flaechen.js              Flaechen: Teilen an Schnitten, offene Enden verlängern, Flächen aus Linien, Kantenversatz je Kante, konvexe Polygonoperationen
+  generierung.js           Generierung: Instruktionsbaum und Straßenwachstum, Slicing Tree (STreeExtended) und Parcels (PG)
+  axonometrie.js           Axo: Prismen in Axonometrie/Schrägansicht – Projektion, Malerverfahren, Wände und Dach, Drehen per Ziehen (nur app.js)
 katalog/gebaeude-generierung/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
@@ -26,7 +29,7 @@ katalog/gebaeude-generierung/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `../../simulationen/_gemeinsam/zufall.js` (für den inneren Zufallsstrom, damit Verschieben und Parameteränderungen reproduzierbar neu rechnen). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `flaechen.js`, `generierung.js` und `../../simulationen/_gemeinsam/zufall.js` (für den inneren Zufallsstrom, damit Verschieben und Parameteränderungen reproduzierbar neu rechnen). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -36,6 +39,8 @@ katalog/gebaeude-generierung/
 
 ## Schnittstelle des Modells
 
+Straßenwachstum (Knoten mit Ebene, Arme in Setzreihenfolge) und Parcels (Slicing Tree, Variante „pg“) stehen in `../_gemeinsam/generierung.js` (Generierung), Flächen aus Linien, Kantenversatz, `einfach`, `liegtIn` und konvexes Beschneiden in `../_gemeinsam/flaechen.js` (Flaechen); die Namen bleiben als Exporte von modell.js erhalten. Die Axonometrie in app.js nutzt `../_gemeinsam/axonometrie.js` (Axo).
+
 | Funktion | Aufgabe |
 |---|---|
 | `erzeuge(param, zufall)` | neuer Zustand `z` (enthält `t` = Schrittzahl) |
@@ -44,12 +49,12 @@ katalog/gebaeude-generierung/
 | `rechne(z, param)` | ganze Kette neu → `z.K` (strassen, bloecke, behalten, je Block {parzellen, baufenster, gebaeude}, gebaeude, summe), `z.grenzen` (Schrittgrenzen der fünf Stufen), `z.T` |
 | `stand(z)`, `sichtbar(z, s)`, `fertig(z)`, `naechsteStufe(z)` | Stufe 0–4 (5 = fertig) und Elemente je Stufe zur Zeit `t` |
 | `szene()` | Baufeld (Rand), Startstraßen (IniStreets, fünf Segmente) und Umgebungsstraßen nach dem Katalogbild, Meter, y nach unten |
-| `gene`, `baum`, `armRichtung`, `arm`, `wachse`, `grundnetz`, `fuegeStreckeEin`, `imAussenrand` | 1. Street Network Generator: Instruktionsbaum und Wachstum (aus `katalog/netzoptimierung/modell.js`); `wachse` liefert zusätzlich die Arme in Setz-Reihenfolge |
-| `flaechenAusLinien(N)` | geschlossene Flächen eines Liniennetzes (aus `katalog/strassen-zu-parzellen/modell.js`) |
-| `versetzeKanten(poly, d)` | jede Kante um ihren eigenen Wert versetzen (aus `katalog/parzellen-versatz/modell.js`) |
+| `gene`, `baum`, `armRichtung`, `arm`, `wachse`, `grundnetz`, `fuegeStreckeEin`, `imAussenrand` | 1. Street Network Generator: Instruktionsbaum und Wachstum (`Generierung`); `wachse` liefert zusätzlich die Arme in Setz-Reihenfolge |
+| `flaechenAusLinien(N)` | geschlossene Flächen eines Liniennetzes (`Flaechen.flaechenAusLinien`) |
+| `versetzeKanten(poly, d)` | jede Kante um ihren eigenen Wert versetzen (`Flaechen.versetzeKanten`) |
 | `einfach(P)`, `liegtIn(Q, P)` | Prüfungen: einfaches Polygon, Q in P |
 | `bloeckeAus(G, p)` | 2. Blocks: Flächen, Versatz −blockOffset, Filter minBlockArea, nach Fläche sortiert |
-| `parzellen(block, p)`, `regel`, `teileAchse`, `rechteckWinkel`, `teileKanten`, `istStrasse`, `parzelle`, `amBlock` | 3. Parcels: rekursive Zweiteilung nach Straßenfront (Muster `katalog/parzellen-slicing-tree/`); Parzelle mit Frontkanten, Kante 0 = längste Front |
+| `parzellen(block, p)`, `regel`, `teileAchse`, `rechteckWinkel`, `teileKanten`, `istStrasse`, `parzelle`, `amBlock` | 3. Parcels: rekursive Zweiteilung nach Straßenfront (`Generierung.sliceBaum`, Variante „pg“); Parzelle mit Frontkanten, Kante 0 = längste Front |
 | `kantenRollen(P, front, tol)`, `baufenster(par, p)` | 4. Buildable Area: Rollen front/seite/hinten, Versatz je Kante |
 | `baufensterFront`, `grundflaeche(B, par, p)`, `beschneide`, `rechteck`, `geschosse(far, A_parz, A_grund, fh)` | 5. Building Generation: Typ 0/1/2, Geschosse mit ceil |
 | `VORLAGEN`, `vorlageZuordnen(V)`, `kantenRahmen`, `setzeVorlage(par, Z)`, `raenderSchneiden` | Placement on Parcel: Vorlagen, Zuordnung Baukörper → Kante, Übertragung auf die Parzelle |

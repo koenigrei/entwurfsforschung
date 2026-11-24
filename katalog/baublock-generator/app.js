@@ -1,6 +1,6 @@
 /* Baublock-Generator (DigiWo) · Bedienung und Darstellung (Modelllogik in modell.js)
    Links der Lageplan (Grundstück, Abstandsfläche, Baukörper nach Geschossen), rechts eine Axonometrie der Baukörper
-   (eigene Parallelprojektion, Zeichenreihenfolge von hinten nach vorn, drehbar per Ziehen).
+   (Parallelprojektion aus _gemeinsam/axonometrie.js, Zeichenreihenfolge von hinten nach vorn, drehbar per Ziehen).
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0 */
 (function () {
   "use strict";
@@ -92,19 +92,13 @@
     ctx.restore();
   }
 
-  /* ---------------------------------------------------------------- Axonometrie */
+  /* ---------------------------------------------------------------- Axonometrie (_gemeinsam/axonometrie.js) */
   function ansicht(z, p) {
-    const th = p.drehung * D2R, ph = p.neigung * D2R, c = Math.cos(th), s = Math.sin(th), cp = Math.cos(ph), sp = Math.sin(ph);
+    const ph = p.neigung * D2R, cp = Math.cos(ph), sp = Math.sin(ph);
     const bb = Geo.bbox(z._plot0 || (z._plot0 = z.plot.map(q => q.slice()))), mx = (bb.x0 + bb.x1) / 2, my = (bb.y0 + bb.y1) / 2, r = Math.hypot(bb.b, bb.h) / 2 * 1.05;
     const [x, y, w, h0] = L.axo, h = h0 - 96, hz = 40;            // unten Platz für die Variantenreihe
     const k = Math.min(w * 0.94 / (2 * r), (h - 30) / (2 * r * sp + hz * cp));
-    const ox = x + w / 2, oy = y + 24 + (h - 24) / 2 + k * (hz * cp) / 2;
-    return {
-      c, s, cp, sp,
-      /** Bildpunkt [x, y] und Nähe zum Betrachter (größer = näher) */
-      p(X, Y, Z) { const u = (X - mx) * c - (Y - my) * s, v = (X - mx) * s + (Y - my) * c; return [ox + k * u, oy + k * (v * sp - Z * cp), v]; },
-      naehe(q) { return (q[0] - mx) * s + (q[1] - my) * c; }
-    };
+    return Axo.ansicht({ drehung: p.drehung, neigung: p.neigung, mitte: [mx, my], k, ox: x + w / 2, oy: y + 24 + (h - 24) / 2 + k * (hz * cp) / 2 });
   }
   /** Teil eines Baukörpers für die Zeichenreihenfolge in Stücke ≤ 9 m entlang seiner Kante zerlegen; innere Schnittkanten merken */
   function stuecke(z, poly, fi) {
@@ -121,24 +115,10 @@
     return out;
   }
   const schatte = (c, f) => Sim.css(c.map(x => Math.max(0, Math.min(255, Math.round(x * f)))));
+  /** Prisma von z0 bis z1: Seiten, die zum Betrachter zeigen (Licht von Nordwesten), Dach; innere Schnittkanten ohne Linie */
   function prisma(ctx, A, P, innen, z0, z1, farbe, kante, lw) {
-    // Seiten, die zum Betrachter zeigen (Betrachter auf +v)
-    ctx.lineWidth = lw; ctx.strokeStyle = kante; ctx.lineJoin = "round";
-    for (let i = 0; i < P.length; i++) {
-      const a = P[i], b = P[(i + 1) % P.length];
-      if (innen(a, b)) continue;
-      const e = Geo.norm(Geo.sub(b, a)), nn = [e[1], -e[0]];
-      if (nn[0] * A.s + nn[1] * A.c <= 1e-9) continue;
-      const q = [A.p(a[0], a[1], z0), A.p(b[0], b[1], z0), A.p(b[0], b[1], z1), A.p(a[0], a[1], z1)];
-      ctx.fillStyle = schatte(farbe, 0.58 + 0.2 * (nn[0] * 0.6 - nn[1] * 0.8 + 1) / 2);
-      ctx.beginPath(); q.forEach((t, i2) => i2 ? ctx.lineTo(t[0], t[1]) : ctx.moveTo(t[0], t[1])); ctx.closePath(); ctx.fill(); ctx.stroke();
-    }
-    const o = P.map(q => A.p(q[0], q[1], z1));
-    ctx.fillStyle = Sim.css(farbe);
-    ctx.beginPath(); o.forEach((t, i2) => i2 ? ctx.lineTo(t[0], t[1]) : ctx.moveTo(t[0], t[1])); ctx.closePath(); ctx.fill();
-    ctx.beginPath();
-    for (let i = 0; i < P.length; i++) { const b = (i + 1) % P.length; if (innen(P[i], P[b])) continue; ctx.moveTo(o[i][0], o[i][1]); ctx.lineTo(o[b][0], o[b][1]); }
-    ctx.stroke();
+    Axo.prisma(ctx, A, P, { h0: z0, h1: z1, ohne: innen, join: "round", kante, lw, dach: Sim.css(farbe),
+      seite: w => schatte(farbe, 0.58 + 0.2 * (w.n[0] * 0.6 - w.n[1] * 0.8 + 1) / 2) });
   }
   function zeichneAxo(ctx, z, p, F) {
     const A = ansicht(z, p), px = F.px, gh = p.gh;
@@ -152,11 +132,10 @@
       const fi = st.rahmen.length === 1 ? st.rahmen[0] : null, farbe = st.markiert && st.markiert !== "dach" ? ORANGE : st.art === "hof" ? Sim.mische(basis, F.dunkel ? [120, 200, 190] : [20, 140, 130], 0.35) : basis;
       for (const s of stuecke(z, st.poly, fi)) {
         const dach = st.dg ? st.dach.flatMap(d => Modell.schnitt(d, s.P).length ? [Modell.schnitt(d, s.P)] : []) : [];
-        teile.push({ v: A.naehe(Geo.schwerpunkt(s.P)), s, st, farbe, dach });
+        teile.push({ s, st, farbe, dach });
       }
     }
-    teile.sort((a, b) => a.v - b.v);
-    for (const t of teile) {
+    for (const t of Axo.maler(teile, t => { const c = Geo.schwerpunkt(t.s.P); return A.v(c[0], c[1]); })) {
       prisma(ctx, A, t.s.P, t.s.innen, 0, t.st.g * gh, t.farbe, kante, px * 0.6);
       for (const d of t.dach) prisma(ctx, A, d, () => false, t.st.g * gh, (t.st.g + t.st.dg) * gh, t.st.markiert === "dach" ? ORANGE : dachF, kante, px * 0.6);
     }
@@ -210,9 +189,9 @@
     if (!zug) return;
     if (zug.art === "drehen") {
       if (!window.SIM) return;
-      const d = Math.round(((zug.d - (x - zug.x) * 0.4) % 360 + 360) % 360), n = Math.round(Math.max(15, Math.min(90, zug.n + (y - zug.y) * 0.25)));
-      if (d !== p.drehung) window.SIM.setze("drehung", d);
-      if (n !== p.neigung) window.SIM.setze("neigung", n);
+      const r = Axo.drehen(zug, x, y, { fd: 0.4, fn: 0.25, nMin: 15 });
+      if (r.drehung !== p.drehung) window.SIM.setze("drehung", r.drehung);
+      if (r.neigung !== p.neigung) window.SIM.setze("neigung", r.neigung);
       return;
     }
     const T = planTrafo(z, p), q = T.her(x, y), bb = bereich(z, p);

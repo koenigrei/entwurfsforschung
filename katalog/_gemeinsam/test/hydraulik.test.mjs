@@ -1,5 +1,6 @@
-// Tests des Rohrnetzlösers hydraulik.js (node --test im App-Ordner) · CC BY 4.0
-// Gleiche Datei in katalog/wasserleitung/test/ und katalog/wassernetz/test/.
+// Tests des gemeinsamen Rohrnetzlösers hydraulik.js (node --test im Ordner katalog/_gemeinsam) · CC BY 4.0
+// Übernommen aus den Tests der Apps wasserleitung und wassernetz; Prüfnetze Testnet.inp und hydroanalysis1.inp aus dem
+// Parametric Planning Catalogue (MIT, Copyright (c) 2020 infar-buw).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
@@ -116,7 +117,7 @@ test("Testnet.inp (Katalog): Durchflüsse, Druck und Pumpe plausibel", { skip: !
     (Durchmesser 30/60/90 mm, Rauheit 140, Max. Velocity 1.5 m/s). Die .rpt-Datei enthält keine Ergebnisse; geprüft wird,
     dass die gespeicherten Durchmesser wirklich zu Geschwindigkeiten ≤ 1.5 m/s führen und die Drücke im Bereich 1 … 16 bar liegen. */
 const SH = join(dirname(fileURLToPath(import.meta.url)), "hydroanalysis1.inp");
-test("hydroanalysis1.inp (Katalog): v ≤ Max. Velocity nach der Dimensionierung, Druck 1 … 16 bar", { skip: !existsSync(SH) && "hydroanalysis1.inp nur im Testordner von wassernetz" }, () => {
+test("hydroanalysis1.inp (Katalog): v ≤ Max. Velocity nach der Dimensionierung, Druck 1 … 16 bar", { skip: !existsSync(SH) && "hydroanalysis1.inp nicht im Testordner" }, () => {
   const netz = liesInp(readFileSync(SH, "utf8"));
   assert.ok(netz.knoten.length > 700 && netz.leitungen.length > 770);
   const S = H.loese(netz), E = H.ergebnisse(netz, S);
@@ -126,4 +127,26 @@ test("hydroanalysis1.inp (Katalog): v ≤ Max. Velocity nach der Dimensionierung
   assert.ok(vMax <= 1.5 && vMax > 1.3, "größte Geschwindigkeit " + vMax);
   const p = E.knoten.filter((k, i) => !netz.knoten[i].behaelter).map(k => k.druck / 10);
   assert.ok(Math.min(...p) >= 1 && Math.max(...p) <= 16, `Druck ${Math.min(...p)} … ${Math.max(...p)} bar`);
+});
+
+/* ---------------------------------------------------------------- ergänzt beim Umzug nach _gemeinsam (23.11.2026) */
+test("Cholesky: 3 × 3-System von Hand; nicht positiv definit → singulaer", () => {
+  // A = [[4, 2, 0], [2, 5, 1], [0, 1, 3]], x = [1, 2, 3] → b = A x = [8, 15, 11]
+  const A = Float64Array.from([4, 2, 0, 2, 5, 1, 0, 1, 3]), { x, singulaer } = H.cholesky(A, Float64Array.from([8, 15, 11]), 3);
+  assert.ok(!singulaer); [1, 2, 3].forEach((v, i) => nah(x[i], v, 1e-12, "x" + i));
+  assert.ok(H.cholesky(Float64Array.from([0]), Float64Array.from([1]), 1).singulaer);
+});
+
+test("Schrittweise (iteration) = auf einmal (loese); Steigung unter G_MIN linear; Pumpe fördert nicht rückwärts", () => {
+  const netz = { knoten: [behaelter(100, 0), { z: 60, bedarf: 0.03 }, { z: 50, bedarf: 0.05 }],
+                 leitungen: [rohr(0, 1, 400, 0.2), rohr(0, 2, 900, 0.2), rohr(1, 2, 300, 0.15)] };
+  const S = H.neu(netz), A = H.loese(netz);
+  while (!S.fertig) H.iteration(netz, S);
+  assert.deepEqual([...S.Q], [...A.Q]); assert.equal(S.iter, A.iter);
+  const c = H.koeffizienten({ art: "rohr" }, 1, 0, 0);
+  nah(1 / c.p, H.G_MIN, 1e-15, "Steigung"); assert.equal(c.y, 0);
+  // Pumpe gegen einen höheren Behälter mit zu wenig Leistung: Durchfluss wird 0, nicht negativ
+  const n2 = { knoten: [behaelter(0, 1), behaelter(100, 0)], leitungen: [{ a: 0, b: 1, art: "pumpe", P: 0.001 }] };
+  const S2 = H.loese(n2);
+  assert.ok(S2.Q[0] >= 0);
 });

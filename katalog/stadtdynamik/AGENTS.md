@@ -17,6 +17,7 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  axonometrie.js           Axo: Prismen in Axonometrie/Schrägansicht – Projektion, Malerverfahren, Wände und Dach, Drehen per Ziehen (nur app.js)
 katalog/stadtdynamik/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
@@ -36,6 +37,8 @@ katalog/stadtdynamik/
 8. **Kein Code aus der DeCodingSpaces-Toolbox (GPL-3.0)** abschreiben; Definitionen und Formeln ablesen ist erlaubt.
 
 ## Schnittstelle des Modells
+
+Die Säulen (Schrägansicht, Prismen) in app.js zeichnet `../_gemeinsam/axonometrie.js` (`Axo.schraeg`, `Axo.prisma`).
 
 | Funktion | Aufgabe |
 |---|---|

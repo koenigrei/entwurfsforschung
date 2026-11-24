@@ -17,8 +17,10 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Katalogs
   geo.js                   Geo: Polygone, Abstand Punkt–Segment, Heap
   szenen.js                Szenen: Stadt, Rauschen, Höhe/Gefälle auf dem Höhenraster
   karte.js                 Karte: Farbskalen, Gelände mit Schummerung und Höhenlinien
+  raster.js                Raster: Priority-Flood (ueberlauf), Shadowcasting (sichtbar, sieht), Marching Squares (kontur),
+                           begrenzte Abstandstransformation (abstandsTransformation); Tests in _gemeinsam/test/raster.test.mjs
 katalog/hochwasser-pegel/
-  index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
+  index.html               statische Seite; lädt die Rahmen-Skripte, die gemeinsamen Dateien, modell.js, app.js
   modell.js                reine Logik, kein DOM
   app.js                   Sim.starte({...}): Parameter, zeichne (Gelände vorgezeichnet), Kurve, legende, kennzahlen, klick, aktionen
   test/*.test.mjs          node --test
@@ -26,7 +28,7 @@ katalog/hochwasser-pegel/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `szenen.js` und `raster.js` (gemeinsam mit anderen Apps; Änderungen dort mit eigenem Test in `_gemeinsam/test/`, danach `node --test` in `_gemeinsam` und in allen Apps, die die Datei nutzen). Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -42,7 +44,7 @@ katalog/hochwasser-pegel/
 | `schritt(z, param)` | Pegelmodus: Pegel + Schrittweite (`z.k`); Regenmodus: ein Partikelschritt; erhöht `z.t` |
 | `aendere(z, param, id)` | Sockel → neu auswerten; Pegelbereich, Modus, Partikel → Lauf neu (Maßnahmen bleiben); Umkreis → Regenrisiko neu |
 | `tal(zufall)` | Gelände 400 × 400 m mit Fluss, Uferwall, Nordhang |
-| `ueberlauf(G)` | Überlaufhöhe je Gitterpunkt (Priority-Flood vom Fluss aus): Wasser bei Pegel L, wo W < L |
+| `ueberlauf(G)` | Überlaufhöhe je Gitterpunkt (Priority-Flood vom Fluss aus, `Raster.ueberlauf(G.h, n, n, G.fluss)`): Wasser bei Pegel L, wo W < L |
 | `stadt(zufall, G)`, `gebaeudeMaske(G, gebaeude)` | Beispielstadt am Hang (Fußpunkt, Fläche, Proben der Straßen); Gitterpunkte in Gebäuden |
 | `pegelStufen(p)`, `pegelBei(S, k)`, `pegel(z)` | Pegelstände L_k = Start + k · dz, k = 0 … N |
 | `ersterSchritt(S, F)`, `ersterSchrittZelle(S, W)` | erster Schritt mit L ≥ F (Gebäude, Straßen) bzw. L > W (Gelände) |

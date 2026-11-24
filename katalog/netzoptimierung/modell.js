@@ -15,10 +15,10 @@
    GPL-3.0; Ablauf, Voreinstellungen und Randfälle aus docs/research/legacy-generation.md §1 abgelesen; kein Code übernommen). */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/generierung.js") : wurzel.Generierung);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Generierung) {
   "use strict";
 
   /** Voreinstellungen (Schieberegler der .gh-Datei: Wert [Bereich]; feste Eingänge „PD“):
@@ -39,18 +39,13 @@
   };
   /** die beiden Lesarten von f₂ (beide werden minimiert: kleine größte Closeness bzw. kurze größte mittlere Weglänge) */
   const ZIELE2 = ["closeness", "weglaenge"];
-  /** feste Werte im Inneren der kompilierten Komponenten (legacy-generation.md §1) und eigene Grenzen der App */
-  const INTERN = {
-    freiwinkel: 80,      // kleinster freier Winkel für einen neuen Arm (_minAngle = 80°)
-    wurzelArme: 3,       // drei Arm-Plätze je Knoten der Startstraßen
-    wurzelMaxArme: 4,    // höchster Grad an den Wurzeln (maxConn = 4)
-    fangStart: 1,        // Rand und Startstraßen werden mit 1 m Fangabstand eingefügt
+  /** feste Werte im Inneren der kompilierten Komponenten (legacy-generation.md §1; freier Winkel 80°, drei Arm-Plätze und Grad 4 an
+      den Wurzeln, 1 m Fang, Arme ≥ 1 m, höchstens 20 000 Baumknoten: Generierung.INTERN) und eigene Werte der App */
+  const INTERN = Object.assign({}, Generierung.INTERN, {
     glaetten: 1,         // Network Smooth: Snap threshold 1
-    maxKnoten: 20000,    // Obergrenze der Baumgröße (bei TreeDepth 20 wüchse der Baum sonst auf Millionen Knoten)
-    pGen: 0.05,          // Anteil der Knoten, deren Gene eine Mutation neu zieht
-    minSegment: 1        // kürzere Arme werden verworfen
-  };
-  const ART = { RAND: 0, START: 1, NEU: 2 };
+    pGen: 0.05           // Anteil der Knoten, deren Gene eine Mutation neu zieht
+  });
+  const ART = Generierung.ART;
 
   /* ---------------------------------------------------------------- Szene */
   /** Beispielszene (Meter, y nach unten): fünfeckiges Baufeld in einer Stadt wie im Katalogbild, drei Startstraßen
@@ -70,192 +65,15 @@
     return { b: 680, h: 540, rand, start, umgebung };
   }
 
-  /* ---------------------------------------------------------------- Straßengraph für das Wachstum */
-  function netzNeu() { return { P: [], adj: [], E: [] }; }
-  function knotenNeu(G, q) { G.P.push([q[0], q[1]]); G.adj.push([]); return G.P.length - 1; }
-  function kanteNeu(G, a, b, art) { const k = G.E.length; G.E.push({ a, b, art, lebt: true }); G.adj[a].push(k); G.adj[b].push(k); return k; }
-  const gegenueber = (G, v, k) => (G.E[k].a === v ? G.E[k].b : G.E[k].a);
-  const grad = (G, v) => G.adj[v].length;
-  const nachbarn = (G, v) => G.adj[v].map(k => gegenueber(G, v, k));
-  const verbunden = (G, a, b) => G.adj[a].some(k => gegenueber(G, a, k) === b);
-  const amRand = (G, v) => G.adj[v].some(k => G.E[k].art === ART.RAND);
-  /** Kante k am Knoten v teilen (v liegt auf k) */
-  function kanteTeilen(G, k, v) {
-    const e = G.E[k]; e.lebt = false;
-    G.adj[e.a] = G.adj[e.a].filter(x => x !== k); G.adj[e.b] = G.adj[e.b].filter(x => x !== k);
-    kanteNeu(G, e.a, v, e.art); kanteNeu(G, v, e.b, e.art);
-  }
-  /** nächster Knoten zu q (ohne Knoten „ohne“) → {v, d} */
-  function naechsterKnoten(G, q, ohne = -1) {
-    let v = -1, d = Infinity;
-    for (let i = 0; i < G.P.length; i++) {
-      if (i === ohne) continue;
-      const di = Math.hypot(G.P[i][0] - q[0], G.P[i][1] - q[1]); if (di < d) { d = di; v = i; }
-    }
-    return { v, d };
-  }
-  /** nächste lebende Kante zu q, die nicht am Knoten „ohne“ hängt → {k, d, q (Fußpunkt), t} */
-  function naechsteKante(G, q, ohne = -1) {
-    let best = { k: -1, d: Infinity, q: null, t: 0 };
-    for (let k = 0; k < G.E.length; k++) {
-      const e = G.E[k]; if (!e.lebt || e.a === ohne || e.b === ohne) continue;
-      const r = Geo.abstandSegment(q, G.P[e.a], G.P[e.b]); if (r.d < best.d) best = { k, d: r.d, q: r.q, t: r.t };
-    }
-    return best;
-  }
-  /** erster Schnitt der Strecke a → b mit lebenden Kanten, die nicht an den Knoten v1/v2 hängen und nicht k0 sind → {k, t, p} | null */
-  function ersterSchnitt(G, a, b, v1, v2, k0) {
-    let best = null;
-    for (let k = 0; k < G.E.length; k++) {
-      const e = G.E[k];
-      if (!e.lebt || k === k0 || e.a === v1 || e.b === v1 || (v2 >= 0 && (e.a === v2 || e.b === v2))) continue;
-      const s = Geo.segmentSchnitt(a, b, G.P[e.a], G.P[e.b]);
-      if (s && s.t > 1e-9 && s.t < 1 - 1e-9 && (!best || s.t < best.t)) best = { k, t: s.t, p: s.p };
-    }
-    return best;
-  }
-  /** Knoten (≠ v1, v2), der näher als md an der Strecke a → b liegt, der erste entlang der Strecke → {v, t} | null */
-  function knotenAnStrecke(G, a, b, v1, v2, md) {
-    let best = null;
-    for (let i = 0; i < G.P.length; i++) {
-      if (i === v1 || i === v2 || !G.adj[i].length) continue;
-      const r = Geo.abstandSegment(G.P[i], a, b);
-      if (r.d < md && r.t > 1e-9 && r.t < 1 - 1e-9 && (!best || r.t < best.t)) best = { v: i, t: r.t };
-    }
-    return best;
-  }
+  /* ---------------------------------------------------------------- Straßengraph, Instruktionsbaum und Wachstum (_gemeinsam/generierung.js)
+     Grundnetz aus Rand und Startstraßen, Arm mit geordneten Fangregeln, Richtung in die größte freie Lücke, Gene je Knoten und
+     der zufällige Instruktionsbaum (Street Network Chromosome) stehen in Generierung und gelten gleich für stadtsynthese und
+     gebaeude-generierung. */
+  const { netzNeu, knotenNeu, kanteNeu, kanteTeilen, fuegeStreckeEin, grundnetz, imAussenrand, arm, richtung, armRichtung, gene } = Generierung;
+  /** Zufälliger Instruktionsbaum (Street Network Chromosome) → {wurzeln: [{kinder: [...]}], anzahl} */
+  const baum = (zufall, nWurzeln, p) => Generierung.baum(zufall, nWurzeln, p);
 
-  /** Strecke a–b (Rand oder Startstraße) mit Fangabstand tol einfügen: Endpunkte fangen an Knoten oder Kanten,
-      unterwegs jede gekreuzte Kante teilen (Knoten an Kreuzungen). → [Knoten am Anfang, Knoten am Ende] */
-  function fuegeStreckeEin(G, a, b, art, tol) {
-    const ende = q => {
-      const nv = naechsterKnoten(G, q); if (nv.v >= 0 && nv.d <= tol) return nv.v;
-      const ne = naechsteKante(G, q); const v = knotenNeu(G, ne.k >= 0 && ne.d <= tol ? ne.q : q);
-      if (ne.k >= 0 && ne.d <= tol) kanteTeilen(G, ne.k, v);
-      return v;
-    };
-    const va = ende(a), vb = ende(b);
-    if (va === vb) return [va, vb];
-    const pa = G.P[va], pb = G.P[vb], kette = [];
-    for (let k = 0; k < G.E.length; k++) {
-      const e = G.E[k]; if (!e.lebt || e.a === va || e.b === va || e.a === vb || e.b === vb) continue;
-      const s = Geo.segmentSchnitt(pa, pb, G.P[e.a], G.P[e.b]);
-      if (s && s.t > 1e-9 && s.t < 1 - 1e-9) kette.push({ t: s.t, k, p: s.p });
-    }
-    kette.sort((x, y) => x.t - y.t);
-    let u = va;
-    for (const c of kette) {
-      const e = G.E[c.k]; let v;
-      if (Geo.abstand(c.p, G.P[e.a]) <= tol) v = e.a; else if (Geo.abstand(c.p, G.P[e.b]) <= tol) v = e.b;
-      else { v = knotenNeu(G, c.p); kanteTeilen(G, c.k, v); }
-      if (v !== u && !verbunden(G, u, v)) kanteNeu(G, u, v, art);
-      u = v;
-    }
-    if (u !== vb && !verbunden(G, u, vb)) kanteNeu(G, u, vb, art);
-    return [va, vb];
-  }
-
-  /** Grundnetz: Rand (geschlossen) und Startstraßen mit 1 m Fangabstand. → {G, wurzeln: Knoten der Startstraßen (eine Wurzel je Stützpunkt)} */
-  function grundnetz(S) {
-    const G = netzNeu(), R = S.rand;
-    for (let i = 0; i < R.length; i++) fuegeStreckeEin(G, R[i], R[(i + 1) % R.length], ART.RAND, INTERN.fangStart);
-    for (const pl of S.start) for (let i = 0; i + 1 < pl.length; i++) fuegeStreckeEin(G, pl[i], pl[i + 1], ART.START, INTERN.fangStart);
-    const wurzeln = [];
-    for (const pl of S.start) for (const q of pl) wurzeln.push(naechsterKnoten(G, q).v);
-    return { G, wurzeln };
-  }
-  /** Punkt im äußeren Rand (Rand + 1 m) */
-  function imAussenrand(S, q) {
-    if (Geo.punktInPoly(q, S.rand)) return true;
-    const R = S.rand;
-    for (let i = 0; i < R.length; i++) if (Geo.abstandSegment(q, R[i], R[(i + 1) % R.length]).d <= 1) return true;
-    return false;
-  }
-
-  /** Einen Arm vom Knoten pv zum Zielpunkt einfügen (AddGraphElement, eigene geordnete Fangregeln):
-      1. Zielpunkt fängt an einem Knoten (näher als MinDist; Knoten mit Grad ≥ MaxArms lehnen ab), sonst an einer Kante (Fußpunkt);
-      2. der Arm endet am ersten Schnitt mit einer anderen Straße (die geteilt wird) – ein Arm, der den Rand trifft, ist geschlossen;
-      3. liegt ein Knoten näher als MinDist an der Strecke, endet der Arm dort; 2. und 3. werden wiederholt, bis sich nichts ändert;
-      4. Ziel außerhalb des äußeren Rands oder kürzer als 1 m → verworfen.  → {v, zu} oder null */
-  function arm(G, S, pv, ziel, md, maxArme) {
-    let q = ziel, zielV = -1, teilK = -1, zu = false;
-    const nv = naechsterKnoten(G, q, pv);
-    if (nv.v >= 0 && nv.d < md) { if (grad(G, nv.v) >= maxArme) return null; zielV = nv.v; q = G.P[zielV]; }
-    else { const ne = naechsteKante(G, q, pv); if (ne.k >= 0 && ne.d < md && ne.t > 0 && ne.t < 1) { q = ne.q; teilK = ne.k; } }
-    for (let runde = 0; runde < 6; runde++) {
-      let geaendert = false;
-      const s = ersterSchnitt(G, G.P[pv], q, pv, zielV, teilK);
-      if (s) {
-        const e = G.E[s.k], da = Geo.abstand(s.p, G.P[e.a]), db = Geo.abstand(s.p, G.P[e.b]);
-        if (Math.min(da, db) <= INTERN.fangStart) { zielV = da <= db ? e.a : e.b; q = G.P[zielV]; teilK = -1; }
-        else { zielV = -1; q = s.p; teilK = s.k; }
-        geaendert = true;
-      }
-      const w = knotenAnStrecke(G, G.P[pv], q, pv, zielV, md);
-      if (w) { zielV = w.v; q = G.P[zielV]; teilK = -1; geaendert = true; }
-      if (zielV === pv) return null;
-      if (zielV >= 0 && grad(G, zielV) >= maxArme) return null;
-      if (!geaendert) break;
-    }
-    if (zielV < 0 && teilK < 0 && !imAussenrand(S, q)) return null;
-    if (Geo.abstand(G.P[pv], q) < INTERN.minSegment) return null;
-    if (zielV >= 0 && verbunden(G, pv, zielV)) return null;
-    let v = zielV;
-    if (v < 0) { v = knotenNeu(G, q); if (teilK >= 0) { if (G.E[teilK].art === ART.RAND) zu = true; kanteTeilen(G, teilK, v); } }
-    else if (amRand(G, v)) zu = true;
-    kanteNeu(G, pv, v, ART.NEU);
-    return { v, zu };
-  }
-
-  /** Richtung von a nach b in Grad */
-  const richtung = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
-  /** Richtung des neuen Arms am Knoten pv relativ zur Herkunft ref (Grad, gegen den Uhrzeigersinn im Rechensinn):
-      ein Nachbar → 180° (geradeaus); sonst Winkelhalbierende der größten freien Lücke zwischen den Nachbarn (die Herkunft
-      zählt als belegt); Lücke < 80° → null (kein Platz); Lücke ≥ 260° → Versatz 45°/90°/135°/… vom Lückenanfang (teiler). */
-  function armRichtung(P, pv, ref, nb, teiler) {
-    if (nb.length <= 1) return 180;
-    const a0 = richtung(P[pv], P[ref]);
-    const W = [0];
-    for (const v of nb) { const w = ((richtung(P[pv], P[v]) - a0) % 360 + 360) % 360; if (w > 1e-9 && w < 360 - 1e-9) W.push(w); }
-    W.sort((x, y) => x - y);
-    let luecke = -1, anfang = 0;
-    for (let i = 0; i < W.length; i++) {
-      const g = (i + 1 < W.length ? W[i + 1] : 360) - W[i];
-      if (g > luecke + 1e-9) { luecke = g; anfang = W[i]; }
-    }
-    if (luecke < INTERN.freiwinkel) return null;
-    if (luecke >= 260) luecke = 90 + 90 * Math.floor(teiler * Math.ceil(luecke / 90));
-    return anfang + luecke / 2;
-  }
-
-  /* ---------------------------------------------------------------- Chromosom: Instruktionsbaum */
-  /** Gene eines Knotens wie im Original: Winkel = Next(RandomAngle) − RandomAngle/2 (ganze Grad), Länge = Next(MaxLength) + MinLength
-      (ganze Meter), höchster Grad maxArme = Next(MaxArms − 1) + 2, teiler für sehr große Lücken */
-  function gene(zufall, p) {
-    const ra = Math.max(0, Math.round(p.zufallsWinkel)), ml = Math.max(1, Math.round(p.maxLaenge)), ma = Math.max(1, Math.round(p.maxArme));
-    return { winkel: zufall.ganz(ra) - ra / 2, laenge: zufall.ganz(ml) + p.minLaenge, maxArme: zufall.ganz(ma - 1) + 2, teiler: zufall() };
-  }
-  /** Zufälliger Instruktionsbaum (Street Network Chromosome): je Knoten der Startstraßen eine Wurzel mit drei Arm-Plätzen;
-      TreeDepth Ebenen breitenweise; jeder Knoten bekommt einen sicheren Platz und k − 1 weitere (k = Next(MaxArms − 1) + 1),
-      ab Ebene 4 jeden weiteren nur mit Wahrscheinlichkeit (k + 1) / Ebene. → {wurzeln: [{kinder: [...]}], anzahl} */
-  function baum(zufall, nWurzeln, p) {
-    const ma = Math.max(1, Math.round(p.maxArme)), tiefe = Math.max(0, Math.round(p.baumtiefe));
-    const wurzeln = [];
-    let plaetze = [], anzahl = 0;
-    for (let i = 0; i < nWurzeln; i++) { const w = { kinder: [] }; wurzeln.push(w); for (let j = 0; j < INTERN.wurzelArme; j++) plaetze.push(w); }
-    for (let ebene = 1; ebene <= tiefe && plaetze.length; ebene++) {
-      const naechste = [];
-      for (const e of plaetze) {
-        if (anzahl >= INTERN.maxKnoten) break;
-        const c = Object.assign({ kinder: [] }, gene(zufall, p));
-        e.kinder.push(c); anzahl++; naechste.push(c);
-        const k = zufall.ganz(ma - 1) + 1;
-        for (let x = 1; x < k; x++) if (ebene <= 3 || zufall() <= (k + 1) / ebene) naechste.push(c);
-      }
-      plaetze = naechste;
-    }
-    return { wurzeln, anzahl };
-  }
+  /* ---------------------------------------------------------------- Chromosom: Kreuzung und Mutation */
   function kopiereKnoten(k) { return { winkel: k.winkel, laenge: k.laenge, maxArme: k.maxArme, teiler: k.teiler, kinder: k.kinder.map(kopiereKnoten) }; }
   const kopiereBaum = b => ({ wurzeln: b.wurzeln.map(w => ({ kinder: w.kinder.map(kopiereKnoten) })), anzahl: b.anzahl });
   /** Kreuzung: Wurzeln sind bei allen Chromosomen dieselben (Knoten der Startstraßen); je Arm-Platz einer Wurzel stammt der ganze
@@ -276,40 +94,12 @@
     return b;
   }
 
-  /** ChromosomeMapper: Baum → Straßennetz. Die Knoten werden breitenweise abgearbeitet (alle Wurzeln je Ebene verschränkt);
-      ein Knoten wächst vom Endpunkt seines Elternknotens aus, wenn dieser offen ist, dessen Grad unter maxArme liegt und eine
-      Lücke ≥ 80° frei ist. → {segmente: [[a, b]], art: [ART], gesetzt: Zahl der gesetzten Arme} */
+  /** ChromosomeMapper: Baum → Straßennetz (Generierung.wachse). Die Knoten werden breitenweise abgearbeitet (alle Wurzeln je Ebene
+      verschränkt); ein Knoten wächst vom Endpunkt seines Elternknotens aus, wenn dieser offen ist, dessen Grad unter maxArme liegt
+      und eine Lücke ≥ 80° frei ist. stat zählt die Ablehnungsgründe. → {segmente: [[a, b]], art: [ART], gesetzt: Zahl der gesetzten Arme} */
   function wachse(b, S, p, stat) {
-    const { G, wurzeln } = grundnetz(S);
-    const zaehl = k => { if (stat) stat[k] = (stat[k] || 0) + 1; };
-    const md = Math.max(0, p.minAbstand), maxArme = Math.max(2, Math.round(p.maxArme));
-    let ebene = b.wurzeln.map((w, i) => ({ k: w, e: null, pos: wurzeln[i] != null ? wurzeln[i] : -1, zu: false, wurzel: true }));
-    let gesetzt = 0;
-    while (ebene.length) {
-      const naechste = [];
-      for (const r of ebene) for (const c of r.k.kinder) naechste.push({ k: c, e: r, pos: -1, zu: false });
-      for (const c of naechste) {
-        const e = c.e;
-        if (e.zu || e.pos < 0) { c.zu = true; zaehl("elternZu"); continue; }
-        const pv = e.pos, cap = e.wurzel ? INTERN.wurzelMaxArme : e.k.maxArme;
-        if (grad(G, pv) >= cap) { e.zu = c.zu = true; zaehl("grad"); continue; }
-        const nb = nachbarn(G, pv);
-        if (!nb.length) { c.zu = true; continue; }
-        let ref = e.e && e.e.pos >= 0 && e.e.pos !== pv ? e.e.pos : nb[0];
-        if (nb.length === 1) ref = nb[0];
-        const dir = armRichtung(G.P, pv, ref, nb, c.k.teiler);
-        if (dir === null) { c.zu = true; zaehl("luecke"); continue; }
-        const th = (richtung(G.P[pv], G.P[ref]) + dir + c.k.winkel) * Math.PI / 180;
-        const ziel = [G.P[pv][0] + c.k.laenge * Math.cos(th), G.P[pv][1] + c.k.laenge * Math.sin(th)];
-        const a = arm(G, S, pv, ziel, md, maxArme);
-        if (!a) { c.zu = true; zaehl("abgelehnt"); continue; }
-        c.pos = a.v; c.zu = a.zu; gesetzt++;
-      }
-      ebene = naechste;
-    }
-    const segmente = [], art = [];
-    for (const e of G.E) if (e.lebt) { segmente.push([G.P[e.a], G.P[e.b]]); art.push(e.art); }
-    return { segmente, art, gesetzt };
+    const w = Generierung.wachse(b, S, p, { stat });
+    return { segmente: w.segmente, art: w.art, gesetzt: w.gesetzt };
   }
 
   /* ---------------------------------------------------------------- Fitness */

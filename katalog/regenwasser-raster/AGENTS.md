@@ -16,7 +16,7 @@ simulationen/_gemeinsam/   Rahmen aller Lab-Apps (nicht pro App kopieren)
 katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catalogue
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
-  karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien; Gelände-Zwischenspeicher gelaendeGespeichert (genutzt in app.js)
 katalog/regenwasser-raster/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)

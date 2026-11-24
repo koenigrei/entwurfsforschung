@@ -18,6 +18,7 @@ Online: https://entwurfsforschung.de/lab/parametric-planning-catalogue/hochwasse
 | `modell.js` | Modelllogik ohne DOM – in Node testbar (Tal mit Fluss, Überlaufhöhe, Pegel, Risiko, Regenpartikel, Maßnahmen) |
 | `app.js` | Bedienung und Darstellung: Parameter, Zeichnen, Kurve, Legende, Kennzahlen, Klickwerkzeuge |
 | `../_gemeinsam/geo.js`, `szenen.js`, `karte.js` | Geometrie, Heap, Beispielstadt, Gelände-Schummerung – gemeinsam für alle Apps des Katalogs |
+| `../_gemeinsam/raster.js` | Rasterverfahren, hier Priority-Flood (Überlaufhöhe) – gemeinsam mit anderen Apps, Tests in `../_gemeinsam/test/raster.test.mjs` |
 | `../../simulationen/_gemeinsam/sim.js`, `sim.css`, `zufall.js` | Rahmen der Lab-Apps (Ablauf, Regler, Hell/Dunkel, DE/EN, Saat) |
 | `test/modell.test.mjs` | Tests des Modells |
 | `app.json` | Metadaten für die Übersichtsseite (Titel, Vorschautext, Eintrag im DeCodingSpaces Lab) |

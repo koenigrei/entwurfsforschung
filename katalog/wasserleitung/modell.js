@@ -7,10 +7,10 @@
    weiteren Punkt ein Verbraucher (Demand), alle Linien Rohre (LineDiameter, LineRoughness) bis auf die Linie
    Floor(NetworkSegments · Pump Index), die eine Pumpe ist (Pump Power) → „Analyse Hydrology Network“ (EPANET) → Pipe Values /
    Node Values; Verbraucher unter „Min Pressure“ werden pink. Die Rohrnetzberechnung (Gradientenverfahren wie EPANET) steht in
-   hydraulik.js; ein Schritt ist eine Iteration dieses Verfahrens. */
+   ../_gemeinsam/hydraulik.js (gemeinsam mit der App „Wassernetz“); ein Schritt ist eine Iteration dieses Verfahrens. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("./hydraulik.js") : wurzel.Hydraulik);
+  const M = fabrik(node ? require("../_gemeinsam/hydraulik.js") : wurzel.Hydraulik);
   if (node) module.exports = M;
   else wurzel.Modell = M;
 })(typeof globalThis !== "undefined" ? globalThis : this, function (Hydraulik) {

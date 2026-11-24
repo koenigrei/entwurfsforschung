@@ -130,6 +130,35 @@
     return out;
   }
 
+  /* ---------------------------------------------------------------- Polylinien (Herkunft: katalog/isovist-pfad, isovist-objekte) */
+  /** Länge einer offenen Polylinie */
+  function polylinienLaenge(P) { let L = 0; for (let i = 0; i < P.length - 1; i++) L += abstand(P[i], P[i + 1]); return L; }
+  /** Anteil t ∈ [0, 1] (nach Länge) des Punkts auf der Polylinie P, der q am nächsten liegt (0 bei Länge 0) */
+  function naechsterAnteil(P, q) {
+    let L = 0, best = Infinity, bestS = 0;
+    for (let i = 0; i < P.length - 1; i++) {
+      const l = abstand(P[i], P[i + 1]), f = abstandSegment(q, P[i], P[i + 1]);
+      if (f.d < best) { best = f.d; bestS = L + f.t * l; }
+      L += l;
+    }
+    return L > 0 ? bestS / L : 0;
+  }
+  /** Ecken einer Polylinie abrunden: an jedem inneren Punkt wird die Ecke im Abstand min(r, ⅓ der Nachbarkanten) abgeschnitten
+      und durch einen Bogen aus „teile“ Stücken (quadratische Bézierkurve) ersetzt; doppelte Punkte entfallen. */
+  function rundeEcken(P, r = 4, teile = 4) {
+    if (P.length < 3) return P.map(q => q.slice());
+    const Q = [P[0].slice()];
+    for (let i = 1; i < P.length - 1; i++) {
+      const a = P[i - 1], b = P[i], c = P[i + 1], la = abstand(a, b), lc = abstand(b, c);
+      const d = Math.min(r, la / 3, lc / 3);
+      if (d < 1e-9) { Q.push(b.slice()); continue; }
+      const p0 = lerp(b, a, d / la), p2 = lerp(b, c, d / lc);
+      for (let k = 0; k <= teile; k++) { const u = k / teile, v = 1 - u; Q.push([v * v * p0[0] + 2 * u * v * b[0] + u * u * p2[0], v * v * p0[1] + 2 * u * v * b[1] + u * u * p2[1]]); }
+    }
+    Q.push(P[P.length - 1].slice());
+    return Q.filter((q, i) => i === 0 || abstand(q, Q[i - 1]) > 1e-9);
+  }
+
   /* ---------------------------------------------------------------- Strahlen und Schnitte */
   /** Schnitt Strahl (o + t·d, t ≥ 0) mit Segment ab → t oder Infinity */
   function strahlSegment(o, d, a, b) {
@@ -174,6 +203,75 @@
   /** Polygon des Isovists (bei Blickwinkel < 360° mit dem Standpunkt als Ecke) */
   function isovistPolygon(iso) { return iso.voll ? iso.punkte.slice() : [iso.o].concat(iso.punkte); }
 
+  /* Schneller Isovist über ein Segmentraster (Herkunft: katalog/isovist-feld und katalog/isovist-pfad) */
+  /** Schneidet das Segment ab das achsparallele Rechteck [x0, x1] × [y0, y1]? (Liang–Barsky; rand > 0 vergrößert, < 0 verkleinert das Rechteck) */
+  function segmentRechteck(a, b, x0, y0, x1, y1, rand = 1e-7) {
+    x0 -= rand; y0 -= rand; x1 += rand; y1 += rand;
+    let t0 = 0, t1 = 1;
+    const dx = b[0] - a[0], dy = b[1] - a[1], P = [-dx, dx, -dy, dy], Q = [a[0] - x0, x1 - a[0], a[1] - y0, y1 - a[1]];
+    for (let i = 0; i < 4; i++) {
+      if (P[i] === 0) { if (Q[i] < 0) return false; continue; }
+      const r = Q[i] / P[i];
+      if (P[i] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return t0 <= t1;
+  }
+  /** Raster der Hindernissegmente (Weite g): je Rasterzelle die Segmente, die sie berühren.
+      → {x0, y0, g, nx, ny, zellen: [Int32Array], stempel, lauf} (stempel/lauf: Merker gegen doppeltes Prüfen je Strahl) */
+  function segmentRaster(hindernisse, g = 5) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const s of hindernisse) for (const p of s) { if (p[0] < x0) x0 = p[0]; if (p[1] < y0) y0 = p[1]; if (p[0] > x1) x1 = p[0]; if (p[1] > y1) y1 = p[1]; }
+    if (!hindernisse.length) { x0 = y0 = 0; x1 = y1 = 1; }
+    x0 -= g; y0 -= g; x1 += g; y1 += g;
+    const nx = Math.max(1, Math.ceil((x1 - x0) / g)), ny = Math.max(1, Math.ceil((y1 - y0) / g));
+    const listen = Array.from({ length: nx * ny }, () => []);
+    hindernisse.forEach((s, k) => {
+      const i0 = Math.max(0, Math.floor((Math.min(s[0][0], s[1][0]) - x0) / g) - 1), i1 = Math.min(nx - 1, Math.floor((Math.max(s[0][0], s[1][0]) - x0) / g) + 1);
+      const j0 = Math.max(0, Math.floor((Math.min(s[0][1], s[1][1]) - y0) / g) - 1), j1 = Math.min(ny - 1, Math.floor((Math.max(s[0][1], s[1][1]) - y0) / g) + 1);
+      for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++)
+        if (segmentRechteck(s[0], s[1], x0 + i * g, y0 + j * g, x0 + (i + 1) * g, y0 + (j + 1) * g)) listen[j * nx + i].push(k);
+    });
+    return { x0, y0, g, nx, ny, zellen: listen.map(L => Int32Array.from(L)), stempel: new Int32Array(hindernisse.length), lauf: 0 };
+  }
+  /** Isovist wie isovist (gleiche Strahlen, gleiche Längen, gleiches getroffenes Segment), aber jeder Strahl prüft nur die
+      Segmente der Rasterzellen, die er durchläuft (Amanatides–Woo), und hört beim ersten Treffer auf. Etwa 40-mal schneller.
+      R: segmentRaster(hindernisse); liegt o außerhalb des Rasters, rechnet isovist ohne Raster. */
+  function isovistRaster(o, hindernisse, R, opt) {
+    const { x0, y0, g, nx, ny, zellen, stempel } = R;
+    const fx = (o[0] - x0) / g, fy = (o[1] - y0) / g;
+    if (!(fx >= 0 && fy >= 0 && fx < nx && fy < ny)) return isovist(o, hindernisse, opt);
+    const winkel = Math.max(0, Math.min(360, opt.winkel == null ? 360 : opt.winkel)) * Math.PI / 180;
+    const n = Math.max(1, Math.round(opt.strahlen || 360)), r = opt.reichweite || 100, dir = opt.richtung || 0;
+    const voll = winkel >= 2 * Math.PI - 1e-9;
+    const punkte = [], laengen = new Float64Array(n), treffer = new Int32Array(n), winkelListe = new Float64Array(n);
+    const i00 = Math.floor(fx), j00 = Math.floor(fy);
+    for (let s = 0; s < n; s++) {
+      const a = voll ? dir + 2 * Math.PI * s / n : dir - winkel / 2 + (n === 1 ? winkel / 2 : winkel * s / (n - 1));
+      const d = [Math.cos(a), Math.sin(a)], lauf = ++R.lauf;
+      let i = i00, j = j00, tmin = r, hit = -1;
+      const si = d[0] > 0 ? 1 : d[0] < 0 ? -1 : 0, sj = d[1] > 0 ? 1 : d[1] < 0 ? -1 : 0;
+      let tx = si > 0 ? (x0 + (i + 1) * g - o[0]) / d[0] : si < 0 ? (x0 + i * g - o[0]) / d[0] : Infinity;
+      let ty = sj > 0 ? (y0 + (j + 1) * g - o[1]) / d[1] : sj < 0 ? (y0 + j * g - o[1]) / d[1] : Infinity;
+      const dtx = si ? g / Math.abs(d[0]) : Infinity, dty = sj ? g / Math.abs(d[1]) : Infinity;
+      while (true) {
+        const L = zellen[j * nx + i];
+        for (let q = 0; q < L.length; q++) {
+          const k = L[q]; if (stempel[k] === lauf) continue; stempel[k] = lauf;
+          const sg = hindernisse[k], t = strahlSegment(o, d, sg[0], sg[1]);
+          // gleiche Regel wie isovist: kleinstes t, bei Gleichstand das Segment mit dem kleineren Index
+          if (t < tmin || (t === tmin && hit >= 0 && k < hit)) { tmin = t; hit = k; }
+        }
+        const aus = Math.min(tx, ty);
+        if (tmin <= aus) break;
+        if (tx < ty) { i += si; tx += dtx; } else { j += sj; ty += dty; }
+        if (i < 0 || j < 0 || i >= nx || j >= ny) break;
+      }
+      laengen[s] = tmin; treffer[s] = hit; winkelListe[s] = a;
+      punkte.push([o[0] + d[0] * tmin, o[1] + d[1] * tmin]);
+    }
+    return { o, punkte, laengen, treffer, winkel: winkelListe, voll, reichweite: r, hindernisse };
+  }
+
   /** Kenngrößen eines Isovists – die 17 Werte der DeCodingSpaces-Komponente (Liste „Isovist Properties“).
       Abgeglichen mit docs/visibility.md und src/DecodingSpaces.Core/Visibility/Isovist.cs der DeCodingSpaces-Toolbox
       (GPL-3.0; Definitionen abgelesen, kein Code übernommen): Fläche, Umfang, Kompaktheit 4πA/U², Verdeckung (Länge der
@@ -189,6 +287,21 @@
     ["skewness", "Skewness", "Schiefe"], ["dispersion", "Dispersion", "Dispersion"], ["elongation", "Elongation", "Streckung"],
     ["driftMagnitude", "Drift Magnitude", "Drift (Betrag)"], ["driftAngle", "Drift Angle", "Drift (Winkel)"]
   ];
+  /** Fünf Kenngrößen ohne prüfbare Definition in der DeCodingSpaces-Toolbox v2 (dort gestrichen): die Apps rechnen sie nach eigenen
+      Definitionen (siehe QUELLE.md der Isovist-Apps) und kennzeichnen sie in Auswahl, Kennzahlen und Beschriftung mit „*“
+      (Herkunft: katalog/isovist-punkt, -feld, -pfad) */
+  const ISOVIST_EIGENE_DEFINITION = ["areaDist", "circularity", "convexDeficiency", "dispersion", "elongation"];
+  const ISOVIST_FUSSNOTE = { de: "* eigene Definition (in Toolbox v2 gestrichen)", en: "* own definition (dropped in toolbox v2)" };
+  /** Name einer Kenngröße {de, en}; bei eigener Definition mit angehängtem „ *“ (geschütztes Leerzeichen, damit der Stern nicht allein umbricht) */
+  function isovistMassName(k) {
+    const e = ISOVIST_MASSE.find(m => m[0] === k), s = ISOVIST_EIGENE_DEFINITION.includes(k) ? " *" : "";
+    return { de: e[2] + s, en: e[1] + s };
+  }
+  /** Eintrag einer Auswahlliste (Sim-Parameter): {wert, name: {de: „Name (English) *“, en: „English *“}} */
+  function isovistMassOption(k) {
+    const e = ISOVIST_MASSE.find(m => m[0] === k), s = ISOVIST_EIGENE_DEFINITION.includes(k) ? " *" : "";
+    return { wert: k, name: { de: `${e[2]} (${e[1]})${s}`, en: e[1] + s } };
+  }
   /** Hängen zwei Hindernissegmente zusammen (gemeinsamer Endpunkt oder Endpunkt auf dem anderen Segment)? */
   function verbunden(s, t, tol = 1e-6) {
     return abstandSegment(s[0], t[0], t[1]).d <= tol || abstandSegment(s[1], t[0], t[1]).d <= tol ||
@@ -459,18 +572,22 @@
 
   /** Kürzeste Wege im gerichteten Segmentgraphen vom Segment s aus (beide Zustände mit Kosten 0). Rangfolge (Kosten, Schritte):
       unter gleich teuren Wegen gewinnt der mit weniger Schritten; gleichrangige Wege werden gezählt (σ). opt.ziel: Abbruch, sobald
-      ein Zustand dieses Segments fest ist. → {s, U (Kosten in Auflösungseinheiten), T (Schritte), meter (kürzeste Länge unter den
-      optimalen Wegen), sigma, P (Vorgänger je Zustand), S (Zustände in fester Reihenfolge)} */
+      ein Zustand dieses Segments fest ist. opt.radius (m, Voreinstellung Infinity = global Rn): metrische Länge Mitte zu Mitte;
+      ein Schritt, der die Länge über den Radius brächte, wird nicht gegangen (Radius beschneidet die Suche, measures.md §3;
+      Herkunft: katalog/multiplikatoreffekt). → {s, U (Kosten in Auflösungseinheiten), T (Schritte), meter (kürzeste Länge unter
+      den optimalen Wegen), sigma, P (Vorgänger je Zustand), S (Zustände in fester Reihenfolge), fest} */
   function zustandsSuche(G, s, opt = {}) {
     const z = G.z, U = new Float64Array(z).fill(Infinity), T = new Int32Array(z).fill(0x7fffffff), Lm = new Float64Array(z).fill(Infinity);
     const sigma = new Float64Array(z), P = new Array(z), fest = new Uint8Array(z), S = [], H = new Heap();
+    const r = opt.radius == null ? Infinity : opt.radius;
     for (const st of [2 * s, 2 * s + 1]) { U[st] = 0; T[st] = 0; Lm[st] = 0; sigma[st] = 1; P[st] = []; H.push(0, st, 0); }
     while (!H.leer) {
       const v = H.pop(); if (fest[v]) continue; fest[v] = 1; S.push(v);
       if (opt.ziel != null && (v >> 1) === opt.ziel) break;
       for (const [w, c, meter] of G.nb[v]) {
         if (fest[w]) continue;
-        const u = U[v] + Math.round(c / KOSTEN_AUFLOESUNG), t = T[v] + 1, l = Lm[v] + meter;
+        const l = Lm[v] + meter; if (l > r) continue;
+        const u = U[v] + Math.round(c / KOSTEN_AUFLOESUNG), t = T[v] + 1;
         if (u < U[w] || (u === U[w] && t < T[w])) { U[w] = u; T[w] = t; Lm[w] = l; sigma[w] = sigma[v]; P[w] = [v]; H.push(u, w, t); }
         else if (u === U[w] && t === T[w]) { sigma[w] += sigma[v]; P[w].push(v); if (l < Lm[w]) Lm[w] = l; }
       }
@@ -506,9 +623,16 @@
   /** Betweenness (Choice) im gerichteten Segmentgraphen für das Ursprungssegment s, gewichtet mit gQ (Ursprung) und gZ (Ziel) je
       Segment, addiert in bc (je Segment). Brandes-Verfahren über die Zustände; gleichrangige Wege teilen sich den Durchgang (σ).
       opt.enden = false (Toolbox v2, measures.md §4: Start- und Zielsegment zählen nicht) oder true (Legacy 2020/21,
-      review-2026-11.md: „both endpoints count“ – jedes Paar zählt auch für Start- und Zielsegment). → Ergebnis der zustandsSuche */
+      review-2026-11.md: „both endpoints count“ – jedes Paar zählt auch für Start- und Zielsegment). opt.radius wie zustandsSuche.
+      → Ergebnis der zustandsSuche */
   function segmentBetweennessVon(G, s, gQ, gZ, bc, opt = {}) {
-    const R = zustandsSuche(G, s), ws = gQ ? gQ[s] : 1;
+    const R = zustandsSuche(G, s, opt.radius == null ? {} : { radius: opt.radius });
+    segmentBetweennessAus(G, R, gQ, gZ, bc, opt);
+    return R;
+  }
+  /** wie segmentBetweennessVon, aber aus einer schon gerechneten zustandsSuche R (Ursprungssegment R.s) */
+  function segmentBetweennessAus(G, R, gQ, gZ, bc, opt = {}) {
+    const s = R.s, ws = gQ ? gQ[s] : 1;
     if (ws === 0) return R;
     const ende = new Float64Array(G.z), delta = new Float64Array(G.z);
     for (let t = 0; t < G.n; t++) {
@@ -526,11 +650,12 @@
     return R;
   }
 
-  /** Nähe-Maße (Closeness) des Segments s (Toolbox v2, measures.md §4, ohne Radius): NC = erreichte Segmente + 1, TD = Σ Kosten,
+  /** Nähe-Maße (Closeness) des Segments s (Toolbox v2, measures.md §4): NC = erreichte Segmente + 1, TD = Σ Kosten,
       MD = TD / (NC − 1), Integration = NC² / TD, NAIN = NC^1.2 / (TD + 2), harmonisch = Σ 1 / Länge (Mitte zu Mitte);
-      dazu dcs2020 = (NC − 1) / TD („n/Σd“ der Legacy-Komponenten, review-2026-11.md) */
-  function segmentClosenessVon(G, s) {
-    const A = segmentAbstaende(G, zustandsSuche(G, s));
+      dazu dcs2020 = (NC − 1) / TD („n/Σd“ der Legacy-Komponenten, review-2026-11.md). opt.radius wie zustandsSuche
+      (erreicht = innerhalb des Radius; ohne Radius global) */
+  function segmentClosenessVon(G, s, opt = {}) {
+    const A = segmentAbstaende(G, zustandsSuche(G, s, opt.radius == null ? {} : { radius: opt.radius }));
     let n = 0, td = 0, h = 0;
     for (let t = 0; t < G.n; t++) { if (t === s || A.kosten[t] === Infinity) continue; n++; td += A.kosten[t]; if (A.meter[t] > 0) h += 1 / A.meter[t]; }
     const nc = n + 1;
@@ -540,8 +665,10 @@
 
   return { EPS, sub, add, mul, dot, kreuz, laenge, abstand, lerp, norm, abstandSegment,
            flaecheS, flaeche, umfang, schwerpunkt, punktInPoly, kanten, bbox, bereinige, konvexeHuelle, schneideHalbebene, teilePolygon, geradeSchnittPoly, versetze,
-           strahlSegment, segmentSchnitt, isovist, isovistPolygon, ISOVIST_MASSE, isovistMasse, voronoi,
+           polylinienLaenge, naechsterAnteil, rundeEcken,
+           strahlSegment, segmentSchnitt, isovist, isovistPolygon, segmentRechteck, segmentRaster, isovistRaster,
+           ISOVIST_MASSE, ISOVIST_EIGENE_DEFINITION, ISOVIST_FUSSNOTE, isovistMassName, isovistMassOption, isovistMasse, voronoi,
            netz, adjazenz, Heap, dijkstra, weg, floydWarshall, floydSchritt, floydWeg, betweennessVon, segmentGraph,
            naechstesSegment, richtungsGraph, KOSTEN_AUFLOESUNG, zustandsSuche, besteZustaende, segmentAbstaende, zustandsWeg,
-           segmentBetweennessVon, segmentClosenessVon };
+           segmentBetweennessVon, segmentBetweennessAus, segmentClosenessVon };
 });

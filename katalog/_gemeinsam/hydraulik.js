@@ -1,5 +1,8 @@
-/* Rohrnetzberechnung im Browser (ohne DOM, in Node testbar) – gemeinsamer Löser der Apps „Wasserleitung“ und „Wassernetz“
-   (die Datei liegt in beiden App-Ordnern gleich; Vorschlag: nach katalog/_gemeinsam/hydraulik.js verschieben).
+/* Parametric Planning Catalogue · gemeinsamer Rohrnetzlöser (ohne DOM, in Node testbar)
+   Herkunft: entstanden für die Apps „Wasserleitung“ (wasserleitung) und „Wassernetz“ (wassernetz), seit 23.11.2026 hier gemeinsam.
+   Node: require("../_gemeinsam/hydraulik.js"); Browser: <script src="../_gemeinsam/hydraulik.js"> → globales Objekt Hydraulik.
+   Tests: test/hydraulik.test.mjs mit den Prüfnetzen test/Testnet.inp und test/hydroanalysis1.inp (unverändert aus dem
+   Parametric Planning Catalogue, MIT, Copyright (c) 2020 infar-buw).
    Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0
 
    Verfahren wie EPANET 2 (Rossman 2000, Anhang D; Quelltext MIT-lizenziert, https://github.com/OpenWaterAnalytics/EPANET):

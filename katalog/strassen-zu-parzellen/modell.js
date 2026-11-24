@@ -10,12 +10,13 @@
    Ein Schritt = ein Plot, dessen Neigung bestimmt wird. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/flaechen.js") : wurzel.Flaechen);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Flaechen) {
   "use strict";
-  const { sub, add, mul, kreuz, norm, abstand } = Geo;
+  const { sub, add, mul, norm, abstand } = Geo;
 
   /** Voreinstellungen der .gh-Datei: methode = Wertliste „Plot Division“ (DeCodingSpaces (fast)), weightSlope = WeightSlope 1 [0..1].
       Ergänzt: toleranz (Toleranz der Flächenteilung, entspricht der Dokumenttoleranz in Rhino), luecken (Anteil ungenauer
@@ -51,82 +52,13 @@
     return { G, strassen: S, luecken, b: GROESSE, h: GROESSE };
   }
 
-  /* ---------------------------------------------------------------- Network to Segments */
-  /** Strecken an allen Schnitt- und Berührpunkten teilen (Split = true): Kreuzungen und T-Stöße (Endpunkt auf einer anderen Strecke) */
-  function teileAnSchnitten(S, eps = 1e-9) {
-    const T = S.map(() => []), bb = S.map(s => [Math.min(s[0][0], s[1][0]), Math.min(s[0][1], s[1][1]), Math.max(s[0][0], s[1][0]), Math.max(s[0][1], s[1][1])]);
-    for (let i = 0; i < S.length; i++) for (let j = i + 1; j < S.length; j++) {
-      const A = bb[i], C = bb[j];
-      if (A[0] > C[2] + 1e-6 || C[0] > A[2] + 1e-6 || A[1] > C[3] + 1e-6 || C[1] > A[3] + 1e-6) continue;
-      const a = S[i][0], r = sub(S[i][1], a), c = S[j][0], s = sub(S[j][1], c), den = kreuz(r, s);
-      if (Math.abs(den) < 1e-12) continue;
-      const w = sub(c, a), t = kreuz(w, s) / den, u = kreuz(w, r) / den;
-      if (t < -eps || t > 1 + eps || u < -eps || u > 1 + eps) continue;
-      if (t > eps && t < 1 - eps) T[i].push(t);
-      if (u > eps && u < 1 - eps) T[j].push(u);
-    }
-    const out = [];
-    S.forEach((s, i) => {
-      const ts = [0].concat(T[i].sort((x, y) => x - y), [1]);
-      for (let k = 0; k < ts.length - 1; k++) {
-        const p = Geo.lerp(s[0], s[1], ts[k]), q = Geo.lerp(s[0], s[1], ts[k + 1]);
-        if (abstand(p, q) > 1e-6) out.push([p, q]);
-      }
-    });
-    return out;
-  }
-  /** offene Enden (Endpunkte, an denen keine andere Strecke anschließt) um tol verlängern, damit knapp verfehlte Anschlüsse
-      die Nachbarstraße noch treffen; Enden an Kreuzungen und Knicken bleiben, wo sie sind */
-  function verlaengere(S, tol) {
-    const N = Geo.netz(S, EXAKT), grad = new Int32Array(N.knoten.length);
-    N.kanten.forEach(e => { grad[e.a]++; grad[e.b]++; });
-    const offen = new Set(); N.knoten.forEach((q, v) => { if (grad[v] === 1) offen.add(Math.round(q[0] / EXAKT) + "," + Math.round(q[1] / EXAKT)); });
-    const istOffen = q => offen.has(Math.round(q[0] / EXAKT) + "," + Math.round(q[1] / EXAKT));
-    return S.map(s => {
-      const d = norm(sub(s[1], s[0]));
-      return [istOffen(s[0]) ? sub(s[0], mul(d, tol)) : s[0], istOffen(s[1]) ? add(s[1], mul(d, tol)) : s[1]];
-    });
-  }
-
-  /* ---------------------------------------------------------------- Polygons from lines */
-  /** Geschlossene Flächen eines ebenen Liniennetzes N = {knoten, kanten: [{a, b}]}: Sackgassen werden wiederholt abgeschnitten,
-      dann läuft man über Halbkanten und biegt an jedem Knoten in die nächste Kante im Uhrzeigersinn ab (kleinster Zyklus links
-      der Laufrichtung). Begrenzte Flächen haben positive Fläche (Geo.flaecheS), der Außenrand jedes Netzteils negative – er entfällt.
-      Doppelt durchlaufene Brücken werden aus dem Zyklus genommen. → [{poly, kanten}] */
-  function flaechenAusLinien(N, minFlaeche = 1e-6) {
-    const n = N.knoten.length, m = N.kanten.length, adj = Geo.adjazenz(N), grad = new Int32Array(n), aktiv = new Uint8Array(m).fill(1);
-    N.kanten.forEach(e => { grad[e.a]++; grad[e.b]++; });
-    const stapel = []; for (let v = 0; v < n; v++) if (grad[v] === 1) stapel.push(v);
-    while (stapel.length) {
-      const v = stapel.pop(); if (grad[v] !== 1) continue;
-      for (const { j, k } of adj[v]) if (aktiv[k]) { aktiv[k] = 0; grad[v]--; grad[j]--; if (grad[j] === 1) stapel.push(j); break; }
-    }
-    const rund = N.knoten.map((p, v) => adj[v].filter(x => aktiv[x.k]).map(x => ({ j: x.j, k: x.k, w: Math.atan2(N.knoten[x.j][1] - p[1], N.knoten[x.j][0] - p[0]) }))
-      .sort((a, b) => a.w - b.w));
-    const lage = rund.map(L => { const M = new Map(); L.forEach((x, i) => M.set(x.k, i)); return M; });
-    const halb = (u, k) => 2 * k + (N.kanten[k].a === u ? 0 : 1), besucht = new Uint8Array(2 * m), out = [];
-    for (let k0 = 0; k0 < m; k0++) {
-      if (!aktiv[k0]) continue;
-      for (const u0 of [N.kanten[k0].a, N.kanten[k0].b]) {
-        if (besucht[halb(u0, k0)]) continue;
-        const Z = []; let u = u0, k = k0, sicher = 0;
-        do {
-          besucht[halb(u, k)] = 1; Z.push({ v: u, k });
-          const e = N.kanten[k], v = e.a === u ? e.b : e.a, L = rund[v], nx = L[(lage[v].get(k) - 1 + L.length) % L.length];
-          u = v; k = nx.k;
-        } while (halb(u, k) !== halb(u0, k0) && ++sicher <= 2 * m);
-        let weiter = true;
-        while (weiter && Z.length > 2) {
-          weiter = false;
-          for (let i = 0; i < Z.length; i++) { const j = (i + 1) % Z.length; if (Z[i].k === Z[j].k) { Z.splice(Math.max(i, j), 1); Z.splice(Math.min(i, j), 1); weiter = true; break; } }
-        }
-        if (Z.length < 3) continue;
-        const poly = Z.map(x => N.knoten[x.v]);
-        if (Geo.flaecheS(poly) > minFlaeche) out.push({ poly, kanten: Z.map(x => x.k) });
-      }
-    }
-    return out;
-  }
+  /* ---------------------------------------------------------------- Network to Segments, Polygons from lines */
+  /** Strecken an allen Schnitt- und Berührpunkten teilen (Split = true): Flaechen.teileAnSchnitten (_gemeinsam/flaechen.js) */
+  const teileAnSchnitten = Flaechen.teileAnSchnitten;
+  /** offene Enden um tol verlängern (Knoten näher als 1 cm sind einer): Flaechen.verlaengere */
+  const verlaengere = (S, tol) => Flaechen.verlaengere(S, tol, EXAKT);
+  /** Geschlossene Flächen eines ebenen Liniennetzes (Polygons from lines): Flaechen.flaechenAusLinien */
+  const flaechenAusLinien = Flaechen.flaechenAusLinien;
 
   /* ---------------------------------------------------------------- Plot Division */
   /** „DeCodingSpaces (fast)“: Polygons from lines auf den geteilten Segmenten; nur exakt gemeinsame Endpunkte verbinden. */

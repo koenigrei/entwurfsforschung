@@ -17,6 +17,7 @@ katalog/_gemeinsam/        gemeinsam für die Apps des Parametric Planning Catal
   geo.js                   Geo: Polygone, Strahlen, Isovist, Voronoi, Netze, Dijkstra, Floyd–Warshall, Betweenness
   szenen.js                Szenen: Stadt (Straßen, Blöcke, Gebäude, Platz) und Gelände (Höhenraster) mit fester Saat
   karte.js                 Karte: Farbskalen, Polygone, Pfeile, Gelände mit Schummerung und Höhenlinien
+  hierarchie.js            Hierarchie: Gewichte (Custom edge weights), gewichtete Betweenness, Bereiche und Klassifizierung der Straßenhierarchie
 katalog/strassenhierarchie/
   index.html               statische Seite; lädt die Rahmen-Skripte, modell.js, app.js
   modell.js                reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
@@ -26,7 +27,7 @@ katalog/strassenhierarchie/
 
 ## Regeln
 
-1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js` und `szenen.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
+1. **modell.js bleibt ohne DOM** (`document`, `window`, `canvas` sind tabu) und ohne Abhängigkeiten außer `../_gemeinsam/geo.js`, `szenen.js` und `hierarchie.js`. Zufall nur über die übergebene Funktion `zufall` (feste Saat → gleicher Lauf). Kein `Math.random()`.
 2. **Jede Regeländerung bekommt einen Test** in `test/`. Vor dem Abschluss: `node --test` im App-Ordner muss grün sein.
 3. **Abweichungen vom Original** in `QUELLE.md` unter „Bewusst geändert“ eintragen.
 4. **Keine Inhalte fremder Server**: keine CDNs, keine Webfonts von Dritten, keine iframes.
@@ -43,11 +44,11 @@ katalog/strassenhierarchie/
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
 | `strassennetz(zufall, opt)` | Beispielnetz: verzogenes Raster aus `Szenen.stadt` mit Rand und vier Zufahrten vom Bildrand |
 | `baueNetz(z, p)` | `Geo.netz` (Fangabstand = Snap threshold) → `Geo.richtungsGraph` (gerichteter Segmentgraph, Length/Angular Coefficient, Definition dcs2020/standard) → Gewichte; Analyse leer |
-| `naechstesSegment(N, q)`, `clusterListe(N, punkte, gewicht, grund)` | nächstes Segment (`Geo.naechstesSegment`); eine Liste des Clusters „Custom edge weights“ (Gewicht ersetzt das Grundgewicht) |
-| `gewichte(N, poi, eingang, p)` | Ursprungs- = Zielgewichte je Segment (Summe der beiden Cluster-Listen: Eingänge, PoI) |
-| `betweennessVon(G, s, gQ, gZ, bc, enden)`, `mitEnden(p)` | Beitrag eines Ursprungssegments (`Geo.segmentBetweennessVon`, Brandes über beide Fahrtrichtungen; bei Definition dcs2020 zählen Start- und Zielsegment mit) |
-| `bereiche(p)`, `findeBereich(B, x)` | Consecutive Domains aus den Klassengewichten × Faktor; Find Domain (nicht strikt) |
-| `klassifiziere(bc, p)` | Logarithmus → Remap 0…1 → Klasse 0 Tertiary, 1 Secondary, 2 Primary (−1 keine) |
+| `naechstesSegment(N, q)`, `clusterListe(N, punkte, gewicht, grund)` | nächstes Segment (`Geo.naechstesSegment`); eine Liste des Clusters „Custom edge weights“ (Gewicht ersetzt das Grundgewicht; `Hierarchie.clusterListe`) |
+| `gewichte(N, poi, eingang, p)` | Ursprungs- = Zielgewichte je Segment (Summe der beiden Cluster-Listen: Eingänge, PoI) (aus `Hierarchie`, `../_gemeinsam/hierarchie.js`) |
+| `betweennessVon(G, s, gQ, gZ, bc, enden)`, `mitEnden(p)` | Beitrag eines Ursprungssegments (`Geo.segmentBetweennessVon`, Brandes über beide Fahrtrichtungen; bei Definition dcs2020 zählen Start- und Zielsegment mit) (aus `Hierarchie`, `../_gemeinsam/hierarchie.js`) |
+| `bereiche(p)`, `findeBereich(B, x)` | Consecutive Domains aus den Klassengewichten × Faktor; Find Domain (nicht strikt) (aus `Hierarchie`, `../_gemeinsam/hierarchie.js`) |
+| `klassifiziere(bc, p)` | Logarithmus → Remap 0…1 → Klasse 0 Tertiary, 1 Secondary, 2 Primary (−1 keine) (aus `Hierarchie`, `../_gemeinsam/hierarchie.js`) |
 | `rechneAlles(z, p)`, `leere(z, p)`, `fertig(z)` | ganze Analyse auf einmal; Analyse leeren (t = 0, Punkte bleiben); alle Ursprünge gerechnet? |
 | `punkteGeaendert(z, p)`, `punktBei(z, q, r)` | nach Ändern von PoI/Eingängen neu gewichten (und ggf. rechnen); Punkt im Fangradius |
 | `bilanz(z)` | Anzahl und Länge je Klasse |

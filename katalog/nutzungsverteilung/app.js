@@ -155,7 +155,7 @@
       const px = F.px, nP = z.parz.length, pr = Math.round(p.profil), art = p.darstellung;
       // Hintergrund: Gelände (Schummerung, Höhenlinien) auf die Fläche des Plans beschränkt
       ctx.save(); ctx.beginPath(); ctx.rect(0, 0, z.b, z.h); ctx.clip();
-      if (p.gelaende) { Karte.gelaende(ctx, z.sz.G, F, { hoehenlinien: 5 }); ctx.globalAlpha = 0.45; ctx.fillStyle = F.flaeche; ctx.fillRect(0, 0, z.b, z.h); ctx.globalAlpha = 1; }
+      if (p.gelaende) { Karte.gelaendeGespeichert(ctx, z.sz.G, F, { hoehenlinien: 5 }); ctx.globalAlpha = 0.45; ctx.fillStyle = F.flaeche; ctx.fillRect(0, 0, z.b, z.h); ctx.globalAlpha = 1; }
       else { ctx.fillStyle = F.flaeche; ctx.fillRect(0, 0, z.b, z.h); }
       // Parzellen
       const mxA = Math.max(1e-12, ...z.att[pr]);              // Attraktivität kann nach (x − min)/max über 1 liegen → für die Farbe auf 0…1

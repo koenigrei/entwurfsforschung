@@ -13,10 +13,11 @@
    Secondary, Primary, Find Domain) → Tertiary / Secondary / Primary Street. Ein Schritt = ein Ursprungssegment. */
 (function (wurzel, fabrik) {
   const node = typeof module === "object" && module.exports;
-  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen);
+  const M = fabrik(node ? require("../_gemeinsam/geo.js") : wurzel.Geo, node ? require("../_gemeinsam/szenen.js") : wurzel.Szenen,
+                   node ? require("../_gemeinsam/hierarchie.js") : wurzel.Hierarchie);
   if (node) module.exports = M;
   else wurzel.Modell = M;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (Geo, Szenen, Hierarchie) {
   "use strict";
 
   /** Voreinstellungen der .gh-Datei (Schieberegler: Wert [Bereich]):
@@ -28,7 +29,7 @@
                   "standard" = DeCodingSpaces-Toolbox v2 (kL·m + kW·θ/90°, Start und Ziel zählen nicht; docs/measures.md) */
   const STANDARD = { definition: "dcs2020", fang: 2, kL: 0.5, kW: 0.5, grund: 1, wEingang: 1, wPoi: 0.5, wTertiaer: 1, wSekundaer: 1, wPrimaer: 1, faktor: 1.001,
                      darstellung: "hierarchie", gebaeude: true };
-  const KLASSEN = ["tertiary", "secondary", "primary"];
+  const KLASSEN = Hierarchie.KLASSEN;
 
   /** Straßennetz der Beispielstadt: verzogenes Raster (Szenen.stadt) mit Rand, dazu vier Zufahrten vom Bildrand (je zwei Segmente).
       → {szene, segmente, zufahrten: [{rand: [x, y], segmente: [..]}], b, h} */
@@ -54,63 +55,11 @@
     return { szene, segmente, zufahrten, b: o.b, h: o.h };
   }
 
-  /** Index des Segments, das dem Punkt q am nächsten liegt (wie Curve Closest Point + Sort List im Cluster „Custom edge weights“) */
-  const naechstesSegment = (N, q) => Geo.naechstesSegment(N, q);
-
-  /** eine Liste des Clusters „Custom edge weights“: Grundgewicht (general_weight) für jedes Segment, das Gewicht für die Segmente,
-      die einem der Punkte am nächsten liegen, ersetzt es (C#-Skript im Cluster; je Segment zwei Einträge für beide Richtungen,
-      die „Cull Nth“ mit Frequenz 2 nach der Addition wieder auf einen je Segment kürzt) */
-  function clusterListe(N, punkte, gewicht, grund) {
-    const w = new Float64Array(N.kanten.length).fill(grund);
-    for (const q of punkte) { const k = naechstesSegment(N, q); if (k >= 0) w[k] = gewicht; }
-    return w;
-  }
-  /** Ursprungs- und Zielgewichte je Segment: Addition der beiden Cluster-Listen (Stadteingänge mit Weight City Entrance × Anzahl
-      Segmente, PoI mit Weight Point Of Interest × Anzahl Segmente) */
-  function gewichte(N, poi, eingang, p) {
-    const m = N.kanten.length, a = clusterListe(N, eingang, p.wEingang * m, p.grund), b = clusterListe(N, poi, p.wPoi * m, p.grund);
-    for (let i = 0; i < m; i++) a[i] += b[i];
-    return a;
-  }
-
-  /** Beitrag eines Ursprungssegments s zur gewichteten Betweenness (Geo.segmentBetweennessVon, Brandes über beide Fahrtrichtungen).
-      enden = true (Legacy, Voreinstellung): Start- und Zielsegment eines Weges zählen mit – so werden die Zufahrten an den
-      Stadteingängen wie im Katalogbild zu Hauptstraßen; laut Toolbox-Doku (review-2026-11.md) zählte die alte Komponente so. */
-  function betweennessVon(G, s, gQ, gZ, bc, enden = true) {
-    if (gQ[s] === 0) return null;
-    return Geo.segmentBetweennessVon(G, s, gQ, gZ, bc, { enden });
-  }
-  const mitEnden = p => p.definition !== "standard";
-
-  /** Grenzen der drei Bereiche: Merge(0, Tertiary, Secondary, Primary) / Summe × faktor → Consecutive Domains (additiv).
-      → [[a0, b0], [a1, b1], [a2, b2]] für Tertiary, Secondary, Primary; null, wenn alle Gewichte 0 sind (Division durch 0). */
-  function bereiche(p) {
-    const w = [p.wTertiaer, p.wSekundaer, p.wPrimaer], s = w[0] + w[1] + w[2];
-    if (!(s > 0)) return null;
-    const c = [0]; for (let i = 0; i < 3; i++) c.push(c[i] + w[i] / s * p.faktor);
-    return [[c[0], c[1]], [c[1], c[2]], [c[2], c[3]]];
-  }
-  /** Find Domain (Strict = false): erster Bereich, der x einschließt, sonst −1 */
-  function findeBereich(B, x) {
-    if (!B) return -1;
-    for (let i = 0; i < B.length; i++) if (x >= B[i][0] - 1e-12 && x <= B[i][1] + 1e-12) return i;
-    return -1;
-  }
-
-  /** Logarithmus → Bounds/Remap auf 0…1 → Find Domain. Segmente mit Betweenness 0 (Logarithmus undefiniert) erhalten den
-      kleinsten Wert. → {wert: Float64Array (0…1), klasse: Int8Array (0 tertiary, 1 secondary, 2 primary, −1 keine)} */
-  function klassifiziere(bc, p) {
-    const n = bc.length, L = new Float64Array(n), wert = new Float64Array(n), klasse = new Int8Array(n).fill(-1);
-    let mn = Infinity, mx = -Infinity;
-    for (let i = 0; i < n; i++) if (bc[i] > 0) { L[i] = Math.log(bc[i]); if (L[i] < mn) mn = L[i]; if (L[i] > mx) mx = L[i]; }
-    if (mn === Infinity) return { wert, klasse };            // noch nichts gerechnet
-    const B = bereiche(p), sp = mx - mn;
-    for (let i = 0; i < n; i++) {
-      wert[i] = bc[i] > 0 && sp > 1e-12 ? (L[i] - mn) / sp : 0;
-      klasse[i] = findeBereich(B, wert[i]);
-    }
-    return { wert, klasse };
-  }
+  /* Straßenhierarchie: Gewichte (Cluster „Custom edge weights“), gewichtete Betweenness (Geo.segmentBetweennessVon; mit Enden =
+     Legacy: Start- und Zielsegment zählen mit – so werden die Zufahrten an den Stadteingängen wie im Katalogbild zu Hauptstraßen),
+     Bereiche, Find Domain und Klassifizierung stehen in ../_gemeinsam/hierarchie.js */
+  const naechstesSegment = Geo.naechstesSegment;
+  const { clusterListe, gewichte, betweennessVon, mitEnden, bereiche, findeBereich, klassifiziere } = Hierarchie;
 
   /** Neuer Zustand: Beispielstadt, zwei Stadteingänge (am Anfang der Zufahrten links und rechts), ein PoI auf dem Platz in der Mitte */
   function erzeuge(param, zufall) {
@@ -128,7 +77,7 @@
     baueGraph(z, p);
   }
   function baueGraph(z, p) {
-    z.G = Geo.richtungsGraph(z.N, { kL: p.kL, kW: p.kW, norm: p.definition === "standard" ? "standard" : "dcs2020" });
+    z.G = Hierarchie.graph(z.N, p);
     neueGewichte(z, p);
   }
   function neueGewichte(z, p) {
