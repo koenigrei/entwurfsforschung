@@ -193,7 +193,7 @@ def auswahl_daten() -> dict[str, Path]:
     """Arbeitsdaten des Laufs in ~/autopublish/daten (ohne Logbuch und Status: die gehören dem Server)."""
     dateien = {"konfiguration.json": AUTOPUBLISH / "konfiguration.json",
                "konfiguration.webspace.json": AUTOPUBLISH / "konfiguration.webspace.json"}
-    for rel in git_dateien("stile", "projekte", "texte"):
+    for rel in git_dateien("stile", "projekte", "texte", "advent"):   # advent: Advents-Plan (24.11.2026)
         if rel.endswith(".json") and (AUTOPUBLISH / rel).is_file():
             dateien[rel] = AUTOPUBLISH / rel
     if (AUTOPUBLISH / "protokoll" / "entfernen.json").is_file():   # nach hole_vormerkungen: lokal ist die Vereinigung
