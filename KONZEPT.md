@@ -35,6 +35,7 @@ entwurfsforschung.de wird das KI Lab für Reinhard Königs KI-Experimente: eine 
 | `pruefe.py` | prüft den Bau: jede Kachel hat Bild und Ziel, jedes Ziel existiert, keine externen Schriften |
 | `simulationen/` | Frühe Simulationen (21.11.2026): alte Programme (Delphi, NetLogo, AutoCAD-VBA, Flash) als Web-Apps; Bestandsliste `bestand.json`, Rahmen `_gemeinsam/`, Vorlage `_vorlage/`, Anleitung `REZEPT.md`; gebaut nach `lab/simulationen/` mit `quellcode.zip` je App |
 | `katalog/` | Parametric Planning Catalogue (23.11.2026): Grasshopper-Module des Katalogs (InfAR, Bauhaus-Universität Weimar, 2020, MIT) als Web-Apps; `bestand.json` mit Stand aller 27 Module, `_gemeinsam/` (Geometrie, Szenen, Zeichenhilfen), Anleitung `REZEPT.md`; gebaut nach `lab/parametric-planning-catalogue/`. Lab-Kachel mit `vorletzt: true` steht immer direkt vor „Frühe Simulationen“ |
+| `wissensbasis/` | Wissensbasis (25.11.2026): Seite `lab/wissensbasis/` (DE/EN aus `seite.de.md`/`seite.en.md`), wie man das KI Lab mit einem Coding-Agenten für neue Projekte nutzt; Paket `KI-Lab_Wissensbasis.zip` und Einzeldateien aus `paket.py` (Datenschutzprüfung beim Bau), Kachelbild aus `kachelbild.py`, eigene `METHODE.md`. Kachel mit `anfang: true` steht in allen Sortierungen vor dem Design Explorer |
 
 ## Gestaltung
 

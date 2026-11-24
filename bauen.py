@@ -477,7 +477,7 @@ def bauen(alt="/"):
         if p.get("nur_kachel"):                                        # nur Kachel, Inhalt pflegt ein anderes Werkzeug (Design Explorer: sync.py).
             if os.path.exists(z):                                      # Kein Ordner in site/, sonst ersetzt deploy.py den Ordner auf dem Server.
                 sys.exit(f"{p['ziel']}: Projekt ist nur_kachel, darf in site/ nicht vorkommen")
-            lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
+            lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "anfang": bool(p.get("anfang")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
             continue
         os.makedirs(z, exist_ok=True)
         if p.get("lernbereich"):                                       # Lernbereich des KI Lernlabors als eigene Seite (Konzeptstudie, Nutzer 23.11.2026)
@@ -495,7 +495,7 @@ def bauen(alt="/"):
                 lokal(os.path.join(z, ziel), zur_wurzel, mhref, stand_leiste(stand_text([mq]), stand_text([os.path.join(Q, q) for q in p["dateien"].values()])))
         if p["start"] != "index.html":
             open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"], q=(f'<link rel="code-repository" href="{p["quellcode"]}"><link rel="license" href="https://creativecommons.org/licenses/by/4.0/">' if p.get("quellcode") else "")))
-        lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
+        lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "anfang": bool(p.get("anfang")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
     seite(vorlage, os.path.join(SITE, "index.html"), FILTER.format(id="lab", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": lab}, ensure_ascii=False)) + "\n" + UEBER,
           "", "Entwurfsforschung · KI Lab", "lab", alt)
     for p, mq in methoden:                                             # lab/methode/<id>/ und die Übersicht lab/methode/
@@ -565,12 +565,85 @@ def bauen(alt="/"):
     # ---------------------------------------------------------------- KREMLAS als eigenes Projekt (kremlas/, 23.11.2026)
     kremlas()
 
+    # ---------------------------------------------------------------- Wissensbasis (wissensbasis/, 25.11.2026): Anleitung und Paket für Coding-Agenten
+    wissensbasis_seite(vorlage, alt, cfg)
+
     # ---------------------------------------------------------------- Impressum (Platzhalter)
     seite(vorlage, os.path.join(SITE, "impressum", "index.html"),
           open(os.path.join(HIER, "impressum.html"), encoding="utf-8").read(),
           "../", "Impressum · Entwurfsforschung", "", alt)
     n = sum(len(f) for _, _, f in os.walk(SITE))
     print(f"site/ gebaut: {len(lab)} Projekte, {len(karten)} Archiveinträge, {nsim} Simulationen, {nkat} Katalog-Apps, {n} Dateien")
+
+
+def wissensbasis_seite(vorlage, alt, cfg):
+    """lab/wissensbasis/ (Nutzer 25.11.2026): wie man das KI Lab mit einem Coding-Agenten als Wissensbasis für neue Projekte nutzt.
+    Texte in wissensbasis/seite.de.md und seite.en.md (Platzhalter {{PROJEKTE}}, {{DATEIEN}}, {{ANPASSUNGEN}}, {{STAND}}); Paket
+    KI-Lab_Wissensbasis.zip und Einzeldateien unter dateien/ aus wissensbasis/paket.py (mit Datenschutzprüfung, bricht bei Befund ab).
+    Läuft nach simulationen(), katalog() und kremlas(), weil die Projektliste die Quellcode-Pakete im Bau zählt."""
+    sys.path.insert(0, HIER)
+    from wissensbasis.paket import baue_paket, ZIP
+    p = next((p for p in cfg["projekte"] if p["id"] == "wissensbasis"), None)
+    if not p:
+        return
+    d = os.path.join(SITE, p["ziel"])
+    info = baue_paket(d, cfg, METHODEN, SITE)
+    kb = lambda n: f"{n / 1024:.0f} KB" if n >= 1024 else f"{n} B"
+
+    def projekte(sp):
+        de = sp == "de"
+        z = ["| Projekt | Methode | Quellcode |" if de else "| Project | Method | Source code |", "|---|---|---|"]
+        for e in info["liste"]:
+            if e["pakete"]:
+                q = " · ".join(f"[{os.path.basename(x)[:-4].replace('_', ' ')}](../../{x})" for x in e["pakete"])
+            elif e["je_app"]:
+                q = f"je App ein `quellcode.zip` ({len(e['je_app'])} Apps)" if de else f"one `quellcode.zip` per app ({len(e['je_app'])} apps)"
+            elif e["offen"]:
+                q = "kein Paket, App-Dateien offen im Ordner" if de else "no package, app files open in the folder"
+            else:
+                q = "eigenes Werkzeug, kein Paket" if de else "separate tool, no package"
+            m = f"[{'Methode' if de else 'Method'}](../methode/{e['id']}/)" if e["methode"] else "–"
+            z.append(f"| [{e['titel'][sp]}](../../{e['ziel']}) | {m} | {q} |")
+        return "\n".join(z)
+
+    def dateien(sp):
+        z = ["| Datei | Größe |" if sp == "de" else "| File | Size |", "|---|---|"]
+        return "\n".join(z + [f"| [`{n}`]({w}) | {kb(g)} |" for n, w, g in info["dateien"]])
+
+    anp = {"de": "**In der Paketkopie angepasst bzw. weggelassen:**\n\n" + "\n".join(f"- `{pp}`: {was}" for pp, was in info["angepasst"])
+                 + "\n" + "\n".join(f"- {x}" for x in info["nicht"]),
+           "en": "The adaptations and omissions in the package copy are listed (in German) in [LIESMICH.md](dateien/LIESMICH.md)."}
+
+    def text(sp):
+        t = open(os.path.join(HIER, "wissensbasis", f"seite.{sp}.md"), encoding="utf-8").read()
+        werte = {"PROJEKTE": projekte(sp), "DATEIEN": dateien(sp), "ANPASSUNGEN": anp[sp],
+                 "STAND": info["stand"].strftime("%d.%m.%Y") if sp == "de" else info["stand"].isoformat()}
+        for k, v in werte.items():
+            t = t.replace("{{" + k + "}}", v)
+        if "{{" in t:
+            sys.exit(f"wissensbasis/seite.{sp}.md: Platzhalter nicht ersetzt")
+        return md_html(t)
+
+    haupt = [("AGENTS.md", "Startdatei für Agenten", "start file for agents"), ("CLAUDE.md", "für Claude Code, bindet AGENTS.md ein", "for Claude Code, includes AGENTS.md"),
+             ("LIESMICH.md", "für Menschen, Lizenz", "for people, licence"), ("PROJEKTE.md", "Projekte mit Paketen", "projects with packages"),
+             ("methoden/README.md", "Methodenkatalog", "method catalogue")]
+    kasten = ('<style>.text pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--surface); border: 1px solid var(--line);'
+              ' border-radius: 6px; padding: 12px 14px; font-size: 14px; line-height: 1.5; }'      # Prompts als Kasten, umbrechen statt seitlich scrollen
+              ' @media (max-width: 600px) { .text .tabelle table, .text .tabelle tbody, .text .tabelle tr, .text .tabelle td { display: block; }'
+              ' .text .tabelle thead { display: none; } .text .tabelle tr { border-bottom: 1px solid var(--line); padding: 8px 0; }'
+              ' .text .tabelle td { border: 0 !important; padding: 2px 0 !important; } .text .tabelle td:first-child { font-weight: 500; } }</style>'   # Tabellen schmal untereinander
+              f'<aside class="webapps"><div class="mono">{zwei("Paket für Coding-Agenten", "Package for coding agents")}</div>'
+              f'<p>{zwei("Startdatei, Methodenkatalog, alle METHODE.md, Skills und Rezepte – zum Hineinlegen in einen neuen Projektordner.", "Start file, method catalogue, all METHODE.md files, skills and recipes – to put into a new project folder.")}</p>'
+              f'<ul><li><a href="{ZIP}">{ZIP}</a> · {kb(info["zip"])}</li>'
+              + "".join(f'<li><a href="dateien/{n}">{n}</a> · {zwei(de_, en_)}</li>' for n, de_, en_ in haupt)
+              + f'<li><a href="../methode/">→ {zwei("Alle Methoden", "All methods")}</a></li>'
+              f'<li><a href="../../lab/methode/wissensbasis/">→ {zwei("Methode dieser Seite", "Method of this page")}</a></li></ul></aside>')
+    e = {"titel": p["titel"], "kategorie": p["kategorie"], "jahr": p["jahr"], "autoren": p["autoren"]}
+    ziel = os.path.join(d, "index.html")
+    seite(vorlage, ziel, artikel(e, text("de"), "../../", eltern=("KI Lab", "AI Lab"), eltern_href="../../", inhalt_en=text("en"), kasten=kasten),
+          "../../", f"{p['titel']['de']} · Entwurfsforschung", "lab", alt)
+    h_ = versionieren(open(ziel, encoding="utf-8").read(), d)            # ?v= am ZIP gegen den Cloudflare-Cache (erst lesen, dann schreiben)
+    open(ziel, "w", encoding="utf-8").write(h_)
 
 
 METHODEN = {}                       # Projekt-id → Pfad der METHODE.md (bauen() füllt es für simulationen() und katalog())

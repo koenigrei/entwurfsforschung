@@ -201,8 +201,8 @@ function karten() {
   let L = DATA.projekte.filter(p => (k === "*" || p.kategorie[LANG] === k) &&
     (!q || [p.titel[LANG], p.autoren, p.kategorie[LANG], (p.vorschau || {})[LANG] || ""].join(" ").toLowerCase().includes(q)));
   if (s !== "folge") L.sort((a, b) => s === "titel" ? a.titel[LANG].localeCompare(b.titel[LANG]) : s === "alt" ? a.datum.localeCompare(b.datum) : b.datum.localeCompare(a.datum));
-  const rang = p => p.zuerst ? -1 : p.zuletzt ? 2 : p.vorletzt ? 1 : 0;
-  L.sort((a, b) => rang(a) - rang(b));   // „zuerst“ (Design Explorer) immer vorn, „zuletzt“ (Frühe Simulationen) immer hinten, „vorletzt“ (Parametric Planning Catalogue) direkt davor (stabil)
+  const rang = p => p.anfang ? -2 : p.zuerst ? -1 : p.zuletzt ? 2 : p.vorletzt ? 1 : 0;
+  L.sort((a, b) => rang(a) - rang(b));   // „anfang“ (Wissensbasis, 25.11.2026) vor allem, dann „zuerst“ (Design Explorer); „zuletzt“ (Frühe Simulationen) immer hinten, „vorletzt“ (Parametric Planning Catalogue) direkt davor (stabil)
   $("#raster").innerHTML = L.length ? L.map(p => `
     <a class="karte" href="${esc(p.href)}" data-id="${esc(p.id)}">
       <div class="oben mono"><span>${esc(p.autoren)}</span><span>${esc(p.kategorie[LANG])}</span></div>
