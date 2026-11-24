@@ -29,12 +29,16 @@
       baumtiefe: TreeDepth 7 [0..20] · minLaenge: MinLength 30 · maxLaenge: MaxLength 100 (Spanne: Länge ∈ [30, 130) m)
       minAbstand: MinDist 20 · zufallsWinkel: RandomAngle 10 (Abweichung ∈ [−5°, +5°)) · maxArme: MaxArms 4
       kL: Length Coefficient 0.219 [0..1] · kW: Angular Coefficient 1 [0..1] (2. BuildGraph)
-      variante: Show Variant 0 [0..9] */
+      variante: Show Variant 0 [0..9]
+      ziel2: Lesart von f₂ – "closeness" = größte Closeness n / Σd (Quelltext der Legacy-Komponente, Voreinstellung) oder
+             "weglaenge" = größte mittlere Weglänge Σd / n (Beschreibung im Panel: „average length of the shortest path“) */
   const STANDARD = {
     generationen: 20, nachkommen: 30, eltern: 10, kreuzung: 0.8, mutation: 0.1, neuAnteil: 0.1, mischen: false,
     baumtiefe: 7, minLaenge: 30, maxLaenge: 100, minAbstand: 20, zufallsWinkel: 10, maxArme: 4,
-    kL: 0.219, kW: 1, variante: 0
+    kL: 0.219, kW: 1, variante: 0, ziel2: "closeness"
   };
+  /** die beiden Lesarten von f₂ (beide werden minimiert: kleine größte Closeness bzw. kurze größte mittlere Weglänge) */
+  const ZIELE2 = ["closeness", "weglaenge"];
   /** feste Werte im Inneren der kompilierten Komponenten (legacy-generation.md §1) und eigene Grenzen der App */
   const INTERN = {
     freiwinkel: 80,      // kleinster freier Winkel für einen neuen Arm (_minAngle = 80°)
@@ -312,7 +316,7 @@
   /** Closeness je Segment wie die Legacy-Komponente 4. FWGetPaths: n / Σd (n erreichte Segmente, d kürzeste Wegkosten im gerichteten
       Segmentgraphen, ohne Radius); isolierte Segmente 0. Eigene schnelle Dijkstra-Suche über die Zustände von Geo.richtungsGraph
       (gleiches Ergebnis wie Geo.segmentClosenessVon(G, s).dcs2020). → Float64Array */
-  function naehe(G) {
+  function naehe(G, art = "closeness") {
     const z = G.z, n = G.n;
     let m = 0; for (let s = 0; s < z; s++) m += G.nb[s].length;
     const off = new Int32Array(z + 1), zi = new Int32Array(m), ko = new Float64Array(m);
@@ -336,19 +340,20 @@
       }
       let cnt = 0, sum = 0;
       for (let t = 0; t < n; t++) { if (t === s) continue; const d = Math.min(dist[2 * t], dist[2 * t + 1]); if (d < Infinity) { cnt++; sum += d; } }
-      cc[s] = sum > 0 ? cnt / sum : 0;
+      cc[s] = art === "weglaenge" ? (cnt > 0 ? sum / cnt : NaN) : (sum > 0 ? cnt / sum : 0);
     }
     return cc;
   }
 
   /** Fitness eines Straßennetzes (Set Fitness Values): f1 = (1/(L + 0.000001))·10000 (L = Gesamtlänge, Number-Ausdruck der .gh),
-      f2 = größter Closeness-Wert (C#_Normalize → maxValue). Beide werden minimiert. → {N, cc, L, f1, f2} */
+      f2 = größter Wert je Segment (C#_Normalize → maxValue) – je nach p.ziel2 der Closeness n / Σd oder der mittleren Weglänge
+      Σd / n. Beide Ziele werden minimiert. cc enthält den Wert je Segment in der gewählten Lesart. → {N, cc, L, f1, f2} */
   function bewerte(segmente, p) {
     const N = Geo.netz(segmente, INTERN.glaetten);
     const G = Geo.richtungsGraph(N, { kL: p.kL, kW: p.kW, norm: "dcs2020" });
-    const cc = naehe(G);
+    const cc = naehe(G, p.ziel2 === "weglaenge" ? "weglaenge" : "closeness");
     let L = 0; for (const e of N.kanten) L += e.l;
-    let f2 = 0; for (const c of cc) if (c > f2) f2 = c;
+    let f2 = 0; for (const c of cc) if (c > f2) f2 = c;             // NaN (isoliert) zählt nicht
     return { N, cc, L, f1: (1 / (L + 0.000001)) * 10000, f2 };
   }
 
@@ -494,7 +499,7 @@
     return best;
   }
 
-  return { STANDARD, INTERN, ART, szene, netzNeu, knotenNeu, kanteNeu, kanteTeilen, fuegeStreckeEin, grundnetz, imAussenrand, arm,
+  return { STANDARD, ZIELE2, INTERN, ART, szene, netzNeu, knotenNeu, kanteNeu, kanteTeilen, fuegeStreckeEin, grundnetz, imAussenrand, arm,
            richtung, armRichtung, gene, baum, kopiereBaum, kreuze, zaehle, mutiere, wachse, naehe, bewerte, dominiert, front, spea2,
            nachkommen, individuum, generationNull, sortiert, variante, finde, erzeuge, schritt, fertig, aendere, waehle, verschiebe, griffBei };
 });

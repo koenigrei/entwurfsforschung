@@ -7,7 +7,7 @@
   const zahl = (v, n = 1) => isFinite(v) ? v.toLocaleString(de() ? "de" : "en", { minimumFractionDigits: n, maximumFractionDigits: n }) : "–";
   const EINHEIT = { area: " m²", areaDist: " m³", perimeter: " m", occlusivity: " m", minRadial: " m", maxRadial: " m", meanRadial: " m", stdDev: " m", variance: " m²", driftMagnitude: " m", driftAngle: "°" };
   const wert = (k, v) => zahl(v, ["area", "areaDist", "variance"].includes(k) ? 0 : ["compactness", "circularity", "convexDeficiency", "skewness", "dispersion", "elongation"].includes(k) ? 3 : 1) + (isFinite(v) ? EINHEIT[k] || "" : "");
-  const name = k => { const e = Geo.ISOVIST_MASSE.find(m => m[0] === k); return { de: e[2], en: e[1] }; };
+  const name = k => Modell.kenngroesseName(k);   // mit „ *“ bei eigener Definition
   const css = c => `rgb(${c[0]},${c[1]},${c[2]})`;
   const gebFarbe = F => F.dunkel ? "#2c2c31" : "#d9d9de", gebStrich = F => F.dunkel ? "#55555d" : "#a9a9b1";
   /** noch nicht berechnete Zellen: leicht in der Akzentfarbe getönt, damit sie sich von Gebäuden abheben */
@@ -23,7 +23,7 @@
       { id: "reichweite", name: { de: "Reichweite (Viewing Range) m", en: "Viewing range (m)" }, min: 1, max: 200, schritt: 1, wert: S.reichweite },
       { id: "strahlen", name: { de: "Strahlen (Isovist Rays)", en: "Isovist rays" }, min: 1, max: 720, schritt: 1, wert: S.strahlen },
       { id: "kenngroesse", art: "auswahl", name: { de: "Kenngröße (Isovist Properties)", en: "Isovist property" }, wert: S.kenngroesse,
-        optionen: Geo.ISOVIST_MASSE.map(([k, en, d]) => ({ wert: k, name: { de: `${d} (${en})`, en } })) },
+        optionen: Geo.ISOVIST_MASSE.map(([k]) => Modell.kenngroesseOption(k)) },
       { id: "umrandung", gruppe: { de: "Darstellung", en: "Display" }, art: "schalter", name: { de: "Zellen umranden", en: "Outline cells" }, wert: true },
       { id: "zeigeIsovist", art: "schalter", name: { de: "Isovist der gewählten Zelle", en: "Isovist of selected cell" }, wert: true }
     ],
@@ -74,7 +74,8 @@
     legende: (F, p, z) => {
       const k = p.kenngroesse, V = Modell.VERLAUF.farben;
       return V.map((c, i) => [css(c), i === 0 ? wert(k, z.min[k]) : i === V.length - 1 ? wert(k, z.max[k]) : ""])
-        .concat([[gebFarbe(F), { de: "Gebäude", en: "Buildings" }], [css(OFFEN(F)), { de: "noch offen", en: "pending" }], [F.akzent, { de: "Füllpunkt", en: "Fill point" }]]);
+        .concat([[gebFarbe(F), { de: "Gebäude", en: "Buildings" }], [css(OFFEN(F)), { de: "noch offen", en: "pending" }], [F.akzent, { de: "Füllpunkt", en: "Fill point" }]])
+        .concat(Modell.EIGENE_DEFINITION.includes(k) ? [["transparent", Modell.FUSSNOTE]] : []);
     },
     kennzahlen: (z, p) => {
       const k = p.kenngroesse, G = z.raster, nm = name(k);
@@ -82,6 +83,7 @@
         [{ de: "Zellen (Analysis Points)", en: "Cells (analysis points)" }, zahl(G.anzahl, 0)],
         [{ de: "berechnet", en: "computed" }, `${zahl(z.berechnet, 0)} · ${zahl(G.anzahl ? 100 * z.berechnet / G.anzahl : 0, 0)} %`],
         [{ de: "Kenngröße", en: "Property" }, nm],
+        ...(Modell.EIGENE_DEFINITION.includes(k) ? [[{ de: "*", en: "*" }, { de: "eigene Definition (in Toolbox v2 gestrichen)", en: "own definition (dropped in toolbox v2)" }]] : []),
         [{ de: "Minimum", en: "Minimum" }, wert(k, z.berechnet ? z.min[k] : NaN)],
         [{ de: "Maximum", en: "Maximum" }, wert(k, z.berechnet ? z.max[k] : NaN)],
         [{ de: "Mittel", en: "Mean" }, wert(k, Modell.mittel(z, k))]

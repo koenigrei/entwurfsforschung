@@ -25,7 +25,8 @@
     tempo: { min: 1, max: 20, wert: 1 },
     parameter: [
       { id: "tankHoehe", gruppe: { de: "Geometry Setup", en: "Geometry setup" }, name: { de: "Wasserstand im Hochbehälter (Tank Height) m", en: "Tank height (m)" }, min: 0, max: 100, schritt: 1, wert: S.tankHoehe },
-      { id: "bedarfHaushalt", name: { de: "Bedarf je Haushalt (DemandPerHousehold)", en: "Demand per household" }, min: 0, max: 100, schritt: 1, wert: S.bedarfHaushalt },
+      { id: "bedarfHaushalt", name: { de: "Bedarf je Haushalt (DemandPerHousehold) L/Tag", en: "Demand per household (L/day)" }, min: 0, max: 100, schritt: 1, wert: S.bedarfHaushalt },
+      { id: "spitzenfaktor", name: { de: "Spitzenfaktor (in der Datei fest 5)", en: "Peak factor (fixed 5 in the file)" }, min: 1, max: 10, schritt: 0.5, wert: S.spitzenfaktor },
       { id: "flaecheHaushalt", name: { de: "Fläche je Haushalt (AreaPerHousehold) m²", en: "Area per household (m²)" }, min: 50, max: 1000, schritt: 1, wert: S.flaecheHaushalt },
       { id: "gP", gruppe: { de: "Kürzeste Wege (Weights per Street Hierarchy)", en: "Shortest paths (weights per street hierarchy)" }, name: { de: "Gewicht Primary", en: "Weight primary" }, min: 0.5, max: 5, schritt: 0.5, wert: S.gP },
       { id: "gS", name: { de: "Gewicht Secondary", en: "Weight secondary" }, min: 0.5, max: 5, schritt: 0.5, wert: S.gS },

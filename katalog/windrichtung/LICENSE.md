@@ -13,5 +13,5 @@ You are free to share and adapt this material for any purpose, even commercially
 Gilt für alle Dateien dieses Ordners, für `../_gemeinsam/` und für `../../simulationen/_gemeinsam/`.
 
 Das Vorbild – das Grasshopper-Modul „Wind Direction“ aus dem Parametric Planning Catalogue (https://github.com/infar-buw/parametric-planning-catalogue, Copyright (c) 2020 infar-buw) – steht unter der MIT-Lizenz; Autorinnen und Autoren des Moduls: DeCodingSpaces – Martin Dennemark. Diese App ist eine Neuumsetzung (kein kopierter Grasshopper-Code); Herkunft und Änderungen stehen in QUELLE.md.
-Die Beispiel-Windrosen in `modell.js` sind selbst festgelegt (keine Messdaten) und stehen ebenfalls unter CC BY 4.0. Wer eine `windFrequencyRose.json` aus dem Global Wind Atlas (DTU / World Bank Group, laut World Bank Data Catalog CC BY 4.0) einfügt, nennt deren Quelle selbst; die App liefert keine solchen Daten mit.
+Die Beispiel-Windrosen in `modell.js` sind selbst festgelegt (keine Messdaten) und stehen ebenfalls unter CC BY 4.0. Wer eine `windFrequencyRose.json` aus dem Global Wind Atlas (DTU / World Bank Group, CC BY 4.0 laut https://globalwindatlas.info/about/TermsOfUse) einfügt, nennt deren Quelle selbst; die App liefert keine solchen Daten mit.
 Schriften Geist und Geist Mono (nur auf der Website eingebunden, nicht Teil dieses Pakets): Vercel, SIL Open Font License 1.1.

@@ -21,10 +21,10 @@ function gitter(zeilen) {
 test("erzeuge: t = 0, Raster nach Umriss, Startpunkt frei, Raumprogramm Haus am Horn", () => {
   const z = M.erzeuge(P(), zufall(1));
   assert.equal(z.t, 0);
-  assert.equal(z.W, 17); assert.equal(z.H, 17);
+  assert.equal(z.W, 21); assert.equal(z.H, 21);
   assert.equal(z.prog.N, 14); assert.equal(z.prog.kanten.length, 17); assert.equal(z.prog.flaeche, 153);
   assert.equal(z.prog.raeume[z.prog.eingang].name, "Windfang");
-  assert.deepEqual(z.eingangsPunkt, [8, 16]); assert.equal(z.start, 16 * 17 + 8);
+  assert.deepEqual(z.eingangsPunkt, [10, 20]); assert.equal(z.start, 20 * 21 + 10);
   assert.ok(z.basis.every(v => v === FREI));
 });
 
@@ -122,7 +122,7 @@ test("platziere: Eingangsraum dockt am Startpunkt an, Ecke ist Flur, alle Zellen
   assert.ok(x0 >= 0 && y0 >= 0 && x0 + w <= z.W && y0 + h <= z.H);
   assert.equal(L.gitter[L.anker[r]], FLUR);
   const ax = L.anker[r] % z.W, ay = Math.floor(L.anker[r] / z.W);
-  assert.equal(Math.abs(ax - 8) + Math.abs(ay - 16), 1);             // Anker grenzt seitlich an den Startpunkt (8, 16)
+  assert.equal(Math.abs(ax - 10) + Math.abs(ay - 20), 1);            // Anker grenzt seitlich an den Startpunkt (10, 20)
   let raum = 0, flur = 0;
   for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) { const v = L.gitter[y * z.W + x]; if (v === r + 1) raum++; else if (v === FLUR) flur++; }
   assert.equal(raum + flur, w * h); assert.equal(raum, 1);            // Windfang 1 m²
@@ -231,9 +231,9 @@ test("Sperren mit der Maus: gesperrte Zellen bleiben leer, Eingangspunkt verlegb
   while (!z.fertig) M.schritt(z, p);
   for (const i of p.sperre.zellen) for (const L of z.best) assert.equal(L.gitter[i], AUSSEN);
   const z2 = M.erzeuge(p, zufall(1));                                 // Zurücksetzen behält Sperrungen
-  assert.equal(z2.basis[5 * 17 + 5], AUSSEN); assert.equal(z2.basis[5 * 17 + 6], FREI);
-  M.sperrenLoeschen(z2, p); assert.equal(z2.basis[5 * 17 + 5], FREI);
-  const anders = M.erzeuge(P({ breite: 18, sperre: p.sperre }), zufall(1)); // anderer Umriss: Sperrungen gelten nicht
+  assert.equal(z2.basis[5 * 21 + 5], AUSSEN); assert.equal(z2.basis[5 * 21 + 6], FREI);
+  M.sperrenLoeschen(z2, p); assert.equal(z2.basis[5 * 21 + 5], FREI);
+  const anders = M.erzeuge(P({ breite: 22, sperre: p.sperre }), zufall(1)); // anderer Umriss: Sperrungen gelten nicht
   assert.ok(anders.basis.every(v => v === FREI));
 });
 
@@ -259,12 +259,18 @@ test("quasi-evolutionär: jede dritte Iteration Verbesserungen, Bestenliste fün
   for (let i = 1; i < z.best.length; i++) assert.ok(!M.besser(z.best[i].wert, z.best[i - 1].wert));
 });
 
-test("Katalogverhalten: nach 250 Iterationen passen im Haus am Horn mindestens 12 von 14 Räumen, im Hallenbad alle bis auf höchstens zwei", () => {
+test("Katalogverhalten: im Haus am Horn (21 × 21 m) passen nach 250 Iterationen in der Regel alle 14 Räume, im Hallenbad alle bis auf höchstens zwei", () => {
   const horn = lauf({}, 1).z, bad = lauf({ beispiel: "bad", breite: 78, tiefe: 66, iterationen: 60 }, 1).z;
-  assert.ok(horn.best[0].folge.length >= 12, String(horn.best[0].folge.length));
+  assert.equal(horn.best[0].folge.length, 14);
+  let voll = 0;                                                       // Saaten 1–10: gemessen 9 von 10 (Saat 10: Fremdenzimmer fehlt)
+  for (let s = 1; s <= 10; s++) if (lauf({}, s).z.best[0].folge.length === 14) voll++;
+  assert.ok(voll >= 8, "alle 14 Räume in " + voll + " von 10 Läufen");
+  let alt = 0;                                                        // alter Umriss 17 × 17 m: Kinder 50 m² passt nie
+  for (let s = 1; s <= 3; s++) if (lauf({ breite: 17, tiefe: 17 }, s).z.best[0].folge.length === 14) alt++;
+  assert.equal(alt, 0);
   assert.ok(horn.verlauf[horn.verlauf.length - 1] >= horn.verlauf[0]);
   assert.ok(bad.best[0].folge.length >= 19, String(bad.best[0].folge.length));
-  const kleiner = lauf({ breite: 11, tiefe: 11, iterationen: 60 }, 1).z;   // zu kleiner Umriss: weniger Räume
+  const kleiner = lauf({ breite: 13, tiefe: 13, iterationen: 60 }, 1).z;   // zu kleiner Umriss: weniger Räume
   assert.ok(kleiner.best[0].folge.length < horn.best[0].folge.length);
 });
 

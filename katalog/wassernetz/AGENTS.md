@@ -44,7 +44,7 @@ katalog/wassernetz/
 | `aendere(z, param, id)` | optional: Parameter ohne Neustart übernehmen |
 | `szene(zufall)` | Gelände, Stadt, Straßennetz mit Höhen je Knoten, Kantenlängen im Raum, Straßenhierarchie, Blöcke mit Schwerpunkt, Fläche, nächstem Knoten |
 | `strassenhierarchie(N, poi, eingang)`, `gewichteHierarchie`, `betweenness`, `klassifiziere` | Straßenhierarchie wie `../strassenhierarchie/` (übernommen) |
-| `kantenGewicht(klasse, p)`, `bedarfBlock(A, p)` | Gewicht je Straßenklasse; Bedarf eines Blocks in L/s |
+| `kantenGewicht(klasse, p)`, `bedarfBlock(A, p)` | Gewicht je Straßenklasse; Bedarf eines Blocks in L/s = DemandPerHousehold [L/Tag] × Haushalte / 86 400 × Spitzenfaktor (5 ergibt den Faktor 0.00005787 der Datei) |
 | `wegebaum(Sz, s, cost)`, `kantenweg(baum, N, t)` | Dijkstra-Baum vom Behälter; Kanten des Weges zu einem Knoten |
 | `kombiniere(wegeL, wegeH, laenge, schwelle)` | Wassernetz: Hierarchiewege + Zusatzkanten der Längenwege bis zur Schwelle (Set Difference, Mass Addition, Remap, Cull) |
 | `hydraulikNetz(z, p)` | EPANET-Netz wie Write Hydrology Network (Behälter, Verbraucher am nächsten Knoten, Rohre) |

@@ -7,7 +7,7 @@
   const zahl = (v, n = 1) => isFinite(v) ? v.toLocaleString(de() ? "de" : "en", { minimumFractionDigits: n, maximumFractionDigits: n }) : "–";
   const css = c => `rgb(${c[0]},${c[1]},${c[2]})`;
   /** Farbe des Gradient; in der dunklen Darstellung ist das Dunkelblau des Originals etwas aufgehellt, damit es sich vom Schwarz abhebt */
-  const farbe = (t, F) => { const c = Modell.verlauf(t); return css(F.dunkel && t <= 0.0341 ? c.map((v, i) => Math.round(v + [30, 42, 40][i] * (1 - t / 0.0341))) : c); };
+  const farbe = (t, F, V = Modell.VERLAUF) => { const c = Modell.verlauf(t, V), f1 = V.faktoren[1]; return css(F.dunkel && t <= f1 ? c.map((v, i) => Math.round(v + [30, 42, 40][i] * (1 - t / f1))) : c); };
 
   Sim.starte({
     modell: Modell,
@@ -34,9 +34,9 @@
       else Modell.setzeStandpunkt(z, p, [x, y]);
     },
     zeichne(ctx, z, p, F) {
-      const px = F.px, s = z.s, O = z.O;
+      const px = F.px, s = z.s, O = z.O, V = Modell.verlaufFuer(p.mass);
       const grau = F.dunkel ? "#2c2c31" : "#d9d9de", strich = F.dunkel ? "#55555d" : "#a9a9b1";
-      z.szene.gebaeude.forEach((g, i) => Karte.poly(ctx, g, p.faerbeGebaeude ? farbe(s.maxG > 0 ? s.gebN[i] / s.maxG : 0, F) : grau, p.faerbeKanten ? null : strich, px * 0.6));
+      z.szene.gebaeude.forEach((g, i) => Karte.poly(ctx, g, p.faerbeGebaeude ? farbe(s.maxG > 0 ? s.gebN[i] / s.maxG : 0, F, V) : grau, p.faerbeKanten ? null : strich, px * 0.6));
       if (p.zeigeWeg) Karte.linie(ctx, z.pfad.concat([z.pfad[0]]), F.dunkel ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.25)", px * 1, [4 * px, 4 * px]);
       if (p.zeigeIsovist) Karte.poly(ctx, Geo.isovistPolygon(z.iso), F.dunkel ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)", F.dunkel ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)", px * 1);
       if (p.faerbeKanten) {
@@ -48,7 +48,7 @@
           if (p.faerbeGebaeude && t === 0) continue;
           const q = O.segmente[k];
           ctx.beginPath(); ctx.moveTo(q[0][0], q[0][1]); ctx.lineTo(q[1][0], q[1][1]);
-          ctx.strokeStyle = durchgang ? farbe(t, F) : F.papier; ctx.lineWidth = (durchgang ? 2.2 : 4.4) * px; ctx.stroke();
+          ctx.strokeStyle = durchgang ? farbe(t, F, V) : F.papier; ctx.lineWidth = (durchgang ? 2.2 : 4.4) * px; ctx.stroke();
         }
         ctx.lineCap = "butt";
       }
@@ -59,8 +59,14 @@
       Karte.punkt(ctx, z.o, 4.5 * px, F.akzent, F.tinte, px * 1.2);
     },
     legende: (F, p, z) => {
-      const V = Modell.VERLAUF.faktoren, L = [[farbe(0, F), { de: "nicht gesehen", en: "not seen" }]];
-      V.slice(1).forEach((f, i) => L.push([farbe(f, F), i === V.length - 2 ? { de: "stark gesehen", en: "highly visible" } : ""]));
+      const VV = Modell.verlaufFuer(p.mass), V = VV.faktoren, L = [[farbe(0, F, VV), { de: "nicht gesehen", en: "not seen" }]];
+      if (p.mass === "laenge") {
+        // linearer Verlauf: Werte der Griffe für die Gebäude (Anteil des Umfangs bzw. sichtbare m je 100 m² Grundfläche)
+        const mx = z.s.maxG, w = f => p.bezug === "umfang" ? zahl(100 * f * mx, 0) + " %" : zahl(100 * f * mx, 1);
+        V.slice(1).forEach((f, i) => L.push([farbe(f, F, VV), i === V.length - 2
+          ? (p.bezug === "umfang" ? { de: `${w(f)} des Umfangs sichtbar`, en: `${w(f)} of perimeter visible` } : { de: `${w(f)} m je 100 m²`, en: `${w(f)} m per 100 m²` })
+          : w(f)]));
+      } else V.slice(1).forEach((f, i) => L.push([farbe(f, F, VV), i === V.length - 2 ? { de: "stark gesehen", en: "highly visible" } : ""]));
       return L.concat([[F.akzent, { de: "Standpunkt", en: "Viewpoint" }]]);
     },
     kennzahlen: (z, p) => {

@@ -55,13 +55,17 @@
   /** Farbskala der Closeness: „spektral“ wie der Grasshopper-Gradient; auf hellem Grund mit kräftigerer Mitte (statt Blassgelb) */
   const SKALA_HELL = [[43, 131, 186], [92, 168, 98], [222, 172, 20], [240, 112, 36], [215, 25, 28]];
   let skala = "spektral";
-  /** Closeness der gezeigten Variante: Logarithmus → Bounds → Remap auf 0…1 → Gradient (wie „Visualize network centrality“) */
-  function naeheFarben(ind) {
+  /** Closeness der gezeigten Variante: Logarithmus → Bounds → Remap auf 0…1 → Gradient (wie „Visualize network centrality“).
+      Bei der Lesart „mittlere Weglänge“ wird die Skala umgekehrt: kurze mittlere Wege = zentral = rot. */
+  function naeheFarben(ind, umkehren) {
     const L = Array.from(ind.cc, c => (c > 0 ? Math.log(c) : NaN)), ok = L.filter(isFinite);
     const mn = ok.length ? Math.min(...ok) : 0, mx = ok.length ? Math.max(...ok) : 1, sp = mx - mn > 1e-12 ? mx - mn : 1;
-    const t = L.map(v => (isFinite(v) ? (v - mn) / sp : 0));
+    const t = L.map(v => (isFinite(v) ? (umkehren ? (mx - v) / sp : (v - mn) / sp) : 0));
     return { t, ord: [...t.keys()].sort((a, b) => t[a] - t[b]), f: k => Karte.farbe(t[k], skala) };
   }
+
+  /** Lesart von f₂: mittlere Weglänge Σd / n statt Closeness n / Σd */
+  const weg = p => p.ziel2 === "weglaenge";
 
   Sim.starte({
     modell: Modell,
@@ -83,6 +87,9 @@
       { id: "maxArme", name: { de: "Arme je Kreuzung (MaxArms)", en: "Arms per crossing (MaxArms)" }, min: 2, max: 8, schritt: 1, wert: S.maxArme, neustart: true },
       { id: "kL", gruppe: { de: "Fitness (2. BuildGraph)", en: "Fitness (2. BuildGraph)" }, name: { de: "Längenkoeffizient (Length Coefficient)", en: "Length coefficient" }, min: 0, max: 1, schritt: 0.001, wert: S.kL, neustart: true },
       { id: "kW", name: { de: "Winkelkoeffizient (Angular Coefficient)", en: "Angular coefficient" }, min: 0, max: 1, schritt: 0.01, wert: S.kW, neustart: true },
+      { id: "ziel2", art: "auswahl", name: { de: "Ziel f₂", en: "Objective f₂" }, wert: S.ziel2, neustart: true,
+        optionen: [{ wert: "closeness", name: { de: "Closeness n/Σd (Quelltext, Voreinstellung)", en: "Closeness n/Σd (source code, default)" } },
+                   { wert: "weglaenge", name: { de: "mittlere Weglänge Σd/n (Panel-Beschreibung)", en: "Mean path length Σd/n (panel description)" } }] },
       { id: "variante", gruppe: { de: "Anzeige", en: "Display" }, name: { de: "Variante zeigen (Show Variant)", en: "Show variant" }, min: 0, max: MINI - 1, schritt: 1, wert: S.variante }
     ],
     groesse: () => { const L = lage(); return { b: L.b, h: L.h }; },
@@ -113,7 +120,7 @@
       ctx.save(); ctx.translate(Lg.karte.x, Lg.karte.y);
       Karte.poly(ctx, Sz.rand, F.dunkel ? "#17171c" : "#f0f0f4", null);
       Karte.segmente(ctx, Sz.umgebung, F.dunkel ? "#3c3c44" : "#c4c4cc", px * 1.2);
-      if (ind) netz(ctx, ind, naeheFarben(ind), px * 2.4);
+      if (ind) netz(ctx, ind, naeheFarben(ind, weg(p)), px * 2.4);
       // Griffe: Ecken des Rands (Quadrate), Stützpunkte der Startstraßen (Kreise)
       for (const q of Sz.rand) { const r = 3.5 * px; ctx.beginPath(); ctx.rect(q[0] - r, q[1] - r, 2 * r, 2 * r); ctx.fillStyle = F.papier; ctx.fill(); ctx.strokeStyle = F.tinte; ctx.lineWidth = px * 1.2; ctx.stroke(); }
       for (const pl of Sz.start) for (const q of pl) Karte.punkt(ctx, q, 3 * px, F.papier, F.tinte2, px * 1.1);
@@ -127,7 +134,8 @@
       const D = Lg.dia, B = bereich(z);
       ctx.strokeStyle = F.tinte2; ctx.lineWidth = px * 1.2;
       ctx.beginPath(); ctx.moveTo(D.x, D.y); ctx.lineTo(D.x, D.y + D.h); ctx.lineTo(D.x + D.w, D.y + D.h); ctx.stroke();
-      Karte.text(ctx, de() ? "f₂ Zentralität (Centrality)" : "f₂ centrality", [D.x, D.y - 16 * px], F.tinte, px, 12, "left");
+      const y2 = weg(p) ? (de() ? "f₂ = max. mittlere Weglänge Σd/n" : "f₂ = max. mean path length Σd/n") : (de() ? "f₂ = max. Closeness n/Σd (Centrality)" : "f₂ = max. closeness n/Σd (centrality)");
+      Karte.text(ctx, y2, [D.x, D.y - 16 * px], F.tinte, px, 12, "left");
       Karte.text(ctx, de() ? "f₁ = 10 000 / Straßenlänge" : "f₁ = 10,000 / street length", [D.x + D.w / 2, D.y + D.h + 14 * px], F.tinte, px, 12, "center");
       Karte.text(ctx, zahl(B.a1, 2), [D.x, D.y + D.h + 14 * px], F.tinte2, px, 10, "left");
       Karte.text(ctx, zahl(B.b1, 2), [D.x + D.w, D.y + D.h + 14 * px], F.tinte2, px, 10, "right");
@@ -159,7 +167,9 @@
         Karte.text(ctx, k, [Lg.karte.x + Sz.b / 2, Lg.karte.y + Sz.h - 12 * px], F.tinte2, px, 12, "center");
       }
     },
-    legende: (F, p, z) => Karte.skalenLegende(F.dunkel ? "spektral" : SKALA_HELL, { de: "Closeness (log) gering", en: "low closeness (log)" }, { de: "hoch", en: "high" })
+    legende: (F, p, z) => Karte.skalenLegende(F.dunkel ? "spektral" : SKALA_HELL,
+        weg(p) ? { de: "mittlere Weglänge (log) lang", en: "long mean path (log)" } : { de: "Closeness (log) gering", en: "low closeness (log)" },
+        weg(p) ? { de: "kurz", en: "short" } : { de: "hoch", en: "high" })
       .concat([[genFarbe(0, 1), { de: "Generation 0", en: "Generation 0" }], [genFarbe(1, 1), { de: "letzte Generation", en: "latest generation" }],
                [F.akzent, { de: "Pareto-Front", en: "Pareto front" }]]),
     kennzahlen(z, p) {
@@ -172,7 +182,7 @@
         [{ de: "Bestes f₁ · f₂ im Archiv", en: "Best f₁ · f₂ in archive" }, zahl(min("f1"), 3) + " · " + zahl(min("f2"), 4)],
         [{ de: "Gezeigte Variante", en: "Shown variant" }, ind ? "#" + ind.id + " · Gen " + ind.g + " · " + ind.herkunft : "–"],
         [{ de: "Straßenlänge · Segmente", en: "Street length · segments" }, ind ? zahl(ind.L) + " m · " + zahl(ind.n) : "–"],
-        [{ de: "f₁ · f₂ (max. Closeness)", en: "f₁ · f₂ (max. closeness)" }, ind ? zahl(ind.f1, 3) + " · " + zahl(ind.f2, 4) : "–"]
+        [weg(p) ? { de: "f₁ · f₂ (max. mittl. Weglänge)", en: "f₁ · f₂ (max. mean path)" } : { de: "f₁ · f₂ (max. Closeness)", en: "f₁ · f₂ (max. closeness)" }, ind ? zahl(ind.f1, 3) + " · " + zahl(ind.f2, 4) : "–"]
       ];
     }
   });

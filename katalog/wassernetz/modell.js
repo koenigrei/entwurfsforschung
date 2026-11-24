@@ -7,7 +7,8 @@
    1. Geometry Setup: Straßen (Primary/Secondary/Tertiary) und Hochbehälter werden aufs Gelände projiziert (ProjectPtToSrf);
       jede Straßenkante bekommt das Gewicht ihrer Klasse (Panel „Weights per Street Hierarchy“ 1, 2, 3); die Blöcke
       (Polygons from lines → Area) bekommen Haushalte (Fläche / AreaPerHousehold) und Wasserbedarf
-      (DemandPerHousehold × Haushalte × 0.00005787).
+      (DemandPerHousehold [L/Tag] × Haushalte / 86 400 × Spitzenfaktor; die Datei rechnet mit dem festen
+      Faktor 0.00005787 = 5 / 86 400, hier als Spitzenfaktor 5 ausgewiesen).
    2. Kürzeste Wege vom Hochbehälter zu allen Verbrauchern (ShortestPathBetweenPoints, Cross Reference): einmal nach Länge,
       einmal nach Länge × Gewicht (Hauptstraßen bevorzugt). Wassernetz = alle Wege nach Hierarchie plus die Teile der
       Längenwege, die nicht schon darin liegen – außer für Verbraucher, deren Zusatzlänge (Mass Addition, Remap auf 0…1)
@@ -27,19 +28,20 @@
 
   /** Voreinstellungen der .gh-Datei (Schieberegler: Wert [Bereich]):
       iterationen Iterations 4 [0..5] · vMax Max. Velocity 1.5 [0..10] m/s · tankHoehe Tank Height 10 [0..100] m ·
-      bedarfHaushalt DemandPerHousehold 20 [0..100] · flaecheHaushalt AreaPerHousehold 1000 [50..1000] m² ·
+      bedarfHaushalt DemandPerHousehold 20 [0..100] L/Tag · spitzenfaktor 5 [1..10] (Annahme, siehe QUELLE.md) · flaecheHaushalt AreaPerHousehold 1000 [50..1000] m² ·
       schwelle Number Slider 0.8 [0..1] (Smaller Than vor Cull Pattern) · gP, gS, gT Panel „Weights per Street Hierarchy“ 1, 2, 3 ·
       rauheit Line Roughness 140 (fester Wert am Eingang von Write Hydrology Network) ·
       rohrWert Value List „Pipe values“ (Flow velocity) · knotenWert Value List „Node values“ (Pressure) ·
       farbGrenze Number Slider 4 [0..10] (obere Grenze des Gradienten der Rohre) · linie Number Slider 300 [0..1000] (Linienstärke = Durchmesser × 300) ·
       kontur Number Slider 20 [0..20] (Abstand der Höhenlinien, Contour) */
-  const STANDARD = { iterationen: 4, vMax: 1.5, tankHoehe: 10, bedarfHaushalt: 20, flaecheHaushalt: 1000, schwelle: 0.8,
+  const STANDARD = { iterationen: 4, vMax: 1.5, tankHoehe: 10, bedarfHaushalt: 20, spitzenfaktor: 5, flaecheHaushalt: 1000, schwelle: 0.8,
                      gP: 1, gS: 2, gT: 3, rauheit: 140, rohrWert: "v", knotenWert: "druck", farbGrenze: 4, linie: 300, kontur: 20,
                      beschriftung: true };
   /** Gene Pool „Used Pipe Diameters“ (m) */
   const DURCHMESSER = [0.03, 0.06, 0.09, 0.12, 0.15];
-  /** Panel „Liters Per Second To Liters Per Day“ (so beschriftet; Faktor wie in der Datei) */
-  const UMRECHNUNG = 0.00005787;
+  /** Panel „Liters Per Second To Liters Per Day“ der Datei: fester Faktor 0.00005787 = 5 / 86 400. Hier zerlegt in die Umrechnung
+      Liter je Tag → Liter je Sekunde (1 / 86 400) und einen ausgewiesenen Spitzenfaktor (Voreinstellung 5). */
+  const UMRECHNUNG = 0.00005787, SEKUNDEN_JE_TAG = 86400;
   /** Druckgrenzen (Panel: unter 1 bar rot, über 16 bar lila; Gradient 0.99 … 16.01) */
   const DRUCK_MIN = 1, DRUCK_MAX = 16;
   /** Voreinstellungen der Straßenhierarchie (wie ../strassenhierarchie, STANDARD) */
@@ -113,8 +115,10 @@
   }
   /** Gewicht einer Straßenkante nach ihrer Klasse (Primary gP, Secondary gS, Tertiary gT; ohne Klasse wie Tertiary) */
   const kantenGewicht = (klasse, p) => klasse === 2 ? p.gP : klasse === 1 ? p.gS : p.gT;
-  /** Bedarf eines Blocks in L/s: DemandPerHousehold × (Fläche / AreaPerHousehold) × 0.00005787 */
-  const bedarfBlock = (A, p) => p.bedarfHaushalt * (A / p.flaecheHaushalt) * UMRECHNUNG;
+  /** Bedarf eines Blocks in L/s (Spitzenbedarf): DemandPerHousehold [L/Tag] × (Fläche / AreaPerHousehold) / 86 400 × Spitzenfaktor.
+      Mit Spitzenfaktor 5 ist das der Faktor 0.00005787 der Datei. */
+  const spitze = p => p.spitzenfaktor != null ? p.spitzenfaktor : STANDARD.spitzenfaktor;
+  const bedarfBlock = (A, p) => p.bedarfHaushalt * (A / p.flaecheHaushalt) / SEKUNDEN_JE_TAG * spitze(p);
 
   /** Kürzeste-Wege-Baum vom Knoten s: Kosten je Kante cost(k). → {dist, vorKante} */
   function wegebaum(Sz, s, cost) {
@@ -258,7 +262,7 @@
     return R;
   }
 
-  return { STANDARD, DURCHMESSER, UMRECHNUNG, DRUCK_MIN, DRUCK_MAX, HIERARCHIE, naechstesSegment, gewichteHierarchie, betweenness, klassifiziere,
+  return { STANDARD, DURCHMESSER, UMRECHNUNG, SEKUNDEN_JE_TAG, DRUCK_MIN, DRUCK_MAX, HIERARCHIE, naechstesSegment, gewichteHierarchie, betweenness, klassifiziere,
            strassenhierarchie, szene, naechsterKnoten, kantenGewicht, bedarfBlock, wegebaum, kantenweg, kombiniere, hydraulikNetz,
            erzeuge, baue, dimensioniere, schritt, fertig, rechneAlles, aendere, setzeTank, druckBar, knotenWert, bilanz };
 });

@@ -47,13 +47,14 @@ katalog/parzellen-versatz/
 | `zuSegmenten(kurven, p)`, `glaette(S, fang)` | beides zusammen; Network Smooth (Knoten im Snap threshold zusammenlegen, danach eben halten) |
 | `betweenness(N)` | CityGraph: Betweenness je Segment (`Geo.segmentGraph(N, 1, 0)`, `Geo.betweennessVon`, geordnete Paare) |
 | `flaechenAusLinien(N)` | Polygons from lines: geschlossene Flächen über Halbkanten (Sackgassen und Brücken entfallen), je Plotkante die Netzkante |
-| `remap(x, lo, hi, a, b)`, `zielbereich(p)` | Bounds/Remap Numbers; Zielbereich Offset Min … Max × Negative Offset |
+| `remap(x, lo, hi, a, b)`, `abstandM(v)`, `zielbereich(p)` | Bounds/Remap Numbers; Versatz auf ≥ 0 klemmen (auch Werte aus der Adresse); Zielbereich [Offset Min, Offset Max] als Abstände nach innen |
+| `versetzeNachInnen(poly, w)` | Custom offset eines Plots: jede Kante um ihren Abstand w ≥ 0 nach innen |
 | `versetzeKanten(poly, d)` | Custom offset: jede Kante um ihren eigenen Wert (d > 0 außen, d < 0 innen), Ecken neu geschnitten, verschwundene Kanten entfernt; `null`, wenn der Plot verschwindet |
 | `baueNetz(z, p)`, `plotWerte(z, p, plot)` | ganze Kette bis zu den Plots; Versatzwerte der Kanten eines Plots |
 | `leere(z)`, `rechneAlles(z, p)`, `fertig(z)` | Versatz leeren (t = 0); alle Plots auf einmal; alle versetzt? |
 | `plotBei(z, q)`, `bilanz(z)` | Plot unter einem Punkt; Flächen vorher/nachher, verschwundene Plots |
 
-Zustand `z`: `S` (Szene: `kurven`, `gebiet`, `stadt`), `segmente0` (nach Network to Segments), `N` (Netz nach Network Smooth), `bc` (Betweenness je Netzkante), `bounds`, `farbwert` (log, 0…1), `plots` (`{poly, kanten}`), `k` (versetzte Plots), `erg` (versetzte Polygone oder `null`), `werte` (Versatz je Kante), `wahl`.
+Zustand `z`: `S` (Szene: `kurven`, `gebiet`, `stadt`), `segmente0` (nach Network to Segments), `N` (Netz nach Network Smooth), `bc` (Betweenness je Netzkante), `bounds`, `farbwert` (log, 0…1), `plots` (`{poly, kanten}`), `k` (versetzte Plots), `erg` (versetzte Polygone oder `null`), `werte` (Versatz je Kante, Abstände ≥ 0 nach innen), `wahl`.
 
 Im Browser steht `window.SIM` bereit: `SIM.schritt(100)`, `SIM.zuruecksetzen(7)`, `SIM.setze("<parameter>", wert)`, `SIM.zustand`.
 Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`).

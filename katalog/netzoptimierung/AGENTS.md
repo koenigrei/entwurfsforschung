@@ -48,7 +48,7 @@ katalog/netzoptimierung/
 | `armRichtung(P, pv, ref, nb, teiler)` | Richtung eines neuen Arms (geradeaus / größte Lücke / < 80° keiner / ≥ 260° Versatz) |
 | `arm(G, S, pv, ziel, minDist, maxArme)` | einen Arm einfügen: Knoten- und Kantenfang, erster Schnitt, Rand schließt → `{v, zu}` oder `null` |
 | `wachse(baum, S, p, stat?)` | ChromosomeMapper: Baum → Straßensegmente (`stat` zählt optional die Gründe, aus denen Arme ausbleiben) |
-| `naehe(G)`, `bewerte(segmente, p)` | Closeness `n / Σd` je Segment (gerichteter Segmentgraph aus `Geo.richtungsGraph`, norm „dcs2020“); Fitness f₁ = 10 000 / L, f₂ = max. Closeness |
+| `naehe(G, art)`, `bewerte(segmente, p)` | je Segment Closeness `n / Σd` (`art = "closeness"`) oder mittlere Weglänge `Σd / n` (`"weglaenge"`, isoliert NaN) im gerichteten Segmentgraphen aus `Geo.richtungsGraph` (norm „dcs2020“); Fitness f₁ = 10 000 / L, f₂ = größter Wert in der Lesart `p.ziel2` (`ZIELE2`) |
 | `dominiert(a, b)`, `front(liste)`, `spea2(pop, mu)` | Pareto-Dominanz (beide Ziele minimiert), nicht dominierte Menge, SPEA2-Umweltauswahl → `{archiv, F}` |
 | `nachkommen(eltern, p, zufall, nWurzeln)` | OffspringGenerator: Random Generation, Crossover Rate, Mutation Rate, Shuffle Chromosomes |
 | `individuum(z, baum, herkunft, gen, p)`, `generationNull(z, p)` | ein bewertetes Netz (Geometrie kompakt als `Float32Array`); Generation 0 aus Nr Parents Zufallsnetzen |
@@ -69,5 +69,4 @@ Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&<parameter>=…`)
 
 - Weitere PISA-Selektoren (NSGA-II, HypE, IBEA) als Auswahl, um den Einfluss des Selektors zu zeigen; Hypervolumen je Generation als Verlaufskurve (wie die Quick Graphs des Rekorder-Clusters).
 - Rand und Startstraßen frei zeichnen oder als GeoJSON laden; Gebäude als Hintergrund.
-- Zweite Lesart der Closeness (mittlere Tiefe Σd / n) als Schalter, damit die beiden Ziele gegeneinander stehen.
 - Bestes Netz als GeoJSON ausgeben (entspricht „Bake“).
