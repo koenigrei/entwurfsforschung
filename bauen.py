@@ -638,7 +638,8 @@ def wissensbasis_seite(vorlage, alt, cfg):
               + "".join(f'<li><a href="dateien/{n}">{n}</a> · {zwei(de_, en_)}</li>' for n, de_, en_ in haupt)
               + f'<li><a href="../methode/">→ {zwei("Alle Methoden", "All methods")}</a></li>'
               f'<li><a href="../../lab/methode/wissensbasis/">→ {zwei("Methode dieser Seite", "Method of this page")}</a></li></ul></aside>')
-    e = {"titel": p["titel"], "kategorie": p["kategorie"], "jahr": p["jahr"], "autoren": p["autoren"]}
+    e = {"titel": p["titel"], "kategorie": p["kategorie"], "jahr": p["jahr"], "autoren": p["autoren"],
+         "stand": stand_text(glob.glob(os.path.join(HIER, "wissensbasis", "**", "*.md"), recursive=True))}   # Zeitstempel (25.11.2026)
     ziel = os.path.join(d, "index.html")
     seite(vorlage, ziel, artikel(e, text("de"), "../../", eltern=("KI Lab", "AI Lab"), eltern_href="../../", inhalt_en=text("en"), kasten=kasten),
           "../../", f"{p['titel']['de']} · Entwurfsforschung", "lab", alt)
