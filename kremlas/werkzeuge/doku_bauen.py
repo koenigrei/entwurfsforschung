@@ -232,6 +232,12 @@ zurueck = ('<nav class="ef-zurueck" style="position:sticky;top:0;z-index:50;back
 html = ('<!doctype html>\n<html lang="de">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         '<meta name="description" content="Dokumentation des KREMLAS-Projekts: Herkunft, Neuumsetzung als Web-App, Nachgenerieren der Palladio-Villen und der Siza-Häuser, Versuche zur Verbesserung.">\n'
         + head + "</head>\n<body>\n" + zurueck + "\n<header" + rest + "\n</body>\n</html>\n")
+# Zeitstempel wie auf den App-Seiten (bauen.py fuss_stempel, 25.11.2026): Stand der Dokumentation = jüngste Textquelle, Stand der App = modell.js/app.js
+import datetime  # noqa: E402
+_tag = lambda fs: datetime.date.fromtimestamp(max(os.path.getmtime(f) for f in fs if os.path.exists(f))).strftime("%d.%m.%Y")
+stand_doku = _tag([os.path.join(QUELLE, "doku.md"), os.path.join(QUELLE, "ergebnisse.jsonl")]); stand_app = _tag([os.path.join(K, "modell.js"), os.path.join(K, "app.js")])
+html = html.replace('"kind": "Dokumentation"', '"kind": "Dokumentation", "standDoku": "%s", "standApp": "%s"' % (stand_doku, stand_app), 1) if '"standDoku"' not in html else html
+html = re.sub(r'(<footer class="site-foot"><div class="wrap"><span>Autor: [^<]*</span>)', lambda m: m.group(1) + f'<span class="ef-stand">Stand Dokumentation {stand_doku} · Stand App {stand_app}</span>', html, count=1)
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(html)
 mb = sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(OUT) for f in fs) / 1e6
 print("Kapitel", [(t["id"], len(t["units"])) for t in topics], "Abbildungen", ABB[0], "MB", round(mb, 1))
