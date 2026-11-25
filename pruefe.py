@@ -7,6 +7,7 @@
   quellcode.zip (App + _gemeinsam), Pflichtlinks und Hinweise im <head>, Archivlink gültig, modell.js ohne DOM, Tests grün (node --test)
 - Parametric Planning Catalogue (katalog/bestand.json, 23.11.2026): dieselben Pflichten je App, Link zum Katalogeintrag statt Archivlink,
   quellcode.zip mit katalog/<app>/, katalog/_gemeinsam/ und simulationen/_gemeinsam/, Begründung für jedes nicht umgesetzte Modul
+  (nur in bestand.json); Übersicht seit 25.11.2026: alle Apps als Kacheln oben, keine Berichte, Hinweise zur Herkunft unten
 - Wissensbasis (25.11.2026): Seite DE/EN, KI-Lab_Wissensbasis.zip vollständig und ohne private Angaben, Einzeldateien, eine Kachel „anfang“
 """
 import json, os, re, subprocess, sys, zipfile
@@ -377,15 +378,20 @@ def pruefe_katalog(site=SITE, tests=True):
     if not os.path.exists(uebersicht):
         return b + ["lab/parametric-planning-catalogue/index.html fehlt"]
     u = open(uebersicht, encoding="utf-8").read()
-    n_kat = len([e for e in fertig if e in B["eintraege"]])
-    if u.count("const DATA") != 1 or u.count('"href"') != n_kat:
-        b.append(f"lab/parametric-planning-catalogue/index.html: {u.count(chr(34) + 'href' + chr(34))} Kacheln statt {n_kat}")
+    # Seit 25.11.2026 (Wunsch Reinhard): alle umgesetzten Apps, Katalog und DeCodingSpaces Lab, gemeinsam als Kacheln im Raster oben;
+    # die Listen mit Umsetzungsstand und Begründung stehen nur noch in katalog/bestand.json, unten nur die Hinweise zur Herkunft.
+    if u.count("const DATA") != 1 or u.count('"href"') != len(fertig):
+        b.append(f"lab/parametric-planning-catalogue/index.html: {u.count(chr(34) + 'href' + chr(34))} Kacheln statt {len(fertig)}")
     for e in fertig:
-        if e not in B["eintraege"] and f'class="karte" href="{e["app"]}/"' not in u:
-            b.append(f"lab/parametric-planning-catalogue/index.html: Lab-Kachel {e['app']} fehlt")
+        if f'"href": "{e["app"]}/"' not in u:
+            b.append(f"lab/parametric-planning-catalogue/index.html: Kachel {e['app']} fehlt")
     for e in E:
-        if e["url"] not in u:
-            b.append(f"lab/parametric-planning-catalogue/index.html: Modul {e['id']} fehlt in der Liste")
+        if e.get("status") != "umgesetzt" and e["url"] in u:
+            b.append(f"lab/parametric-planning-catalogue/index.html: Bericht zu {e['id']} (nicht umgesetzt) gehört nicht auf die Seite")
+    for basis, was in (("https://infar-buw.github.io/parametric-planning-catalogue/", "Parametric Planning Catalogue"),
+                       (KAT_URL["lab"], "DeCodingSpaces Lab")):
+        if f'href="{basis}' not in u:
+            b.append(f"lab/parametric-planning-catalogue/index.html: Hinweis zur Herkunft ({was}) fehlt")
     for f in ("katalog/_gemeinsam/geo.js", "katalog/_gemeinsam/szenen.js", "katalog/_gemeinsam/karte.js"):
         if not os.path.exists(os.path.join(wurzel, "_gemeinsam", os.path.basename(f))):
             b.append(f"lab/parametric-planning-catalogue/_gemeinsam/{os.path.basename(f)} fehlt")
