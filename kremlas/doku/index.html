@@ -1,0 +1,1224 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Dokumentation des KREMLAS-Projekts: Herkunft, Neuumsetzung als Web-App, Nachgenerieren der Palladio-Villen und der Siza-Häuser, Versuche zur Verbesserung.">
+<title>KREMLAS · Dokumentation · Entwurfsforschung</title>
+<meta name="author" content="Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic">
+<link rel="stylesheet" href="../../../schrift/geist.css">
+<style>
+/* Layout: Übersicht als Programmliste → Themen eines Programms → Lernansicht mit Gliederung links, Schritt-Fluss oben, Inhalt Mitte (wie edX-Kursseiten). InfAU: Linien statt Flächen, ein Akzent, Mono-Labels in Großbuchstaben. */
+:root {
+  --paper: #ffffff; --surface: #f2f2f2; --ink: #171717; --ink-2: #424242; --muted: #75757d;
+  --line: #dededf; --inactive: #7f7f7f; --accent: #4649e1; --accent-text: #4649e1; --on-accent: #ffffff;
+  --accent-tint: #d0d1f7; --done: #4649e1;
+  --sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  --head: 64px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #171717; --surface: #262626; --ink: #ffffff; --ink-2: #c9c9ce; --muted: #a3a3ab;
+    --line: #3a3a3e; --inactive: #8c8c8c; --accent-text: #9ea0f3; --accent-tint: #2a2b55; --done: #9ea0f3;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #171717; --surface: #262626; --ink: #ffffff; --ink-2: #c9c9ce; --muted: #a3a3ab;
+  --line: #3a3a3e; --inactive: #8c8c8c; --accent-text: #9ea0f3; --accent-tint: #2a2b55; --done: #9ea0f3;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--paper); }
+a { color: inherit; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+.label { font: 500 12px/16px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.meta { font: 400 12px/16px var(--mono); letter-spacing: .02em; color: var(--muted); }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+
+/* ---------- Kopfzeile ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line); }
+.top-in { height: var(--head); display: flex; align-items: center; gap: 20px; padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+/* Wortmarke der Bauhaus-Universität Weimar im Farbfeld der Uni-Seite (Palette „themed--blue“, #478bff; passt zum Akzent) */
+.uni { flex: none; display: block; background: #478bff; }
+.uni-logo { height: 34px; width: auto; display: block; }   /* die Wortmarke bringt den Innenabstand des Farbfelds selbst mit */
+/* Unter rund 400 px schrumpfen die Logos mit, sonst wird die Kopfzeile breiter als der Bildschirm (bis 280 px geprüft) */
+@media (max-width: 560px) { .uni-logo { height: min(22px, 5.3vw); } .top-in { gap: 12px; } .infau .logo { height: min(20px, 4.8vw); } }
+.infau { flex: none; display: block; margin-right: -6px; }   /* Logo zur Professur; 14 px Abstand zur Trennlinie wie zuvor */
+.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); flex: none; }
+.logo { height: 26px; width: auto; display: block; }
+.brand .label { color: var(--ink); padding-left: 14px; border-left: 1px solid var(--line); line-height: 26px; }
+.crumbs { display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; white-space: nowrap; }
+.crumbs a, .crumbs span { text-decoration: none; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+.crumbs a:hover { color: var(--accent-text); }
+.crumbs .sep { color: var(--line); }
+.crumbs .cur { color: var(--ink); }
+@media (max-width: 560px) { .brand .label { display: none; } }
+
+/* ---------- Übersicht ---------- */
+.site-foot { border-top: 1px solid var(--line); margin-top: 48px; padding: 18px 0 calc(22px + env(safe-area-inset-bottom, 0px)); font: 400 12px/18px var(--mono); letter-spacing: .02em; color: var(--muted); }
+.site-foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; }
+.site-foot a { color: inherit; }
+.ph .autor { margin: 14px 0 0; font: 400 12px/18px var(--mono); letter-spacing: .02em; color: var(--muted); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+.hero { padding-block: 56px 40px; display: grid; gap: 18px; }
+.hero h1 { font: 500 clamp(30px, 4.4vw, 52px)/1.08 var(--sans); letter-spacing: -.01em; max-width: 18ch; }
+.hero h1 em { font-style: normal; color: var(--accent-text); }
+.hero p { margin: 0; max-width: 62ch; color: var(--ink-2); font-size: 18px; line-height: 26px; }
+.hero .btn { white-space: normal; line-height: 1.35; }   /* lange Knopftexte umbrechen, sonst wird die Startseite auf dem Handy zu breit */
+.flowline { display: flex; align-items: center; gap: 0; margin-top: 8px; flex-wrap: wrap; row-gap: 10px; }
+.node { font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; border: 1.5px solid var(--ink); border-radius: 999px; padding: 9px 14px; white-space: nowrap; }
+.node.on { border-color: var(--accent); color: var(--accent-text); }
+.node.off { border-style: dashed; border-color: var(--inactive); color: var(--inactive); }
+.conn { width: 28px; height: 1.5px; background: var(--ink); flex: none; }
+.conn.off { background: repeating-linear-gradient(90deg, var(--inactive) 0 5px, transparent 5px 10px); }
+
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-block: 28px 14px; border-top: 1.5px solid var(--ink); }
+.sec-head .label { color: var(--accent-text); }
+.programs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 24px; padding-bottom: 40px; }
+.prog { display: grid; grid-template-rows: auto 1fr; border: 1px solid var(--line); text-decoration: none; color: inherit; background: var(--paper); transition: border-color .15s; }
+.prog:hover { border-color: var(--ink); }
+.prog-img { aspect-ratio: 16 / 9; background: var(--surface); display: grid; grid-template-columns: 1fr 1fr; gap: 1px; overflow: hidden; border-bottom: 1px solid var(--line); }
+.prog-img img { width: 100%; height: 100%; object-fit: cover; display: block; background: #fff; }
+.prog-img.one { grid-template-columns: 1fr; }   /* ein eigenes Titelbild je Programm (OLP: Kursbild von OTP) */
+.prog-body { padding: 20px; display: grid; gap: 12px; align-content: start; }
+.prog-body h2 { font: 500 26px/1.15 var(--sans); }
+.prog-body p { margin: 0; color: var(--ink-2); }
+/* DATA.card (OLP, Tutorials, KI Lernlabor): gleich hohe Kacheln – Text gekürzt, Fuß unten */
+.prog-body.fest { display: flex; flex-direction: column; }
+.prog-body.fest .prog-foot { margin-top: auto; }
+.prog-body p.clamp { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.topics-mini li.more span:first-child { color: var(--muted); }
+.prog-foot { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; padding-top: 6px; }
+.prog-foot .go { margin-left: auto; color: var(--accent-text); font: 500 13px/1 var(--mono); letter-spacing: .04em; }
+.topics-mini { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+.topics-mini li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.topics-mini li span:last-child { font: 400 12px/20px var(--mono); color: var(--muted); white-space: nowrap; }
+.soon { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; padding-bottom: 64px; }
+.soon-item { border: 1.5px dashed var(--inactive); border-radius: 999px; padding: 14px 22px; display: grid; gap: 2px; color: var(--inactive); }
+.soon-item b { font: 500 15px/1.3 var(--sans); color: var(--ink-2); }
+
+/* ---------- Programmseite ---------- */
+.ph { padding-block: 44px 28px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end; }
+.ph h1 { font: 500 clamp(30px, 4vw, 46px)/1.1 var(--sans); }
+.ph p { margin: 10px 0 0; color: var(--ink-2); max-width: 60ch; font-size: 18px; line-height: 26px; }
+.ph-side { display: grid; gap: 6px; text-align: right; }
+.ph-dl { display: grid; gap: 8px; justify-items: end; margin-top: 10px; }
+.ph-dl .btn { font-size: 12px; padding: 10px 12px; }
+@media (max-width: 720px) { .ph { grid-template-columns: 1fr; } .ph-side { text-align: left; } .ph-dl { justify-items: start; } }
+.topics { display: grid; gap: 0; padding-bottom: 64px; border-top: 1.5px solid var(--ink); }
+.topic { display: grid; grid-template-columns: 56px 220px minmax(0, 1fr) 190px; gap: 24px; align-items: center; padding-block: 22px; border-bottom: 1px solid var(--line); text-decoration: none; color: inherit; }
+.topic:hover .t-title { color: var(--accent-text); }
+.t-num { font: 300 40px/1 var(--mono); color: var(--inactive); }
+.t-img { aspect-ratio: 3 / 2; background: #fff; border: 1px solid var(--line); overflow: hidden; }
+.t-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.t-body { display: grid; gap: 6px; min-width: 0; }
+.t-title { font: 500 22px/1.2 var(--sans); transition: color .15s; }
+.t-body p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.t-cmds { font: 400 12.5px/1.5 var(--mono); color: var(--muted); }
+.t-cmds b { font-weight: 500; color: var(--accent-text); }
+.t-side { display: grid; gap: 10px; justify-items: end; }
+.bar { width: 100%; height: 4px; background: var(--line); position: relative; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+.btn { display: inline-flex; align-items: center; gap: 10px; font: 500 13px/1 var(--mono); letter-spacing: .05em; text-transform: uppercase; padding: 12px 16px; border: 1.5px solid var(--ink); text-decoration: none; white-space: nowrap; }
+.btn.primary { background: var(--accent-tint); border-color: var(--accent-text); color: var(--accent-text); }
+.btn:disabled { opacity: .35; cursor: default; }
+@media (max-width: 900px) {
+  .topic { grid-template-columns: 44px minmax(0, 1fr); }
+  .t-img { display: none; }
+  .t-side { grid-column: 2; justify-items: start; }
+}
+
+/* ---------- Lernansicht ---------- */
+.learn { display: grid; grid-template-columns: var(--ol-w, 300px) minmax(0, 1fr); min-height: calc(100% - var(--head)); position: relative; }
+/* Breite der Gliederung per Ziehen an der Trennlinie; Doppelklick setzt zurück */
+.ol-resize { position: absolute; top: 0; bottom: 0; left: calc(var(--ol-w, 300px) - 5px); width: 10px; z-index: 12; cursor: col-resize; touch-action: none; }
+.ol-resize::after { content: ""; position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: transparent; transition: background .15s; }
+.ol-resize:hover::after, .ol-resize:focus-visible::after, .ol-resize.drag::after { background: var(--accent-text); }
+.ol-resize:focus-visible { outline: 0; }
+body.ol-dragging { cursor: col-resize; user-select: none; }
+.outline { border-right: 1px solid var(--line); padding: 22px 0 40px var(--gutter-l); position: sticky; top: calc(var(--head) + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - var(--head)); overflow-y: auto; }
+.ol-prog { padding-right: 18px; display: grid; gap: 4px; padding-bottom: 16px; }
+.ol-prog b { font: 500 18px/1.2 var(--sans); }
+a.ol-prog { color: inherit; text-decoration: none; }
+a.ol-prog:hover b, a.ol-prog:focus-visible b { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.ol-topic { border-top: 1px solid var(--line); }
+.ol-topic > button { width: 100%; text-align: left; display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px 18px 12px 0; font: 500 14px/1.3 var(--sans); }
+.ol-topic > button .meta { align-self: center; }
+.ol-topic.cur > button { color: var(--accent-text); }
+.ol-units { list-style: none; margin: 0 0 10px; padding: 0; position: relative; }
+.ol-units::before { content: ""; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 1.5px; background: var(--line); }
+.ol-units a { position: relative; display: grid; grid-template-columns: 16px 1fr; gap: 12px; padding: 6px 18px 6px 0; text-decoration: none; color: var(--ink-2); font-size: 13.5px; line-height: 1.35; }
+.ol-units a:hover { color: var(--ink); }
+.dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--inactive); background: var(--paper); margin-top: 1px; position: relative; z-index: 1; }
+.done .dot { border-color: var(--done); background: var(--done); }
+.done .dot::after { content: ""; position: absolute; left: 4.5px; top: 1.5px; width: 4px; height: 8px; border: solid var(--paper); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+.ol-units a.cur { color: var(--ink); font-weight: 500; }
+.ol-units a.cur .dot { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-tint); }
+
+.main { min-width: 0; padding: 0 var(--gutter-r) 64px 40px; }
+.seq { position: sticky; top: calc(var(--head) + env(safe-area-inset-top, 0px)); z-index: 10; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; padding-block: 12px; }
+.seq-nodes { display: flex; align-items: center; overflow-x: auto; scrollbar-width: thin; padding: 4px 2px; min-width: 0; flex: 1; }
+.sq { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border: 1.5px solid var(--inactive); color: var(--inactive); font: 500 12px/1 var(--mono); text-decoration: none; background: var(--paper); }
+.sq.done { border-color: var(--done); color: var(--done); }
+.sq.cur { border-color: var(--accent-text); background: var(--accent-tint); color: var(--accent-text); }
+.sq-c { flex: none; width: 14px; height: 1.5px; background: var(--line); }
+.chev { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border: 1.5px solid var(--ink); }
+.chev:disabled { border-color: var(--line); color: var(--line); cursor: default; }
+.chev svg { width: 14px; height: 14px; }
+.toc-btn { display: none; }
+@media (max-width: 960px) {
+  .learn { grid-template-columns: minmax(0, 1fr); }
+  .ol-resize { display: none; }
+  .outline { display: none; position: fixed; inset: calc(var(--head) + env(safe-area-inset-top, 0px)) 0 0 0; height: auto; z-index: 25; background: var(--paper); border-right: 0; padding-right: var(--gutter-r); }
+  .outline.open { display: block; }
+  .main { padding-left: var(--gutter-l); }
+  .toc-btn { display: inline-flex; }
+}
+.progress { height: 3px; background: var(--line); }
+.progress i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+
+.unit-head { padding-block: 26px 18px; display: grid; gap: 8px; }
+.unit-head .label { color: var(--accent-text); }
+.unit-head h1 { font: 500 clamp(22px, 2.6vw, 32px)/1.15 var(--mono); text-transform: uppercase; letter-spacing: -.005em; }
+.unit-head .sub { font: 400 14px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 26px; }
+.tabs button { padding: 10px 2px; margin-right: 26px; font: 500 12px/16px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-color: var(--accent); }
+.content { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+@media (max-width: 1180px) { .content { grid-template-columns: minmax(0, 1fr); } }
+.media { display: grid; gap: 14px; }
+.media figure { margin: 0; display: grid; gap: 8px; }
+.media .gruppe { display: grid; gap: 8px; }
+.media .gruppe + .gruppe { margin-top: 18px; }
+.media .frame { border: 1px solid var(--line); background: #fff; cursor: zoom-in; display: block; padding: 0; width: 100%; }
+.media .frame img { display: block; width: 100%; height: auto; }
+.media .strip { border: 1px solid var(--line); background: #1d1d1d; overflow-x: auto; }
+.media .strip img { display: block; max-width: none; height: 34px; }
+.media .row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+/* Videos (OLP): Vorschaubild von der eigenen Seite, der Player des Anbieters erst nach Zustimmung */
+.media .video { margin: 0; display: grid; gap: 8px; }
+.video .v-box { position: relative; aspect-ratio: 16 / 9; background: #111; border: 1px solid var(--line); overflow: hidden; }
+.video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video .v-start { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; background: #111; color: #fff; font: inherit; text-align: left; cursor: pointer; }
+.video .v-start img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: .82; }
+.video .v-play { position: absolute; left: 50%; top: 42%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; }
+.video .v-start:hover .v-play, .video .v-start:focus-visible .v-play { transform: scale(1.08); }
+.video .v-play svg { width: 24px; height: 24px; margin-left: 4px; }
+.video .v-note { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 14px; background: rgba(0, 0, 0, .74); font-size: 13px; line-height: 1.45; }
+.video figcaption { font-size: 13px; color: var(--muted); }
+.app-embed { margin: 0; display: grid; gap: 8px; }
+.app-embed iframe { display: block; width: 100%; border: 1px solid var(--line); background: var(--paper); }
+.app-embed figcaption { font-size: 13px; color: var(--muted); }
+.site-foot button.v-revoke { padding: 0; border: 0; background: none; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+figcaption { font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.labels { font: 400 12px/1.5 var(--mono); color: var(--muted); }
+.text { display: grid; gap: 24px; min-width: 0; overflow-wrap: anywhere; }   /* lange Adressen umbrechen (auch in Grid-Kästen) */
+.why { border: 1.5px solid var(--ink); border-radius: 16px; padding: 18px 20px; display: grid; gap: 8px; }
+.why .label { color: var(--accent-text); }
+.why p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--ink); }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 16px; line-height: 1.5; }
+.steps li:first-child { border-top: 1.5px solid var(--ink); }
+.steps .n { width: 28px; height: 28px; border: 1.5px solid var(--ink); border-radius: 50%; display: grid; place-items: center; font: 500 12px/1 var(--mono); margin-top: -1px; }
+.steps .n.b { border: 0; }
+.steps .n.b::before { content: ""; width: 8px; height: 8px; background: var(--ink); }
+.steps li.sub { grid-template-columns: 34px 18px minmax(0, 1fr); padding-top: 4px; border-top: 0; font-size: 15px; color: var(--ink-2); }
+.steps li.sub::before { content: none; }   /* kein Pseudo-Element: es wäre ein zusätzliches Rasterelement und schöbe den Text in die 34-px-Spalte */
+.steps li.sub .n { display: none; }
+.steps li.sub .s-mark { width: 10px; height: 1.5px; background: var(--inactive); margin-top: 11px; }
+.steps li.h { display: block; padding: 18px 0 6px; border-bottom: 0; }
+.steps li.h:first-child { border-top: 0; padding-top: 0; }
+.steps li.h b { font: 500 12px/16px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent-text); }
+.boxes { display: grid; gap: 22px; }
+.boxes.b-text { display: none; }
+@media (max-width: 1180px) { .boxes.b-media { display: none; } .boxes.b-text { display: grid; } }
+code.cmd { font: 500 .9em/1 var(--mono); color: var(--accent-text); background: none; padding: 0 1px; border-bottom: 1px dashed transparent; cursor: copy; }
+abbr[title] { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+code.cmd:hover { border-bottom-color: var(--accent-text); }
+.hint { font-size: 15px; color: var(--ink-2); padding-left: 16px; border-left: 1.5px dashed var(--inactive); }
+.foot { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; margin-top: 36px; padding-top: 22px; border-top: 1.5px solid var(--ink); }
+.foot .spacer { flex: 1; }
+.check { display: inline-flex; align-items: center; gap: 10px; font: 500 13px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+.steps.has-ico li:not(.h):not(.sub) { grid-template-columns: 34px 30px minmax(0, 1fr); gap: 12px; }
+.steps .ico { width: 30px; height: 30px; display: grid; place-items: center; margin-top: -2px; }
+.steps .ico img { width: 26px; height: 26px; display: block; }
+.steps .ico .ico-d { display: none; }
+.probl { display: grid; gap: 14px; justify-items: start; padding-bottom: 36px; }
+.probl ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; width: 100%; }
+.probl li { display: flex; gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.probl li > span:nth-child(2), .probl li > span:first-child:not(.neu) { flex: 1; }
+.probl p { margin: 0; color: var(--ink-2); }
+.neu { font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--on-accent); background: var(--accent); padding: 4px 7px; border-radius: 4px; }
+.dl { display: grid; gap: 8px; }
+.dl .label { color: var(--muted); }
+.dl-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px 14px; border: 1.5px solid var(--ink); text-decoration: none; color: var(--ink); }
+.dl-item:hover { border-color: var(--accent-text); color: var(--accent-text); }
+.dl-item svg { width: 18px; height: 18px; margin-top: 2px; }
+.dl-item b { font-weight: 500; }
+.dl-item .meta { display: block; margin-top: 2px; }
+.orient { display: grid; gap: 14px; margin-top: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.orient .label { color: var(--muted); }
+.orient figure { margin: 0; display: grid; gap: 6px; justify-items: start; }
+.orient .frame.dark { background: #1e1e1e; border-color: #1e1e1e; width: auto; max-width: 100%; }
+.orient .frame.dark img { width: auto; max-width: 100%; height: auto; max-height: 220px; }
+.steps .wo { display: flex; gap: 6px; align-items: flex-start; margin-top: 6px; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.steps .wo svg { width: 12px; height: 12px; flex: none; margin-top: 3px; }
+.steps .wo b { font-weight: 500; color: var(--ink-2); }
+.steps .wo .oder { font-style: italic; }
+:root[data-theme="dark"] .steps .ico .ico-l { display: none; }
+:root[data-theme="dark"] .steps .ico .ico-d { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .steps .ico .ico-l { display: none; }
+  :root:not([data-theme="light"]) .steps .ico .ico-d { display: block; }
+}
+.done-panel { border: 1.5px solid var(--accent); padding: 28px; display: grid; gap: 14px; margin-top: 30px; }
+.done-panel h2 { font: 500 26px/1.2 var(--sans); }
+.done-panel p { margin: 0; color: var(--ink-2); max-width: 60ch; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); font: 500 12px/1 var(--mono); letter-spacing: .04em; padding: 12px 16px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 40; }
+.toast.show { opacity: 1; }
+dialog { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+dialog::backdrop { background: rgba(10, 10, 12, .82); }
+dialog img { display: block; max-width: 96vw; max-height: 90vh; width: auto; height: auto; background: #fff; }
+dialog button { position: absolute; right: 10px; top: 10px; background: var(--paper); color: var(--ink); padding: 8px 12px; font: 500 12px/1 var(--mono); }
+.mock-note { color: var(--muted); padding-bottom: 28px; }
+[hidden] { display: none !important; }
+/* Kontrolle und „Klappt nicht?“ */
+.kontrolle { border: 1.5px solid var(--accent-text); border-radius: 16px; padding: 14px 18px; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 4px 12px; }
+.kontrolle svg { width: 18px; height: 18px; color: var(--accent-text); margin-top: 1px; grid-row: span 2; }
+.kontrolle .label { color: var(--accent-text); }
+.kontrolle p { margin: 0; font-size: 15.5px; line-height: 1.5; }
+.antwort { margin-top: 8px; }
+.antwort summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1 var(--mono); letter-spacing: .05em; text-transform: uppercase; color: var(--accent-text); padding: 4px 0; }
+.antwort summary::-webkit-details-marker { display: none; }
+.antwort summary::before { content: "+"; font: 500 15px/1 var(--mono); width: 12px; }
+.antwort[open] summary::before { content: "−"; }
+.antwort[open] summary { color: var(--muted); }
+.antwort .auf, .antwort[open] .zu { display: none; }
+.antwort[open] .auf { display: inline; }
+.antwort p { margin: 6px 0 0; padding-left: 12px; border-left: 1.5px solid var(--accent-text); color: var(--ink-2); }
+.loesung { border: 1.5px solid var(--marker, #f26a1b); padding: 0 16px; }
+.loesung summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 14px 0; font: 500 13px/1 var(--mono); letter-spacing: .05em; text-transform: uppercase; color: var(--marker, #f26a1b); }
+.loesung summary::-webkit-details-marker { display: none; }
+.loesung summary::before { content: "+"; font: 500 16px/1 var(--mono); width: 14px; }
+.loesung[open] summary::before { content: "−"; }
+.loesung .auf, .loesung[open] .zu { display: none; }
+.loesung[open] .auf { display: inline; }
+.loesung[open] { padding-bottom: 16px; display: grid; gap: 14px; }
+.loesung > .label { color: var(--muted); }
+.loesung .steps .n { border-color: var(--marker, #f26a1b); color: var(--marker, #f26a1b); }
+.klappt { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.klappt summary { list-style: none; cursor: pointer; padding: 12px 0; display: flex; align-items: center; gap: 10px; color: var(--ink-2); }
+.klappt summary::-webkit-details-marker { display: none; }
+.klappt summary::before { content: "+"; font: 500 16px/1 var(--mono); width: 14px; color: var(--muted); }
+.klappt[open] summary::before { content: "−"; }
+.klappt ul { margin: 0; padding: 0 0 14px 24px; list-style: none; display: grid; gap: 12px; }
+.klappt li { display: grid; gap: 2px; font-size: 15px; line-height: 1.5; }
+.klappt li b { font-weight: 500; }
+.klappt li span { color: var(--ink-2); }
+/* Problem melden */
+.report { margin-top: 28px; }
+.report > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; color: var(--muted); }
+.report > summary::-webkit-details-marker { display: none; }
+.report > summary:hover { color: var(--accent-text); }
+.report > summary svg { width: 16px; height: 16px; }
+.report form { margin-top: 16px; border: 1.5px solid var(--ink); border-radius: 16px; padding: 20px; display: grid; gap: 16px; max-width: 720px; }
+.report form p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; border: 0; margin: 0; padding: 0; }
+.chips legend { padding: 0; margin-bottom: 8px; }
+.chips label { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); font-size: 14px; cursor: pointer; }
+.chips label:has(input:checked) { border-color: var(--accent-text); color: var(--accent-text); background: var(--accent-tint); }
+.chips input { margin: 0; accent-color: var(--accent); }
+.fld { display: grid; gap: 6px; }
+.fld textarea, .fld input { font: 400 15px/1.45 var(--sans); color: var(--ink); background: var(--paper); border: 1px solid var(--line); padding: 10px 12px; width: 100%; box-sizing: border-box; }
+.fld textarea { min-height: 110px; resize: vertical; }
+.fld textarea:focus, .fld input:focus { outline: 2px solid var(--accent-text); outline-offset: -1px; }
+.row-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
+.report .status { font: 400 13px/1.4 var(--mono); color: var(--muted); }
+.report .status.ok { color: var(--accent-text); }
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
+.top .mlink { color: var(--muted); text-decoration: none; white-space: nowrap; }
+.top .mlink:hover { color: var(--accent-text); }
+.theme-btn { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--line); color: var(--ink-2); background: none; cursor: pointer; }
+.theme-btn:hover { border-color: var(--accent-text); color: var(--accent-text); }
+.theme-btn svg { width: 15px; height: 15px; }
+/* Umschalter De/En, nur wenn das Bau-Skript DATA.lang setzt */
+.theme-btn[hidden] { display: none; }
+.lang-sw { text-decoration: none; white-space: nowrap; }
+.lang-sw b { font-weight: 700; color: var(--accent-text); }
+.lang-sw.aus { opacity: .5; cursor: not-allowed; }
+.lang-sw.aus:hover { border-color: var(--line); color: var(--ink-2); }
+@media (max-width: 560px) { .top-in:has(.lang-sw:not([hidden])) .infau { display: none; } .lang-sw { padding: 7px 6px; gap: 0; } }
+@media (max-width: 560px) { .theme-btn .t-txt { display: none; } }
+/* Handy: Der Pfad bekommt eine eigene zweite Zeile, sonst drücken Uni-Wortmarke, DE / EN und Hell/Dunkel ihn auf 0 px
+   und es gibt keinen Rückweg zur Übersicht (Wunsch Nutzer 10.11.2026, Prüfung pruefe_handy.py).
+   --head wächst nur, wenn der Pfad etwas enthält; Gliederung und Schrittleiste rechnen mit --head und rücken mit. */
+@media (max-width: 560px) {
+  :root:has(#crumbs:not(:empty)) { --head: 92px; }
+  .top-in { flex-wrap: wrap; align-content: center; row-gap: 6px; }
+  .brand:not(:has(.logo)) { display: none; }   /* nur noch das ausgeblendete Wort „Tutorials“: sonst kostet der leere Link Abstand und bricht bei 320 px die erste Zeile um */
+  .crumbs { order: 9; flex: 1 0 100%; }
+  .crumbs a, .crumbs span { flex: none; max-width: 60%; }
+  .crumbs .cur { flex: 0 1 auto; min-width: 0; }
+}
+.notice { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 45; width: min(440px, calc(100vw - 32px)); background: var(--paper); color: var(--ink); border: 1.5px solid var(--accent-text); border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; box-shadow: 0 8px 28px rgba(0, 0, 0, .18); }
+.notice .label { color: var(--accent-text); }
+.notice p { margin: 0; font-size: 14.5px; line-height: 1.5; grid-column: 1; }
+.notice p a { color: var(--accent-text); }
+.notice button { grid-row: 1; grid-column: 2; align-self: start; background: none; border: 0; color: var(--muted); font: 500 18px/1 var(--mono); cursor: pointer; padding: 0 2px; }
+.mel { display: grid; gap: 0; margin-top: 8px; }
+.mel article { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.mel article:first-child { border-top: 1.5px solid var(--ink); }
+.mel article.erledigt { opacity: .55; }
+.mel h3 { margin: 0; font: 500 15px/1.4 var(--sans); }
+.mel p { margin: 0; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+.mel .side { display: grid; gap: 8px; justify-items: end; align-content: start; }
+@media (max-width: 640px) { .mel article { grid-template-columns: minmax(0, 1fr); } .mel .side { justify-items: start; } }
+/* Apps: Karten mit zwei Zielen, Prompts zum Kopieren, Knöpfe im Text */
+.programs.apps-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }   /* wie .programs: drei Kacheln nebeneinander, wenn Platz ist */
+.app-card .prog-img { color: inherit; }
+.app-card .prog-foot { gap: 10px; }
+.app-card .prog-foot .meta { margin-right: auto; }
+.text a:not(.btn):not(.dl-item) { color: var(--accent-text); }
+.acts { display: flex; flex-wrap: wrap; gap: 12px; }
+/* Bericht (KI Lernlabor, Hintergrundrecherche 17.11.2026): einspaltige Lesespalte statt Bild- und Textspalte, Units mit „bloecke“ */
+.bericht { max-width: 76ch; display: grid; gap: 16px; min-width: 0; overflow-wrap: anywhere; }
+.bericht p { margin: 0; font-size: 16.5px; line-height: 1.65; color: var(--ink); }
+.bericht h3 { margin: 14px 0 0; font: 600 18px/1.3 var(--sans); }
+.bericht ul, .bericht ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; font-size: 16.5px; line-height: 1.6; }
+.bericht .tab-wrap { overflow-x: auto; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
+.bericht table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.45; overflow-wrap: normal; }
+.bericht th, .bericht td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); min-width: 9ch; }
+.bericht th { font: 500 12px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.bericht tr:last-child td { border-bottom: 0; }
+.bericht figure { margin: 8px 0; display: grid; gap: 8px; }
+.bericht .frame { border: 1px solid var(--line); background: #fff; cursor: zoom-in; display: block; padding: 0; width: 100%; }
+.bericht .frame img { display: block; width: 100%; height: auto; }
+.bericht figcaption .quelle { display: block; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
+.bericht .st { font: 500 11px/1 var(--mono); color: var(--muted); white-space: nowrap; }
+.prompts { display: grid; gap: 14px; }
+.prompt { border: 1.5px solid var(--accent-text); background: var(--accent-tint); display: grid; min-width: 0; }
+.prompt-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 6px 6px 16px; border-bottom: 1px solid var(--accent-text); }
+.prompt-h .label { color: var(--accent-text); }
+.prompt pre { margin: 0; padding: 14px 16px 16px; white-space: pre-wrap; overflow-wrap: anywhere; font: 400 15.5px/1.55 var(--sans); color: var(--ink); }
+.prompt pre mark { background: none; color: var(--accent-text); font-style: italic; }
+.btn.sm { padding: 8px 10px; font-size: 12px; background: var(--paper); color: var(--accent-text); border-color: var(--accent-text); cursor: pointer; }
+.apps-intro { display: grid; gap: 10px; max-width: 70ch; padding-bottom: 28px; color: var(--ink-2); }
+.apps-intro p { margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<nav class="ef-zurueck" style="position:sticky;top:0;z-index:50;background:#000;padding:8px 16px;font:500 12px/1 Geist Mono,ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase"><a href="../" style="color:#fff;text-decoration:none">← KREMLAS · App</a><a href="../../../" style="color:#9ea0f3;text-decoration:none;margin-left:1.5em">KI Lab</a><a href="../../../lab/methode/kremlas/" style="color:#9ea0f3;text-decoration:none;margin-left:1.5em">Methode · Method</a></nav>
+<header class="top">
+  <div class="top-in">
+    <a class="uni" href="https://www.uni-weimar.de/de/" target="_blank" rel="noopener" title="Bauhaus-Universität Weimar"><svg class="uni-logo" role="img" aria-label="Bauhaus-Universität Weimar" viewBox="0 0 532 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#uniclip)">
+<path d="M531.018 0H0V61.6059H531.018V0Z" fill="none"/>
+<mask id="unimask" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="532" height="62">
+<path d="M531.018 0H0V61.6059H531.018V0Z" fill="white"/>
+</mask>
+<g mask="url(#unimask)">
+<path d="M32.3473 35.8432C32.3473 38.7726 29.9046 40.3391 26.6655 40.3391C25.5946 40.3391 23.8423 40.3037 23.8423 40.3037L23.8777 31.3827H26.5062C30.9667 31.3827 32.3384 32.7899 32.3384 35.8432M32.1172 23.7185C32.1172 26.3824 30.2498 28.2498 26.4 28.2498H23.9219L23.9573 19.8687C23.9573 19.8687 25.099 19.789 26.7009 19.789C28.4532 19.789 32.1083 19.789 32.1083 23.7096M36.6927 35.9228C36.6927 32.6483 34.7899 30.126 31.5508 29.595C32.958 29.0286 36.4272 28.0374 36.4272 23.4264C36.4272 17.249 30.8605 16.6826 26.9398 16.6826C25.4176 16.6826 19.9659 16.9127 19.9659 16.9127L19.7358 43.3658C19.7358 43.3658 24.7273 43.5163 26.4796 43.5163C31.8871 43.5163 36.6927 41.3834 36.6927 35.9317" fill="#ffffff"/>
+<path d="M51.676 33.8162L51.6406 38.5864C50.5786 39.9228 49.1626 40.8698 47.7554 40.8698C45.9588 40.8698 44.8614 39.8786 44.8614 38.1262C44.8614 35.5331 46.8438 34.657 51.6849 33.8162M59.296 42.2858L58.1897 40.2237C57.5437 40.6043 57.1631 40.799 56.7029 40.799C55.6763 40.799 55.4816 40.3034 55.517 38.6307L55.632 28.9132C55.6674 25.559 53.3841 23.7271 50.375 23.7271C47.9766 23.7271 44.7375 24.6386 42.0648 27.3114L44.0118 29.4885C46.4102 27.276 48.0475 26.86 49.2688 26.86C50.791 26.86 51.7114 27.5857 51.7114 29.639V31.3559C45.2331 32.4621 40.9673 33.8339 40.9673 38.2147C40.9673 41.7991 43.0294 43.7815 46.6049 43.7815C48.7378 43.7815 50.6051 42.6044 52.0212 40.9229C52.1008 42.8699 53.4372 43.7815 55.1099 43.7815C56.2161 43.7815 57.5879 43.3301 59.3048 42.2947" fill="#ffffff"/>
+<path d="M78.1203 24.1432H74.12L74.0492 37.2149C72.5978 39.0026 70.9251 40.2239 69.2082 40.2239C67.1903 40.2239 66.1195 39.392 66.1637 37.1795L66.3142 24.1432H62.3139L62.1988 37.976C62.1634 41.2151 63.5706 43.764 67.801 43.764C70.4737 43.764 72.527 42.2771 74.3147 40.3301C74.2793 40.7461 74.235 42.047 74.1996 43.3392H77.9698L78.1203 24.1255V24.1432Z" fill="#ffffff"/>
+<path d="M100.467 29.5947C100.502 25.8954 98.7853 23.7271 94.9798 23.7271C92.5814 23.7271 90.0237 25.2936 88.5015 27.0459C88.8024 22.9306 88.6873 18.7799 88.7316 14.6646H84.7313L84.5455 43.3567H88.5457L88.6254 30.2851C89.8467 28.9133 91.6344 27.276 93.5815 27.276C95.5285 27.276 96.4401 28.1876 96.4401 30.0992L96.3604 43.3656H100.361L100.476 29.6036L100.467 29.5947Z" fill="#ffffff"/>
+<path d="M115.751 33.8162L115.716 38.5864C114.645 39.9228 113.238 40.8698 111.83 40.8698C110.043 40.8698 108.936 39.8786 108.936 38.1262C108.936 35.5331 110.919 34.657 115.76 33.8162M123.38 42.2858L122.274 40.2237C121.628 40.6043 121.247 40.799 120.787 40.799C119.76 40.799 119.565 40.3034 119.61 38.6307L119.725 28.9132C119.76 25.559 117.477 23.7271 114.468 23.7271C112.069 23.7271 108.83 24.6386 106.158 27.3114L108.105 29.4885C110.503 27.276 112.14 26.86 113.362 26.86C114.884 26.86 115.804 27.5857 115.804 29.639V31.3559C109.326 32.4621 105.06 33.8339 105.06 38.2147C105.06 41.7991 107.113 43.7815 110.698 43.7815C112.831 43.7815 114.698 42.6044 116.105 40.9229C116.185 42.8699 117.521 43.7815 119.194 43.7815C120.3 43.7815 121.672 43.3301 123.389 42.2947" fill="#ffffff"/>
+<path d="M142.204 24.1432H138.204L138.124 37.2149C136.673 39.0026 135 40.2239 133.283 40.2239C131.265 40.2239 130.195 39.392 130.239 37.1795L130.389 24.1432H126.389L126.274 37.976C126.239 41.2151 127.646 43.764 131.876 43.764C134.54 43.764 136.602 42.2771 138.39 40.3301C138.354 40.7461 138.31 42.047 138.275 43.3392H142.045L142.195 24.1255L142.204 24.1432Z" fill="#ffffff"/>
+<path d="M160.736 25.2493C159.179 24.2227 156.701 23.7271 154.559 23.7271C150.975 23.7271 147.39 25.6298 147.39 29.3646C147.39 36.2589 156.497 34.1614 156.497 38.2059C156.497 40.0379 154.55 40.914 153.028 40.914C151.355 40.914 149.904 40.383 148.567 39.5777L147.081 42.1708C148.913 43.3124 151.125 43.7638 153.373 43.7638C156.763 43.7638 160.612 41.6309 160.612 37.8253C160.612 31.0373 151.461 32.9489 151.461 29.0194C151.461 27.1167 153.293 26.5768 155.046 26.5768C156.418 26.5768 158.099 27.1078 159.205 27.7185L160.728 25.2404L160.736 25.2493Z" fill="#ffffff"/>
+</g>
+<path d="M175.897 31.8428H164.843V35.0465H175.897V31.8428Z" fill="#ffffff"/>
+<mask id="mask1_1642_15509" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="532" height="62">
+<path d="M531.018 0H0V61.6059H531.018V0Z" fill="white"/>
+</mask>
+<g mask="url(#mask1_1642_15509)">
+<path d="M202.651 16.9038H198.881L198.65 33.4801C198.571 37.7459 196.367 40.4186 191.977 40.4186C187.862 40.4186 185.694 38.1353 185.729 34.0111L185.844 16.9038H181.809L181.694 33.5598C181.658 40.3832 185.119 43.7729 191.836 43.7729C198.553 43.7729 202.394 40.3832 202.465 33.6394L202.66 16.9127L202.651 16.9038Z" fill="#ffffff"/>
+<path d="M225.519 29.4796C225.555 26.2405 224.148 23.7271 219.917 23.7271C217.253 23.7271 215.191 25.1785 213.395 27.1167C213.43 26.7007 213.474 25.444 213.51 24.143H209.731L209.58 43.3478H213.545L213.66 30.2408C215.112 28.453 216.784 27.2317 218.501 27.2317C220.519 27.2317 221.59 28.0725 221.555 30.285L221.44 43.3567H225.404L225.519 29.4885V29.4796Z" fill="#ffffff"/>
+</g>
+<path d="M236.007 24.1434H232.077L231.927 43.3482H235.848L235.998 24.1434H236.007ZM236.202 16.7446H231.971V20.8245H236.202V16.7446Z" fill="#ffffff"/>
+<mask id="mask2_1642_15509" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="532" height="62">
+<path d="M531.018 0H0V61.6059H531.018V0Z" fill="white"/>
+</mask>
+<g mask="url(#mask2_1642_15509)">
+<path d="M258.221 24.7539L254.672 23.7273L250.751 34.0554C249.53 37.2503 248.999 39.162 248.999 39.162C248.999 39.162 248.424 36.7636 247.362 33.6395L243.972 23.6919L240.087 24.7539L246.831 43.3569H250.645L258.23 24.7539H258.221Z" fill="#ffffff"/>
+<path d="M273.47 31.1966L265.159 31.232C265.504 28.984 267.177 26.506 269.655 26.506C272.434 26.506 273.62 28.7185 273.47 31.1966ZM277.24 32.8339C277.24 27.6919 275.408 23.7271 269.956 23.7271C264.053 23.7271 260.734 28.7185 260.734 33.9047C260.734 41.2238 264.239 43.7726 269.16 43.7726C272.054 43.7726 274.001 42.8257 276.213 40.8786L274.116 38.6307C272.744 39.9228 271.372 40.6839 269.655 40.6839C265.735 40.6839 264.814 37.0642 264.894 33.9755L277.204 33.9401C277.204 33.595 277.24 33.179 277.24 32.8339Z" fill="#ffffff"/>
+<path d="M292.71 23.9484C292.25 23.7979 291.754 23.7183 291.223 23.7183C288.665 23.7183 287.187 25.7803 286.001 27.869C286.116 26.4176 286.116 24.1342 286.116 24.1342H282.346L282.196 43.3479H286.161L286.276 31.1524C287.568 28.6035 289.205 27.453 290.736 27.453C291.117 27.453 291.533 27.5327 291.878 27.6035L292.719 23.9484H292.71Z" fill="#ffffff"/>
+<path d="M308.259 25.2493C306.693 24.2227 304.215 23.7271 302.082 23.7271C298.498 23.7271 294.922 25.6298 294.922 29.3646C294.922 36.2589 304.029 34.1614 304.029 38.2059C304.029 40.0379 302.082 40.914 300.56 40.914C298.878 40.914 297.436 40.383 296.099 39.5777L294.613 42.1708C296.445 43.3124 298.648 43.7638 300.905 43.7638C304.295 43.7638 308.144 41.6309 308.144 37.8253C308.144 31.0373 299.002 32.9489 299.002 29.0194C299.002 27.1167 300.834 26.5768 302.587 26.5768C303.958 26.5768 305.64 27.1078 306.737 27.7185L308.259 25.2404V25.2493Z" fill="#ffffff"/>
+</g>
+<path d="M317.596 24.1434H313.667L313.516 43.3482H317.437L317.588 24.1434H317.596ZM317.782 16.7446H313.552V20.8245H317.782V16.7446Z" fill="#ffffff"/>
+<mask id="mask3_1642_15509" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="532" height="62">
+<path d="M531.018 0H0V61.6059H531.018V0Z" fill="white"/>
+</mask>
+<g mask="url(#mask3_1642_15509)">
+<path d="M335.341 42.0208L333.934 39.7728C333.243 40.2242 332.261 40.764 331.341 40.764C330.119 40.764 329.022 40.1888 329.022 38.171L329.057 27.1171H334.81V24.1435H329.093L329.128 17.3643H325.163L325.128 24.1435H321.96V27.1171H325.084L325.013 38.0913C324.977 42.2509 326.765 43.7731 330.5 43.7731C332.217 43.7731 333.854 42.9677 335.341 42.0208Z" fill="#ffffff"/>
+<path d="M347.802 33.8253L347.767 38.5955C346.696 39.9319 345.289 40.8789 343.881 40.8789C342.094 40.8789 340.987 39.8876 340.987 38.1353C340.987 35.5422 342.97 34.6661 347.811 33.8253M355.422 42.286L354.316 40.2239C353.67 40.6045 353.289 40.7992 352.829 40.7992C351.802 40.7992 351.608 40.3036 351.652 38.6309L351.767 28.9135C351.802 25.5593 349.519 23.7273 346.501 23.7273C344.103 23.7273 340.863 24.6388 338.191 27.3116L340.138 29.4887C342.536 27.2762 344.182 26.8602 345.395 26.8602C346.926 26.8602 347.837 27.5859 347.837 29.6392V31.3561C341.359 32.4624 337.093 33.8341 337.093 38.215C337.093 41.7993 339.155 43.7817 342.731 43.7817C344.864 43.7817 346.731 42.6046 348.138 40.9231C348.218 42.8701 349.545 43.7817 351.227 43.7817C352.333 43.7817 353.705 43.3304 355.422 42.2949M343.952 16.9038H340.102V20.8333H343.952V16.9038ZM350.466 16.9038H346.616V20.8333H350.466V16.9038Z" fill="#ffffff"/>
+<path d="M369.564 42.0208L368.157 39.7728C367.476 40.2242 366.485 40.764 365.564 40.764C364.343 40.764 363.245 40.1888 363.245 38.171L363.281 27.1171H369.033V24.1435H363.316L363.352 17.3643H359.387L359.351 24.1435H356.183V27.1171H359.307L359.227 38.0913C359.192 42.2509 360.98 43.7731 364.715 43.7731C366.432 43.7731 368.069 42.9677 369.556 42.0208" fill="#ffffff"/>
+<path d="M420.161 17.3198L416.47 16.479L410.868 34.4714C409.912 37.4804 409.691 39.5779 409.691 39.5779C409.691 39.5779 409.31 37.0644 408.399 34.2059L402.876 16.9038H398.451L393.194 34.3563C392.584 36.383 392.053 39.5425 392.053 39.5425C392.053 39.5425 391.708 37.2237 390.84 34.3209L385.468 16.4879L381.468 17.5145L389.743 43.3569H394.124L399.496 25.3292C400.027 23.4972 400.452 20.7979 400.452 20.7979C400.452 20.7979 400.832 23.506 401.372 25.1433L407.124 43.3569H411.55L420.196 17.3286L420.161 17.3198Z" fill="#ffffff"/>
+<path d="M433.958 31.1966L425.648 31.232C425.993 28.984 427.675 26.506 430.144 26.506C432.923 26.506 434.109 28.7185 433.949 31.1966M437.737 32.8339C437.737 27.6919 435.905 23.7271 430.462 23.7271C424.55 23.7271 421.24 28.7185 421.24 33.9047C421.24 41.2238 424.745 43.7726 429.666 43.7726C432.56 43.7726 434.507 42.8257 436.711 40.8786L434.613 38.6307C433.241 39.9228 431.87 40.6839 430.153 40.6839C426.223 40.6839 425.312 37.0642 425.382 33.9755L437.693 33.9401C437.693 33.595 437.728 33.179 437.728 32.8339" fill="#ffffff"/>
+</g>
+<path d="M446.764 24.1434H442.835L442.684 43.3482H446.605L446.764 24.1434ZM446.959 16.7446H442.729V20.8245H446.959V16.7446Z" fill="#ffffff"/>
+<mask id="mask4_1642_15509" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="532" height="62">
+<path d="M531.018 0H0V61.6059H531.018V0Z" fill="white"/>
+</mask>
+<g mask="url(#mask4_1642_15509)">
+<path d="M479.988 29.3646C480.032 26.3909 478.651 23.7271 474.536 23.7271C472.102 23.7271 469.73 25.2493 468.208 27.1167C467.633 24.8333 465.686 23.7271 463.367 23.7271C459.597 23.7271 457.349 26.9662 457.119 27.1963C457.119 27.0813 457.269 25.0634 457.269 24.143H453.455L453.34 43.3478H457.305L457.376 30.2408C458.562 28.8336 460.234 27.2671 462.031 27.2671C463.588 27.2671 464.695 28.2229 464.695 29.9753L464.624 43.3567H468.589L468.668 30.3204C469.845 28.9132 471.562 27.276 473.35 27.276C474.917 27.276 475.979 28.2318 475.979 29.9841L475.899 43.3655H479.864L479.979 29.3823L479.988 29.3646Z" fill="#ffffff"/>
+<path d="M495.281 33.8162L495.245 38.5864C494.183 39.9228 492.767 40.8698 491.36 40.8698C489.572 40.8698 488.466 39.8786 488.466 38.1262C488.466 35.5331 490.449 34.657 495.29 33.8162M502.901 42.2858L501.795 40.2237C501.148 40.6043 500.768 40.799 500.308 40.799C499.281 40.799 499.086 40.3034 499.131 38.6307L499.246 28.9132C499.281 25.559 496.998 23.7271 493.989 23.7271C491.59 23.7271 488.351 24.6386 485.678 27.3114L487.625 29.4885C490.024 27.276 491.67 26.86 492.891 26.86C494.413 26.86 495.325 27.5857 495.325 29.639V31.3559C488.847 32.4621 484.581 33.8339 484.581 38.2147C484.581 41.7991 486.643 43.7815 490.219 43.7815C492.351 43.7815 494.219 42.6044 495.626 40.9229C495.706 42.8699 497.033 43.7815 498.715 43.7815C499.821 43.7815 501.193 43.3301 502.91 42.2947" fill="#ffffff"/>
+<path d="M516.388 23.9484C515.928 23.7979 515.433 23.7183 514.902 23.7183C512.344 23.7183 510.857 25.7803 509.68 27.869C509.795 26.4176 509.795 24.1342 509.795 24.1342H506.025L505.874 43.3479H509.839L509.954 31.1524C511.247 28.6035 512.893 27.453 514.415 27.453C514.795 27.453 515.211 27.5327 515.556 27.6035L516.397 23.9484H516.388Z" fill="#ffffff"/>
+</g>
+</g>
+<defs>
+<clipPath id="uniclip">
+<rect width="531.018" height="61.6059" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</a>
+    <a class="infau" href="https://www.uni-weimar.de/de/universitaet/fakultaeten/architektur-und-urbanistik/professuren/infau/news/" target="_blank" rel="noopener" title="Professur Informatik in der Architektur (InfAU)"><svg class="logo" role="img" aria-label="InfAU" xmlns="http://www.w3.org/2000/svg" viewBox="-109.84 -60.10 501.97 120.20">
+<g fill="none" stroke-width="5.2" stroke-linejoin="miter" stroke-miterlimit="10">
+<path d="M 107.24 0 L 143.74 0" stroke="currentColor"></path>
+<path d="M 253.04 0 L 289.53 0" stroke="currentColor"></path>
+<path d="M -57.24 -50 H 57.24 a 50 50 0 0 1 0 100 H -57.24 a 50 50 0 0 1 0 -100 Z" stroke="currentColor" transform="translate(0 0)"></path>
+<path d="M-50.49898 26.0V-26.0004H-44.20034V26.0ZM-32.18898 26.0V-26.0004H-23.253699999999995L2.453540000000004 19.70136V-26.0004H8.752180000000003V26.0H-0.6225400000000008L-25.890339999999995 -18.822879999999998V26.0ZM20.763539999999995 26.0V-26.0004H53.42858V-19.848239999999997H27.062179999999998V-2.4171200000000006H52.11026V3.588560000000001H27.062179999999998V26.0Z" fill="currentColor" stroke="none"></path>
+<path d="M 0 -57.5 L 54.65 0 L 0 57.5 L -54.65 0 Z" stroke="currentColor" transform="translate(198.39 0)"></path>
+<path d="M176.17263999999997 21.09 194.92207999999997 -30.9104H203.41791999999998L222.16735999999997 21.09H215.28279999999998L210.08275999999998 6.29552H188.25723999999997L183.05719999999997 21.09ZM190.38119999999998 0.14336000000000126H207.95879999999997L199.17 -25.417399999999997Z" fill="currentColor" stroke="none"></path>
+<path d="M -50 0 a 50 50 0 1 0 100 0 a 50 50 0 1 0 -100 0 Z" stroke="currentColor" transform="translate(339.53 0)"></path>
+<path d="M339.56662 26.58184Q333.56093999999996 26.58184 329.12991999999997 24.23816Q324.6989 21.89448 322.31859999999995 17.5367Q319.93829999999997 13.17892 319.93829999999997 7.246480000000002V-26.5904H326.23694V7.246480000000002Q326.23694 13.54512 329.71583999999996 16.9874Q333.19473999999997 20.42968 339.56662 20.42968Q345.86526 20.42968 349.34416 16.9874Q352.82306 13.54512 352.82306 7.246480000000002V-26.5904H359.1217V7.246480000000002Q359.1217 13.17892 356.7414 17.5367Q354.36109999999996 21.89448 349.96669999999995 24.23816Q345.5723 26.58184 339.56662 26.58184Z" fill="currentColor" stroke="none"></path>
+</g></svg></a>
+    <a class="brand" href="#" aria-label="KREMLAS Dokumentation"><span class="label">KREMLAS · Dokumentation</span></a>
+    <nav class="crumbs label" id="crumbs" aria-label="Pfad"></nav>
+    <div class="top-right">
+      <a class="mlink label" id="mlink" href="#meldungen" hidden>Meldungen</a>
+      <a class="theme-btn label lang-sw" id="lang" hidden></a>
+      <button class="theme-btn label" type="button" id="theme" aria-label="Darstellung umschalten"></button>
+    </div>
+  </div>
+</header>
+<main id="app"></main>
+<footer class="site-foot"><div class="wrap"><span>Autor: Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic</span><span><a href="https://www.uni-weimar.de/de/universitaet/fakultaeten/architektur-und-urbanistik/professuren/infau/news/" target="_blank" rel="noopener">Professur Informatik in der Architektur</a> · <a href="https://www.uni-weimar.de/de/" target="_blank" rel="noopener">Bauhaus-Universität Weimar</a></span></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="notice" id="notice" role="status" aria-live="polite" hidden><span class="label" id="notice-h"></span><button type="button" id="notice-x" aria-label="Hinweis schließen">×</button><p id="notice-t"></p></div>
+<dialog id="zoom"><button type="button" id="zoom-close">Schließen</button><img id="zoom-img" alt=""></dialog>
+
+<script>
+const DATA = {"mode": "apps", "programs": [], "soon": [], "apps": [{"id": "kremlas", "name": "KREMLAS · Dichte Packung", "kind": "Dokumentation", "lead": "Woher das evolutionäre Verfahren kommt, wie wir es als Web-App weiterentwickelt haben, wie es Palladios Villen und Sizas Häuser nachgeneriert, und welche Verbesserungen wir getestet haben, mit allen Messwerten und Vergleichsbildern.", "autor": "Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic", "app": true, "open": "../", "covers": ["img/kremlas_fig_pal_malcontenta.webp", "img/kremlas_a_palladio.webp"], "topics": [{"id": "ueberblick", "title": "Auf einen Blick", "goal": "Kernaussagen der Dokumentation.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_fig_pal_malcontenta.webp", "units": [{"slide": 1, "title": "Auf einen Blick", "short": "Auf einen Blick", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "KREMLAS ist ein evolutionäres Verfahren, das Grundrisse aus einem Raumprogramm erzeugt: Räume fester Fläche, geforderte Nachbarschaften und ein Umriss gehen hinein, angeordnete Räume mit Wänden und Türen kommen heraus. Entstanden ist es im DFG-Projekt KREMLAS (2009–2011) an der Bauhaus-Universität Weimar, aufbauend auf einer Idee von Tomor Elezkurtaj und Georg Franck. Seit November 2026 läuft es als Web-App im KI Lab von entwurfsforschung.de und wurde dabei stark weiterentwickelt. Diese Dokumentation erzählt, woher das Verfahren kommt, was wir geändert haben, wie es die Grundrisse von Palladios Villen und von Álvaro Sizas Häusern in der Malagueira nachgeneriert und welche Verbesserungen wir getestet haben, mit allen Messwerten."}, {"t": "p", "md": "**Die Kernaussagen auf einen Blick:**"}, {"t": "ol", "items": ["**Herkunft.** Ausgangspunkt der ganzen Entwicklung ist die Arbeit von Elezkurtaj und Franck (2002). Im DFG-Projekt KREMLAS entstand daraus der Layoutsolver „Dichte Packung“: eine hybride Evolutionsstrategie mit Kollisionserkennung und virtuellen Federn, beschrieben im Buch von Donath, König und Petzold (2012).", "**Treue Neuumsetzung.** Die Web-App folgt dem C#-Programm Regel für Regel. Zwei Programmfehler aus dem Original haben wir gefunden und behoben: Die Hälfte der Federn zog in die falsche Richtung, und Räume, die sich berührten, bekamen gar keinen Zug.", "**Grundrisse, die funktionieren.** Mindestbreiten je Raum, eine Bewertung des fertigen Plans (Türen, Breiten, Flächen) und eine Suche über viele kurze Läufe machen aus der Packung brauchbare Grundrisse. Vorher war bei unseren Prüfregeln kein einziger Lauf gültig.", "**Vorbilder nachgenerieren.** KREMLAS bekommt von einem Vorbild nur das Raumprogramm, die Türen und den Umriss und sucht die Anordnung selbst. Gemessen wird die Überdeckung jedes Raums mit dem Vorbild, gespiegelte Pläne gelten als gleich.", "**Palladio fast vollständig, Siza zum größten Teil.** Sieben der acht Villen werden mit 99–100 % Ähnlichkeit wiedergefunden, Pisani mit 88 %. Die Erdgeschosse der Siza-Häuser gelingen meist vollständig, die Obergeschosse mit langen, verketteten Fluren deutlich seltener.", "**Fehler finden lohnt mehr als Tricks.** Die größten Sprünge kamen aus behobenen Fehlern: falsche Federrichtung, eine zu strenge Türregel für Siza, ein falscher Feldrahmen in der Überlappungsbewertung. Von zwölf Vorschlägen aus der Literatur brachte keiner im Mittel über alle Vorbilder einen messbaren Gewinn.", "**Die Startsaat entscheidet viel.** Dieselbe Villa wird mit einer Suchreihe vollständig, mit einer anderen gar nicht gefunden. Verlässliche Aussagen brauchen deshalb Messungen über mehrere Suchreihen."]}]}], "bericht": true}, {"id": "k1", "title": "Herkunft", "goal": "Elezkurtaj und Franck, das DFG-Projekt KREMLAS und das Originalprogramm.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_fig_verfahren.webp", "units": [{"slide": 1, "title": "Ausgangspunkt: Elezkurtaj und Franck", "short": "Ausgangspunkt: Elezkurtaj und Franck", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Die Idee, Grundrisse durch dichtes Packen von Räumen zu erzeugen, geht auf Tomor Elezkurtaj und Georg Franck zurück: [Algorithmic Support of Creative Architectural Design](https://www.researchgate.net/publication/255606960_Algorithmic_Support_of_Creative_Architectural_Design), erschienen in *Umbau* 19 (2002), S. 129–137. Sie unterscheiden konkret definierbare, „handfeste“ Fragen eines Entwurfs, die sich einem Algorithmus übergeben lassen, von unscharfen, kontextabhängigen Fragen, die beim Menschen bleiben. Das Packen von Räumen fester Fläche unter Nachbarschaftsbedingungen ist eine solche handfeste Frage. Der Computer schlägt Anordnungen vor, die Entwerferin wählt und greift ein."}]}, {"slide": 2, "title": "Das DFG-Projekt KREMLAS", "short": "Das DFG-Projekt KREMLAS", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Im DFG-Projekt KREMLAS (2009–2011) wurden an der Bauhaus-Universität Weimar kreative evolutionäre Entwurfsmethoden für Layoutprobleme in Architektur und Städtebau untersucht. Die Ergebnisse stehen im Buch, herausgegeben von Dirk Donath, Reinhard König und Frank Petzold: *KREMLAS. Entwicklung einer kreativen evolutionären Entwurfsmethode für Layoutprobleme in Architektur und Städtebau* (Verlag der Bauhaus-Universität Weimar 2012). Kapitel 5 beschreibt die dichte Packung, Kapitel 9 den Grundriss-Generator mit den Raumprogrammen nach Flemming, Kapitel 12 die Türen. Zwei Videos aus dem Projekt zeigen das Verfahren in Bewegung: [Computational Floorplan Synthesis](https://vimeo.com/42206895) und [Packing mit Sichtfeldbewertung](https://vimeo.com/24671938)."}, {"t": "p", "md": "Neben der dichten Packung entstanden im Projekt Unterteilungsverfahren mit K-d- und Slicing-Bäumen. Katja Knecht und Reinhard König haben beide Ansätze später verglichen: [Comparing two evolutionary algorithm based methods for layout generation: dense packing versus subdivision](https://doi.org/10.1017/S0890060414000237) (AI EDAM 2014)."}]}, {"slide": 3, "title": "Das Originalprogramm", "short": "Das Originalprogramm", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Das Programm „Einpassung“ ist in C# geschrieben (Windows Forms, Reinhard König, Computational Planning Group). Es liegt im öffentlichen Repository [cpg_all](https://bitbucket.org/koenigr/cpg_all) im Ordner `Source/Kremlas/`: die Evolutionsstrategie in `REvo`, das Individuum in `RChromosome`, die Federn in `RSpring`, die Kollisionserkennung in `Collision`. Die Klassen tragen Stände von 2010 und Februar 2011. Viele Teile des Buchs sind im Code vorbereitet, aber nicht aufgerufen: die Topologie-Läufe, die Raumprogramme, die Türen. Die Neuumsetzung hat sie wieder zusammengeführt."}]}], "bericht": true}, {"id": "k2", "title": "Das Verfahren", "goal": "Räume als Rechtecke, hybride Evolutionsstrategie, Federn.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_fig_verfahren.webp", "units": [{"slide": 1, "title": "Räume als Rechtecke", "short": "Räume als Rechtecke", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Ein Individuum ist ein Grundriss aus n Rechtecken in einem Umgebungsrechteck, im Original 500 × 430 Pixel. Jedes Rechteck ist ein Raum mit fester Fläche. Frei sind seine Lage und sein Seitenverhältnis, mit einer Untergrenze für die kürzeste Seite. Gesucht ist eine Anordnung, in der sich die Räume nicht überlappen. Zu minimieren ist die Überlappung **Sg**: die Summe aller Schnittflächen der Räume plus der Flächen außerhalb des Umgebungsrechtecks."}]}, {"slide": 2, "title": "Hybride Evolutionsstrategie", "short": "Hybride Evolutionsstrategie", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Eine Evolutionsstrategie verbindet zwei Verfahren. Kinder entstehen durch Rekombination zweier Eltern (ein Abschnitt der Genliste wird getauscht, die Raumnummern bleiben erhalten) und durch Mutation: zufällige Verschiebung einzelner Räume, selten mit großen Sprüngen, Änderung der Proportion, Inversion der Genreihenfolge. Danach „entwickelt“ sich jedes Kind durch Kollisionserkennung. Überlappen sich zwei Räume, weichen beide um einen Teil des kürzesten Trennvektors aus (Abstoßen, Kraft β) und ändern ihre Proportion so, dass die Fläche bleibt (Kraft α). Die Kollision prüft das Separating Axis Theorem, im Original nach Laurent Cozic, hier für achsparallele Rechtecke eigenständig formuliert. Bei der (μ+λ)-Selektion konkurrieren Eltern und Kinder, bei (μ,λ) nur die Kinder."}]}, {"slide": 3, "title": "Federn für Nachbarschaften", "short": "Federn für Nachbarschaften", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Sollen zwei Räume benachbart sein, zieht eine virtuelle Feder sie zusammen. Ein zweites Kriterium **f2** summiert die Abstände geforderter Nachbarn samt fehlender Durchgangsbreite. Die Selektion wählt einen Teil der Eltern nach Sg, den anderen nach f2. Sobald die beste Lösung nach Sg auch f2 unter 1,5 · Räume erreicht, verschiebt sich die Aufteilung (Regeln 20 und 21 des Buchs, Schwellen aus dem Code). Das Original kennt zwei Topologien: alle Räume an einem zentralen Raum (Stern) und ein Gang mit drei Wohnungen zu je fünf Räumen."}, {"t": "fig", "src": "img/kremlas_fig_verfahren.webp", "w": 1700, "h": 631, "nr": 1, "cap": "Ablauf des Verfahrens. Schwarz umrandet die Schritte des Originals, blau die Ergänzungen der Neuumsetzung 2026.", "quelle": "eigene Darstellung"}]}], "bericht": true}, {"id": "k3", "title": "Neuumsetzung als Web-App", "goal": "Treue Neuumsetzung, zwei Programmfehler, Grundriss-Generator.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_a_packung.webp", "units": [{"slide": 1, "title": "Treu zum Original", "short": "Treu zum Original", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Die Web-App entstand im November 2026 im Rahmen der Frühen Simulationen, der Neuumsetzung der Programme der alten Website. Modell und Oberfläche sind getrennt: `modell.js` enthält die reine Logik ohne Bildschirm und lässt sich in Node prüfen, `app.js` die Bedienung im gemeinsamen Rahmen der Frühen Simulationen. Gerechnet wird mit fester Saat, gleiche Saat ergibt denselben Lauf. Das Original legte den Zufall bei jedem Raum mit der Uhrzeit neu an und hatte dadurch höchstens 1000 verschiedene Startindividuen. Die Fassungen *Einpassung* (Stand des Programms), *Kollision allein*, *Topologie: Stern* und *Topologie: Gang* bilden die Abläufe des Codes nach, jede Abweichung steht in `QUELLE.md`."}]}, {"slide": 2, "title": "Zwei Programmfehler und die Federrunden", "short": "Zwei Programmfehler und die Federrunden", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Beim Prüfen fiel auf, dass sich die Räume kaum der Topologie entsprechend anzogen. Die Ursache waren zwei Fehler im Original. Erstens war der Zuschlag für fehlende Durchgangsbreite in `RSpring.AdditionalVector` immer positiv. Er schob einen Raum stets nach rechts unten, gleich wo der Nachbar lag, und zog so bei rund der Hälfte der Federn in die falsche Richtung. Zweitens prüfen `CalcSpringVector` und `AdditionalVector` nur echte Abstände. Liegen zwei Räume genau aneinander oder überlappen sie hauchdünn, der Normalfall nach jeder Kollisionsrunde, fällt der Fall durch alle Abfragen: Die Feder ist tot, obwohl die gemeinsame Wand für einen Durchgang zu kurz ist. Bei Saat 1 war das bei 20 von 96 offenen Nachbarschaften so."}, {"t": "p", "md": "Nach beiden Korrekturen kam ein neuer Regler dazu: Federn und Kollisionserkennung wechseln je Kind mehrmals ab (*Federrunden*, im Original zwei). Erst dann ziehen sich die Räume sichtbar zusammen."}, {"t": "table", "kopf": ["Fassung (16 Saaten)", "vorher ganz gelöst", "nachher ganz gelöst"], "zeilen": [["Stern, 8 Räume, nach 100 Generationen", "4", "12"], ["Stern, 8 Räume, nach 2000 Generationen", "10", "16"], ["Gang, 16 Räume, nach 1000 Generationen", "3", "12"]]}]}, {"slide": 3, "title": "Der Grundriss-Generator", "short": "Der Grundriss-Generator", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Die Fassungen *Grundriss* machen aus der Packung einen Grundriss-Generator, wie ihn das Buch beschreibt. Grundlage sind die Raumprogramme mit acht und zehn Räumen nach Flemming (Flur, Hof, Wohnen, Elternschlafzimmer, Zimmer, Küche, Bad, zusammen 86 m²), im Code in `REvo.GrowPolys` vorbereitet. Dazu kam ein angenommenes Programm mit sechs Räumen, die heutige Voreinstellung. Maßstab 50 Pixel = 1 m, Feld 10 × 8,6 m. Aus der besten Packung wird ein Plan abgeleitet: Jeder Raum wächst in die Restflächen, bis er auf einen anderen oder auf die Außenwand stößt. An gemeinsamen Wänden geforderter Nachbarn sitzt mittig eine Tür, wie im Buch. Voreingestellt ist eine angenommene Wohnung mit Eingang am Flur, die Sterntopologie des Buchs ist wählbar."}]}], "bericht": true}, {"id": "k4", "title": "Grundrisse, die funktionieren", "goal": "Mindestmaße, Bewertung des Plans, Suche, L-Räume.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_a_loesungen.webp", "units": [{"slide": 1, "title": "Was als gültig zählt", "short": "Was als gültig zählt", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Ein Plan zählt als gültig, wenn jede geforderte Nachbarschaft eine Tür hat, sich keine Räume überlappen und jeder Raum seine Mindestbreite und mindestens 95 % seiner Fläche erreicht. Mit dem Stand des Buchs war nach diesen Regeln kein Lauf gültig: Die kürzeste Seite durfte bis auf 0,4 · √Fläche sinken, das Wohnzimmer wurde dann 1,3 m breit. Eine geltende Norm mit Mindestbreiten je Raumart gibt es nicht. Für den Flur gilt DIN 18040-2 (barrierefreie Wohnungen, 1,20 m), die übrigen Werte sind ausgewiesene Annahmen nach üblichen Möblierungen: Wohnen 3,00 m, Eltern 2,80 m, Zimmer und Essen 2,40 m, Küche 1,80 m, Bad 1,60 m."}]}, {"slide": 2, "title": "Bewerten, was am Ende geprüft wird", "short": "Bewerten, was am Ende geprüft wird", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Mindestbreiten allein halfen nicht, die steifen Räume verhakten sich. Den Ausschlag gab eine dritte Bewertung **f3**, die den abgeleiteten Plan selbst bewertet: fehlende Türen, zu schmale und zu kleine Räume, Überlappung. Wichtig war, Türen gleitend zu messen, als Abstand der Räume plus fehlende Länge der gemeinsamen Wand. So sieht die Selektion auch kleine Fortschritte. In der Selektion ersetzt f3 das Kriterium f2. Kleine Überlappungen bis 0,5 m teilt der Plan, die Wand rückt in ihre Mitte, und damit dabei jeder Raum seine Fläche behält, belegen die Räume 96 % des Feldes."}]}, {"slide": 3, "title": "Viele kurze Läufe", "short": "Viele kurze Läufe", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Treffer kamen in den Messungen fast immer früh oder gar nicht. Die Suche startet deshalb viele kurze Läufe mit neuen Saaten statt eines langen. Ein Lauf endet beim ersten gültigen Plan. Sonst wird am Ende nachgebessert: Einzelne Räume werden ein wenig verschoben oder in der Proportion geändert, und behalten wird, was f3 nicht verschlechtert (eine örtliche Suche, memetisch). Unter den Treffern wählt die Suche möglichst verschiedene aus (Maximin). Mit sechs Räumen sind drei Grundrisse meist in ein bis zwei Sekunden gefunden, mit acht Räumen in rund 20 Sekunden."}]}, {"slide": 4, "title": "L-förmige Räume", "short": "L-förmige Räume", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Je Raum lässt sich erlauben, dass er L-förmig wird. Er besteht dann aus zwei Rechtecken, Hauptteil und Schenkel, die eine innere Feder zusammenhält. Gültig ist ein L, wenn sich beide Teile auf mindestens der Mindestbreite berühren und an einem Ende bündig liegen, sonst entstünde ein T oder ein Z. Mit sechs Räumen und L-förmigem Flur und Wohnen findet die Suche drei Grundrisse in wenigen Sekunden, mit acht Räumen werden L-Räume deutlich seltener gültig."}]}], "bericht": true}, {"id": "rundgang", "title": "Rundgang durch die App", "goal": "Die drei Tabs der App bedienen: Dichte Packung, Palladio-Villen, Siza/Duarte.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_a_palladio.webp", "bericht": false, "units": [{"slide": 1, "title": "Dichte Packung", "short": "Dichte Packung", "subtitle": "Ein Grundriss aus sechs Räumen", "notes": "Die App startet mit dem Grundriss aus sechs Räumen: Flur, Wohnen, Küche, Elternschlafzimmer, Zimmer und Bad, angenommene Wohnung mit Eingang am Flur. Links die beste Lösung der aktuellen Generation als Plan mit Wänden und Türen, rechts daneben der Verlauf von Sg und f2, ganz rechts das Bedienfeld.", "orient": [], "orientLabel": "", "labels": [], "images": [{"src": "img/kremlas_a_packung.webp", "w": 1700, "h": 2274, "strip": false}], "captions": ["Grundriss mit sechs Räumen nach 400 Generationen (Saat 2), helle Darstellung."], "hints": [], "downloads": [], "actions": [{"label": "App öffnen", "href": "../"}], "prompts": [], "promptsFirst": false, "steps": [{"n": 1, "md": "Öffne die App und drücke **Start**. Die Räume ordnen sich, ein Schritt ist eine Generation."}, {"n": 2, "md": "Drücke **Pause** und ziehe einen Raum mit der Maus an eine andere Stelle. Die übrigen weichen aus."}, {"n": 3, "md": "Wähle unter **Fassung** die Topologie Stern oder Gang, um das Verfahren des Originals ohne Raumprogramm zu sehen."}], "boxes": [], "kontrolle": "Du kannst erklären, warum die Räume in der Fassung „Einpassung“ keine Nachbarschaften bilden: Dort gibt es keine Federn.", "fehler": [], "bloecke": []}, {"slide": 2, "title": "Regler", "short": "Regler", "subtitle": "Fassung, Mindestmaße, L-Räume, Evolutionsstrategie", "notes": "Das Bedienfeld folgt dem Original: Evolutionsstrategie (μ, Druck, (μ+λ), Rekombination), Kollisionserkennung (Kräfte und Raten für Abstoßen und Proportion) und Topologie (Federdämpfung, Durchgangsbreite, Federrunden). Neu sind unter **Fassung** die Nachbarschaften im Grundriss, der Schalter **Mindestmaße** und der Kasten **L-förmige Räume**.", "orient": [], "orientLabel": "", "labels": [], "images": [{"src": "img/kremlas_a_regler.webp", "w": 540, "h": 2888, "strip": false}], "captions": ["Bedienfeld mit Fassung, Mindestmaßen, L-förmigen Räumen und den Reglern der Evolutionsstrategie."], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [{"n": 1, "md": "Schalte **Mindestmaße** aus: Es gilt der Stand des Buchs mit 100 % Belegung, und die Räume dürfen schmal werden."}, {"n": 2, "md": "Erhöhe die **Federrunden** von 2 auf 10 und beobachte, wie viel schneller sich die Nachbarn finden."}, {"n": null, "md": "Regler mit ↺ setzen den Lauf zurück, die übrigen wirken ab der nächsten Generation."}], "boxes": [], "kontrolle": "Du weißt, welche Regler aus dem Original stammen und welche neu sind.", "fehler": [], "bloecke": []}, {"slide": 3, "title": "Lösungen suchen", "short": "Lösungen suchen", "subtitle": "Grundrisse mit Türen und Mindestmaßen", "notes": "Unter der Grafik sucht **Grundrisse suchen** die eingestellte Zahl gültiger Grundrisse: alle Türen, keine Überlappung, Mindestbreiten und Flächen. Die Suche startet viele kurze Läufe mit neuen Saaten, bessert Beinahe-Lösungen nach und wählt möglichst verschiedene Treffer. Ein Klick auf eine Karte lädt den Grundriss in die Ansicht.", "orient": [], "orientLabel": "", "labels": [], "images": [{"src": "img/kremlas_a_loesungen.webp", "w": 1700, "h": 608, "strip": false}], "captions": ["Drei gefundene Grundrisse als Karten, mit Saat, Generation und Türen."], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [{"n": 1, "md": "Stelle die **Anzahl** ein und drücke **Grundrisse suchen**."}, {"n": 2, "md": "Klicke eine Karte an. Der Grundriss erscheint oben und lässt sich weiterrechnen oder mit der Maus bearbeiten."}, {"n": 3, "md": "Wähle den Grundriss mit 8 oder 10 Räumen und vergleiche die Suchzeiten."}], "boxes": [], "kontrolle": "Du hast drei verschiedene gültige Grundrisse gefunden und einen davon weiterbearbeitet.", "fehler": [], "bloecke": []}, {"slide": 4, "title": "L-förmige Räume", "short": "L-förmige Räume", "subtitle": "Ein Raum aus zwei Rechtecken", "notes": "Im Kasten **L-förmige Räume** wählst du, welche Räume L-förmig werden dürfen. Ausgegraut sind Räume, deren Fläche für zwei Schenkel mit Mindestbreite nicht reicht. Ein L besteht aus Hauptteil und Schenkel, die bündig an einer Ecke liegen müssen.", "orient": [], "orientLabel": "", "labels": [], "images": [{"src": "img/kremlas_a_lwahl.webp", "w": 491, "h": 213, "strip": false}, {"src": "img/kremlas_a_lform.webp", "w": 1572, "h": 990, "strip": false}], "captions": ["Kasten L-förmige Räume: Flur und Wohnen dürfen L-förmig werden.", "Gefundener Grundriss mit L-förmigem Flur und Wohnen."], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [{"n": 1, "md": "Kreuze **Flur** und **Wohnen** an."}, {"n": 2, "md": "Suche drei Grundrisse und lade einen davon."}, {"n": null, "md": "L-Räume machen die Suche mit acht Räumen deutlich langsamer."}], "boxes": [], "kontrolle": "Du siehst im Plan, dass zwischen Hauptteil und Schenkel keine Wand steht.", "fehler": [], "bloecke": []}, {"slide": 5, "title": "Palladio-Villen", "short": "Palladio-Villen", "subtitle": "Rekonstruieren und Varianten", "notes": "Im Tab **Palladio-Villen** wählst du eine der acht Villen. Die Einstellungen sind je Villa abgestimmt. Mit **Nähe zum Vorbild** 1 rekonstruiert KREMLAS die Villa, mit 0 entstehen freie Varianten. Unter dem erzeugten Grundriss steht das Vorbild im gleichen Maßstab, so gespiegelt, wie es am besten passt, mit der Ähnlichkeit in der Bildunterschrift.", "orient": [], "orientLabel": "", "labels": [], "images": [{"src": "img/kremlas_a_palladio.webp", "w": 1620, "h": 2835, "strip": false}, {"src": "img/kremlas_a_palladio_varianten.webp", "w": 1700, "h": 663, "strip": false}], "captions": ["Villa Emo nach 400 Generationen, darunter das Vorbild im gleichen Maßstab.", "Drei freie Varianten der Villa Emo (Nähe zum Vorbild 0) mit ihrer Ähnlichkeit."], "hints": [], "downloads": [], "actions": [{"label": "Palladio-Villen öffnen", "href": "../palladio/"}], "prompts": [], "promptsFirst": false, "steps": [{"n": 1, "md": "Wähle unter **Villa (Vorbild)** die Villa Pisani und suche einen Grundriss."}, {"n": 2, "md": "Schalte **Starre Raumform** aus und suche erneut. Was passiert mit dem I-förmigen Saal?"}, {"n": 3, "md": "Stelle **Nähe zum Vorbild** auf 0 und suche Varianten."}], "boxes": [], "kontrolle": "Du kannst erklären, warum die Varianten bei Palladio dem Vorbild trotzdem stark ähneln: Das symmetrische Raster lässt nur wenige Anordnungen zu.", "fehler": [], "bloecke": []}, {"slide": 6, "title": "Siza/Duarte", "short": "Siza/Duarte", "subtitle": "Erd- und Obergeschoss, feste Treppe", "notes": "Im Tab **Siza/Duarte** wählst du eines von sechs Häusern als Erd- oder Obergeschoss. Im Obergeschoss stehen Treppe und Luftraum fest an der Stelle des Vorbilds. Die Türen sind wie in der Grammatik 0,80 m breit.", "orient": [], "orientLabel": "", "labels": [], "images": [{"src": "img/kremlas_a_siza.webp", "w": 1620, "h": 2826, "strip": false}], "captions": ["Typ Ab, Erdgeschoss: gefundener Grundriss und darunter das Vorbild."], "hints": [], "downloads": [], "actions": [{"label": "Siza/Duarte öffnen", "href": "../siza/"}], "prompts": [], "promptsFirst": false, "steps": [{"n": 1, "md": "Suche einen Grundriss für **Typ Ab · Erdgeschoss** und lade ihn."}, {"n": 2, "md": "Wechsle zum Obergeschoss desselben Hauses und vergleiche, wie oft die Suche einen gültigen Plan findet."}], "boxes": [], "kontrolle": "Du kannst sagen, warum die Obergeschosse schwerer sind als die Erdgeschosse.", "fehler": [], "bloecke": []}]}, {"id": "k5", "title": "Vorbilder nachgenerieren: das Vorgehen", "goal": "Vom Vorbild zum Raumprogramm, neue Bausteine, Ähnlichkeit, Abstimmung.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_a_palladio.webp", "units": [{"slide": 1, "title": "Die Frage", "short": "Die Frage", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Kann die evolutionäre Methode von KREMLAS bekannte Grundrisse wiederfinden? Vorbilder sind die acht Villen der Konzeptstudie Palladio (Grammatik nach Stiny und Mitchell 1978, Raumaufteilungen nach Stiny und Gips 1978) und sechs Häuser der Konzeptstudie Duarte/Siza (eigene Rekonstruktion der Malagueira-Grammatik von Duarte 2005), je Erd- und Obergeschoss. KREMLAS bekommt vom Vorbild nur, was ein Raumprogramm enthält: Umriss, Räume mit Flächen und Formen, Türen als geforderte Nachbarschaften, bei Palladio die Spiegelachse, bei Siza die Lage von Treppe und Luftraum im Obergeschoss. Wo die übrigen Räume liegen, muss die dichte Packung selbst finden."}]}, {"slide": 2, "title": "Vom Vorbild zum Raumprogramm", "short": "Vom Vorbild zum Raumprogramm", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Zwei kleine Werkzeuge übersetzen die Vorbilder, `vorbilder_palladio.cjs` und `vorbilder_siza.cjs`. Bei Palladio ist ein Raum die Fläche seiner Rasterzellen samt der Wände dazwischen, nach außen um eine halbe Wandstärke erweitert. So füllen die Räume das Innere lückenlos. Maße in Meter, ein Vicentiner Fuß zu 0,357 m. Zusammengesetzte Säle (Kreuz, T, I) werden zeilenweise in Rechtecke zerlegt, Loggien sind nach außen offen und dienen als Eingang. Bei Siza füllen die Räume das Grundstück von 8 × 12 m, die Höfe zählen als Räume, und Räume gleicher Funktion, die sich berühren, bilden einen Raum aus Teilen. Die Türbreite ist bei Siza 0,80 m wie in der Grammatik. Die Mindestbreite eines Raums ist 0,8 · seine kürzeste Seite im Vorbild, als Spielraum für Varianten. Vor jeder Messung prüfen wir, ob das Vorbild selbst unsere Regeln besteht. Sonst könnte die Rekonstruktion es nie als gültig finden."}]}, {"slide": 3, "title": "Neue Bausteine im Verfahren", "short": "Neue Bausteine im Verfahren", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "ul", "items": ["**Feld je Programm:** Umriss und Maßstab je Vorbild statt fest 500 × 430 Pixel.", "**Spiegelsymmetrie** (Palladio): Räume auf der Achse bleiben mittig, die übrigen bilden Paare, die nach jeder Entwicklung auf ihre gemittelte, gespiegelte Lage gebracht werden.", "**Raumtausch:** Zwei Räume ähnlicher Fläche tauschen ihre Plätze, Spiegelpaare immer beidseitig. Sonst bliebe die einmal gefundene Reihenfolge der Räume fast fest.", "**Starre Raumform:** Ein zusammengesetzter Saal behält Form und Maße des Vorbilds, frei ist nur seine Lage.", "**Feste Räume** (Siza): Treppe und Luftraum stehen an der Stelle des Vorbilds.", "**Nähe zum Vorbild:** ein Regler von 0 (freie Varianten mit demselben Programm) bis 1 (Rekonstruktion). Er nimmt die Abweichung vom Vorbild in f3 auf. Bei Nähe > 0 läuft jeder Lauf bis zum Ende, und der gültige Plan, der dem Vorbild am nächsten kommt, wird zum Schluss noch nachgebessert."]}]}, {"slide": 4, "title": "Ähnlichkeit messen", "short": "Ähnlichkeit messen", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Je Raum zählt die Überdeckung seiner Fläche im Plan mit der Fläche im Vorbild, als Schnitt durch Vereinigung, gemittelt über alle Räume. 100 % heißt deckungsgleich. Gespiegelte Grundrisse gelten als gleich: Verglichen wird mit dem Plan selbst und seinen Spiegelungen links/rechts, vorn/hinten und beiden, und es zählt die beste Lage. In der App steht das Vorbild unter dem erzeugten Grundriss im gleichen Maßstab und so gespiegelt, wie es am besten passt."}]}, {"slide": 5, "title": "Abstimmung je Vorbild", "short": "Abstimmung je Vorbild", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Welche Einstellungen am besten sind, hängt vom Vorbild ab. Für jedes Vorbild wurden 18 Einstellungen gemessen: starre Raumform an oder aus, zwei, fünf oder zehn Federrunden und eine Belegung von 94, 96 oder 98 %, je höchstens acht Läufe zu 400 Generationen. Die beste ist bei der Wahl des Vorbilds voreingestellt (`werkzeuge/abstimmen.cjs`, Ergebnis `werkzeuge/abstimmung.json`). Weil die Abstimmung auf einer Suchreihe beruht, sind die dort gemessenen Werte etwas optimistisch. Die Tabellen in den nächsten beiden Kapiteln mitteln deshalb über vier Suchreihen."}]}], "bericht": true}, {"id": "k6", "title": "Ergebnisse: Palladios Villen", "goal": "Acht Villen mit Messwerten und Vergleichsbildern.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_fig_pal_pisani.webp", "units": [{"slide": 1, "title": "Messwerte", "short": "Messwerte", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Je Villa vier Suchreihen mit den Startsaaten 1, 51, 101 und 151, je höchstens sechs Läufe zu 400 Generationen, abgestimmte Voreinstellungen. **Beste** ist die beste Ähnlichkeit über alle Reihen, **Mittel** der Durchschnitt der besten Ähnlichkeit je Reihe (eine Reihe ohne gültigen Plan zählt 0), **Reihen** die Zahl der Reihen mit gültigem Plan. Bei Nähe 0 sucht KREMLAS freie Varianten mit demselben Programm, und die Ähnlichkeit zeigt nur, wie weit sie vom Vorbild abweichen."}, {"t": "table", "kopf": ["Vorbild", "Rekonstruktion: beste", "Mittel", "Reihen", "Variante: beste", "Mittel", "Reihen"], "zeilen": [["Villa Foscari (Malcontenta)", "99 %", "25 %", "1/4", "96 %", "47 %", "2/4"], ["Villa Saraceno", "100 %", "91 %", "4/4", "91 %", "82 %", "4/4"], ["Villa Ragona", "100 %", "100 %", "4/4", "98 %", "95 %", "4/4"], ["Villa Zeno", "100 %", "100 %", "4/4", "96 %", "94 %", "4/4"], ["Villa Badoer · Villa Poiana", "100 %", "100 %", "4/4", "87 %", "84 %", "4/4"], ["Villa Emo", "100 %", "100 %", "4/4", "88 %", "78 %", "4/4"], ["Villa Pisani", "88 %", "86 %", "4/4", "88 %", "84 %", "4/4"], ["Villa Angarano", "100 %", "100 %", "4/4", "92 %", "88 %", "4/4"]]}]}, {"slide": 2, "title": "Vergleich: Vorbild, Rekonstruktion, Variante", "short": "Vergleich: Vorbild, Rekonstruktion, Variante", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Je Villa links das Vorbild, in der Mitte die ähnlichste Rekonstruktion (Nähe 1), rechts die ähnlichste freie Variante (Nähe 0), alle im gleichen Maßstab und in der Lage des Vorbilds. Grün: Räume, deren Überdeckung mit dem Vorbild mindestens 90 % beträgt, sonst hell. Die Prozentzahlen sind die Ähnlichkeiten."}, {"t": "fig", "src": "img/kremlas_fig_pal_malcontenta.webp", "w": 1700, "h": 520, "nr": 2, "cap": "Villa Foscari (Malcontenta): links das Vorbild, Mitte die Rekonstruktion (99 %), rechts die freie Variante (96 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_pal_saraceno.webp", "w": 1700, "h": 584, "nr": 3, "cap": "Villa Saraceno: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (91 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_pal_ragona.webp", "w": 1700, "h": 637, "nr": 4, "cap": "Villa Ragona: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (98 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_pal_zeno.webp", "w": 1700, "h": 522, "nr": 5, "cap": "Villa Zeno: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (96 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_pal_badoer.webp", "w": 1700, "h": 522, "nr": 6, "cap": "Villa Badoer · Villa Poiana: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (87 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_pal_emo.webp", "w": 1700, "h": 622, "nr": 7, "cap": "Villa Emo: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (88 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_pal_pisani.webp", "w": 1700, "h": 620, "nr": 8, "cap": "Villa Pisani: links das Vorbild, Mitte die Rekonstruktion (88 %), rechts die freie Variante (88 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_pal_angarano.webp", "w": 1700, "h": 549, "nr": 9, "cap": "Villa Angarano: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (92 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}]}, {"slide": 3, "title": "Warum Saraceno und Pisani schwer sind", "short": "Warum Saraceno und Pisani schwer sind", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Beide Vorbilder bestehen die eigenen Regeln. Schwer ist der Weg dorthin. Pisanis Saal ist ein I aus drei Rechtecken, das zwei Stanzen in seinen Einbuchtungen umschließt. Hängen die Teile nur an Federn, landen die Querbalken oft auf derselben Seite, oder sie können sich nicht um die Stanzen schließen, denn Kollision und Federn wirken nur paarweise. Erst die starre Raumform hält das I zusammen, von 48 auf 88 %. Saraceno hat extrem ungleiche Räume, 14 bis 186 m², und einen T-Saal. Vor der Korrektur des Feldrahmens (siehe „Fehler und Korrekturen“) fand die Suche mit der ersten Voreinstellung keinen gültigen Plan, seither bis 100 %."}]}], "bericht": true}, {"id": "k7", "title": "Ergebnisse: Sizas Häuser in der Malagueira", "goal": "Sechs Häuser, Erd- und Obergeschoss, mit Messwerten und Vergleichsbildern.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_fig_sz_ab_eg.webp", "units": [{"slide": 1, "title": "Messwerte", "short": "Messwerte", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Wie bei Palladio: vier Suchreihen je Geschoss, abgestimmte Voreinstellungen."}, {"t": "table", "kopf": ["Vorbild", "Rekonstruktion: beste", "Mittel", "Reihen", "Variante: beste", "Mittel", "Reihen"], "zeilen": [["Typ Ab (Hof vorn) · Erdgeschoss", "96 %", "83 %", "4/4", "90 %", "83 %", "4/4"], ["Typ Ab (Hof vorn) · Obergeschoss", "91 %", "68 %", "4/4", "60 %", "57 %", "4/4"], ["Typ Bb (Hof hinten) · Erdgeschoss", "100 %", "84 %", "4/4", "72 %", "65 %", "4/4"], ["Typ Bb (Hof hinten) · Obergeschoss", "95 %", "70 %", "3/4", "87 %", "81 %", "4/4"], ["Duartes neues Haus · Erdgeschoss", "100 %", "71 %", "4/4", "60 %", "48 %", "4/4"], ["Duartes neues Haus · Obergeschoss", "–", "0 %", "0/4", "–", "0 %", "0/4"], ["Haus mit 2 Zimmern · Erdgeschoss", "100 %", "100 %", "4/4", "89 %", "88 %", "4/4"], ["Haus mit 2 Zimmern · Obergeschoss", "100 %", "99 %", "4/4", "93 %", "92 %", "4/4"], ["Haus mit 4 Zimmern · Erdgeschoss", "100 %", "78 %", "4/4", "93 %", "64 %", "4/4"], ["Haus mit 4 Zimmern · Obergeschoss", "88 %", "22 %", "1/4", "72 %", "34 %", "2/4"], ["Haus mit 5 Zimmern · Erdgeschoss", "100 %", "83 %", "4/4", "77 %", "63 %", "4/4"], ["Haus mit 5 Zimmern · Obergeschoss", "62 %", "53 %", "4/4", "39 %", "34 %", "4/4"]]}]}, {"slide": 2, "title": "Vergleich: Vorbild, Rekonstruktion, Variante", "short": "Vergleich: Vorbild, Rekonstruktion, Variante", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Wie bei Palladio: Vorbild, ähnlichste Rekonstruktion, ähnlichste Variante, gleicher Maßstab, Lage des Vorbilds, grün die Räume mit mindestens 90 % Überdeckung."}, {"t": "fig", "src": "img/kremlas_fig_sz_ab_eg.webp", "w": 1438, "h": 778, "nr": 10, "cap": "Typ Ab (Hof vorn) · Erdgeschoss: links das Vorbild, Mitte die Rekonstruktion (96 %), rechts die freie Variante (90 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_ab_og.webp", "w": 1438, "h": 778, "nr": 11, "cap": "Typ Ab (Hof vorn) · Obergeschoss: links das Vorbild, Mitte die Rekonstruktion (91 %), rechts die freie Variante (60 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_bb_eg.webp", "w": 1454, "h": 778, "nr": 12, "cap": "Typ Bb (Hof hinten) · Erdgeschoss: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (72 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_bb_og.webp", "w": 1438, "h": 778, "nr": 13, "cap": "Typ Bb (Hof hinten) · Obergeschoss: links das Vorbild, Mitte die Rekonstruktion (95 %), rechts die freie Variante (87 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_dn_eg.webp", "w": 1454, "h": 776, "nr": 14, "cap": "Duartes neues Haus · Erdgeschoss: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (60 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_dn_og.webp", "w": 1388, "h": 778, "nr": 15, "cap": "Duartes neues Haus · Obergeschoss: links das Vorbild, Mitte die Rekonstruktion (kein gültiger Plan), rechts die freie Variante (kein gültiger Plan). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_t2_eg.webp", "w": 1454, "h": 778, "nr": 16, "cap": "Haus mit 2 Zimmern · Erdgeschoss: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (89 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_t2_og.webp", "w": 1454, "h": 778, "nr": 17, "cap": "Haus mit 2 Zimmern · Obergeschoss: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (93 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_t4_eg.webp", "w": 1454, "h": 778, "nr": 18, "cap": "Haus mit 4 Zimmern · Erdgeschoss: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (93 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_t4_og.webp", "w": 1438, "h": 778, "nr": 19, "cap": "Haus mit 4 Zimmern · Obergeschoss: links das Vorbild, Mitte die Rekonstruktion (88 %), rechts die freie Variante (72 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_t5_eg.webp", "w": 1454, "h": 778, "nr": 20, "cap": "Haus mit 5 Zimmern · Erdgeschoss: links das Vorbild, Mitte die Rekonstruktion (100 %), rechts die freie Variante (77 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}, {"t": "fig", "src": "img/kremlas_fig_sz_t5_og.webp", "w": 1438, "h": 778, "nr": 21, "cap": "Haus mit 5 Zimmern · Obergeschoss: links das Vorbild, Mitte die Rekonstruktion (62 %), rechts die freie Variante (39 %). Grün: Räume mit mindestens 90 % Überdeckung.", "quelle": "eigene Darstellung"}]}, {"slide": 3, "title": "Was die Obergeschosse schwer macht", "short": "Was die Obergeschosse schwer macht", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Die Erdgeschosse gelingen meist vollständig, die Obergeschosse deutlich seltener. Dort liegen viele kleine Räume an schmalen Gängen, und der Flur besteht aus drei bis vier verketteten Rechtecken, die sich um die feste Treppe und den Luftraum legen müssen. In den Fehlschlägen ist der Flur fast immer zu klein oder überlappt, und die Türen zum Abstellraum oder zum Bad fehlen. Für das Obergeschoss von Duartes neuem Haus fand die Suche in keiner Reihe einen gültigen Plan."}, {"t": "fig", "src": "img/kremlas_fig_balken.webp", "w": 1700, "h": 874, "nr": 22, "cap": "Ähnlichkeit zum Vorbild für alle 20 Vorbilder, Mittel über vier Suchreihen: dunkel die Rekonstruktion, hell die freie Variante.", "quelle": "eigene Darstellung"}]}], "bericht": true}, {"id": "k8", "title": "Fehler und Korrekturen", "goal": "Was am meisten gebracht hat: gefundene Fehler.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_fig_sz_ab_og.webp", "units": [{"slide": 1, "title": "Was am meisten gebracht hat", "short": "Was am meisten gebracht hat", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Die größten Sprünge kamen nicht aus neuen Verfahren, sondern aus gefundenen Fehlern. Deshalb hier die wichtigsten, mit ihrer Wirkung."}, {"t": "table", "kopf": ["Fehler", "Wirkung", "Korrektur"], "zeilen": [["Federzuschlag immer positiv (Original)", "rund die Hälfte der Federn zog falsch herum", "Zuschlag zeigt zum Nachbarn"], ["Federn tot bei Berührung (Original)", "gerade die fast fertigen Nachbarn bekamen keinen Zug", "kleinere Überdeckung gilt als Berührrichtung"], ["Sortierung mit Untergrenze 1 (Original, `FitOverl`) | alle fast gültigen Pläne galten als gleich gut | f3 ohne Untergrenze sortiert"], ["Türregel 0,9 + 0,2 m auch für Siza", "sieben von zwölf Siza-Vorbildern waren selbst ungültig", "Türbreite je Programm, Siza 0,80 m"], ["Loggia als „L-Form“ gelesen (Übersetzer Palladio)", "Villa Angarano ohne Eingang", "Loggien als offener Eingang"], ["Außentür als Raum gelesen (Übersetzer Siza)", "Häuser ohne Eingang von der Straße", "Außentüren erkannt"], ["Feldrahmen in Sg fest 500 × 430 px", "bei Siza wurde der hintere Streifen als „außerhalb“ bestraft", "Rahmen folgt dem Feld je Programm"]]}]}, {"slide": 2, "title": "Prüfen, ob das Vorbild selbst gültig ist", "short": "Prüfen, ob das Vorbild selbst gültig ist", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Eine einfache Prüfung hat zwei der Fehler aufgedeckt: Jedes Vorbild wird selbst als Lösung in die Bewertung gegeben. Besteht es nicht, kann die Rekonstruktion es nie als gültig finden, und der Fehler liegt in den Regeln oder in der Übersetzung, nicht in der Suche. Seit den Korrekturen bestehen alle 20 Vorbilder."}]}], "bericht": true}, {"id": "k9", "title": "Versuche zur Verbesserung", "goal": "Formgene, Inseln, Recherche und getestete Vorschläge.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_fig_balken.webp", "units": [{"slide": 1, "title": "Generische Formgene", "short": "Generische Formgene", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Die starre Raumform übernimmt Form und Maße aus dem Vorbild. Für ein generisches Verfahren, mit dem sich viele verschiedene Grundrisse nachgenerieren lassen, ist das zu speziell. Wir haben deshalb parametrische Raumformen als Gene erprobt: Jeder Raum mit genug Fläche kann Rechteck, L, T, Kreuz/I oder U werden, beschrieben durch Seite, Armbreite, Flächenanteil und Aufteilung der Arme. Ein seltener Formwechsel und ein Drift der Parameter mischen Formen ein, die Selektion entscheidet. Auch ein Inselmodell haben wir versucht, je eine Teilpopulation pro Formtyp mit Austausch der Besten. Ergebnis: Beide finden gültige Pläne, rekonstruieren die zusammengesetzten Säle aber deutlich schlechter als die übernommene Form, das Inselmodell zudem fünfmal langsamer. Die Form muss gleichzeitig mit der Anordnung gefunden werden, und der Raum aus Formtyp und Parametern ist groß."}, {"t": "table", "kopf": ["Vorbild", "Formgene", "Formgene mit Inseln", "übernommene Form"], "zeilen": [["Malcontenta", "76 %", "76 %", "93–99 %"], ["Saraceno", "63 %", "63 %", "92–100 %"], ["Pisani", "49 %", "31 %", "77–88 %"]]}]}, {"slide": 2, "title": "Was die Literatur vorschlägt", "short": "Was die Literatur vorschlägt", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Eine Recherche nach Verbesserungen für evolutionäre Grundrissgeneratoren ergab zwölf umsetzbare Vorschläge, darunter: Annahme schlechterer Zwischenstände und Raumtausch nach [Merrell, Schkufza und Koltun (2010)](https://www.cs.princeton.edu/courses/archive/spring11/cos598A/pdfs/Merrell10a.pdf) und [Burke und Bykov (2017)](https://doi.org/10.1016/j.ejor.2016.07.012); Raumgruppen spiegeln, Wände ausrichten und frische Individuen aus EPSAP von [Rodrigues, Gaspar und Gomes (2013)](https://doi.org/10.1016/j.cad.2013.01.001); erst die Topologie kraftbasiert auslegen, dann packen, nach [Guo und Li (2017)](https://doi.org/10.1016/j.foar.2016.11.003) und [Fruchterman und Reingold (1991)](https://doi.org/10.1002/spe.4380211102); Räume schrittweise in Teile aufspalten nach [Wu et al. (2018)](https://doi.org/10.1111/cgf.13380); eine graphentheoretische Vorprüfung nach [Pinki, Shekhawat und Lal (2025)](https://doi.org/10.1017/S0890060424000179); und Unterteilung statt Packung nach [Knecht und König (2014)](https://doi.org/10.1017/S0890060414000237), für Palladio auch als Unterteilungsgrammatik bei [Benrós, Duarte und Hanna (2012)](https://doi.org/10.1260/1478-0771.10.4.521). Einen Überblick gibt [Weber, Mueller und Reinhart (2022)](https://doi.org/10.1016/j.autcon.2022.104385)."}]}, {"slide": 3, "title": "Getestet", "short": "Getestet", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Sieben der Vorschläge haben wir eingebaut, schaltbar, und an den schweren Fällen gemessen, zuletzt an allen 20 Vorbildern mit je vier Suchreihen."}, {"t": "table", "kopf": ["Vorschlag", "Wirkung"], "zeilen": [["Spätannahme in der Nachbesserung (Late Acceptance)", "schadet deutlich, die Nachbesserung findet seltener zurück zu einem gültigen Plan"], ["Topologie zuerst (kraftbasierte Startlage)", "schadet"], ["frische Zufallspläne je Generation", "schadet"], ["Wände ausrichten", "neutral"], ["feste Räume im Plan unantastbar", "gemischt"], ["Raumgruppe spiegeln (2 %)", "Malcontenta von 25 auf 63 % im Mittel, andere verlieren"], ["Wände am fertigen Plan verschieben", "Siza Erdgeschoss Ab von 83 auf 90 %, sonst neutral"], ["beide letzten zusammen, alle 20 Vorbilder", "Mittel 75,6 → 75,9 %, Reihen mit Treffer 69 → 71 von 80: im Rauschen"]]}]}, {"slide": 4, "title": "Was wir daraus schließen", "short": "Was wir daraus schließen", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "p", "md": "Keiner der günstigen Vorschläge macht das Verfahren im Mittel besser, einzelne Vorbilder gewinnen, andere verlieren ebenso deutlich. Den größten Einfluss hat die Startsaat: Malcontenta erreicht mit der einen Suchreihe 99 %, mit der anderen keinen Treffer. Online bleibt deshalb der beste gemessene Stand mit übernommener Form und abgestimmten Voreinstellungen. Lohnende nächste Schritte sind die größeren Vorschläge: Räume schrittweise aufspalten als generischer Ersatz für die übernommene Form, Unterteilung als zweite Darstellung, die Graph-Vorprüfung, um geometrisch unmögliche Programme früh zu erkennen, und eine Abstimmung über mehrere Suchreihen, damit die Voreinstellungen robust werden."}]}], "bericht": true}, {"id": "k10", "title": "Quellen", "goal": "Literatur, Code und Daten.", "result": "", "commands": [], "cmdLabel": "Neu", "cover": "img/kremlas_fig_verfahren.webp", "units": [{"slide": 1, "title": "Literatur", "short": "Literatur", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "ul", "items": ["T. Elezkurtaj, G. Franck (2002): Algorithmic Support of Creative Architectural Design. *Umbau* 19, 129–137. [ResearchGate](https://www.researchgate.net/publication/255606960_Algorithmic_Support_of_Creative_Architectural_Design) – Ausgangspunkt der gesamten Entwicklung.", "D. Donath, R. König, F. Petzold (Hrsg.) (2012): *KREMLAS. Entwicklung einer kreativen evolutionären Entwurfsmethode für Layoutprobleme in Architektur und Städtebau.* Weimar: Verlag der Bauhaus-Universität, urn:nbn:de:gbv:wim2-20120509-16504.", "K. Knecht, R. König (2014): Comparing two evolutionary algorithm based methods for layout generation: dense packing versus subdivision. *AI EDAM*, [doi:10.1017/S0890060414000237](https://doi.org/10.1017/S0890060414000237).", "G. Stiny, W. J. Mitchell (1978): The Palladian grammar. *Environment and Planning B* 5(1), 5–18, [doi:10.1068/b050005](https://doi.org/10.1068/b050005).", "G. Stiny, J. Gips (1978): An evaluation of Palladian plans. *Environment and Planning B* 5(2), 199–206, [doi:10.1068/b050199](https://doi.org/10.1068/b050199).", "J. P. Duarte (2005): Towards the mass customization of housing: the grammar of Siza's houses at Malagueira. *Environment and Planning B* 32(3), 347–380, [doi:10.1068/b31124](https://doi.org/10.1068/b31124).", "P. Merrell, E. Schkufza, V. Koltun (2010): Computer-generated residential building layouts. *ACM Transactions on Graphics* 29(6), Art. 181, [PDF](https://www.cs.princeton.edu/courses/archive/spring11/cos598A/pdfs/Merrell10a.pdf).", "E. Rodrigues, A. R. Gaspar, Á. Gomes (2013): An evolutionary strategy enhanced with a local search technique for the space allocation problem in architecture, Part 1: Methodology. *Computer-Aided Design* 45(5), 887–897, [doi:10.1016/j.cad.2013.01.001](https://doi.org/10.1016/j.cad.2013.01.001).", "E. K. Burke, Y. Bykov (2017): The late acceptance hill-climbing heuristic. *European Journal of Operational Research* 258(1), 70–78, [doi:10.1016/j.ejor.2016.07.012](https://doi.org/10.1016/j.ejor.2016.07.012).", "Z. Guo, B. Li (2017): Evolutionary approach for spatial architecture layout design enhanced by an agent-based topology finding system. *Frontiers of Architectural Research* 6(1), 53–62, [doi:10.1016/j.foar.2016.11.003](https://doi.org/10.1016/j.foar.2016.11.003).", "T. M. J. Fruchterman, E. M. Reingold (1991): Graph drawing by force-directed placement. *Software: Practice and Experience* 21(11), 1129–1164, [doi:10.1002/spe.4380211102](https://doi.org/10.1002/spe.4380211102).", "W. Wu, L. Fan, L. Liu, P. Wonka (2018): MIQP-based layout design for building interiors. *Computer Graphics Forum* 37(2), 511–521, [doi:10.1111/cgf.13380](https://doi.org/10.1111/cgf.13380).", "Pinki, K. Shekhawat, A. Lal (2025): Automated generation of floor plans with minimum bends. *AI EDAM* 39, e3, [doi:10.1017/S0890060424000179](https://doi.org/10.1017/S0890060424000179).", "D. Benrós, J. P. Duarte, S. Hanna (2012): A new Palladian shape grammar: a subdivision grammar as alternative to the Palladian grammar. *IJAC* 10(4), 521–540, [doi:10.1260/1478-0771.10.4.521](https://doi.org/10.1260/1478-0771.10.4.521).", "R. E. Weber, C. Mueller, C. Reinhart (2022): Automated floorplan generation in architectural design: A review of methods and applications. *Automation in Construction* 140, 104385, [doi:10.1016/j.autcon.2022.104385](https://doi.org/10.1016/j.autcon.2022.104385).", "DIN 18040-2:2011-09: Barrierefreies Bauen – Planungsgrundlagen – Teil 2: Wohnungen."]}]}, {"slide": 2, "title": "Code und Daten", "short": "Code und Daten", "subtitle": "", "notes": "", "orient": [], "orientLabel": "", "labels": [], "images": [], "captions": [], "hints": [], "downloads": [], "actions": [], "prompts": [], "promptsFirst": false, "steps": [], "boxes": [], "kontrolle": "", "fehler": [], "bloecke": [{"t": "ul", "items": ["Originalprogramm: Repository [cpg_all](https://bitbucket.org/koenigr/cpg_all), Ordner `Source/Kremlas/`.", "Web-App mit Quellcode: [lab/kremlas/](../), Quellcode als `quellcode.zip`, Abweichungen vom Original in `QUELLE.md`, Methode in `METHODE.md`.", "Vorbilder: Konzeptstudien [Palladio](../../palladio/) und [Duarte/Siza](../../duarte-siza/), übersetzt mit `werkzeuge/vorbilder_palladio.cjs` und `werkzeuge/vorbilder_siza.cjs`.", "Messungen dieser Dokumentation: `werkzeuge/doku_ergebnisse.cjs`, Rohdaten in `doku_quelle/ergebnisse.jsonl`."]}]}], "bericht": true}], "bericht": false}], "tutorialsUrl": null, "card": {"lines": 5, "topics": 6}, "labels": {"open": "App öffnen", "bereich": "Kapitel"}, "hero": {"label": "KREMLAS · Dokumentation", "h1": "Grundrisse durch <em>dichte Packung</em>.", "p": "Dokumentation des KREMLAS-Projekts im KI Lab von entwurfsforschung.de: Herkunft, Neuumsetzung, Nachgenerieren von Palladio und Siza/Duarte, Versuche zur Verbesserung.", "progLabel": "Dokumentation", "zaehl": ["Dokumentation", "Dokumentationen"], "soon": ["Dokumentation", "Weitere"]}};
+const $ = (s, el = document) => el.querySelector(s);
+const app = $("#app");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let CURAPP = false;   /* in den Apps heißt „Favorit“ etwas anderes als in Archicad */
+const md = s => { const r = esc(s)
+  .replace(/`([^`]+)`/g, (m, c) => `<code class="cmd" title="Klicken zum Kopieren">${c}</code>`)
+  .replace(/\[([^\]]+)\]\((#[a-z0-9-]+)\)/g, '<a href="$2">$1</a>')   /* Verweis auf eine andere Einheit der Seite */
+  .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|dateien\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1 ↗</a>')   /* dateien/: Downloads neben der Seite (OLP) */
+  .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+  .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  return CURAPP ? r : r.replace(/(Favorit(?:en)?)/g, '<abbr title="Favorit: gespeicherte Werkzeugeinstellung der Vorlage. Ein Klick setzt alle Werte eines Bauteils auf einmal (Aufbau, Dicke, Material, Ebene). Zu finden in der Favoriten-Palette und im Einstellungsdialog des Werkzeugs.">$1</abbr>'); };
+
+/* Fortschritt nur im Browser des Betrachters (Komfort, kein Speicher für andere) */
+const KEY = "infau-tutorials-done";
+let done = {};
+try { done = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { done = {}; }
+const saveDone = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+const uid = (p, t, u) => `${p.id}-${t.id}-${u.slide}`;
+const topicDone = (p, t) => t.units.filter(u => done[uid(p, t, u)]).length;
+
+const findProg = id => DATA.programs.find(p => p.id === id) || (DATA.apps || []).find(p => p.id === id);
+/* Pfad über der Seite: Apps liegen unter „Apps“ */
+/* Dieselbe Vorlage baut zwei Seiten: Software-Tutorials und das KI Lernlabor (DATA.mode === "apps") */
+const APPS_MODE = DATA.mode === "apps";
+const base = p => p.app && !APPS_MODE ? [{ t: "Übersicht", href: "#" }, { t: "Apps", href: "#apps" }] : [{ t: "Übersicht", href: "#" }];
+const shortTitle = u => u.short;
+const mb = x => String(x).replace(".", ",") + " MB";
+const stepNo = u => (u.title.match(/SCHRITT\s+(\d+)/i) || [])[1];
+
+function crumbs(parts) {
+  $("#crumbs").innerHTML = parts.map((p, i) => (i ? '<span class="sep">/</span>' : "") +
+    (p.href ? `<a href="${p.href}">${esc(p.t)}</a>` : `<span class="cur">${esc(p.t)}</span>`)).join("");
+}
+
+/* ---------- Übersicht ---------- */
+function appsHome() {
+  crumbs([]);
+  /* DATA.hero (Konzeptsammlung, 18.11.2026): eigener Kopf; ohne hero bleibt das KI Lernlabor unverändert */
+  const H = DATA.hero, Z = H && H.zaehl || ["App", "Apps"];
+  app.innerHTML = `<div class="wrap">
+    <section class="hero">${H ? `
+      <span class="label" style="color:var(--muted)">${esc(H.label)}</span>
+      <h1>${H.h1}</h1>
+      <p>${esc(H.p)}</p>` : `
+      <span class="label" style="color:var(--muted)">KI Lernlabor · Informatik in der Architektur</span>
+      <h1>Apps als <em>Grundlage</em> für eigene Apps.</h1>
+      <p>Apps und Arbeitsweisen zu Lehrzwecken der Professur Informatik in der Architektur. Die Lernbereiche zeigen, wie sie funktionieren, wie man sie mit Prompts nachbaut und wie daraus eigene Werkzeuge entstehen – im Browser und in Verbindung mit CAD.</p>`}
+      ${DATA.tutorialsUrl ? `<div><a class="btn" href="${DATA.tutorialsUrl}" target="_blank" rel="noopener">Software-Tutorials: Rhino, Archicad und QGIS ↗</a></div>` : ""}
+    </section>
+    <div class="sec-head"><span class="label">${esc(H && H.progLabel || "Apps")}</span><span class="meta">${DATA.apps.length} ${DATA.apps.length === 1 ? Z[0] : Z[1]}</span></div>
+    <section class="programs apps-grid">${DATA.apps.map(appCard).join("")}</section>
+    ${H && H.soon ? `<section class="soon"><div class="soon-item"><span class="label">${esc(H.soon[0])}</span><b>${esc(H.soon[1])}</b><span class="meta">folgen</span></div></section>` : ""}<!-- Hinweis „folgen“ nur, wenn die Seite ihn setzt; im KI Lernlabor entfallen (Nutzer 20.11.2026) -->
+    ${ISSUE_URL ? `<div class="sec-head"><span class="label">Gemeldete Probleme</span><span class="meta" id="probl-meta">wird geladen …</span></div><section class="probl" id="probl"></section>` : ""}
+  </div>`;
+  if (ISSUE_URL) issuesBox();
+}
+function home() {
+  if (APPS_MODE) { appsHome(); return; }
+  crumbs([]);
+  const progs = DATA.programs.map(p => {
+    const units = p.topics.reduce((a, t) => a + t.units.length, 0);
+    const covers = p.topics.filter(t => t.cover && t.id !== "00").slice(1, 3).map(t => t.cover);   // 00 = Softwarealternativen, kein Musterbild
+    if (p.id === "archicad" || p.id === "revit")   // Eingabeplan + Traufdetail
+      covers.splice(0, 2, ...["03", "04"].map(id => (p.topics.find(t => t.id === id) || p.topics[1]).cover));
+    if (p.cover) covers.splice(0, covers.length, p.cover);
+    /* DATA.card = { lines, topics }: Text auf so viele Zeilen kürzen, höchstens so viele Themen zeigen (ohne Thema 00) */
+    const C = DATA.card, tops = C ? p.topics.filter(t => t.id !== "00") : p.topics, shown = C ? tops.slice(0, C.topics) : tops;
+    return `<a class="prog" href="#${p.id}">
+      <div class="prog-img${p.cover ? " one" : ""}">${covers.map(c => `<img src="${c}" alt="">`).join("")}</div>
+      <div class="prog-body${C ? " fest" : ""}">
+        <span class="label" style="color:var(--accent-text)">${esc(p.kind)}</span>
+        <h2>${esc(p.name)}</h2>
+        <p${C ? ` class="clamp" style="-webkit-line-clamp:${C.lines};line-clamp:${C.lines}"` : ""}>${esc(p.lead)}</p>
+        <ul class="topics-mini">${shown.map(t => `<li><span>${esc(t.title)}</span><span>${t.units.length} Schritte</span></li>`).join("")}${tops.length > shown.length ? `<li class="more"><span>+ ${tops.length - shown.length} weitere Themen</span><span></span></li>` : ""}</ul>
+        <div class="prog-foot"><span class="meta">${p.topics.length} Themen · ${units} Lerneinheiten</span><span class="go">Themen ansehen →</span></div>
+      </div></a>`;
+  }).join("");
+  /* DATA.hero (z. B. OLP): eigener Kopf der Startseite; label und p als Text, h1 als HTML aus dem Bau-Skript */
+  const H = DATA.hero;
+  app.innerHTML = `<div class="wrap">
+    <section class="hero">${H ? `
+      <span class="label" style="color:var(--muted)">${esc(H.label)}</span>
+      <h1>${H.h1}</h1>
+      <p>${esc(H.p)}</p>` : `
+      <span class="label" style="color:var(--muted)">Schritt-für-Schritt-Anleitungen</span>
+      <h1>Werkzeuge lernen, indem man <em>baut</em>.</h1>
+      <p>Jedes Tutorial führt Schritt für Schritt zu einem fertigen Ergebnis: einem Ornament, einem Gebäudemodell, einem Plan. Jeder Befehl steht mit den Werten da, die du eintippst – zum direkten Mitmachen.</p>
+      <div class="flowline" aria-label="Drei Arten zu entwerfen">
+        <span class="node on">Drawing</span><span class="conn"></span><span class="node off">Programming</span><span class="conn off"></span><span class="node off">Cultivating</span>
+      </div>`}
+    </section>
+    <div class="sec-head"><span class="label">${esc(H && H.progLabel || "Programme")}</span></div>
+    <section class="programs">${progs}</section>
+    ${(DATA.apps || []).length ? `<div class="sec-head"><span class="label">Apps</span><a class="meta" href="#apps">Alle Apps →</a></div>
+    <section class="programs apps-grid">${DATA.apps.map(appCard).join("")}</section>` : ""}
+    ${DATA.soon.length ? `<div class="sec-head"><span class="label" style="color:var(--inactive)">In Vorbereitung</span><span class="meta">folgt</span></div>
+    <section class="soon">${DATA.soon.map(s => `<div class="soon-item"><span class="label">${esc(s.kind)}</span><b>${esc(s.name)}</b><span class="meta">${esc(s.note)}</span></div>`).join("")}</section>` : ""}
+    ${ISSUE_URL ? `<div class="sec-head"><span class="label">Gemeldete Probleme</span><span class="meta" id="probl-meta">wird geladen …</span></div><section class="probl" id="probl"></section>` : ""}
+  </div>`;
+  if (ISSUE_URL) issuesBox();
+}
+
+/* ---------- Apps: Karte (App öffnen + Lernbereich) und Übersichtsseite ---------- */
+function appCard(p) {
+  /* DATA.card = { lines, topics }: wie bei den Programm-Kacheln Text kürzen und höchstens so viele Themen zeigen (gleich hohe Kacheln) */
+  const C = DATA.card, tops = C ? p.topics.filter(t => t.id !== "00") : p.topics, shown = C ? tops.slice(0, C.topics) : tops;
+  return `<div class="prog app-card">
+    <a class="prog-img" href="#${p.id}" aria-label="Lernbereich ${esc(p.name)}">${p.covers.map(c => `<img src="${c}" alt="">`).join("")}</a>
+    <div class="prog-body${C ? " fest" : ""}">
+      <span class="label" style="color:var(--accent-text)">${esc(p.kind)}</span>
+      <h2>${esc(p.name)}</h2>
+      <p${C ? ` class="clamp" style="-webkit-line-clamp:${C.lines};line-clamp:${C.lines}"` : ""}>${esc(p.lead)}</p>
+      <ul class="topics-mini">${shown.map(t => `<li><span>${esc(t.title)}</span><span>${t.units.length} ${p.bericht || t.bericht ? "Abschnitte" : "Einheiten"}</span></li>`).join("")}${tops.length > shown.length ? `<li class="more"><span>+ ${tops.length - shown.length} weitere ${p.bericht ? "Kapitel" : "Themen"}</span><span></span></li>` : ""}</ul>
+      <div class="prog-foot"><span class="meta">${p.topics.length} ${p.bericht ? "Kapitel" : "Themen"}</span>
+        ${p.open ? `<a class="btn" href="${p.open}" target="_blank" rel="noopener">${esc(DATA.labels && DATA.labels.open || "App öffnen")} ↗</a>` : ''}<a class="btn primary" href="#${p.id}">${esc(DATA.labels && DATA.labels.bereich || "Lernbereich")} →</a></div>
+    </div></div>`;
+}
+function appsPage() {
+  crumbs([{ t: "Übersicht", href: "#" }, { t: "Apps" }]);
+  app.innerHTML = `<div class="wrap">
+    <section class="ph"><div><span class="label" style="color:var(--accent-text)">Prompting</span><h1>Entwurfs-Apps</h1>
+      <p>Kleine Werkzeuge im Browser, mit KI aus Prompts gebaut. Jede App hat einen Lernbereich: wie sie funktioniert, wie man sie nachbaut und wie du daraus deine eigene entwickelst.</p></div>
+      <div class="ph-side"><span class="meta">${DATA.apps.length} App${DATA.apps.length === 1 ? "" : "s"}</span></div></section>
+    <div class="sec-head"><span class="label">Apps</span></div>
+    <section class="programs apps-grid">${DATA.apps.map(appCard).join("")}</section>
+    ${DATA.hero && DATA.hero.soon ? `<section class="soon"><div class="soon-item"><span class="label">Prompting</span><b>Weitere Apps</b><span class="meta">folgen</span></div></section>` : ""}
+  </div>`;
+}
+
+/* ---------- Gemeldete Probleme (offene GitLab-Issues, ohne Anmeldung lesbar) ---------- */
+const SEEN_KEY = "infau-tutorials-issues-seen";
+const issuesApi = () => { const u = new URL(ISSUE_URL), path = u.pathname.replace(/\/-\/issues\/new$/, "").replace(/^\//, "");
+  return { api: `${u.origin}/api/v4/projects/${encodeURIComponent(path)}/issues?state=opened&per_page=100&order_by=created_at&sort=desc`,
+           list: `${u.origin}/${path}/-/issues?state=opened` }; };
+async function loadIssues() {
+  const r = await fetch(issuesApi().api, { cache: "no-store" });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+const seenIid = () => { try { return +(localStorage.getItem(SEEN_KEY) || 0); } catch (e) { return 0; } };
+const stepLink = is => { const m = /\*\*Seite:\*\*\s*\S*?(#[a-z0-9-]+)/i.exec(is.description || ""); return m ? m[1] : null; };
+const shortDate = s => { try { return new Date(s).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }); } catch (e) { return s; } };
+async function issuesBox() {
+  const box = $("#probl"), meta = $("#probl-meta"); if (!box) return;
+  try {
+    const is = await loadIssues(); if (!$("#probl")) return;
+    const neu = is.filter(i => i.iid > seenIid()).length;
+    meta.textContent = is.length ? `${is.length} offen${neu ? ` · ${neu} neu` : ""}` : "keine offenen";
+    box.innerHTML = is.length
+      ? `<ul>${is.slice(0, 3).map(i => `<li>${i.iid > seenIid() ? '<span class="neu">neu</span>' : ""}<span>${esc(i.title)}</span><span class="meta">${shortDate(i.created_at)}</span></li>`).join("")}</ul>
+         <a class="btn primary" href="#probleme" target="_blank" rel="noopener">Übersicht der offenen Probleme ↗</a>`
+      : `<p>Zurzeit sind keine Probleme gemeldet. Unter jedem Schritt kannst du über „Problem mit diesem Schritt melden“ etwas melden.</p>`;
+  } catch (e) {
+    meta.textContent = "nicht erreichbar";
+    box.innerHTML = `<p>Die gemeldeten Probleme konnten nicht geladen werden. <a href="${issuesApi().list}" target="_blank" rel="noopener">In GitLab ansehen ↗</a></p>`;
+  }
+}
+async function probleme() {
+  crumbs([{ t: "Übersicht", href: "#" }, { t: "Gemeldete Probleme" }]);
+  app.innerHTML = `<div class="wrap"><section class="ph"><div><span class="label" style="color:var(--accent-text)">Rückmeldungen zu den ${APPS_MODE ? "Apps" : "Tutorials"}</span><h1>Gemeldete Probleme</h1><p id="pl-sum">wird geladen …</p></div>
+    <div class="ph-side"><a class="btn" href="${issuesApi().list}" target="_blank" rel="noopener">In GitLab bearbeiten ↗</a></div></section><section class="mel" id="pl"></section></div>`;
+  try {
+    const is = await loadIssues(), seen = seenIid();
+    $("#pl-sum").textContent = is.length ? `${is.length} offene Meldung${is.length === 1 ? "" : "en"}, neueste zuerst.` : "Keine offenen Meldungen.";
+    $("#pl").innerHTML = is.map(i => {
+      const sl = stepLink(i);
+      const text = (i.description || "").replace(/<sub>[\s\S]*?<\/sub>/g, "").split("\n").filter(l => l.trim() && !/^\*\*(Schritt|Seite|Art|System):\*\*/.test(l)).join("\n");
+      return `<article><div style="display:grid;gap:6px;min-width:0">
+        <span class="meta">${shortDate(i.created_at)} · #${i.iid} · ${esc(i.author && i.author.name || "")}${i.iid > seen ? ' · <span class="neu">neu</span>' : ""}</span>
+        <h3>${esc(i.title)}</h3><p>${esc(text.slice(0, 600))}</p></div>
+        <div class="side">${sl ? `<a class="btn" href="${esc(sl)}">Zum Schritt</a>` : ""}<a class="btn" href="${esc(i.web_url)}" target="_blank" rel="noopener">In GitLab ↗</a></div></article>`;
+    }).join("");
+    if (is.length) { try { localStorage.setItem(SEEN_KEY, String(Math.max(...is.map(i => i.iid)))); } catch (e) {} }
+  } catch (e) {
+    $("#pl-sum").innerHTML = `Die Meldungen konnten nicht geladen werden. <a href="${issuesApi().list}" target="_blank" rel="noopener">In GitLab ansehen ↗</a>`;
+  }
+}
+
+/* ---------- Programmseite ---------- */
+function program(p) {
+  crumbs([...base(p), { t: p.name }]);
+  app.innerHTML = `<div class="wrap">
+    <section class="ph">
+      <div><span class="label" style="color:var(--accent-text)">${esc(p.kind)}</span><h1>${esc(p.name)}</h1><p>${esc(p.lead)}</p>${DATA.ohneAutor ? "" : `<p class="autor">${esc(p.autor || "Autor: Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic")}</p>`}</div>
+      <div class="ph-side"><span class="meta">${p.topics.length} ${p.bericht ? "Kapitel" : "Themen"}</span><span class="meta">${p.topics.reduce((a, t) => a + t.units.length, 0)} ${p.bericht ? "Abschnitte" : "Lerneinheiten"}</span>
+        ${p.app && p.open ? `<a class="btn primary" href="${p.open}" target="_blank" rel="noopener" style="justify-self:end;margin-top:8px">${esc(DATA.labels && DATA.labels.open || "App öffnen")} ↗</a>` : ""}
+        ${p.offline || p.pdf ? `<div class="ph-dl">${p.offline ? `<a class="btn" href="${p.offline.href}" download title="Eine Datei mit allen Themen und Bildern. Im Browser öffnen, auch ohne Internet. Die Datenpakete lädst du einzeln herunter.">Offline-Fassung · HTML · ${mb(p.offline.mb)}</a>` : ""}
+          ${p.pdf ? `<a class="btn" href="${p.pdf.href}" download title="Alle Themen als Folien im Layout der Vorlesung, 16:9, zum Drucken oder Lesen am Tablet">PDF · Vorlesungslayout · ${mb(p.pdf.mb)}</a>` : ""}</div>` : ""}
+        ${DATA.offline ? `<span class="meta">Offline-Fassung · aktuell unter <a href="${DATA.online}#${p.id}" target="_blank" rel="noopener">${esc(DATA.online.replace(/^https?:\/\//, "").replace(/\/$/, ""))}</a></span>` : ""}</div>
+    </section>
+    <section class="topics">${p.topics.map((t, i) => {
+      const n = topicDone(p, t), first = t.units.find(u => !done[uid(p, t, u)]) || t.units[0];
+      return `<a class="topic" href="#${p.id}-${t.id}-${first.slide}">
+        <span class="t-num">${String(i + 1).padStart(2, "0")}</span>
+        <span class="t-img">${t.cover ? `<img src="${t.cover}" alt="">` : ""}</span>
+        <span class="t-body"><span class="t-title">${esc(t.title)}</span><p>${md(t.goal)}</p>
+          ${t.commands.length ? `<span class="t-cmds">${esc(t.cmdLabel || "Neu")}: ${t.commands.map(c => `<b>${esc(c)}</b>`).join(" · ")}</span>` : ""}
+          ${t.result ? `<span class="meta">Ergebnis: ${esc(t.result.replace(/\*\*/g, "").replace(/[*`]/g, ""))}</span>` : ""}</span>
+        <span class="t-side"><span class="meta">${t.units.length} ${p.bericht || t.bericht ? "Abschnitte" : "Schritte"}</span>
+          <span class="bar" aria-label="${n} von ${t.units.length} erledigt"><i style="width:${100 * n / t.units.length}%"></i></span>
+          <span class="btn ${n ? "" : "primary"}">${p.bericht || t.bericht ? "Lesen" : n === t.units.length ? "Wiederholen" : n ? "Fortsetzen" : "Starten"} →</span></span>
+      </a>`;
+    }).join("")}</section>
+  </div>`;
+}
+
+/* ---------- Lernansicht ---------- */
+let tab = "anleitung";
+function learn(p, t, idx) {
+  const u = t.units[idx], id = uid(p, t, u);
+  crumbs([...base(p), { t: p.name, href: `#${p.id}` }, { t: t.title }]);
+  /* Kopf der Gliederung: Klick auf den Titel führt zur Übersicht des Programms bzw. Kurses */
+  const outline = `<a class="ol-prog" href="#${p.id}" title="${esc(p.name)}: Übersicht"><span class="label" style="color:var(--accent-text)">${esc(p.kind)}</span><b>${esc(p.name)}</b></a>` +
+    p.topics.map(tt => {
+      const cur = tt === t;
+      return `<div class="ol-topic ${cur ? "cur" : ""}"><button type="button" data-goto="${p.id}-${tt.id}-${tt.units[0].slide}"><span>${esc(tt.title)}</span><span class="meta">${p.bericht || tt.bericht ? tt.units.length : topicDone(p, tt) + "/" + tt.units.length}</span></button>
+        ${cur ? `<ul class="ol-units">${tt.units.map((uu, j) => `<li><a href="#${p.id}-${tt.id}-${uu.slide}" class="${j === idx ? "cur" : ""} ${done[uid(p, tt, uu)] ? "done" : ""}"><span class="dot"></span><span>${esc(shortTitle(uu))}</span></a></li>`).join("")}</ul>` : ""}</div>`;
+    }).join("");
+  const seq = t.units.map((uu, j) => (j ? '<span class="sq-c"></span>' : "") +
+    `<a class="sq ${j === idx ? "cur" : ""} ${done[uid(p, t, uu)] ? "done" : ""}" href="#${p.id}-${t.id}-${uu.slide}" title="${esc(shortTitle(uu))}" aria-label="Schritt ${j + 1}: ${esc(shortTitle(uu))}">${j + 1}</a>`).join("");
+  const pct = 100 * topicDone(p, t) / t.units.length;
+  const no = stepNo(u);
+  const prev = idx > 0 ? `#${p.id}-${t.id}-${t.units[idx - 1].slide}` : null;
+  const next = idx < t.units.length - 1 ? `#${p.id}-${t.id}-${t.units[idx + 1].slide}` : null;
+  const ti = p.topics.indexOf(t), nextTopic = p.topics[ti + 1], rb = p.bericht || t.bericht;
+  app.innerHTML = `<div class="learn">
+    <aside class="outline" id="outline" aria-label="Gliederung">${outline}</aside>
+    <div class="ol-resize" id="olresize" role="separator" aria-orientation="vertical" aria-controls="outline" aria-label="Breite der Gliederung ändern (ziehen oder Pfeiltasten, Doppelklick: zurücksetzen)" title="Ziehen: Breite ändern · Doppelklick: zurücksetzen" tabindex="0"></div>
+    <section class="main">
+      <div class="seq">
+        <button class="chev toc-btn" type="button" id="toc" aria-label="Gliederung öffnen"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3h12M1 7h12M1 11h12"/></svg></button>
+        <button class="chev" type="button" data-goto="${prev ? prev.slice(1) : ""}" ${prev ? "" : "disabled"} aria-label="Vorheriger Schritt"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 2 4 7l5 5"/></svg></button>
+        <nav class="seq-nodes" aria-label="Schritte">${seq}</nav>
+        <button class="chev" type="button" data-goto="${next ? next.slice(1) : ""}" ${next ? "" : "disabled"} aria-label="Nächster Schritt"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m5 2 5 5-5 5"/></svg></button>
+      </div>
+      <div class="progress" aria-hidden="true"><i style="width:${pct}%"></i></div>
+      <div class="unit-head">
+        <span class="label">${esc(t.title)} · ${no !== undefined ? "Schritt " + no + " · " : ""}${rb ? "Abschnitt" : "Einheit"} ${idx + 1} von ${t.units.length}</span>
+        <h1>${esc(shortTitle(u))}</h1>
+        ${u.subtitle ? `<span class="sub">${esc(u.subtitle)}</span>` : ""}
+      </div>
+      ${body(u)}
+      <div class="foot">
+        ${prev ? `<a class="btn" href="${prev}">← Zurück</a>` : ""}
+        ${rb ? "" : `<label class="check"><input type="checkbox" id="mark" ${done[id] ? "checked" : ""}> Erledigt</label>`}
+        <span class="spacer"></span>
+        ${next ? `<a class="btn primary" href="${next}" id="nextbtn">Weiter →</a>` : rb ? (nextTopic ? `<a class="btn primary" href="#${p.id}-${nextTopic.id}-${nextTopic.units[0].slide}" id="nextbtn">Nächstes Kapitel →</a>` : `<a class="btn primary" href="#${p.id}" id="nextbtn">Zur Übersicht</a>`) : `<button class="btn primary" type="button" id="finish">Thema abschließen</button>`}
+      </div>
+      <div id="fin"></div>
+      ${reportForm(rb ? "Fehler im Bericht melden" : "")}
+    </section></div>`;
+  bindReport(p, t, u);
+
+  if ($("#mark")) $("#mark").addEventListener("change", e => { done[id] = e.target.checked; if (!done[id]) delete done[id]; saveDone(); learn(p, t, idx); });
+  const nb = $("#nextbtn"); if (nb) nb.addEventListener("click", () => { done[id] = true; saveDone(); });
+  const fb = $("#finish");
+  if (fb) fb.addEventListener("click", () => {
+    done[id] = true; saveDone(); learn(p, t, idx);
+    $("#fin").innerHTML = `<div class="done-panel"><span class="label" style="color:var(--accent-text)">Thema abgeschlossen</span><h2>${esc(t.title)}</h2>
+      <p>${t.result ? "Ergebnis: " + md(t.result) : "Alle Schritte sind erledigt."}</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">${nextTopic ? `<a class="btn primary" href="#${p.id}-${nextTopic.id}-${nextTopic.units[0].slide}">Nächstes Thema: ${esc(nextTopic.title)} →</a>` : ""}<a class="btn" href="#${p.id}">Zur Themenübersicht</a></div></div>`;
+    $("#fin").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  const toc = $("#toc"); if (toc) toc.addEventListener("click", () => $("#outline").classList.toggle("open"));
+  bindOutlineResize();
+  /* Aktuellen Schritt nur innerhalb der Leiste mittig zeigen; scrollIntoView würde auch die ganze Seite waagerecht verschieben */
+  const curSq = app.querySelector(".sq.cur");
+  if (curSq) {
+    const leiste = curSq.closest(".seq-nodes"), a = curSq.getBoundingClientRect(), b = leiste.getBoundingClientRect();
+    leiste.scrollLeft += a.left + a.width / 2 - (b.left + b.width / 2);
+  }
+}
+
+/* Breite der Gliederung: Ziehen an der Trennlinie, Pfeiltasten, Doppelklick = Standard; bleibt im Browser gespeichert */
+const OLW_KEY = "infau-outline-width", OLW = { std: 300, min: 180, max: 560 };
+const setOlw = w => { w = Math.round(Math.min(OLW.max, Math.max(OLW.min, w))); document.documentElement.style.setProperty("--ol-w", w + "px"); return w; };
+const saveOlw = w => { try { w === OLW.std ? localStorage.removeItem(OLW_KEY) : localStorage.setItem(OLW_KEY, String(w)); } catch (e) {} };
+try { const w = +localStorage.getItem(OLW_KEY); if (w) setOlw(w); } catch (e) {}
+function bindOutlineResize() {
+  const h = $("#olresize"); if (!h) return;
+  const cur = () => $("#outline").getBoundingClientRect().width;
+  const aria = () => { h.setAttribute("aria-valuenow", Math.round(cur())); h.setAttribute("aria-valuemin", OLW.min); h.setAttribute("aria-valuemax", OLW.max); };
+  aria();
+  h.addEventListener("pointerdown", e => {
+    if (e.button) return;
+    e.preventDefault(); h.setPointerCapture(e.pointerId); h.classList.add("drag"); document.body.classList.add("ol-dragging");
+    const left = h.parentElement.getBoundingClientRect().left;
+    let w = cur();
+    const move = ev => { w = setOlw(ev.clientX - left); };
+    const up = () => { h.removeEventListener("pointermove", move); h.classList.remove("drag"); document.body.classList.remove("ol-dragging"); saveOlw(w); aria(); };
+    h.addEventListener("pointermove", move);
+    h.addEventListener("pointerup", up, { once: true }); h.addEventListener("pointercancel", up, { once: true });
+  });
+  h.addEventListener("dblclick", () => { saveOlw(setOlw(OLW.std)); aria(); });
+  h.addEventListener("keydown", e => {
+    const d = { ArrowLeft: -20, ArrowRight: 20 }[e.key];
+    if (d) { e.preventDefault(); saveOlw(setOlw(cur() + (e.shiftKey ? d * 3 : d))); aria(); }
+    else if (e.key === "Home" || e.key === "Enter") { e.preventDefault(); saveOlw(setOlw(OLW.std)); aria(); }
+  });
+}
+
+/* Wo liegt das Icon in Rhino? (Standard-Oberfläche: Seitenleiste links, Registerkarten oben, Ausklapp-Leisten) */
+const whereTxt = w => w.map(r => r.pfad.length
+  ? `${esc(r.wo)} › kleines Dreieck am Icon <b>${esc(r.pfad[0])}</b> › <b>${esc(r.tip)}</b>`
+  : `${esc(r.wo)} › <b>${esc(r.tip)}</b>`).join(" <span class=\"oder\">oder</span> ");
+const where = i => i.where && i.where.length ? `<span class="wo"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 11s-3.6-3.4-3.6-6A3.6 3.6 0 0 1 9.6 5C9.6 7.6 6 11 6 11Z"/><circle cx="6" cy="5" r="1.2"/></svg><span>In ${esc(i.whereProg || "Rhino")}: ${whereTxt(i.where)}</span></span>` : "";
+const ico = i => i.icon ? `<span class="ico" title="${esc(i.iconTitle)}"><img class="ico-l" src="${i.icon}" alt="" width="26" height="26"><img class="ico-d" src="${i.iconDark}" alt="" width="26" height="26"></span>` : `<span class="ico"></span>`;
+/* Selbstprüfung: „**Frage?** Antwort“ – die Antwort steckt in einer aufklappbaren Box */
+const quizText = s => { const m = /^\*\*([^*]+\?)\*\* (.+)$/s.exec(s);
+  return m ? `<strong>${md(m[1])}</strong><details class="antwort"><summary><span class="zu">Antwort anzeigen</span><span class="auf">Antwort ausblenden</span></summary><p>${md(m[2])}</p></details>` : md(s); };
+function stepList(items, cls = "steps", quiz = false) {
+  let n = 0, prevNum = false;
+  const icons = items.some(i => i.icon);
+  return `<ol class="${cls}${icons ? " has-ico" : ""}">` + items.map(i => {
+    if (/^`[^`]+`$/.test(i.md) && i.md === i.md.toUpperCase() && i.n === null) return `<li class="h"><b>${esc(i.md.slice(1, -1))}</b></li>`;
+    if (i.n !== null && i.n !== undefined) { prevNum = true; return `<li><span class="n">${i.n}</span>${icons ? ico(i) : ""}<span>${quiz ? quizText(i.md) : md(i.md)}${where(i)}</span></li>`; }
+    if (prevNum) return `<li class="sub"><span></span><span class="s-mark"></span><span>${md(i.md)}</span></li>`;
+    return `<li><span class="n b"></span>${icons ? ico(i) : ""}<span>${md(i.md)}${where(i)}</span></li>`;
+  }).join("") + "</ol>";
+}
+
+/* Videos: Vorschaubild und Hinweis, bis man einem Anbieter einmal zustimmt; die Zustimmung gilt danach für alle Videos dieses Anbieters und wird im Browser gemerkt */
+const VKEY = "infau-videos-ok", VNAME = { vimeo: "Vimeo", youtube: "YouTube" };
+let vok = {};
+try { vok = JSON.parse(localStorage.getItem(VKEY) || "{}") || {}; } catch (e) { vok = {}; }
+const vsrc = (v, auto) => (v.provider === "vimeo"
+  ? `https://player.vimeo.com/video/${v.id}?${v.h ? "h=" + v.h + "&" : ""}dnt=1`
+  : `https://www.youtube-nocookie.com/embed/${v.id}?rel=0`) + (auto ? "&autoplay=1" : "");
+const vframe = (src, title) => `<iframe src="${src}" title="${esc(title || "Video")}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
+const vdur = s => s ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")} min` : "";
+function video(v) {
+  const cap = [v.title, vdur(v.dur), v.by].filter(Boolean).map(esc).join(" · ");   /* by: z. B. „Lecturer: …“, vom Bau-Skript gesetzt */
+  if (v.provider === "datei") return `<figure class="video"><div class="v-box"><video controls preload="metadata" src="${esc(v.src)}"></video></div></figure>`;
+  const inner = vok[v.provider] ? vframe(vsrc(v), v.title)
+    : `<button class="v-start" type="button" data-vstart="${v.provider}" data-src="${esc(vsrc(v, true))}" data-title="${esc(v.title)}" aria-label="Video abspielen: ${esc(v.title)}">
+        ${v.poster ? `<img src="${v.poster}" alt="" loading="lazy">` : ""}
+        <span class="v-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5v17l14-8.5z"/></svg></span>
+        <span class="v-note">Video von ${VNAME[v.provider]} abspielen. Damit stimmst du zu, dass ${VNAME[v.provider]} Daten erhält. Die Entscheidung wird in diesem Browser gespeichert und gilt für alle Videos von ${VNAME[v.provider]}.</span></button>`;
+  return `<figure class="video"><div class="v-box">${inner}</div>${cap ? `<figcaption>${cap}</figcaption>` : ""}</figure>`;
+}
+function vstart(b) {
+  const prov = b.dataset.vstart;
+  vok[prov] = true;
+  try { localStorage.setItem(VKEY, JSON.stringify(vok)); } catch (e) {}
+  document.querySelectorAll(`[data-vstart="${prov}"]`).forEach(x => {
+    x.outerHTML = vframe(x === b ? x.dataset.src : x.dataset.src.replace(/&autoplay=1$/, ""), x.dataset.title);
+  });
+  vrevoke();
+}
+/* Widerruf in der Fußzeile, sobald einem Anbieter zugestimmt wurde */
+function vrevoke() {
+  const f = $(".site-foot .wrap"); if (!f) return;
+  let s = $("#v-revoke");
+  const on = Object.keys(vok).filter(k => vok[k]);
+  if (!on.length) { if (s) s.remove(); return; }
+  if (!s) { s = document.createElement("span"); s.id = "v-revoke"; f.appendChild(s); }
+  s.innerHTML = `Videos von ${on.map(k => VNAME[k]).join(" und ")} laden automatisch · <button class="v-revoke" type="button">Zustimmung widerrufen</button>`;
+  s.querySelector("button").addEventListener("click", () => { vok = {}; try { localStorage.removeItem(VKEY); } catch (e) {} vrevoke(); route(); toast("Videos laden wieder erst nach Zustimmung"); });
+}
+
+/* Bericht: Blöcke (Absatz, Überschrift, Liste, Tabelle, Abbildung, Prompt) in einer Lesespalte; Statusmarker [V] … [A] gedämpft */
+const mdb = s => md(s).replace(/\[([VSRFA])\](?!\()/g, '<span class="st">[$1]</span>').replace(/\(korr\.\)/g, '<span class="st">(korr.)</span>');
+const dlList = u => u.downloads && u.downloads.length ? `<div class="dl"><span class="label">Dateien zum Herunterladen</span>${u.downloads.map(f =>
+        `<a class="dl-item" href="${f.href}" download><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L4.8 6.8M8 10l3.2-3.2M2.5 12.5v1h11v-1"/></svg><span><b>${esc(f.kind)}</b> · ${esc(f.desc)}<span class="meta">${esc(f.name)} · ${esc(f.size || String(f.mb).replace(".", ",") + " MB")}</span></span></a>`).join("")}</div>` : "";
+function renderBloecke(u) {
+  const b = x => x.t === "p" ? `<p>${mdb(x.md)}</p>` : x.t === "h" ? `<h3>${mdb(x.md)}</h3>`
+    : x.t === "ul" || x.t === "ol" ? `<${x.t}>${x.items.map(i => `<li>${mdb(i)}</li>`).join("")}</${x.t}>`
+    : x.t === "table" ? `<div class="tab-wrap"><table><thead><tr>${x.kopf.map(c => `<th>${mdb(c)}</th>`).join("")}</tr></thead><tbody>${x.zeilen.map(r => `<tr>${r.map(c => `<td>${mdb(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`
+    : x.t === "fig" ? `<figure><button class="frame" type="button" data-zoom="${x.src}" aria-label="Bild vergrößern"><img src="${x.src}" width="${x.w}" height="${x.h}" alt="" loading="lazy"></button><figcaption><b>Abb. ${x.nr}</b> · ${mdb(x.cap)}<span class="quelle">Quelle: ${mdb(x.quelle)}</span></figcaption></figure>`
+    : x.t === "prompt" ? `<div class="prompt"><div class="prompt-h"><span class="label">${esc(x.label)}</span><button class="btn sm" type="button" data-copy>Kopieren</button></div><pre>${esc(x.text)}</pre></div>`
+    : "";
+  return `<div class="bericht">${dlList(u)}${u.bloecke.map(b).join("")}</div>`;
+}
+function body(u) {
+  if (u.bloecke && u.bloecke.length) return renderBloecke(u);
+  const strips = u.images.filter(i => i.strip), pics = u.images.filter(i => !i.strip), vids = (u.app ? [{ app: 1 }] : []).concat(u.videos || []);
+  /* Kästen (Übersichten): mit Bildern unter den Bildern in der Bildspalte, damit die Textspalte kurz bleibt;
+     schmal (eine Spalte) nach dem Text. Ohne Bilder bleiben sie in der Textspalte. */
+  /* app: eingebettete Demo-App (build.py app_of), steht vor den Bildern in der Bildspalte */
+  /* „In eigenem Fenster öffnen“ steht als Knopf in der App selbst, neben „Zurücksetzen“ (Wunsch Nutzer 5.11.2026) */
+  const app = u.app ? `<figure class="app-embed"><iframe src="${esc(u.app.src)}" title="${esc(u.app.title)}" style="height:${u.app.h}px" allow="fullscreen" allowfullscreen loading="lazy"></iframe></figure>` : "";
+  const hasMedia = vids.length || strips.length || pics.length;
+  const boxes = cls => u.boxes.length ? `<div class="boxes ${cls}">${u.boxes.map(b => stepList(b)).join("")}</div>` : "";
+  const fig = pics.length > 1 && !u.stack && pics.every(i => i.w / i.h < 2.2) ?   /* stack: untereinander, zum Vergleich */ `<div class="row2">${pics.map(img).join("")}</div>` : pics.map(img).join("");
+  /* groups: Bildgruppen (Anzahl Bilder je Gruppe), jede mit ihrer gemeinsamen Bildunterschrift darunter */
+  const gruppen = (u.groups || []).length ? u.groups.map((n, g) => { const a = u.groups.slice(0, g).reduce((x, y) => x + y, 0);
+    return `<div class="gruppe">${pics.slice(a, a + n).map(img).join("")}${u.captions[g] ? `<figcaption>${md(u.captions[g])}</figcaption>` : ""}</div>`; }).join("") : "";
+  /* Fehlersuche: Auflösung aufklappbar unter dem Suchbild (Bildspalte) */
+  const loes = u.loesung ? `<details class="loesung"><summary><span class="zu">Auflösung anzeigen</span><span class="auf">Auflösung ausblenden</span></summary>
+        ${img(u.loesung.image)}<span class="label">Die ${u.loesung.steps.length} Fehler</span>${stepList(u.loesung.steps)}</details>` : "";
+  const media = (vids.length || strips.length || pics.length) ? `<div class="media">
+      ${vids.map(v => v.app ? app : video(v)).join("")}
+      ${strips.map(s => `<div class="strip" title="Infofenster des markierten Bauteils"><img src="${s.src}" alt="Infofenster"></div>`).join("")}
+      ${gruppen || fig}
+      ${u.labels.length ? `<span class="labels">${u.labels.map(esc).join(" · ")}</span>` : ""}
+      ${gruppen ? "" : u.captions.map(c => `<figcaption>${md(c)}</figcaption>`).join("")}
+      ${loes}
+      ${orient(u)}
+      ${boxes("b-media")}
+    </div>` : `<div class="media">${u.captions.map(c => `<figcaption>${md(c)}</figcaption>`).join("")}${loes}${orient(u)}</div>`;
+  const prompts = u.prompts && u.prompts.length ? `<div class="prompts">${u.prompts.map(pr => `<div class="prompt"><div class="prompt-h"><span class="label">${esc(pr.label)}</span><button class="btn sm" type="button" data-copy>Kopieren</button></div><pre>${esc(pr.text).replace(/&lt;([^&]+)&gt;/g, "<mark>&lt;$1&gt;</mark>")}</pre></div>`).join("")}</div>` : "";
+  const text = `<div class="text">
+      ${u.notes ? `<div class="why"><span class="label">Worum es geht</span><p>${CURAPP ? md(u.notes) : esc(u.notes)}</p></div>` : ""}
+      ${u.actions && u.actions.length ? `<div class="acts">${u.actions.map(a => `<a class="btn primary" href="${a.href}" target="_blank" rel="noopener">${esc(a.label)}</a>`).join("")}</div>` : ""}
+      ${u.downloads && u.downloads.length ? `<div class="dl"><span class="label">Dateien zum Herunterladen</span>${u.downloads.map(f =>
+        `<a class="dl-item" href="${f.href}" download><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L4.8 6.8M8 10l3.2-3.2M2.5 12.5v1h11v-1"/></svg><span><b>${esc(f.kind)}</b> · ${esc(f.desc)}<span class="meta">${esc(f.name)} · ${esc(f.size || String(f.mb).replace(".", ",") + " MB")}</span></span></a>`).join("")}</div>` : ""}
+      ${u.promptsFirst ? prompts : ""}
+      ${u.steps.length ? `<div><span class="label" style="display:block;margin-bottom:10px;color:var(--muted)">${u.promptsFirst ? "Darauf achten" : /SELBST PRÜFEN/i.test(u.short) ? "Fragen" : "So geht's"}</span>${stepList(u.steps, "steps", /SELBST PRÜFEN/i.test(u.short))}</div>` : ""}
+      ${u.promptsFirst ? "" : prompts}
+      ${u.kontrolle ? `<div class="kontrolle"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="7.6"/><path d="m5.6 9.2 2.3 2.3 4.6-4.8"/></svg><span class="label">Kontrolle</span><p>${md(u.kontrolle)}</p></div>` : ""}
+      ${u.fehler.length ? `<details class="klappt"><summary class="label">Klappt nicht?</summary><ul>${u.fehler.map(f => `<li><b>${md(f.wenn)}</b><span>${md(f.dann)}</span></li>`).join("")}</ul></details>` : ""}
+      ${boxes(hasMedia ? "b-text" : "")}
+      ${u.hints.map(h => `<p class="hint">${md(h)}</p>`).join("")}
+    </div>`;
+  return `<div class="content">${vids.length || pics.length || strips.length ? media + text : text + media}</div>`;
+}
+/* Orientierung: wo liegen die Icons dieses Schritts in der Rhino-Oberfläche? */
+const orient = u => u.orient && u.orient.length ? `<div class="orient"><span class="label">${u.orientLabel || "So findest du die Icons"}</span>${u.orient.map(o =>
+  `<figure><button class="frame dark" type="button" data-zoom="${o.src}" aria-label="Bild vergrößern"><img src="${o.src}" width="${o.w}" height="${o.h}" alt="" loading="lazy"></button><figcaption><code class="cmd">${esc(o.cmd)}</code> ${esc(o.ort)}</figcaption></figure>`).join("")}</div>` : "";
+const img = i => `<figure><button class="frame" type="button" data-zoom="${i.src}" aria-label="Bild vergrößern"><img src="${i.src}" width="${i.w}" height="${i.h}" alt=""></button></figure>`;
+
+/* ---------- Problem melden ----------
+   Speicher: db-Dokument meldungen/<Betrachter-ID> = {items: [...]}.
+   Jede Person schreibt nur ihr eigenes Dokument; lesen dürfen alle Dokumente nur Editoren und der Besitzer. */
+const ISSUE_URL = null;   /* GitLab-Fassung: Meldung als vorausgefülltes Issue */
+const KATS = ["Anleitung unklar", "Ergebnis stimmt nicht", "Programm verhält sich anders", "Sonstiges"];
+let DB = null, MYID = null, CANWRITE = null, IS_OWNER = false, CAN_READ_ALL = false, INIT = false, ALL = [];
+const lbl = s => `<span class="label" style="color:var(--muted)">${s}</span>`;
+
+function reportForm(titel) {
+  return `<details class="report" id="report"><summary class="label"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14.5V2m0 0h8.5l-1.6 3 1.6 3H3"/></svg>${titel || "Problem mit diesem Schritt melden"}</summary>
+    <form id="rform" novalidate>
+      <p>Etwas ist unklar oder funktioniert nicht wie beschrieben? Beschreibe kurz, was du gemacht hast und was passiert ist. ${ISSUE_URL ? "Die Meldung wird als Issue im GitLab der Uni angelegt; dafür brauchst du dort ein Konto. Issues sind öffentlich sichtbar, also bitte keine persönlichen Daten eintragen. Ohne Konto: Text kopieren und per Mail oder Moodle an die Betreuung schicken." : "Die Meldung geht an die Betreuung der Tutorials."}</p>
+      <fieldset class="chips"><legend>${lbl("Art des Problems")}</legend>${KATS.map((k, i) => `<label><input type="radio" name="kat" value="${esc(k)}" ${i ? "" : "checked"}>${esc(k)}</label>`).join("")}</fieldset>
+      <label class="fld">${lbl("Was ist passiert?")}<textarea name="text" maxlength="4000" placeholder="z. B. Nach CurveBoolean entsteht nur eine Kurve statt drei."></textarea></label>
+      <div class="row-2">
+        <label class="fld">${lbl("Programmversion, System (freiwillig)")}<input name="sys" maxlength="200" placeholder="z. B. Rhino 8, Windows 11"></label>
+        ${ISSUE_URL ? "" : `<label class="fld">${lbl("Name oder E-Mail für Rückfragen (freiwillig)")}<input name="kontakt" maxlength="200"></label>`}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+        <button class="btn primary" type="submit" id="rsend">${ISSUE_URL ? "In GitLab melden" : "Meldung senden"}</button>
+        <button class="btn" type="button" id="rcopy" hidden>Text kopieren</button>
+        <span class="status" id="rstatus" role="status" aria-live="polite"></span>
+      </div>
+    </form></details>`;
+}
+
+function reportMode() {
+  const send = $("#rsend"); if (!send) return;
+  if (ISSUE_URL) { $("#rcopy").hidden = false; return; }
+  if (!INIT) return;
+  if (!DB || !MYID || CANWRITE === false) {
+    send.hidden = true; $("#rcopy").hidden = false;
+    $("#rstatus").textContent = "Speichern ist in dieser Ansicht nicht möglich. Kopiere den Text und schicke ihn per Mail oder Moodle an die Betreuung.";
+  }
+}
+
+function bindReport(p, t, u) {
+  const f = $("#rform"); if (!f) return;
+  const st = $("#rstatus"), send = $("#rsend"), copy = $("#rcopy");
+  const ctx = { prog: p.name, thema: t.title, folie: u.slide, einheit: shortTitle(u), link: `#${p.id}-${t.id}-${u.slide}` };
+  const val = n => String(new FormData(f).get(n) || "").trim();
+  const asText = () => [`${ctx.prog} › ${ctx.thema} › ${ctx.einheit} [${ctx.link.slice(1)}]`, `Art: ${val("kat")}`, val("text"),
+    val("sys") && `System: ${val("sys")}`, val("kontakt") && `Kontakt: ${val("kontakt")}`].filter(Boolean).join("\n");
+  copy.addEventListener("click", () => {
+    try { navigator.clipboard.writeText(asText()).then(() => toast("Meldung kopiert"), () => toast("Kopieren nicht möglich")); } catch (e) { toast("Kopieren nicht möglich"); }
+  });
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const msg = val("text");
+    st.className = "status";
+    if (msg.length < 5) { st.textContent = "Bitte kurz beschreiben, was passiert ist."; f.elements.text.focus(); return; }
+    if (ISSUE_URL) {
+      const where = `${ctx.prog} › ${ctx.thema} › ${ctx.einheit}`;
+      const title = `${where}: ${val("kat")}`;
+      const ref = "tut" + Math.random().toString(36).slice(2, 9);     /* eindeutige Meldungs-Nr., um das Issue wiederzufinden */
+      const desc = [`**Schritt:** ${where}`, `**Seite:** ${location.origin}${location.pathname}${ctx.link}`, `**Art:** ${val("kat")}`, "", msg.slice(0, 2500),
+        val("sys") ? `\n**System:** ${val("sys")}` : "", "", `<sub>Folie ${ctx.folie} · Meldungs-Nr. ${ref}</sub>`].join("\n");
+      window.open(`${ISSUE_URL}?issue[title]=${encodeURIComponent(title)}&issue[description]=${encodeURIComponent(desc)}`, "_blank", "noopener");
+      f.reset(); $("#report").open = false;
+      watchIssue(ref);
+      return;
+    }
+    send.disabled = true; st.textContent = "Wird gesendet …";
+    await READY;
+    if (!DB || !MYID || CANWRITE === false) { send.disabled = false; reportMode(); return; }
+    const now = new Date().toISOString();
+    const item = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: now, ...ctx,
+      kat: val("kat"), text: msg.slice(0, 4000), sys: val("sys").slice(0, 200), kontakt: val("kontakt").slice(0, 200), status: "offen" };
+    try {
+      const ref = DB.doc("meldungen/" + MYID);
+      const snap = await ref.get();
+      const old = snap.exists && Array.isArray(snap.data().items) ? snap.data().items.slice(-199) : [];
+      await ref.set({ items: [...old, item], updated: now });
+      f.reset(); $("#report").open = false;
+      notice("Meldung gespeichert", "Danke! Die Betreuung sieht deine Meldung zu diesem Schritt.");
+    } catch (err) {
+      const c = err && err.code;
+      if (c === "invalid_argument" || c === "not_granted" || c === "revoked") { CANWRITE = false; reportMode(); }
+      else if (c === "quota_exceeded") { st.textContent = "Der Speicher für Meldungen ist voll. Bitte den Text kopieren und per Mail schicken."; copy.hidden = false; }
+      else st.textContent = "Senden hat nicht geklappt. Bitte später noch einmal versuchen.";
+    } finally { send.disabled = false; }
+  });
+  reportMode();
+}
+
+/* Hinweis unten rechts (bleibt stehen, bis man ihn schließt; überlebt den Wechsel der Lerneinheit) */
+function notice(head, html) {
+  $("#notice-h").textContent = head; $("#notice-t").innerHTML = html; $("#notice").hidden = false;
+}
+$("#notice-x").addEventListener("click", () => { $("#notice").hidden = true; });
+
+/* GitLab-Fassung: nach dem Öffnen des Issue-Formulars prüfen, ob das Issue angelegt wurde.
+   Die Issues des öffentlichen Projekts sind ohne Anmeldung lesbar; gesucht wird die Meldungs-Nr. */
+let issueWatch = null;
+function watchIssue(ref) {
+  clearInterval(issueWatch);
+  const u = new URL(ISSUE_URL), path = u.pathname.replace(/\/-\/issues\/new$/, "").replace(/^\//, "");
+  const api = `${u.origin}/api/v4/projects/${encodeURIComponent(path)}/issues?in=description&per_page=1&search=${ref}`;
+  notice("Fast fertig", "GitLab ist in einem neuen Tab geöffnet. Melde dich dort an und klicke auf <b>Create issue</b> – danach erscheint hier eine Bestätigung.");
+  const t0 = Date.now();
+  const check = async () => {
+    if (Date.now() - t0 > 20 * 60 * 1000) {
+      clearInterval(issueWatch); window.removeEventListener("focus", check);
+      notice("Keine Bestätigung", "Bei GitLab ist kein Issue angekommen. Falls du nicht auf <b>Create issue</b> geklickt hast, melde das Problem bitte noch einmal.");
+      return;
+    }
+    try {
+      const r = await fetch(api, { cache: "no-store" });
+      const js = r.ok ? await r.json() : [];
+      if (Array.isArray(js) && js.length) {
+        clearInterval(issueWatch); window.removeEventListener("focus", check);
+        const is = js[0];
+        notice("Meldung angekommen", `Danke! Dein Problem ist als <a href="${esc(is.web_url)}" target="_blank" rel="noopener">Issue #${esc(is.iid)}</a> angelegt. Wir melden uns dort.`);
+        toast("Issue #" + is.iid + " angelegt");
+      }
+    } catch (e) { /* Netz kurz weg: beim nächsten Durchlauf erneut */ }
+  };
+  issueWatch = setInterval(check, 5000);
+  window.addEventListener("focus", check);
+}
+
+/* Hell/Dunkel: folgt der Systemeinstellung, bis man umschaltet; die Wahl merkt sich der Browser */
+const THEME_KEY = "infau-tutorials-theme";
+const SUN = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></svg>';
+const MOON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1Z"/></svg>';
+const isDark = () => (document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
+function paintThemeBtn() {
+  const dark = isDark();
+  $("#theme").innerHTML = (dark ? SUN : MOON) + `<span class="t-txt">${dark ? "Hell" : "Dunkel"}</span>`;
+  $("#theme").setAttribute("aria-label", dark ? "Zur hellen Darstellung wechseln" : "Zur dunklen Darstellung wechseln");
+}
+try { const t = localStorage.getItem(THEME_KEY); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+paintThemeBtn();
+$("#theme").addEventListener("click", () => {
+  const t = isDark() ? "light" : "dark";
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  paintThemeBtn();
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paintThemeBtn);
+
+/* Umschalter De/En: DATA.lang = { aktuell, ziel, en: [Programm-IDs mit Übersetzung], titel, fehlt }.
+   Ohne DATA.lang (OLP, KI Lernlabor, Offline-Fassung) bleibt der Knopf verborgen. Die Fassungen sind zwei Dateien mit gleichen Ankern. */
+function paintLang(h) {
+  const L = DATA.lang, a = $("#lang");
+  if (!L) return;
+  const pid = h.split("-")[0], ok = !DATA.programs.some(p => p.id === pid) || L.en.includes(pid);
+  a.hidden = false;
+  a.innerHTML = L.aktuell === "de" ? "<span><b>DE</b> / EN</span>" : "<span>DE / <b>EN</b></span>";
+  a.classList.toggle("aus", !ok);
+  a.title = ok ? L.titel : L.fehlt;
+  if (ok) { a.href = L.ziel + location.hash; a.removeAttribute("aria-disabled"); }
+  else { a.removeAttribute("href"); a.setAttribute("aria-disabled", "true"); }
+}
+
+/* Übersicht der Meldungen: nur für Editoren und Besitzer; Status ändern nur der Besitzer */
+const fmtDate = s => { try { return new Date(s).toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short" }); } catch (e) { return s; } };
+const safeLink = s => /^#[a-z0-9-]+$/i.test(String(s)) ? s : "#";
+function meldungen() {
+  crumbs([{ t: "Übersicht", href: "#" }, { t: "Meldungen" }]);
+  if (!CAN_READ_ALL) {
+    app.innerHTML = `<div class="wrap"><section class="ph"><div><h1>Meldungen</h1><p>Die Meldungen sind nur für die Betreuung sichtbar.</p></div></section></div>`;
+    return;
+  }
+  const offen = ALL.filter(m => m.status !== "erledigt").length;
+  app.innerHTML = `<div class="wrap">
+    <section class="ph"><div><span class="label" style="color:var(--accent-text)">Rückmeldungen zu den ${APPS_MODE ? "Apps" : "Tutorials"}</span><h1>Meldungen</h1>
+      <p>${ALL.length ? `${offen} offen · ${ALL.length - offen} erledigt` : "Noch keine Meldungen."}</p></div></section>
+    <section class="mel">${ALL.map(m => `<article class="${m.status === "erledigt" ? "erledigt" : ""}">
+      <div style="display:grid;gap:6px;min-width:0">
+        <span class="meta">${esc(fmtDate(m.ts))} · ${esc(m.kat)}</span>
+        <h3><a href="${esc(safeLink(m.link))}">${esc(m.prog)} › ${esc(m.thema)} › ${esc(m.einheit)}</a> <span class="meta">Folie ${esc(m.folie)}</span></h3>
+        <p>${esc(m.text)}</p>
+        ${m.sys || m.kontakt ? `<span class="meta">${[m.sys, m.kontakt].filter(Boolean).map(esc).join(" · ")}</span>` : ""}
+      </div>
+      <div class="side">${IS_OWNER ? `<button class="btn" type="button" data-mstat="${esc(m._doc)}" data-mid="${esc(m.id)}">${m.status === "erledigt" ? "Wieder öffnen" : "Erledigt"}</button>` : `<span class="meta">${esc(m.status)}</span>`}</div>
+    </article>`).join("")}</section></div>`;
+}
+async function toggleStatus(btn) {
+  btn.disabled = true;
+  try {
+    const ref = DB.doc("meldungen/" + btn.dataset.mstat), snap = await ref.get();
+    if (!snap.exists) return;
+    const d = snap.data();
+    await ref.set({ ...d, items: (d.items || []).map(it => it.id === btn.dataset.mid ? { ...it, status: it.status === "erledigt" ? "offen" : "erledigt" } : it) });
+  } catch (e) { toast("Ändern hat nicht geklappt"); btn.disabled = false; }
+}
+
+const READY = (async () => {
+  try {
+    if (!window.claude || typeof window.claude.use !== "function") return;
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    DB = db;
+    if (user) {
+      const ask = async (f, fb) => { try { return await f(); } catch (e) { return fb; } };
+      MYID = await ask(() => user.id(), null);
+      IS_OWNER = await ask(() => user.isOwner(), false);
+      CAN_READ_ALL = await ask(() => user.canEdit(), false);
+      CANWRITE = await ask(() => user.can("data.write"), null);
+    }
+    if (DB && CAN_READ_ALL) {
+      const ml = $("#mlink");
+      DB.collection("meldungen").onSnapshot(snap => {
+        ALL = snap.docs.flatMap(d => ((d.data() || {}).items || []).map(it => ({ ...it, _doc: d.id })))
+          .sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+        const offen = ALL.filter(m => m.status !== "erledigt").length;
+        ml.hidden = false; ml.textContent = offen ? `Meldungen · ${offen}` : "Meldungen";
+        if (location.hash === "#meldungen") meldungen();
+      }, () => {});
+    }
+  } catch (e) { /* ohne Speicher: Formular bietet Kopieren an */ }
+  finally { INIT = true; reportMode(); if (location.hash === "#meldungen") meldungen(); }
+})();
+
+/* ---------- Routing (#rhino, #rhino-02-41) ---------- */
+function route() {
+  const h = location.hash.replace(/^#/, "");
+  /* Englische Fassung: Programme ohne Übersetzung öffnen auf der deutschen Seite */
+  if (DATA.lang && DATA.lang.aktuell === "en" && DATA.programs.some(q => q.id === h.split("-")[0]) && !DATA.lang.en.includes(h.split("-")[0])) { location.replace(DATA.lang.ziel + location.hash); return; }
+  /* Umgezogene Lernbereiche (21.11.2026): der alte Anker führt zur neuen Adresse (etwa entwurfsforschung.de); nur wenn DATA.weiterleitung gesetzt ist */
+  if (DATA.weiterleitung && DATA.weiterleitung[h.split("-")[0]]) { location.replace(DATA.weiterleitung[h.split("-")[0]]); return; }
+  paintLang(h);
+  if (h === "meldungen") { meldungen(); window.scrollTo({ top: 0 }); return; }
+  if (h === "probleme" && ISSUE_URL) { probleme(); window.scrollTo({ top: 0 }); return; }
+  if (h === "apps" && (DATA.apps || []).length) { CURAPP = true; APPS_MODE ? appsHome() : appsPage(); window.scrollTo({ top: 0 }); return; }
+  const [pid, tid, sl] = h.split("-");
+  const p = findProg(pid);
+  const neu = p && p.umzug && tid && p.umzug[tid + "-" + sl];   // verschobene Einheit: alter Anker führt zum neuen Ort
+  if (neu) { location.replace(neu[0] === "#" ? neu : "#" + pid + "-" + neu); return; }   // "#…" = Ziel in einem anderen Bereich
+  CURAPP = !!(p && p.app);
+  const fa = $(".site-foot .wrap > span");   // Fußzeile: Autor des Lernbereichs, sonst der allgemeine
+  if (fa) fa.textContent = DATA.ohneAutor ? "" : (p && p.autor) || "Autor: Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic";   // DATA.ohneAutor: Seiten mit Beiträgen mehrerer (Konzeptsammlung)
+  if (!p) { DATA.offline ? program(DATA.programs[0]) : home(); }
+  else if (!tid) { program(p); }
+  else {
+    const t = p.topics.find(x => x.id === tid) || p.topics[0];
+    const idx = Math.max(0, t.units.findIndex(u => String(u.slide) === sl));
+    learn(p, t, idx);
+  }
+  window.scrollTo({ top: 0 });
+}
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-goto]");
+  if (g && g.dataset.goto) { location.hash = g.dataset.goto; return; }
+  const vs = e.target.closest("[data-vstart]");
+  if (vs) { vstart(vs); return; }
+  const ms = e.target.closest("[data-mstat]");
+  if (ms) { toggleStatus(ms); return; }
+  const tb = e.target.closest("[data-tab]");
+  if (tb) { tab = tb.dataset.tab; route(); return; }
+  const cp = e.target.closest("[data-copy]");
+  if (cp) {
+    const txt = cp.closest(".prompt").querySelector("pre").textContent;
+    const ok = () => { cp.textContent = "Kopiert ✓"; setTimeout(() => { cp.textContent = "Kopieren"; }, 1600); };
+    try { navigator.clipboard.writeText(txt).then(ok, () => toast("Kopieren nicht möglich – Text markieren und mit Strg + C kopieren")); } catch (err) { toast("Kopieren nicht möglich – Text markieren und mit Strg + C kopieren"); }
+    return;
+  }
+  const z = e.target.closest("[data-zoom]");
+  if (z) { $("#zoom-img").src = z.dataset.zoom; $("#zoom").showModal(); return; }
+  const c = e.target.closest("code.cmd");
+  if (c) {
+    const txt = c.textContent;
+    const ok = () => toast("Kopiert: " + txt);
+    try { navigator.clipboard.writeText(txt).then(ok, () => toast(txt)); } catch (err) { toast(txt); }
+  }
+});
+$("#zoom-close").addEventListener("click", () => $("#zoom").close());
+$("#zoom").addEventListener("click", e => { if (e.target.id === "zoom") $("#zoom").close(); });
+let tt;
+function toast(s) { const t = $("#toast"); t.textContent = s; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 1600); }
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input, textarea") || $("#zoom").open) return;
+  const btn = e.key === "ArrowRight" ? app.querySelector('.chev[aria-label="Nächster Schritt"]') : e.key === "ArrowLeft" ? app.querySelector('.chev[aria-label="Vorheriger Schritt"]') : null;
+  if (btn && !btn.disabled) btn.click();
+});
+/* Bild beim ersten Abruf nicht geladen? Bis zu zwei weitere Versuche */
+document.addEventListener("error", e => {
+  const im = e.target;
+  if (!(im instanceof HTMLImageElement) || !im.src) return;
+  const n = +(im.dataset.retry || 0);
+  if (n >= 2) return;
+  im.dataset.retry = n + 1;
+  const base = im.src.split("?")[0];
+  setTimeout(() => { im.src = base + "?r=" + (n + 1); }, 500 * (n + 1));
+}, true);
+window.addEventListener("hashchange", () => { tab = "anleitung"; route(); });
+route();
+vrevoke();
+</script>
+
+</body>
+</html>
