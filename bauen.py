@@ -222,6 +222,20 @@ def lernbereich(p, z, Q, methode=None, methode_datei=None, stand=""):
         lokal(pfad, zur_wurzel, methode, stand)
 
 
+def zurueck_setzen(z, zur_wurzel, zurueck):
+    """Rückweg-Leiste der Seiten in z auf eine andere Seite des Lab richten: zurueck = {"href": Pfad ab Wurzel, "de": …, "en": …}."""
+    alt_a = f'<a href="{zur_wurzel}" style="color:#fff;text-decoration:none" title="Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab">← Entwurfsforschung · KI Lab</a>'
+    neu_a = (f'<a href="{zur_wurzel}{zurueck["href"]}" style="color:#fff;text-decoration:none" title="Zurück zu {html.escape(zurueck["de"])} · '
+             f'Back to {html.escape(zurueck["en"])}">← {html.escape(zurueck["de"])}</a>')
+    for f in ("index.html", "en.html"):
+        pfad = os.path.join(z, f)
+        if os.path.isfile(pfad):
+            t = open(pfad, encoding="utf-8").read()
+            if alt_a not in t:
+                sys.exit(f"{pfad}: Rückweg-Leiste nicht gefunden")
+            open(pfad, "w", encoding="utf-8").write(t.replace(alt_a, neu_a, 1))
+
+
 def seite(vorlage, pfad, main, base, titel, seite_, alt):
     h = (vorlage.replace("{{MAIN}}", main).replace("{{BASE}}", base).replace("{{ALT}}", alt)
          .replace("{{TITEL}}", html.escape(titel)).replace("{{SEITE}}", seite_))
@@ -474,6 +488,9 @@ def bauen(alt="/"):
         mhref = f"{zur_wurzel}lab/methode/{p['id']}/" if mq else None
         if mq:
             methoden.append((p, mq))
+        elif p.get("methode_von"):                                     # gleiche Methode wie ein anderes Projekt: dessen Seite verlinken, keine zweite
+            q = next(x for x in cfg["projekte"] if x["id"] == p["methode_von"])
+            mq, mhref = methode_quelle(q, Q), f"{zur_wurzel}lab/methode/{q['id']}/"
         if p.get("nur_kachel"):                                        # nur Kachel, Inhalt pflegt ein anderes Werkzeug (Design Explorer: sync.py).
             if os.path.exists(z):                                      # Kein Ordner in site/, sonst ersetzt deploy.py den Ordner auf dem Server.
                 sys.exit(f"{p['ziel']}: Projekt ist nur_kachel, darf in site/ nicht vorkommen")
@@ -484,6 +501,8 @@ def bauen(alt="/"):
             lb = os.path.join(Q, "Apps", p["lernbereich"])                # Stand: Dokumentation = lernbereich.py, App = dist/*.html
             lernbereich(p, z, Q, mhref, mq, stand_leiste(stand_text([os.path.join(lb, "lernbereich.py")]),
                                                      stand_text(glob.glob(os.path.join(lb, "dist", "*.html")))))
+            if p.get("zurueck"):                                       # Rückweg zur Seite, von der man kommt (Design Explorations → Design Explorer, 25.11.2026)
+                zurueck_setzen(z, zur_wurzel, p["zurueck"])
         for ziel, quelle in p.get("dateien", {}).items():
             shutil.copy(os.path.join(Q, quelle), os.path.join(z, ziel))
         for ziel, quelle in p.get("ordner", {}).items():
@@ -495,6 +514,8 @@ def bauen(alt="/"):
                 lokal(os.path.join(z, ziel), zur_wurzel, mhref, stand_leiste(stand_text([mq]), stand_text([os.path.join(Q, q) for q in p["dateien"].values()])))
         if p["start"] != "index.html":
             open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"], q=(f'<link rel="code-repository" href="{p["quellcode"]}"><link rel="license" href="https://creativecommons.org/licenses/by/4.0/">' if p.get("quellcode") else "")))
+        if p.get("ohne_kachel"):                                       # Seite ohne Kachel im Lab, verlinkt von anderswo (Design Explorations: Kachel im Design Explorer, 25.11.2026)
+            continue
         lab.append({k: p[k] for k in ("id", "titel", "autoren", "kategorie", "jahr", "datum")} | {"vorschau": p.get("vorschau"), "zuletzt": bool(p.get("zuletzt")), "vorletzt": bool(p.get("vorletzt")), "zuerst": bool(p.get("zuerst")), "anfang": bool(p.get("anfang")), "href": p["ziel"], "bild": f"bilder/{p['id']}.webp" + vq(os.path.join(SITE, "bilder", p["id"] + ".webp")), "w": w, "h": h})
     seite(vorlage, os.path.join(SITE, "index.html"), FILTER.format(id="lab", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": lab}, ensure_ascii=False)) + "\n" + UEBER,
           "", "Entwurfsforschung · KI Lab", "lab", alt)

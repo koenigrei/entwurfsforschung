@@ -7,6 +7,7 @@
   quellcode.zip (App + _gemeinsam), Pflichtlinks und Hinweise im <head>, Archivlink gültig, modell.js ohne DOM, Tests grün (node --test)
 - Parametric Planning Catalogue (katalog/bestand.json, 23.11.2026): dieselben Pflichten je App, Link zum Katalogeintrag statt Archivlink,
   quellcode.zip mit katalog/<app>/, katalog/_gemeinsam/ und simulationen/_gemeinsam/, Begründung für jedes nicht umgesetzte Modul
+  (nur in bestand.json); Übersicht seit 25.11.2026: alle Apps als Kacheln oben, keine Berichte, Hinweise zur Herkunft unten
 - Wissensbasis (25.11.2026): Seite DE/EN, KI-Lab_Wissensbasis.zip vollständig und ohne private Angaben, Einzeldateien, eine Kachel „anfang“
 """
 import json, os, re, subprocess, sys, zipfile
@@ -34,9 +35,12 @@ def pruefe(site=SITE, projekte=None):
         if not os.path.exists(os.path.join(site, f)):
             b.append(f"Schrift fehlt: {f}")
     for p in P:
-        if f'"{p["id"]}"' not in h:
+        if p.get("ohne_kachel"):                                       # Seite ohne Kachel im Lab (Design Explorations, 25.11.2026): darf nicht auf der Startseite stehen
+            if f'"id": "{p["id"]}"' in h:
+                b.append(f"{p['id']}: ohne_kachel, steht aber in den Daten der Startseite")
+        elif f'"{p["id"]}"' not in h:
             b.append(f"{p['id']}: nicht in den Daten der Startseite")
-        if not os.path.exists(os.path.join(site, "bilder", p["id"] + ".webp")):
+        if not p.get("ohne_kachel") and not os.path.exists(os.path.join(site, "bilder", p["id"] + ".webp")):
             b.append(f"{p['id']}: Kachelbild fehlt")
         z = os.path.join(site, p["ziel"])
         b += pruefe_methode(site, p, z)
@@ -51,7 +55,7 @@ def pruefe(site=SITE, projekte=None):
             for f in ("en.html", "img"):
                 if not os.path.exists(os.path.join(z, f)):
                     b.append(f"{p['id']}: Lernbereich ohne {p['ziel']}{f}")
-            if not [f for f in os.listdir(z) if f.endswith(".html") and f not in ("index.html", "en.html")]:
+            if not p.get("app_woanders") and not [f for f in os.listdir(z) if f.endswith(".html") and f not in ("index.html", "en.html")]:
                 b.append(f"{p['id']}: Lernbereich ohne App-Datei neben index.html")
         for o in p.get("ordner", {}):
             if not os.path.isdir(os.path.join(z, o)) or not os.listdir(os.path.join(z, o)):
@@ -194,8 +198,8 @@ def pruefe_bki(site):
 def pruefe_methode(site, p, z):
     """Jedes Projekt hat eine Methodenbeschreibung (Nutzer 23.11.2026): Seite lab/methode/<id>/ mit Rohdatei METHODE.md, Link in den
     App-Seiten (Rückweg-Leiste) bzw. auf der Übersicht, METHODE.md in jedem Quellcode-Paket des Projektordners."""
-    b, pid = [], p["id"]
-    if not p.get("methode"):
+    b, pid = [], p.get("methode_von") or p["id"]                      # methode_von: verlinkt die Methodenseite eines anderen Projekts (25.11.2026)
+    if not p.get("methode") and not p.get("methode_von"):
         return [f"{pid}: keine Methodenbeschreibung (projekte.json „methode“)"]
     d = os.path.join(site, "lab", "methode", pid)
     for f in ("index.html", "METHODE.md"):
@@ -374,15 +378,20 @@ def pruefe_katalog(site=SITE, tests=True):
     if not os.path.exists(uebersicht):
         return b + ["lab/parametric-planning-catalogue/index.html fehlt"]
     u = open(uebersicht, encoding="utf-8").read()
-    n_kat = len([e for e in fertig if e in B["eintraege"]])
-    if u.count("const DATA") != 1 or u.count('"href"') != n_kat:
-        b.append(f"lab/parametric-planning-catalogue/index.html: {u.count(chr(34) + 'href' + chr(34))} Kacheln statt {n_kat}")
+    # Seit 25.11.2026 (Wunsch Reinhard): alle umgesetzten Apps, Katalog und DeCodingSpaces Lab, gemeinsam als Kacheln im Raster oben;
+    # die Listen mit Umsetzungsstand und Begründung stehen nur noch in katalog/bestand.json, unten nur die Hinweise zur Herkunft.
+    if u.count("const DATA") != 1 or u.count('"href"') != len(fertig):
+        b.append(f"lab/parametric-planning-catalogue/index.html: {u.count(chr(34) + 'href' + chr(34))} Kacheln statt {len(fertig)}")
     for e in fertig:
-        if e not in B["eintraege"] and f'class="karte" href="{e["app"]}/"' not in u:
-            b.append(f"lab/parametric-planning-catalogue/index.html: Lab-Kachel {e['app']} fehlt")
+        if f'"href": "{e["app"]}/"' not in u:
+            b.append(f"lab/parametric-planning-catalogue/index.html: Kachel {e['app']} fehlt")
     for e in E:
-        if e["url"] not in u:
-            b.append(f"lab/parametric-planning-catalogue/index.html: Modul {e['id']} fehlt in der Liste")
+        if e.get("status") != "umgesetzt" and e["url"] in u:
+            b.append(f"lab/parametric-planning-catalogue/index.html: Bericht zu {e['id']} (nicht umgesetzt) gehört nicht auf die Seite")
+    for basis, was in (("https://infar-buw.github.io/parametric-planning-catalogue/", "Parametric Planning Catalogue"),
+                       (KAT_URL["lab"], "DeCodingSpaces Lab")):
+        if f'href="{basis}' not in u:
+            b.append(f"lab/parametric-planning-catalogue/index.html: Hinweis zur Herkunft ({was}) fehlt")
     for f in ("katalog/_gemeinsam/geo.js", "katalog/_gemeinsam/szenen.js", "katalog/_gemeinsam/karte.js"):
         if not os.path.exists(os.path.join(wurzel, "_gemeinsam", os.path.basename(f))):
             b.append(f"lab/parametric-planning-catalogue/_gemeinsam/{os.path.basename(f)} fehlt")

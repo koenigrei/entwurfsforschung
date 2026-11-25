@@ -47,6 +47,32 @@
    "zuerst": true
   },
   {
+   "id": "design-explorations",
+   "titel": {
+    "de": "Design Explorations · So funktioniert es",
+    "en": "Design Explorations · How it works"
+   },
+   "autoren": "R. König · Claude",
+   "kategorie": {
+    "de": "Dokumentation",
+    "en": "Documentation"
+   },
+   "jahr": 2026,
+   "datum": "2026-11-10",
+   "bild": "Apps/design_explorations/bilder/de_cover.png",
+   "vorschau": {
+    "de": "Wie der Design Explorer entstand und arbeitet: Archiv, Ausarbeitung, Pflegelauf mit Claude, täglicher Post auf fünf Plattformen – mit den Prompts zum Nachbauen und einem Startpaket für eigene Projekte.",
+    "en": "How the Design Explorer was built and how it works: archive, elaboration, maintenance run with Claude, daily post on five platforms – with the prompts to rebuild it and a starter package for your own projects."
+   },
+   "ziel": "lab/design-explorations/",
+   "start": "index.html",
+   "lernbereich": "design_explorations",
+   "methode_von": "design-explorer",
+   "zurueck": {"href": "lab/design-explorer/#/", "de": "Design Explorer", "en": "Design Explorer"},
+   "ohne_kachel": true,
+   "app_woanders": true
+  },
+  {
    "id": "gartenatelier",
    "titel": {
     "de": "Konzeptstudie Gartenatelier",
