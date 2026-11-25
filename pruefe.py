@@ -34,9 +34,12 @@ def pruefe(site=SITE, projekte=None):
         if not os.path.exists(os.path.join(site, f)):
             b.append(f"Schrift fehlt: {f}")
     for p in P:
-        if f'"{p["id"]}"' not in h:
+        if p.get("ohne_kachel"):                                       # Seite ohne Kachel im Lab (Design Explorations, 25.11.2026): darf nicht auf der Startseite stehen
+            if f'"id": "{p["id"]}"' in h:
+                b.append(f"{p['id']}: ohne_kachel, steht aber in den Daten der Startseite")
+        elif f'"{p["id"]}"' not in h:
             b.append(f"{p['id']}: nicht in den Daten der Startseite")
-        if not os.path.exists(os.path.join(site, "bilder", p["id"] + ".webp")):
+        if not p.get("ohne_kachel") and not os.path.exists(os.path.join(site, "bilder", p["id"] + ".webp")):
             b.append(f"{p['id']}: Kachelbild fehlt")
         z = os.path.join(site, p["ziel"])
         b += pruefe_methode(site, p, z)
@@ -51,7 +54,7 @@ def pruefe(site=SITE, projekte=None):
             for f in ("en.html", "img"):
                 if not os.path.exists(os.path.join(z, f)):
                     b.append(f"{p['id']}: Lernbereich ohne {p['ziel']}{f}")
-            if not [f for f in os.listdir(z) if f.endswith(".html") and f not in ("index.html", "en.html")]:
+            if not p.get("app_woanders") and not [f for f in os.listdir(z) if f.endswith(".html") and f not in ("index.html", "en.html")]:
                 b.append(f"{p['id']}: Lernbereich ohne App-Datei neben index.html")
         for o in p.get("ordner", {}):
             if not os.path.isdir(os.path.join(z, o)) or not os.listdir(os.path.join(z, o)):
@@ -194,8 +197,8 @@ def pruefe_bki(site):
 def pruefe_methode(site, p, z):
     """Jedes Projekt hat eine Methodenbeschreibung (Nutzer 23.11.2026): Seite lab/methode/<id>/ mit Rohdatei METHODE.md, Link in den
     App-Seiten (Rückweg-Leiste) bzw. auf der Übersicht, METHODE.md in jedem Quellcode-Paket des Projektordners."""
-    b, pid = [], p["id"]
-    if not p.get("methode"):
+    b, pid = [], p.get("methode_von") or p["id"]                      # methode_von: verlinkt die Methodenseite eines anderen Projekts (25.11.2026)
+    if not p.get("methode") and not p.get("methode_von"):
         return [f"{pid}: keine Methodenbeschreibung (projekte.json „methode“)"]
     d = os.path.join(site, "lab", "methode", pid)
     for f in ("index.html", "METHODE.md"):
