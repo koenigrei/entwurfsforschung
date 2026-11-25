@@ -2,6 +2,28 @@
  "quelle_basis": "C:/LocalOnlyData/GitHub/Planungsgrundlagen",
  "projekte": [
   {
+   "id": "wissensbasis",
+   "titel": {
+    "de": "Wissensbasis für neue Projekte",
+    "en": "Knowledge Base for New Projects"
+   },
+   "autoren": "R. König · Claude",
+   "kategorie": {
+    "de": "Anleitung",
+    "en": "Guide"
+   },
+   "jahr": 2026,
+   "datum": "2026-11-25",
+   "vorschau": {
+    "de": "Wie man das KI Lab mit einem Coding-Agenten wie Claude Code als Wissensbasis nutzt: Methodenkatalog, METHODE.md je Projekt, Skills, Rezepte und Quellcode-Pakete – mit Startpaket, Beispielablauf und Prompts.",
+    "en": "How to use the AI Lab as a knowledge base with a coding agent such as Claude Code: method catalogue, METHODE.md per project, skills, recipes and source packages – with a starter package, an example workflow and prompts."
+   },
+   "ziel": "lab/wissensbasis/",
+   "start": "index.html",
+   "methode": "wissensbasis/METHODE.md",
+   "anfang": true
+  },
+  {
    "id": "design-explorer",
    "titel": {
     "de": "Design Explorer",
@@ -203,11 +225,14 @@
     "en": "A street network grows across terrain and population density, the blocks become lots – after Parish & Müller (2001), as a basis for recreating the mountain villages in their own style."
    },
    "ziel": "lab/procedural-cities/",
-   "start": "procedural_cities.html",
+   "start": "doku/index.html",
    "methode": "Apps/procedural_cities/METHODE.md",
    "dateien": {
     "procedural_cities.html": "Apps/procedural_cities/dist/procedural_cities.html",
     "Procedural_Cities_Quellcode.zip": "Apps/procedural_cities/dist/Procedural_Cities_Quellcode.zip"
+   },
+   "ordner": {
+    "doku": "Apps/procedural_cities/dist/doku"
    },
    "quellcode": "Procedural_Cities_Quellcode.zip"
   },
