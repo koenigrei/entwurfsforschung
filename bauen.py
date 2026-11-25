@@ -806,67 +806,38 @@ def katalog(vorlage, alt):
 
     fertig = lambda L: [e for e in sorted(L, key=lambda e: e.get("reihenfolge", 0)) if e.get("status") == "umgesetzt" and e.get("app")]
     karten = [app_bauen(e) for e in fertig(B["eintraege"])]
-    lab_karten = [app_bauen(e) for e in fertig(B.get("lab", []))]          # DeCodingSpaces Lab (23.11.2026): eigener Abschnitt, Kacheln fest im HTML
+    lab_karten = [app_bauen(e) for e in fertig(B.get("lab", []))]          # DeCodingSpaces Lab (23.11.2026)
+    # Alle Apps – Katalog und DeCodingSpaces Lab – stehen gemeinsam im Raster oben (Wunsch Nutzer 25.11.2026); die Lab-Apps tragen die
+    # Kategorie „DeCodingSpaces Lab“. Die Listen aller Einträge mit Umsetzungsstand und Begründung erscheinen nicht mehr auf der Seite
+    # (sie bleiben in katalog/bestand.json); unten stehen nur die Hinweise zur Herkunft.
     K = B["katalog"]
-    def liste(L, eintrag, lab=False):
-        z = []
-        for e in sorted(L, key=lambda e: e.get("reihenfolge", 0)):
-            st = KAT_STATUS.get(e["status"], (e["status"], e["status"]))
-            if e["status"] == "teil" and e.get("teil_von"):
-                st = (f'Teil von {e["teil_von"]}', f'part of {e["teil_von"]}')
-            app = e.get("app") if e["status"] == "umgesetzt" else e.get("teil_von") if e["status"] == "teil" else None
-            titel = (f'<a href="{app}/">{zwei(e.get("titel_de") or e["titel"], e.get("titel_en") or e["titel"])}</a>' if app else html.escape(e["titel"]))
-            grund = e.get("grund") or {}
-            kopf = " · ".join(x for x in ([e.get("art") or "", str(e.get("jahr") or "")] if lab else [" · ".join(e["tags"])]) if x)
-            z.append(f'<li><div class="kopfzeile">{titel}<span class="mono status s-{e["status"]}">{zwei(*st)}</span></div>'
-                     f'<div class="mono klein">{html.escape(kopf)} · {html.escape(e["autoren"])} · <a href="{html.escape(e["url"])}">{zwei(*eintrag)}</a></div>'
-                     + (f'<p class="nur-de">{html.escape(grund["de"])}</p><p class="nur-en">{html.escape(grund.get("en") or grund["de"])}</p>' if grund.get("de") else "") + "</li>")
-        return "".join(z)
-    zeilen = [liste(B["eintraege"], ("Katalogeintrag", "catalogue entry"))]
-    n_alle, n_um = len(B["eintraege"]), len(karten)
-    stil = ('<style>html[lang="en"] .nur-de, html[lang="de"] .nur-en { display: none; } .feld select { max-width: 62%; text-overflow: ellipsis; }'
-            ' .bestand { list-style: none; margin: 0; padding: 0; } .bestand li { border-top: 1px solid var(--line); padding: 12px 0; }'
-            ' .bestand .kopfzeile { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }'
-            ' .bestand .status { color: var(--muted); white-space: nowrap; } .bestand .s-umgesetzt { color: var(--accent-text); }'
-            ' .bestand .klein { color: var(--muted); margin-top: 4px; text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; } .bestand p { margin: 6px 0 0; font-size: 14px; }</style>')
+    stil = '<style>html[lang="en"] .nur-de, html[lang="de"] .nur-en { display: none; } .feld select { max-width: 62%; text-overflow: ellipsis; }</style>'
     einleitung = (f'{stil}<section class="ueber" id="ueber"><div><h2>{html.escape(K["titel"])}</h2></div><div>'
                   f'<p class="nur-de">Der Parametric Planning Catalogue (2020) sammelt Grasshopper-Module für integrierte Planungsstrategien – Parzellierung, Sichtbarkeit, Straßennetze, Wasser, Gelände –, entwickelt bei DecodingSpaces, ECL-AA und der Professur Informatik in der Architektur und Urbanistik (InfAR) der Bauhaus-Universität Weimar. Hier laufen die Module als eigenständige Web-Apps im Browser: Verfahren, Parameter und Begriffe folgen den Grasshopper-Dateien; jede App nennt ihr Original und lässt sich als Quellcode herunterladen und weiterentwickeln.</p>'
                   f'<p class="nur-en">The Parametric Planning Catalogue (2020) collects Grasshopper modules for integrated planning strategies – parcellation, visibility, street networks, water, terrain – developed at DecodingSpaces, ECL-AA and the Chair for Informatics in Architecture and Urbanism (InfAR) at Bauhaus-Universität Weimar. Here the modules run as standalone web apps in the browser: procedures, parameters and terms follow the Grasshopper files; every app names its original and can be downloaded as source code to develop further.</p>'
-                  f'<p class="nur-de">{n_um} von {n_alle} Modulen sind umgesetzt; die übrigen stehen unten mit Begründung.</p><p class="nur-en">{n_um} of {n_alle} modules are done; the others are listed below with reasons.</p>'
                   f'<p><a href="{html.escape(K["url"])}">{zwei("Original: Parametric Planning Catalogue", "Original: Parametric Planning Catalogue")}</a> · '
                   f'<a href="{html.escape(K["repo"])}">GitHub infar-buw/parametric-planning-catalogue</a> · {zwei("Lizenz des Katalogs: MIT", "Catalogue license: MIT")}'
                   + (f' · <a href="../../lab/methode/parametric-planning-catalogue/">{zwei("Methode", "Method")}</a>' if METHODEN.get("parametric-planning-catalogue") else "")
                   + '</p>' + stand_zeile(KAT) + '</div></section>'
-                  f'<section class="ueber" id="bestand"><div><h2>{zwei("Alle Module", "All modules")}</h2></div><div><ul class="bestand">{"".join(zeilen)}</ul></div></section>'
-                  + lab_abschnitt(B, lab_karten, liste))
+                  + lab_abschnitt(B))
     seite(vorlage, os.path.join(ziel, "index.html"),
-          FILTER.format(id="katalog", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": karten}, ensure_ascii=False)) + "\n" + einleitung,
+          FILTER.format(id="katalog", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": karten + lab_karten}, ensure_ascii=False)) + "\n" + einleitung,
           "../../", "Parametric Planning Catalogue · Entwurfsforschung", "lab", alt)
     return len(karten) + len(lab_karten)
 
 
-def lab_abschnitt(B, karten, liste):
-    """Abschnitt „DeCodingSpaces Lab“ auf der Katalogseite (23.11.2026): Einleitung, Kacheln der umgesetzten Lab-Apps (fest im HTML, damit DATA
-    nur die Katalogkacheln trägt) und Liste aller Lab-Einträge mit Entscheidung und Begründung."""
+def lab_abschnitt(B):
+    """Hinweis zur Herkunft der Apps aus dem DeCodingSpaces Lab, unten auf der Katalogseite (23.11.2026; seit 25.11.2026 ohne eigene
+    Kacheln und ohne Liste der Einträge – die Apps stehen im gemeinsamen Raster oben)."""
     L = B.get("lab") or []
     if not L:
         return ""
     I = B.get("lab_info", {})
-    kacheln = "".join(
-        f'<a class="karte" href="{html.escape(k["href"])}" data-id="{html.escape(k["id"])}"><div class="oben mono"><span>DeCodingSpaces Lab</span><span>{k["jahr"]}</span></div>'
-        f'<div class="bild"><img src="{html.escape(k["bild"])}" alt="" loading="lazy" width="{k["w"]}" height="{k["h"]}"></div>'
-        + (f'<p class="vorschau">{zwei(k["vorschau"]["de"], k["vorschau"].get("en"))}</p>' if k.get("vorschau") else "")
-        + f'<div class="unten"><span class="titel">{zwei(k["titel"]["de"], k["titel"].get("en"))}</span><span class="jahr mono">{k["jahr"]}</span></div></a>' for k in karten)
-    n = {s: sum(1 for e in L if e["status"] == s) for s in ("umgesetzt", "in_arbeit", "abgedeckt", "nicht_umgesetzt")}
     return (f'<section class="ueber" id="dcs-lab"><div><h2>DeCodingSpaces Lab</h2></div><div>'
             f'<p class="nur-de">Das DeCodingSpaces Lab der Bauhaus-Universität Weimar (Computational Planning Group, Professur Informatik in der Architektur und Urbanistik) sammelt Forschungsprojekte, Workshops und Werkzeuge, die mit der DeCodingSpaces Toolbox für Grasshopper entstanden sind. Wo ein eigenständiges Modell darin steckt, läuft es hier als Web-App – im gleichen Rahmen wie die Module des Katalogs, mit Original, Autorinnen und Autoren und Lizenzlage in jeder App.</p>'
             f'<p class="nur-en">The DeCodingSpaces Lab of Bauhaus-Universität Weimar (Computational Planning Group, Chair for Informatics in Architecture and Urbanism) collects research projects, workshops and tools built with the DeCodingSpaces Toolbox for Grasshopper. Where they contain a model of their own, it runs here as a web app – in the same frame as the catalogue modules, with original, authors and licence situation in every app.</p>'
-            f'<p class="nur-de">{len(L)} Einträge gesichtet: {n["umgesetzt"]} als Web-App umgesetzt, {n["abgedeckt"]} durch vorhandene Apps abgedeckt, {n["nicht_umgesetzt"]} ohne eigenes Modell (Begründung unten).</p>'
-            f'<p class="nur-en">{len(L)} entries reviewed: {n["umgesetzt"]} implemented as web apps, {n["abgedeckt"]} covered by existing apps, {n["nicht_umgesetzt"]} without a model of their own (reasons below).</p>'
             f'<p><a href="{html.escape(I.get("url", "https://toolbox.decodingspaces.net/#lab"))}">{zwei("Original: DeCodingSpaces Lab", "Original: DeCodingSpaces Lab")}</a> · '
-            f'{zwei("Lizenz: DeCodingSpaces Toolbox GNU GPL v3; die Lab-Seiten nennen keine eigene Lizenz – die Apps sind Neuumsetzungen ohne übernommenen Code", "Licence: DeCodingSpaces Toolbox GNU GPL v3; the Lab pages state no licence of their own – the apps are re-implementations without copied code")}</p></div></section>'
-            + (f'<div class="raster" id="raster-lab">{kacheln}</div>' if kacheln else "")
-            + f'<section class="ueber" id="lab-bestand"><div><h2>{zwei("Alle Lab-Einträge", "All Lab entries")}</h2></div><div><ul class="bestand">{liste(L, ("Eintrag im Lab", "Lab entry"), lab=True)}</ul></div></section>')
+            f'{zwei("Lizenz: DeCodingSpaces Toolbox GNU GPL v3; die Lab-Seiten nennen keine eigene Lizenz – die Apps sind Neuumsetzungen ohne übernommenen Code", "Licence: DeCodingSpaces Toolbox GNU GPL v3; the Lab pages state no licence of their own – the apps are re-implementations without copied code")}</p></div></section>')
 
 
 if __name__ == "__main__":
