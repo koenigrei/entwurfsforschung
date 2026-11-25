@@ -283,6 +283,21 @@
     const L = document.getElementById("loesungen");
     if (L && L.hidden !== !z.programm) L.hidden = !z.programm;
     lWahl(z, p);
+    strichSchalter(z, p);
+  }
+  /** Vorbild-Striche ein/aus direkt unter den Grundrissen (neu, 25.11.2026): koppelt an den Schalter „Vorbild zeigen“ in der Parameterliste */
+  function strichSchalter(z, p) {
+    let k = document.getElementById("k-strich");
+    if (!k) {
+      const u = document.querySelector(".buehne .unterzeile"); if (!u) return;
+      k = document.createElement("label"); k.id = "k-strich"; k.className = "k-strich mono";
+      k.innerHTML = '<input type="checkbox"> <span lang="de">Vorbild gestrichelt im Grundriss zeigen</span><span lang="en">Show the model dashed in the plan</span>';
+      u.after(k);
+      k.querySelector("input").addEventListener("change", e => { const s = document.getElementById("p-vorbild"); if (s && s.checked !== e.target.checked) { s.checked = e.target.checked; s.dispatchEvent(new Event("change")); } });
+    }
+    const zeigen = !!(p.plan && mitVorbild(z)), i = k.querySelector("input");
+    if (k.hidden !== !zeigen) k.hidden = !zeigen;
+    if (i.checked !== !!p.vorbild) i.checked = !!p.vorbild;
   }
   /** L-förmige Räume wählbar je Raum (neu): Kästchen unter „Mindestmaße“; der Wert steckt im verborgenen Regler lform (Bitmaske, in der Adresse) */
   let lSchluessel = "";

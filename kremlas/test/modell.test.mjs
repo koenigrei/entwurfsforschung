@@ -614,3 +614,22 @@ test("Voreinstellungen aus der Abstimmung über zwei Saatgruppen: Malcontenta fr
   assert.equal(M.FASSUNGEN.pal_malcontenta.starr, false);
   assert.equal(M.FASSUNGEN.pal_malcontenta.cluster, 0.02);
 });
+
+test("Siza-Häuser: die starre Treppe liegt ganz im Feld (sonst schnitte der Plan sie ab und sie verlöre Fläche) (25.11.2026)", () => {
+  M.registriere(require("../vorbilder_siza.js"));
+  for (const f of ["sz_t2", "sz_dn", "sz_t4"]) {
+    const { z } = lauf(f, {}, 30, 3), F = z.feld, px = 500 / Math.max(F.b, F.h);
+    for (const e of z.eltern) { const g = e.g.find(q => q.tr);
+      assert.ok(g.x - g.w / 2 >= -1e-6 && g.x + g.w / 2 <= F.b * px + 1e-6 && g.y - g.h / 2 >= -1e-6 && g.y + g.h / 2 <= F.h * px + 1e-6, f); }
+  }
+});
+
+test("Flächenausgleich: verschlechtert den Plan nie, behält Anker und Bündigkeit der Raumteile (25.11.2026)", () => {
+  M.registriere(require("../vorbilder_siza.js"));
+  for (const [f, saat] of [["sz_t2", 1], ["sz_t4", 3]]) {
+    const { z } = lauf(f, {}, 150, saat), b = M.beste(z); M.setzeFest(z.fest);
+    const w0 = M.planPruefung(b, z.paare, z.programm), r = M.flaecheAusgleichen(b, z.paare, z.programm);
+    assert.ok(r.wert.f3 <= w0.f3 + 1e-9, f);
+    for (const g of r.ind.g) { const g0 = b.g.find(q => q.id === g.id); assert.equal(g.bd, g0.bd); assert.equal(g.an, g0.an); }
+  }
+});

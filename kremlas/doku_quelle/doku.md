@@ -169,6 +169,22 @@ Zuerst arbeitete die Suche in zwei Schritten: erst ein gültiges Erdgeschoss, da
 
 Gültige Erdgeschosse findet die Suche für alle Häuser; es scheitert meist das Obergeschoss, weil es mit der Lage von Treppe und Hof leben muss, die das Erdgeschoss gewählt hat. Das Haus als ein Individuum verdoppelt die Zahl der Häuser. Dass den Obergeschossen am Ende meist Fläche fehlt, liegt nicht an einem zu großen Hof: Eine anteilige Flächenforderung (die Räume teilen sich, was Treppe und Luftraum übrig lassen) brachte weniger Häuser (8 statt 13) und wurde verworfen.
 
+### Häuser ohne Treffer: Treppe im Feld und Flächenausgleich (25.11.2026)
+
+Für das Haus mit vier Zimmern, Duartes neues Haus und das Haus mit zwei Zimmern fand die Suche bis dahin kaum ein Haus. Die Fehlschläge zeigten zweierlei. Erstens ragte die starre Treppe oft ein paar Zentimeter über den Rand des Grundstücks; der Plan schnitt sie ab, und weil sie nicht wächst, fehlten ihr Fläche oder Lauflänge. Bei der geraden Treppe von 0,95 × 3,00 m reichen 16 cm, um unter 95 % zu fallen. Die Treppe bleibt jetzt schon im Chromosom ganz im Feld, nicht erst im Plan. Zweitens füllen die Raumprogramme das Grundstück genau: Die Flächen aller Räume ergeben 96 m², und jeder Raum braucht 95 % seiner Fläche. Wächst ein Raum über sein Maß, fehlt es dem Nachbarn. Der neue Flächenausgleich schiebt am fertigen Plan gezielt Wände: für jeden zu kleinen Raum jede seiner Wände, samt aller Wände auf derselben Linie, um genau so viel nach außen, wie ihm bis 97 % fehlt; bei zu schmalen Räumen die Wände quer zur kurzen Seite um die fehlende Breite. Übernommen wird je Runde der Zug, der die Planbewertung am meisten senkt. Der Ausgleich rechnet in Millisekunden und greift nur bei Häusern und nur, wenn allein Fläche oder Breite fehlen; Palladio und die dichte Packung bleiben, wie sie abgestimmt sind.
+
+| Haus | Häuser in 4 × 24 Läufen: bisher | Treppe im Feld + Flächenausgleich | Ähnlichkeit (Mittel EG und OG) |
+|---|---|---|---|
+| Typ Bb (Hof hinten) | 9 | 11 | 16–89 % |
+| Haus mit fünf Zimmern | 7 | 4 | 30–82 % |
+| Typ Ab (Hof vorn) | 6 | 8 | 12–44 % |
+| Haus mit vier Zimmern | 1 | 5 | 54–64 % |
+| Duartes neues Haus | 0 | 1 | 50 % |
+| Haus mit zwei Zimmern | 1 | 4 | 54–78 % |
+| Summe | 24 | 33 | |
+
+Gemessen mit vier Saatgruppen zu je 24 Läufen; die neue Fassung ist in beiden Hälften besser (17 statt 13 und 16 statt 11 Häuser). Jedes der sechs Häuser wird jetzt gefunden. Nur das Haus mit fünf Zimmern verliert. Der erste Versuch schob die Treppe nur im Plan ins Feld; das kostete Häuser (18 statt 24), weil die Evolution die Treppe weiter an den Rand drückte. Dabei fiel ein Fehler beim Schalter „Wände verschieben“ auf: Wandelte er den Plan in Rechtecke, vergaß er, an welchem Teil ein Raumteil hängt und ob er bündig sein muss. Vorgegebene Teile wie der Luftraum galten dann als L-Schenkel. Das ist behoben.
+
 ## 8 Fehler und Korrekturen
 
 ### Was am meisten gebracht hat
@@ -200,6 +216,19 @@ Die starre Raumform übernimmt Form und Maße aus dem Vorbild. Für ein generisc
 | Malcontenta | 76 % | 76 % | 93–99 % |
 | Saraceno | 63 % | 63 % | 92–100 % |
 | Pisani | 49 % | 31 % | 77–88 % |
+
+### Parallele Populationen für die Häuser (25.11.2026)
+
+Ob ein Lauf ein Haus findet, hängt stark von der Saat ab. Naheliegend ist deshalb ein Inselmodell: mehrere Populationen laufen nebeneinander und tauschen ab und zu gute Individuen aus, gern auch mit verschiedenen Strategien. Wir haben vier Inseln mit je sechs Läufen untersucht (zusammen dieselben 24 Saaten wie bisher, zwei Saatgruppen je Haus). Alle 25 Generationen wandert der beste Elter jeder Insel in die nächste und ersetzt dort den schlechtesten (Ring). Gemischte Strategien heißt: eine Insel mit der Voreinstellung, eine mit umgedrehter starrer Raumform, eine mit umgedrehtem Schalter „Wände verschieben“, eine mit beidem umgedreht. Fast gleiche Häuser zählen auch über die Inseln hinweg nur einmal. Das Messskript liegt im Quellcode unter `werkzeuge/inseln.cjs`.
+
+| Fassung | Häuser (Saatgruppe 1 + 101) |
+|---|---|
+| unabhängige Inseln (wie bisher) | 9 + 9 = 18 |
+| Ring, gleiche Strategie | 7 + 6 = 13 |
+| Ring, gemischte Strategien | 8 + 11 = 19 |
+| gemischte Strategien ohne Austausch | 9 + 10 = 19 |
+
+Der Austausch hilft nicht. Mit gleicher Strategie kostet er Häuser: Die Inseln laufen auf dieselben Grundrisse zu (24 Treffer, davon nur 13 verschiedene). Mit gemischten Strategien liegen beide Fassungen mit 19 Häusern im Rauschen der 18 ohne Mischung; auch hier waren viele Treffer der Ringfassung Doppel (30 Treffer, 19 verschiedene). Duartes neues Haus fand keine Fassung. Wir bleiben deshalb bei unabhängigen Läufen mit neuen Saaten. Das entspricht dem früheren Befund mit Formgenen für die Palladio-Villen (oben).
 
 ### Was die Literatur vorschlägt
 

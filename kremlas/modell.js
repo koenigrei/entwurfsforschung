@@ -554,6 +554,7 @@
       const g = f(id), H = f(haupt); if (!g || !H) continue;
       g.w = w * PX_M; g.h = h * PX_M; g.a = g.w * g.h;
       if (id !== haupt) { g.x = H.x + dx * PX_M; g.y = H.y + dy * PX_M; }
+      if (g.tr) { g.x = Math.min(Math.max(g.x, g.w / 2), BREITE - g.w / 2); g.y = Math.min(Math.max(g.y, g.h / 2), HOEHE - g.h / 2); }   // Treppe (neu): ganz im Feld, sie wächst nicht
     }
   }
 
@@ -820,7 +821,13 @@
       (höchstens 4 px je Durchgang, Reihenfolge wechselnd), bis sie sich etwa in der Mitte treffen. Überlappungen bleiben, wie sie sind. Ergebnis: Rechtecke {id, x1, y1, x2, y2}. */
   function grundriss(ind, durchgaenge, teile) {
     const R = ind.g.map(g => ({ id: g.id, r: g.r == null ? g.id : g.r, x1: links(g), y1: oben(g), x2: rechts(g), y2: unten(g), tr: !!g.tr, zg: g.zg, zh: g.zh, fp: !!(g.tr || g.fp) }));
-    for (const r of R) { r.x1 = Math.max(0, r.x1); r.y1 = Math.max(0, r.y1); r.x2 = Math.min(BREITE, r.x2); r.y2 = Math.min(HOEHE, r.y2); }
+    for (const r of R) {
+      if (r.fp) {                                                        // Treppe, Luftraum (neu, 25.11.2026): ins Feld schieben statt beschneiden – sie wachsen nicht und verlören sonst Fläche
+        const dx = r.x1 < 0 ? -r.x1 : r.x2 > BREITE ? BREITE - r.x2 : 0, dy = r.y1 < 0 ? -r.y1 : r.y2 > HOEHE ? HOEHE - r.y2 : 0;
+        r.x1 += dx; r.x2 += dx; r.y1 += dy; r.y2 += dy;
+      }
+      r.x1 = Math.max(0, r.x1); r.y1 = Math.max(0, r.y1); r.x2 = Math.min(BREITE, r.x2); r.y2 = Math.min(HOEHE, r.y2);
+    }
     const quer = (a1, a2, b1, b2) => Math.min(a2, b2) - Math.max(a1, b1) > 0.5;   // Projektionen überdecken sich echt
     // neu (Mindestmaße): Überlappungen bis „teile“ px Tiefe werden geteilt – die Wand rückt in die Mitte der Überlappung
     if (teile) for (let runde = 0; runde < 3; runde++) for (let i = 0; i < R.length; i++) for (let k = i + 1; k < R.length; k++) {
@@ -1006,32 +1013,78 @@
       am abgeleiteten, überlappungsfreien Plan eine Kante eines Raums samt aller Kanten, die auf derselben Linie an sie grenzen, um d
       verschieben – der Plan bleibt lückenlos. Feste Räume bleiben. Angenommen wird, was f3 nicht verschlechtert (bei weiter nur
       Schritte, die gültig bleiben). Ergebnis: Individuum aus den Planrechtecken. Schalter „wand“. */
+  /** Planrechtecke als Individuum (je Rechteck ein Gen, Treppe und feste Räume behalten ihre Merkmale) */
+  const planAlsInd = (R, ind) => { const G = new Map((ind ? ind.g : []).map(g => [g.id, g]));   // Anker und Bündigkeit der Raumteile bleiben (sonst gälten vorgegebene Teile als L-Schenkel)
+    return { g: R.map(q => { const g0 = G.get(q.id); return Object.assign(gen(q.id, (q.x1 + q.x2) / 2, (q.y1 + q.y2) / 2, q.x2 - q.x1, q.y2 - q.y1, null, 0.4, 0, q.r), q.tr ? { tr: true, zg: q.zg, zh: q.zh } : q.fp ? { fp: true } : {}, g0 ? { bd: g0.bd, an: g0.an, ms: g0.ms, mb: g0.mb } : {}); }), fo: 0, fd: 0 }; };
+  /** Kante „seite“ (0 oben, 1 rechts, 2 unten, 3 links) des Rechtecks q samt aller Kanten, die auf derselben Linie an dieser Stelle
+      anliegen, um d px verschieben – der Plan bleibt lückenlos. null, wenn ein fester Raum betroffen wäre oder ein Rechteck entartet. */
+  function kanteSchieben(R, q, seite, d) {
+    const tol = 1, waag = seite % 2 === 1, kante = [q.y1, q.x2, q.y2, q.x1][seite];
+    const lo = waag ? q.y1 : q.x1, hi = waag ? q.y2 : q.x2;
+    const C = R.map(u => Object.assign({}, u));
+    for (const u of C) {
+      for (const k of (waag ? ["x1", "x2"] : ["y1", "y2"])) {
+        if (Math.abs(u[k] - kante) > tol) continue;
+        const ulo = waag ? u.y1 : u.x1, uhi = waag ? u.y2 : u.x2;
+        if (Math.min(hi, uhi) - Math.max(lo, ulo) <= 0 && u.id !== q.id) continue;   // nur Kanten, die an dieser Stelle anliegen
+        if (FEST.has(u.id) || u.fp) return null;
+        u[k] += d;
+      }
+      if (u.x2 - u.x1 < 2 || u.y2 - u.y1 < 2 || u.x1 < -0.5 || u.y1 < -0.5 || u.x2 > BREITE + 0.5 || u.y2 > HOEHE + 0.5) return null;
+    }
+    return C;
+  }
   function wandSchieben(ind, paare, programm, zufall, versuche, weiter) {
-    const R0 = grundriss(ind, 300, TEILE_PX), alsInd = R => ({ g: R.map(q => Object.assign(gen(q.id, (q.x1 + q.x2) / 2, (q.y1 + q.y2) / 2, q.x2 - q.x1, q.y2 - q.y1, null, 0.4, 0, q.r), q.tr ? { tr: true, zg: q.zg, zh: q.zh } : q.fp ? { fp: true } : {})), fo: 0, fd: 0 });
-    let R = R0.map(q => Object.assign({}, q)), w = planPruefung(alsInd(R), paare, programm);
-    const tol = 1;
+    let R = grundriss(ind, 300, TEILE_PX).map(q => Object.assign({}, q)), w = planPruefung(planAlsInd(R, ind), paare, programm);
     for (let v = 0; v < versuche && (weiter || !w.gueltig); v++) {
       const q = R[zufall.ganz(R.length)], seite = zufall.ganz(4), d = (zufall() * 2 - 1) * PX_M * (0.6 * (1 - v / versuche) + 0.05);
       if (FEST.has(q.id) || q.fp) continue;
-      const waag = seite % 2 === 1, kante = [q.y1, q.x2, q.y2, q.x1][seite];      // 0 oben, 1 rechts, 2 unten, 3 links
-      const lo = waag ? q.y1 : q.x1, hi = waag ? q.y2 : q.x2;
-      const C = R.map(u => Object.assign({}, u)); let ok = true;
-      for (const u of C) {
-        for (const k of (waag ? ["x1", "x2"] : ["y1", "y2"])) {
-          if (Math.abs(u[k] - kante) > tol) continue;
-          const ulo = waag ? u.y1 : u.x1, uhi = waag ? u.y2 : u.x2;
-          if (Math.min(hi, uhi) - Math.max(lo, ulo) <= 0 && u.id !== q.id) continue;   // nur Kanten, die an dieser Stelle anliegen
-          if (FEST.has(u.id) || u.fp) { ok = false; break; }
-          u[k] += d;
-        }
-        if (!ok) break;
-        if (u.x2 - u.x1 < 2 || u.y2 - u.y1 < 2 || u.x1 < -0.5 || u.y1 < -0.5 || u.x2 > BREITE + 0.5 || u.y2 > HOEHE + 0.5) { ok = false; break; }
-      }
-      if (!ok) continue;
-      const wc = planPruefung(alsInd(C), paare, programm);
+      const C = kanteSchieben(R, q, seite, d);
+      if (!C) continue;
+      const wc = planPruefung(planAlsInd(C, ind), paare, programm);
       if (wc.f3 <= w.f3 && (!weiter || !w.gueltig || wc.gueltig)) { R = C; w = wc; }
     }
-    const I = alsInd(R); I.fo = ueberlappung(I); I.f3 = w.f3;
+    const I = planAlsInd(R, ind); I.fo = ueberlappung(I); I.f3 = w.f3;
+    return { ind: I, wert: w };
+  }
+
+  /** Flächenausgleich (neu, 25.11.2026): Die Programme der Siza-Häuser füllen das Feld genau (Summe der Raumflächen = Feld), und jeder
+      Raum braucht 95 % seiner Fläche – wächst ein Raum über sein Maß, fehlt es dem Nachbarn. Hier wird gezielt nachgeholfen: für jeden zu
+      kleinen Raum jede seiner Wände (mit allen Wänden auf derselben Linie) um genau so viel nach außen geschoben, wie ihm bis 97 % fehlt
+      (auch 60 % und 140 % davon), bei zu schmalen Räumen die Wände quer zur kurzen Seite um die fehlende Breite; übernommen wird je
+      Runde der Zug, der f3 am meisten senkt. Ergebnis: Individuum aus den Planrechtecken. */
+  function flaecheAusgleichen(ind, paare, programm, runden) {
+    const P = PROGRAMME[programm].raeume;
+    let R = grundriss(ind, 300, TEILE_PX).map(q => Object.assign({}, q)), w = planPruefung(planAlsInd(R, ind), paare, programm);
+    for (let n = 0; n < (runden || 10) && !w.gueltig; n++) {
+      const klein = [...new Set(w.raeume.filter(x => x.zuKlein).map(x => x.raum))];
+      if (!klein.length) break;
+      let best = null;
+      for (const raum of klein) {
+        const fehl = (P[raum][2] * 0.97 - w.raeume.find(x => x.raum === raum).flaeche) * PX_M * PX_M;   // px² bis 97 %
+        for (const q of R.filter(u => u.r === raum && !u.fp)) for (let seite = 0; seite < 4; seite++) {
+          const len = seite % 2 ? q.y2 - q.y1 : q.x2 - q.x1, nach = seite === 0 || seite === 3 ? -1 : 1;
+          if (len < 1) continue;
+          for (const f of [1, 0.6, 1.4]) {
+            const C = kanteSchieben(R, q, seite, nach * f * fehl / len); if (!C) continue;
+            const wc = planPruefung(planAlsInd(C, ind), paare, programm);
+            if (wc.f3 < (best ? best.w.f3 : w.f3) - 1e-6) best = { R: C, w: wc };
+          }
+        }
+      }
+      for (const x of w.raeume.filter(x => x.zuSchmal)) {                // zu schmale Rechtecke: die Wände quer zur kurzen Seite um die fehlende Breite
+        const q = R.find(u => u.id === x.id); if (!q || q.fp) continue;
+        const fehlB = ((P[x.raum][3] || 0) - x.breite) * PX_M + 0.5, quer = q.x2 - q.x1 <= q.y2 - q.y1;
+        for (const seite of quer ? [1, 3] : [0, 2]) for (const f of [1, 0.5]) {
+          const C = kanteSchieben(R, q, seite, (seite === 0 || seite === 3 ? -1 : 1) * f * fehlB); if (!C) continue;
+          const wc = planPruefung(planAlsInd(C, ind), paare, programm);
+          if (wc.f3 < (best ? best.w.f3 : w.f3) - 1e-6) best = { R: C, w: wc };
+        }
+      }
+      if (!best) break;
+      R = best.R; w = best.w;
+    }
+    const I = planAlsInd(R, ind); I.fo = ueberlappung(I); I.f3 = w.f3;
     return { ind: I, wert: w };
   }
 
@@ -1127,6 +1180,7 @@
     for (const e of K) {
       let c = kopie(e); fixiere(c, fest); let w = planPruefung(c, O.paare, O.programm);
       if (!w.gueltig && o && o.nachbessern) { const r = nachbessern(c, O.paare, O.programm, o.zuf, o.versuche, O.sym, fest, O.starr, false); c = r.ind; w = r.wert; }
+      if (!w.gueltig && AUSGLEICH && knapp(w)) { const r = flaecheAusgleichen(c, O.paare, O.programm); if (r.wert.gueltig) { c = r.ind; w = r.wert; } }
       if (w.gueltig && (!best || (w.aehnlich != null && w.aehnlich > best.wert.aehnlich))) { best = { ind: c, wert: w, fest, eltern: O.eltern.map(kopie) }; if (!(o && o.alle)) break; }
     }
     if (best && o && o.weiter) { const r = nachbessern(best.ind, O.paare, O.programm, o.zuf, o.versuche, O.sym, fest, O.starr, true); if (r.wert.gueltig && r.wert.f3 <= best.wert.f3) Object.assign(best, { ind: r.ind, wert: r.wert }); }
@@ -1142,12 +1196,13 @@
     let treffer = null;
     const haus = !!zz.og;
     if (zz.t % S.o.pruefen === 0) for (const e of zz.eltern) {
-      const w = planPruefung(e, zz.paare, zz.programm);
+      let w = planPruefung(e, zz.paare, zz.programm), eg = e;
+      if (!w.gueltig && AUSGLEICH && haus && knapp(w)) { const r = flaecheAusgleichen(e, zz.paare, zz.programm); if (r.wert.gueltig) { eg = r.ind; w = r.wert; } }
       if (!w.gueltig) continue;
       let og = null;
-      if (haus) { og = ogPassend(zz, e, { kandidaten: [e.og] }); if (!og) { if (!P.egGueltig) P.egGueltig = { ind: kopie(e), wert: w, nachgebessert: false }; continue; } }   // Haus: nur mit gültigem OG
-      if (!rek) { treffer = { ind: kopie(e), wert: w, og, nachgebessert: false }; break; }
-      if (!P.bester || hausAehnlich(w, og) > hausAehnlich(P.bester.wert, P.bester.og)) P.bester = { ind: kopie(e), wert: w, og, nachgebessert: false, t: zz.t };   // Rekonstruktion: bis zum Ende laufen, ähnlichsten gültigen merken
+      if (haus) { og = ogPassend(zz, eg, { kandidaten: [e.og] }); if (!og) { if (!P.egGueltig) P.egGueltig = { ind: kopie(eg), wert: w, nachgebessert: false }; continue; } }   // Haus: nur mit gültigem OG
+      if (!rek) { treffer = { ind: kopie(eg), wert: w, og, nachgebessert: false }; break; }
+      if (!P.bester || hausAehnlich(w, og) > hausAehnlich(P.bester.wert, P.bester.og)) P.bester = { ind: kopie(eg), wert: w, og, nachgebessert: false, t: zz.t };   // Rekonstruktion: bis zum Ende laufen, ähnlichsten gültigen merken
     }
     if (rek && zz.t >= S.o.generationen && P.bester) {                    // ähnlichsten gültigen Plan zum Schluss noch nachbessern
       const nb = nachbessern(P.bester.ind, zz.paare, zz.programm, zuf, S.o.versuche, zz.sym, zz.fest, zz.starr, true);
@@ -1161,6 +1216,7 @@
     if (!treffer && zz.t >= S.o.generationen) {
       for (const e of zz.eltern.slice().sort((a, b) => a.f3 - b.f3).slice(0, 3)) {
         const r = nachbessern(e, zz.paare, zz.programm, zuf, S.o.versuche, zz.sym, zz.fest, zz.starr);
+        if (!r.wert.gueltig && AUSGLEICH && haus && knapp(r.wert)) { const a = flaecheAusgleichen(r.ind, zz.paare, zz.programm); if (a.wert.gueltig) { r.ind = a.ind; r.wert = a.wert; } }
         if (r.wert.gueltig && haus) {                                     // Haus: erst das eigene OG des Individuums nachbessern
           const og = ogPassend(zz, r.ind, { kandidaten: [e.og], nachbessern: true, zuf, versuche: S.o.versuche });
           if (og) { treffer = { ind: r.ind, wert: r.wert, og, nachgebessert: true }; break; }
@@ -1184,6 +1240,8 @@
   }
   /** Suche (Haus, neu 25.11.2026): erst das EG (eigener Lauf ohne OG), dann zu jedem gültigen EG ein eigener OG-Lauf mit Treppe und Hof
       dieses EG; ein Treffer ist nur ein Haus mit beiden gültigen Geschossen */
+  let AUSGLEICH = true;                                                  // Flächenausgleich in der Haussuche (neu, 25.11.2026; nur Häuser, Palladio und dichte Packung bleiben wie abgestimmt)
+  const knapp = w => w.fehlt === 0 && w.treppe < 0.05 && w.ue < 0.05 && w.lform < 0.02;   // nur Fläche oder Breite fehlen
   const OG_VERSUCHE = 3;                                                 // Läufe für das OG je gültigem EG
   function sucheWeiter(S, budget) {
     let rest = budget;
@@ -1280,7 +1338,7 @@
            setzeBreite, setzeBreite50, pruefeRand, proportion, abstossen, entwickle, verschiebe, variiereGroesse, variiereGroesseVoll,
            inversion, kreuzung, nachbarn, ringAbstand, zusatzAbstand, zusatzUeberlappung, paarDistanz, distanzen, erfuellt,
            federVektor, federn, aussen, grundriss, tueren, planPruefung, nachbessern, planAbstand, waehleVerschiedene,
-           sucheNeu, sucheWeiter, zustandAusTreffer, ogPassend, kopple, treppeVon, lMoeglich, lRaeume, variiereAnteil, startPopulation, erzeuge, schritt, aendere, beste, ziehe, loslassen };
+           sucheNeu, sucheWeiter, zustandAusTreffer, ogPassend, kopple, treppeVon, flaecheAusgleichen, setzeAusgleich: v => { AUSGLEICH = !!v; }, setzeFest: f => { FEST = new Set((f || []).map(q => q[0])); }, lMoeglich, lRaeume, variiereAnteil, startPopulation, erzeuge, schritt, aendere, beste, ziehe, loslassen };
   if (typeof globalThis !== "undefined" && globalThis.KREMLAS_VORBILDER) for (const D of Object.values(globalThis.KREMLAS_VORBILDER)) registriere(D);
   return M;
 });
