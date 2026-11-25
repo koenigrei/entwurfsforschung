@@ -92,7 +92,7 @@ for (const v of P.PALLADIO) {
     symmetrie: { achse, paare },
     vorbild: raeume.map(r => r.teile.map(t => [t.x0, t.y0, t.x1, t.y1].map(q => Math.round(q * 1000) / 1000)))
   };
-  fassungen[pid] = Object.assign({ programm: pid }, ABSTIMMUNG[pid] ? { starr: ABSTIMMUNG[pid].starr, federRunden: ABSTIMMUNG[pid].federRunden, belegung: ABSTIMMUNG[pid].belegung } : {});   // Voreinstellung aus werkzeuge/abstimmung.json
+  fassungen[pid] = Object.assign({ programm: pid }, ABSTIMMUNG[pid] ? { starr: ABSTIMMUNG[pid].starr, federRunden: ABSTIMMUNG[pid].federRunden, belegung: ABSTIMMUNG[pid].belegung, cluster: ABSTIMMUNG[pid].cluster || 0, wand: !!ABSTIMMUNG[pid].wand } : {});   // Voreinstellung aus werkzeuge/abstimmung.json
   liste.push(pid);
 }
 const kopf = `/* Vorbilder Palladio für KREMLAS – erzeugt mit werkzeuge/vorbilder_palladio.cjs (nicht von Hand bearbeiten).

@@ -4,7 +4,7 @@
   "use strict";
   // Seite (neu, 23.11.2026): "packung" (lab/kremlas/) oder "palladio" (lab/kremlas/palladio/, Vorbilder aus vorbilder_palladio.js)
   const SEITE = window.KREMLAS_SEITE || "packung", FA = Modell.FASSUNGEN;
-  const VORBILDER = Object.keys(FA).filter(f => f.startsWith(SEITE === "palladio" ? "pal_" : SEITE === "siza" ? "sz_" : "§"));
+  const VORBILDER = Object.keys(FA).filter(f => f.startsWith(SEITE === "palladio" ? "pal_" : SEITE === "siza" ? "sz_" : "§") && !FA[f].versteckt);   // Siza: Häuser (EG + OG), das OG läuft versteckt mit
   const START = VORBILDER.includes("pal_emo") ? "pal_emo" : VORBILDER[0];   // Villa Emo: schon ein einzelner Lauf wird gültig (Saat 1: 97 % Ähnlichkeit); Siza: Typ Ab, Erdgeschoss
   const S = SEITE !== "packung" && VORBILDER.length
     ? Object.assign({}, Modell.STANDARD, ...Modell.REGLER.map(k => ({ [k]: FA[START][k] })), { fassung: START, plan: true, topo: false, vorbild: true })
@@ -22,6 +22,9 @@
   const ORANGE = "#f08c00", GRUEN = F => F.dunkel ? "#40c057" : "#2b8a3e", BLAU = F => F.dunkel ? "#748ffc" : "#3b5bdb";
   const raumFarbe = F => F.dunkel ? "#6f6f74" : "#9b9b9f";
   const RECHTS = 170, UNTEN = 110, LUECKE = 14;
+  const GESCHOSS = 36, UNTERSCHRIFT = 24;                              // Haus (neu): Abstand zwischen EG und OG, Zeile für die Geschossnamen
+  const haus = z => !!(z && z.og);
+  const breiteVon = z => haus(z) ? 2 * B + GESCHOSS : B, hoeheVon = z => haus(z) ? H + UNTERSCHRIFT : H;
   const quer = () => window.innerWidth > 900;
   const mitTopo = z => z.ablauf === "topologie";
 
@@ -66,6 +69,47 @@
   /** Plan einer Lösung: mit Mindestmaßen werden kleine Überlappungen geteilt (wie in der Prüfung) */
   const planVon = (z, b) => Modell.grundriss(b, 300, z.mindest ? Modell.TEILE_PX : 0);
   const pruefungVon = (z, b) => z.mindest ? Modell.planPruefung(b, z.paare, z.programm, 300) : null;
+  /** Treppe (neu, 25.11.2026): Stufen und Lauflinie mit Punkt am Antritt und Pfeil am Austritt; gerade Treppe (I) längs, zweiläufige
+      (U) mit Wendepodest an der Seite gegenüber dem Antritt. tp: {typ, antritt, austritt, halb}, Kanten x0, x1, y0, y1 */
+  function zeichneTreppe(ctx, r, tp, F) {
+    const k = Modell.PX_M, tritt = 0.27 * k, w = r.x2 - r.x1, h = r.y2 - r.y1;
+    ctx.save(); ctx.strokeStyle = F.tinte; ctx.fillStyle = F.tinte; ctx.lineWidth = 1 * F.px;
+    const punkt = (x, y) => { ctx.beginPath(); ctx.arc(x, y, 3 * F.px, 0, 2 * Math.PI); ctx.fill(); };
+    const pfeil = (x, y, dx, dy) => { const l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l, e = 7 * F.px; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - ux * e - uy * e * 0.5, y - uy * e + ux * e * 0.5); ctx.lineTo(x - ux * e + uy * e * 0.5, y - uy * e - ux * e * 0.5); ctx.closePath(); ctx.fill(); };
+    const stufen = (x1, y1, x2, y2, laengs) => {                       // Stufenlinien quer zur Laufrichtung
+      ctx.beginPath();
+      if (laengs === "y") { const n = Math.max(2, Math.round((y2 - y1) / tritt)); for (let i = 1; i < n; i++) { const y = y1 + (y2 - y1) * i / n; ctx.moveTo(x1, y); ctx.lineTo(x2, y); } }
+      else { const n = Math.max(2, Math.round((x2 - x1) / tritt)); for (let i = 1; i < n; i++) { const x = x1 + (x2 - x1) * i / n; ctx.moveTo(x, y1); ctx.lineTo(x, y2); } }
+      ctx.stroke();
+    };
+    const mitte = { x0: [r.x1, (r.y1 + r.y2) / 2], x1: [r.x2, (r.y1 + r.y2) / 2], y0: [(r.x1 + r.x2) / 2, r.y1], y1: [(r.x1 + r.x2) / 2, r.y2] };
+    const rein = 0.15 * k;
+    if (tp.typ === "U") {
+      const quer = tp.antritt[0] === "y", tief = (quer ? w : h) / 2 * 0.85, an = tp.antritt;   // Wendepodest gegenüber dem Antritt
+      const lauf = (halb) => quer ? (halb === "x0" ? [r.x1, r.x1 + w / 2] : [r.x1 + w / 2, r.x2]) : (halb === "y0" ? [r.y1, r.y1 + h / 2] : [r.y1 + h / 2, r.y2]);
+      const andere = tp.halb === (quer ? "x0" : "y0") ? (quer ? "x1" : "y1") : (quer ? "x0" : "y0");
+      const [a1, a2] = lauf(tp.halb), [b1, b2] = lauf(andere);
+      if (quer) {
+        const yw = an === "y1" ? r.y1 + tief : r.y2 - tief, ya = an === "y1" ? r.y2 : r.y1;
+        stufen(a1, Math.min(yw, ya), a2, Math.max(yw, ya), "y"); stufen(b1, Math.min(yw, ya), b2, Math.max(yw, ya), "y");
+        ctx.beginPath(); ctx.moveTo(r.x1 + w / 2, Math.min(yw, ya)); ctx.lineTo(r.x1 + w / 2, Math.max(yw, ya)); ctx.moveTo(r.x1, yw); ctx.lineTo(r.x2, yw); ctx.stroke();
+        const s = an === "y1" ? -1 : 1, xa = (a1 + a2) / 2, xb = (b1 + b2) / 2, y0 = ya + s * rein, ym = (an === "y1" ? r.y1 : r.y2) - s * tief / 2;
+        ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(xa, y0); ctx.lineTo(xa, ym); ctx.lineTo(xb, ym); ctx.lineTo(xb, y0); ctx.stroke(); punkt(xa, y0); pfeil(xb, y0, 0, -s);
+      } else {
+        const xw = an === "x1" ? r.x1 + tief : r.x2 - tief, xa0 = an === "x1" ? r.x2 : r.x1;
+        stufen(Math.min(xw, xa0), a1, Math.max(xw, xa0), a2, "x"); stufen(Math.min(xw, xa0), b1, Math.max(xw, xa0), b2, "x");
+        ctx.beginPath(); ctx.moveTo(Math.min(xw, xa0), r.y1 + h / 2); ctx.lineTo(Math.max(xw, xa0), r.y1 + h / 2); ctx.moveTo(xw, r.y1); ctx.lineTo(xw, r.y2); ctx.stroke();
+        const s = an === "x1" ? -1 : 1, ya = (a1 + a2) / 2, yb = (b1 + b2) / 2, x0 = xa0 + s * rein, xm = (an === "x1" ? r.x1 : r.x2) - s * tief / 2;
+        ctx.beginPath(); ctx.moveTo(x0, ya); ctx.lineTo(xm, ya); ctx.lineTo(xm, yb); ctx.lineTo(x0, yb); ctx.stroke(); punkt(x0, ya); pfeil(x0, yb, -s, 0);
+      }
+    } else {
+      const laengs = h >= w ? "y" : "x"; stufen(r.x1, r.y1, r.x2, r.y2, laengs);
+      const A = mitte[tp.antritt], E = mitte[tp.austritt], dx = Math.sign(E[0] - A[0]), dy = Math.sign(E[1] - A[1]);
+      const a = [A[0] + dx * rein, A[1] + dy * rein], e = [E[0] - dx * rein, E[1] - dy * rein];
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(e[0], e[1]); ctx.stroke(); punkt(a[0], a[1]); pfeil(e[0], e[1], dx, dy);
+    }
+    ctx.restore();
+  }
   function zeichnePlan(ctx, z, p, F, b) {
     const R = planVon(z, b), T = Modell.tueren(R, z.paare, Modell.TUER_PX), wand = 3 * F.px, W = pruefungVon(z, b);
     // Restflächen schraffiert: erst alles grau, dann die Räume darüber
@@ -102,6 +146,7 @@
       ctx.strokeStyle = planFarbe(F); ctx.lineWidth = wand + 3 * F.px; ctx.beginPath();
       if (t.senkrecht) { ctx.moveTo(t.x, t.y - h); ctx.lineTo(t.x, t.y + h); } else { ctx.moveTo(t.x - h, t.y); ctx.lineTo(t.x + h, t.y); }
       ctx.stroke();
+      if (t.treppe) continue;                                          // Treppe: offener Zugang über die ganze Breite, kein Türblatt
       ctx.strokeStyle = F.tinte; ctx.lineWidth = 1.2 * F.px; ctx.beginPath();
       if (t.senkrecht) {
         const s = ziel[0] >= t.x ? 1 : -1, y0 = t.y - h;               // Angel oben, Blatt in den Zielraum
@@ -121,10 +166,17 @@
         ctx.fill();
       }
     }
+    // Treppen mit Stufen und Lauflinie (neu)
+    if (z.programm) for (const r of R) { const tp = r.tr && Modell.treppeVon(z.programm, raumVon(r)); if (tp) zeichneTreppe(ctx, r, Object.assign({}, tp, b.spiegel ? spiegleTreppe(tp, b.spiegel) : {}), F); }
     // Beschriftung: Name und Fläche im Grundriss (ohne Raumprogramm: Raumnummer)
     ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = F.tinte;
     for (const r of R) {
-      if (raumVon(r) !== r.id) continue;                                 // Schenkel: Beschriftung steht im Hauptteil
+      if (raumVon(r) !== r.id) continue;
+      if (r.tr) {                                                      // Treppe: Name klein am Rand, die Stufen bleiben lesbar
+        ctx.font = `${9 * F.px}px "Geist Mono", ui-monospace, monospace`; ctx.fillStyle = F.gedaempft;
+        ctx.save(); ctx.translate((r.x1 + r.x2) / 2, (r.y1 + r.y2) / 2); if (r.y2 - r.y1 > r.x2 - r.x1) ctx.rotate(-Math.PI / 2);
+        ctx.fillText(raumName(z, r.id), 0, 0); ctx.restore(); ctx.fillStyle = F.tinte; continue;
+      }                                 // Schenkel: Beschriftung steht im Hauptteil
       const cx = (r.x1 + r.x2) / 2, cy = (r.y1 + r.y2) / 2, teile = R.filter(q => raumVon(q) === r.id);
       const A = W ? W.raeume.find(q => q.id === r.id).flaeche * Modell.PX_M * Modell.PX_M : teile.reduce((q, t) => q + (t.x2 - t.x1) * (t.y2 - t.y1), 0);
       const M2 = W && W.raeume.filter(q => q.raum === r.id), m = M2 && { zuSchmal: M2.some(q => q.zuSchmal), zuKlein: M2.some(q => q.zuKlein) }, mangel = m && (m.zuSchmal || m.zuKlein);
@@ -154,36 +206,57 @@
 
   /** Vorbild als eigener Plan unter dem erzeugten Grundriss (neu, Wunsch Reinhard 24.11.2026): gleicher Maßstab, so ausgerichtet
       (gespiegelt), wie es dem erzeugten Plan am besten entspricht; Wände, Türen, Namen und Flächen wie oben */
-  function zeichneVorbildPlan(z, p, F, b) {
-    const fig = document.getElementById("k-vorbild"); if (!fig) return;
-    const zeigen = !!(p.plan && mitVorbild(z));
-    if (fig.hidden !== !zeigen) fig.hidden = !zeigen;
-    if (!zeigen) return;
-    const P = Modell.PROGRAMME[z.programm], A = Modell.aehnlichkeit(b, z.programm), k = Modell.PX_M, sx = A.gespiegelt.x, sy = A.gespiegelt.y;
-    const n = P.raeume.length; let weiter = n;
-    const I = { g: [], fo: 0, fd: 0 };
+  const spiegleKante = (k, sp) => (sp.x && k[0] === "x") || (sp.y && k[0] === "y") ? k[0] + (k[1] === "0" ? "1" : "0") : k;
+  const spiegleTreppe = (tp, sp) => ({ antritt: spiegleKante(tp.antritt, sp), austritt: spiegleKante(tp.austritt, sp), halb: tp.halb && spiegleKante(tp.halb, sp) });
+  /** Vorbild eines Programms als Individuum (gespiegelt wie angegeben), Treppen mit Zugangskante */
+  function vorbildInd(programm, sx, sy) {
+    const P = Modell.PROGRAMME[programm], k = Modell.PX_M, n = P.raeume.length; let weiter = n;
+    const I = { g: [], fo: 0, fd: 0, spiegel: { x: sx, y: sy } };
     P.vorbild.forEach((teile, raum) => teile.forEach((t, j) => {
       let x1 = t[0] * k, y1 = t[1] * k, x2 = t[2] * k, y2 = t[3] * k;
       if (sx) [x1, x2] = [B - x2, B - x1];
       if (sy) [y1, y2] = [H - y2, H - y1];
       const g = Modell.gen(j ? weiter++ : raum, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, null, 0.4, 0, raum);
+      const tp = Modell.treppeVon(programm, raum); if (tp) { g.tr = true; g.zg = spiegleKante(tp.kante, { x: sx, y: sy }); }
       I.g.push(g);
     }));
+    return I;
+  }
+  function zeichneVorbildPlan(z, p, F, b) {
+    const fig = document.getElementById("k-vorbild"); if (!fig) return;
+    const zeigen = !!(p.plan && mitVorbild(z));
+    if (fig.hidden !== !zeigen) fig.hidden = !zeigen;
+    if (!zeigen) return;
+    const P = Modell.PROGRAMME[z.programm], A = Modell.aehnlichkeit(b, z.programm), sx = A.gespiegelt.x, sy = A.gespiegelt.y;
+    const I = vorbildInd(z.programm, sx, sy);                            // Haus: beide Geschosse in derselben Spiegelung (die des EG)
     const lw = document.getElementById("leinwand"), cssK = parseFloat(lw.style.width) / lw._b;   // CSS-Pixel je Modellpixel wie oben
     const c = document.getElementById("vorbild-leinwand"), dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = Math.round(B * cssK), h = Math.round(H * cssK);
+    const w = Math.round(breiteVon(z) * cssK), h = Math.round(hoeheVon(z) * cssK);
     if (c.style.width !== w + "px") { c.style.width = w + "px"; c.style.height = h + "px"; c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
     const ctx = c.getContext("2d"); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, c.width, c.height);
     ctx.setTransform(cssK * dpr, 0, 0, cssK * dpr, 0, 0);
     const Fv = Object.assign({}, F, { px: 1 / cssK });
     zeichnePlan(ctx, Object.assign({}, z, { mindest: false }), p, Fv, I);
     ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H);
-    const titel = document.getElementById("k-vorbild-titel"), sp = sx || sy;
-    const t = en() ? `Model: ${P.titel_en || P.titel}` + (sp ? " (mirrored to match the plan above)" : "") + ` · similarity ${proz(A.mittel)}`
-                   : `Vorbild: ${P.titel}` + (sp ? " (gespiegelt wie der Plan oben)" : "") + ` · Ähnlichkeit ${proz(A.mittel)}`;
+    let am = A.mittel;
+    if (haus(z)) {
+      const O = z.og, Io = vorbildInd(O.programm, sx, sy), Ao = Modell.aehnlichkeit(Modell.beste(O), O.programm);
+      ctx.save(); ctx.translate(B + GESCHOSS, 0); zeichnePlan(ctx, Object.assign({}, O, { mindest: false }), p, Fv, Io); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); ctx.restore();
+      geschossNamen(ctx, Fv); am = (A.mittel + Ao.mittel) / 2;
+    }
+    const titel = document.getElementById("k-vorbild-titel"), sp = sx || sy, ti = haus(z) ? hausTitel(P, true) : (en() ? P.titel_en || P.titel : P.titel);
+    const t = en() ? `Model: ${ti}` + (sp ? " (mirrored to match the plan above)" : "") + ` · similarity ${proz(am)}`
+                   : `Vorbild: ${ti}` + (sp ? " (gespiegelt wie der Plan oben)" : "") + ` · Ähnlichkeit ${proz(am)}`;
     if (titel.textContent !== t) titel.textContent = t;
   }
 
+  /** Haus: Titel ohne Geschoss, Namen der Geschosse unter den Plänen */
+  const hausTitel = (P, mitEn) => ((mitEn && en() ? P.titel_en || P.titel : P.titel) || "").replace(/ · .*$/, "");
+  function geschossNamen(ctx, F) {
+    ctx.save(); ctx.fillStyle = F.gedaempft; ctx.font = `${11 * F.px}px "Geist Mono", ui-monospace, monospace`; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillText(en() ? "GROUND FLOOR" : "ERDGESCHOSS", 0, H + 17 * F.px); ctx.fillText(en() ? "UPPER FLOOR" : "OBERGESCHOSS", B + GESCHOSS, H + 17 * F.px);
+    ctx.restore();
+  }
   /** Nachbarschaften (DrawConnections): Linien zwischen den Mittelpunkten, erfüllte durchgezogen, offene gestrichelt;
       der Eingang (Nachbar −1) als Linie zur nächsten Feldkante. Im Grundriss gelten die Rechtecke der Packung. */
   function zeichneNachbarn(ctx, z, p, F, G) {
@@ -201,7 +274,7 @@
   /** Die Wahl der Nachbarschaften (Stern/Wohnung), die Mindestmaße und die Lösungssuche wirken nur mit Raumprogramm: sonst ausblenden */
   function auswahlGrundriss(z, p) {
     const d = z.programm ? "" : "none";                                 // style statt hidden: .zeile setzt display selbst
-    const sichtbar = { "p-grundrissTopo": !!z.programm && !mitVorbild(z), "p-mindest": !!z.programm, "p-naehe": mitVorbild(z), "p-vorbild": mitVorbild(z), "p-starr": mitVorbild(z),
+    const sichtbar = { "p-grundrissTopo": !!z.programm && !mitVorbild(z), "p-mindest": !!z.programm, "p-naehe": mitVorbild(z), "p-vorbild": mitVorbild(z), "p-starr": mitVorbild(z), "p-cluster": !!z.programm, "p-wand": !!z.programm,
                        "p-raeume": !z.programm };
     for (const [id, an] of Object.entries(sichtbar)) {
       const e = document.getElementById(id), zeile = e && e.closest(".zeile"), dd = an ? "" : "none";
@@ -247,8 +320,8 @@
     saat: 1,
     tempo: { min: 1, max: 30, wert: 1 },
     parameter: [
-      { id: "fassung", gruppe: G_F, name: SEITE === "palladio" ? { de: "Villa (Vorbild)", en: "Villa (model)" } : SEITE === "siza" ? { de: "Haus und Geschoss (Vorbild)", en: "House and floor (model)" } : { de: "Fassung", en: "Version" }, art: "auswahl", wert: S.fassung, neustart: true, folgen,
-        optionen: SEITE !== "packung" ? VORBILDER.map(f => { const P = Modell.PROGRAMME[FA[f].programm]; return { wert: f, name: { de: P.titel, en: P.titel_en || P.titel } }; }) : [{ wert: "einpassung", name: { de: "Einpassung (ohne Topologie)", en: "Fitting (no topology)" } },
+      { id: "fassung", gruppe: G_F, name: SEITE === "palladio" ? { de: "Villa (Vorbild)", en: "Villa (model)" } : SEITE === "siza" ? { de: "Haus (Vorbild, Erd- und Obergeschoss)", en: "House (model, ground and upper floor)" } : { de: "Fassung", en: "Version" }, art: "auswahl", wert: S.fassung, neustart: true, folgen,
+        optionen: SEITE !== "packung" ? VORBILDER.map(f => { const P = Modell.PROGRAMME[FA[f].programm], h = !!FA[f].og; return { wert: f, name: { de: h ? P.titel.replace(/ · .*$/, "") : P.titel, en: h ? (P.titel_en || P.titel).replace(/ · .*$/, "") : P.titel_en || P.titel } }; }) : [{ wert: "einpassung", name: { de: "Einpassung (ohne Topologie)", en: "Fitting (no topology)" } },
                    { wert: "kollision", name: { de: "Kollision allein", en: "Collision only" } },
                    { wert: "topologie", name: { de: "Topologie: Stern", en: "Topology: star" } },
                    { wert: "gang", name: { de: "Topologie: Gang", en: "Topology: corridor" } },
@@ -263,6 +336,7 @@
       { id: "lform", gruppe: G_F, name: { de: "L-förmige Räume (Bitmaske)", en: "L-shaped rooms (bit mask)" }, min: 0, max: 1023, wert: S.lform, neustart: true },
       { id: "naehe", gruppe: G_F, name: { de: "Nähe zum Vorbild (0 = freie Varianten, 1 = rekonstruieren; neu)", en: "Closeness to the model (0 = free variants, 1 = reconstruct; new)" }, min: 0, max: 1, schritt: 0.1, wert: S.naehe || 0, format: proz },
       { id: "starr", gruppe: G_F, name: { de: "Starre Raumform (zusammengesetzte Räume wie im Vorbild; neu)", en: "Rigid room shape (composite rooms as in the model; new)" }, art: "schalter", wert: !!S.starr, neustart: true },
+      { id: "wand", gruppe: G_F, name: { de: "Wände am fertigen Plan verschieben (Nachbesserung; neu)", en: "Shift walls of the finished plan (local search; new)" }, art: "schalter", wert: !!S.wand },
       { id: "mindest", gruppe: G_F, name: { de: "Mindestmaße (Breite, Fläche; neu)", en: "Minimum dimensions (width, area; new)" }, art: "schalter", wert: S.mindest, neustart: true },
       { id: "raeume", gruppe: G_ES, name: { de: "Räume (Rooms, nicht im Grundriss)", en: "Rooms (not in floor plan)" }, min: 2, max: 40, wert: S.raeume, neustart: true },
       { id: "mu", gruppe: G_ES, name: { de: "Eltern μ (Population)", en: "Parents μ (population)" }, min: 1, max: 30, wert: S.mu, neustart: true },
@@ -270,6 +344,7 @@
       { id: "plus", gruppe: G_ES, name: { de: "(μ+λ)-ES (aus: (μ,λ))", en: "(μ+λ)-ES (off: (μ,λ))" }, art: "schalter", wert: S.plus },
       { id: "elite", gruppe: G_ES, name: { de: "Elite", en: "Elite" }, art: "schalter", wert: S.elite },
       { id: "kreuzung", gruppe: G_ES, name: { de: "Rekombination (Crossover)", en: "Recombination (crossover)" }, art: "schalter", wert: S.kreuzung },
+      { id: "cluster", gruppe: G_ES, name: { de: "Raumgruppe spiegeln: Rate (nach EPSAP; neu)", en: "Mirror room cluster: rate (after EPSAP; new)" }, min: 0, max: 0.1, schritt: 0.01, wert: S.cluster || 0, format: proz },
       { id: "kreuzRate", gruppe: G_ES, name: { de: "Rekombinationsrate", en: "Crossover rate" }, min: 0, max: 1, schritt: 0.01, wert: S.kreuzRate, format: proz },
       { id: "repForce", gruppe: G_K, name: { de: "Abstoßen: Kraft β", en: "Repel force β" }, min: 0, max: 1, schritt: 0.01, wert: S.repForce, format: proz },
       { id: "repRate", gruppe: G_K, name: { de: "Abstoßen: Rate ρL", en: "Repel rate ρL" }, min: 0, max: 1, schritt: 0.01, wert: S.repRate, format: proz },
@@ -284,15 +359,28 @@
       { id: "nummern", gruppe: G_D, name: { de: "Raumnummern", en: "Room numbers" }, art: "schalter", wert: S.nummern },
       { id: "verlauf", gruppe: G_D, name: { de: "Verlauf zeigen", en: "Show chart" }, art: "schalter", wert: S.verlauf, groesseNeu: true }
     ],
-    groesse: (z, p) => (feld(z), !p.verlauf) ? { b: B, h: H } : quer() ? { b: B + LUECKE + RECHTS, h: H } : { b: B, h: H + UNTEN },
-    klick(z, p, x, y, taste, phase) { if (taste === "links") Modell.ziehe(z, x, y, phase); },
+    groesse: (z, p) => (feld(z), !p.verlauf) ? { b: breiteVon(z), h: hoeheVon(z) } : quer() ? { b: breiteVon(z) + LUECKE + RECHTS, h: hoeheVon(z) } : { b: breiteVon(z), h: hoeheVon(z) + UNTEN },
+    klick(z, p, x, y, taste, phase) { if (taste === "links" && (x <= B || phase !== "unten")) Modell.ziehe(z, Math.min(x, B), y, phase); },   // Haus: gezogen wird im EG
     zeichne(ctx, z, p, F) {
       feld(z);
       const b = Modell.beste(z), G = b.g;
       ctx.fillStyle = F.dunkel ? F.flaeche : F.papier; ctx.fillRect(0, 0, B, H);
       auswahlGrundriss(z, p);
       zeichneVorbildPlan(z, p, F, b);
-      if (p.plan) { zeichnePlan(ctx, z, p, F, b); if (p.vorbild && mitVorbild(z)) zeichneVorbild(ctx, z, F, b); if (p.topo) zeichneNachbarn(ctx, z, p, F, G); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); if (p.verlauf) { if (quer()) diagramm(ctx, z, F, B + LUECKE, 0, RECHTS, H); else diagramm(ctx, z, F, 0, H + 8, B, UNTEN - 8); } return; }
+      if (p.plan) {
+        zeichnePlan(ctx, z, p, F, b); if (p.vorbild && mitVorbild(z)) zeichneVorbild(ctx, z, F, b); if (p.topo) zeichneNachbarn(ctx, z, p, F, G); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H);
+        if (haus(z)) {                                                   // Haus (neu): Obergeschoss rechts daneben, Treppe und Hof aus dem EG
+          const O = z.og, bo = Modell.beste(O);
+          ctx.fillStyle = F.dunkel ? F.flaeche : F.papier; ctx.fillRect(B, 0, GESCHOSS + B, hoeheVon(z)); ctx.fillRect(0, H, B, UNTERSCHRIFT);
+          ctx.save(); ctx.translate(B + GESCHOSS, 0);
+          zeichnePlan(ctx, O, p, F, bo); if (p.vorbild) zeichneVorbild(ctx, O, F, bo); if (p.topo) zeichneNachbarn(ctx, O, p, F, bo.g);
+          ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); ctx.restore();
+          geschossNamen(ctx, F);
+        }
+        const bw = breiteVon(z);
+        if (p.verlauf) { if (quer()) diagramm(ctx, z, F, bw + LUECKE, 0, RECHTS, H); else diagramm(ctx, z, F, 0, hoeheVon(z) + 8, bw, UNTEN - 8); }
+        return;
+      }
       // Räume der besten Lösung (PhenotypeGdi): grau, Wände in Papierfarbe (dunkel) bzw. schwarz (hell)
       ctx.lineWidth = 2; ctx.strokeStyle = F.dunkel ? F.papier : F.tinte;
       for (const g of G) {
@@ -353,8 +441,15 @@
         const W = Modell.planPruefung(b, z.paare, z.programm, 300), n = q => new Set(W.raeume.filter(r => r[q]).map(r => r.raum)).size;
         k.push([{ de: "Zu schmal · zu klein", en: "Too narrow · too small" }, `${n("zuSchmal")} · ${n("zuKlein")}`]);
         k.push([{ de: "Plan gültig", en: "Plan valid" }, W.gueltig ? { de: "ja", en: "yes" } : { de: "nein", en: "no" }]);
+        if (haus(z)) {
+          const O = z.og, bo = Modell.beste(O), Wo = Modell.planPruefung(bo, O.paare, O.programm, 300);
+          k.push([{ de: "Obergeschoss gültig", en: "Upper floor valid" }, Wo.gueltig ? { de: "ja", en: "yes" } : { de: "nein", en: "no" }]);
+          k.push([{ de: "Treppe: Antritt · Austritt", en: "Stair: start · arrival" }, { de: `${W.treppe < 0.05 ? "frei" : "verstellt"} · ${Wo.treppe < 0.05 ? "frei" : "verstellt"}`, en: `${W.treppe < 0.05 ? "clear" : "blocked"} · ${Wo.treppe < 0.05 ? "clear" : "blocked"}` }]);
+          feld(z);
+        }
         if (mitVorbild(z)) {
           const A = Modell.aehnlichkeit(b, z.programm), sp = A.gespiegelt.x || A.gespiegelt.y;
+          if (haus(z)) { const Ao = Modell.aehnlichkeit(Modell.beste(z.og), z.og.programm); k.push([{ de: "Ähnlichkeit EG · OG", en: "Similarity GF · UF" }, `${proz(A.mittel)} · ${proz(Ao.mittel)}`]); }
           k.push([{ de: "Ähnlichkeit zum Vorbild", en: "Similarity to the model" }, { de: proz(A.mittel) + (sp ? " (gespiegelt)" : ""), en: proz(A.mittel) + (sp ? " (mirrored)" : "") }]);
         }
       }
@@ -365,9 +460,9 @@
 
   /* ---------- Lösungen: gültige Grundrisse suchen, als Karten zeigen, per Klick in die Einzelansicht laden (neu, 23.11.2026) ---------- */
   const $ = id => document.getElementById(id);
-  const ZEIT_MAX = 90000;                                              // Suche endet spätestens nach 90 s
+  const ZEIT_MAX = 90000, ZEIT_MAX_HAUS = 300000;                      // Suche endet spätestens nach 90 s, beim Haus (EG + OG) nach 5 min
   let suche = null, karten = [], gewaehlt = -1, schluessel = "";
-  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu, p.lform, p.naehe, p.starr].join("|");
+  const schluesselVon = p => [p.fassung, p.grundrissTopo, p.belegung, p.minSeite, p.mindest, p.rlap, p.federRunden, p.mu, p.lform, p.naehe, p.starr, p.cluster, p.wand].join("|");
   const text = o => en() ? o.en : o.de;
   function status(t) { $("l-status").textContent = t; }
   function zeichneKarten() {
@@ -376,17 +471,18 @@
     feld(window.SIM && SIM.zustand);
     karten.forEach((T, i) => {
       const b = document.createElement("button"); b.type = "button"; b.className = "l-karte"; b.setAttribute("aria-pressed", i === gewaehlt);
-      const c = document.createElement("canvas"), w = 240, dpr = Math.min(window.devicePixelRatio || 1, 2), k = w / B;
+      const bw = T.og ? 2 * B + GESCHOSS : B, c = document.createElement("canvas"), w = T.og ? 300 : 240, dpr = Math.min(window.devicePixelRatio || 1, 2), k = w / bw;
       c.style.width = w + "px"; c.style.height = Math.round(H * k) + "px"; c.width = Math.round(w * dpr); c.height = Math.round(H * k * dpr);
       const ctx = c.getContext("2d"); ctx.setTransform(k * dpr, 0, 0, k * dpr, 0, 0);
       const zk = { programm: T.programm, paare: T.paare, mindest: true }, Fk = Object.assign({}, F, { px: 1 / k * 0.75 });
       zeichnePlan(ctx, zk, {}, Fk, T.ind);
       ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H);
+      if (T.og) { ctx.save(); ctx.translate(B + GESCHOSS, 0); zeichnePlan(ctx, { programm: T.og.programm, paare: T.og.paare, mindest: true }, {}, Fk, T.og.ind); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); ctx.restore(); }
       const t = Modell.tueren(planVon(zk, T.ind), T.paare, Modell.TUER_PX).length;
       const u = document.createElement("span"); u.className = "mono";
       u.textContent = `${i + 1} · ${text({ de: "Saat", en: "seed" })} ${T.saat} · ${text({ de: "Generation", en: "generation" })} ${T.t}` +
         ` · ${text({ de: "Türen", en: "doors" })} ${t}/${T.paare.length}` + (T.nachgebessert ? ` · ${text({ de: "nachgebessert", en: "refined" })}` : "") +
-        (Modell.PROGRAMME[T.programm].vorbild ? ` · ${text({ de: "Ähnlichkeit", en: "similarity" })} ${proz(Modell.aehnlichkeit(T.ind, T.programm).mittel)}` : "");
+        (Modell.PROGRAMME[T.programm].vorbild ? ` · ${text({ de: "Ähnlichkeit", en: "similarity" })} ${proz(T.og ? (Modell.aehnlichkeit(T.ind, T.programm).mittel + Modell.aehnlichkeit(T.og.ind, T.og.programm).mittel) / 2 : Modell.aehnlichkeit(T.ind, T.programm).mittel)}` + (T.og ? text({ de: " (EG + OG)", en: " (GF + UF)" }) : "") : "");
       b.append(c, u);
       b.addEventListener("click", () => {
         const p = SIM.param, z = Modell.zustandAusTreffer(p, T, Zufall.zufall(T.saat * 7919 + T.t));
@@ -415,8 +511,9 @@
     while (performance.now() - t0 < 30 && !S.S.fertig) Modell.sucheWeiter(S.S, 5);
     const h = S.S.treffer.length;
     if (h !== karten.length) { karten = S.S.treffer.slice(); zeichneKarten(); }
-    status(text({ de: `Suche … Lauf ${S.S.laeufe} · ${h} von ${S.S.ziel} Treffern`, en: `Searching … run ${S.S.laeufe} · ${h} of ${S.S.ziel} hits` }));
-    if (S.S.fertig || performance.now() - S.t0 > ZEIT_MAX) ende(false); else setTimeout(takt, 0);
+    const L = S.S.lauf, ph = L && L.og ? text({ de: ` · EG gültig, Obergeschoss: Lauf ${L.og.versuch}, Generation ${L.og.z.t}`, en: ` · ground floor valid, upper floor: run ${L.og.versuch}, generation ${L.og.z.t}` }) : L && L.z.og ? text({ de: ` · Erdgeschoss: Generation ${L.z.t}`, en: ` · ground floor: generation ${L.z.t}` }) : "";
+    status(text({ de: `Suche … Lauf ${S.S.laeufe} · ${h} von ${S.S.ziel} Treffern`, en: `Searching … run ${S.S.laeufe} · ${h} of ${S.S.ziel} hits` }) + ph);
+    if (S.S.fertig || performance.now() - S.t0 > (S.haus ? ZEIT_MAX_HAUS : ZEIT_MAX)) ende(false); else setTimeout(takt, 0);
   }
   $("l-suche").addEventListener("click", () => {
     const z = SIM.zustand; if (!z.programm) return;
@@ -424,7 +521,7 @@
     const n = Math.max(1, Math.min(12, parseInt($("l-anzahl").value, 10) || 3)); $("l-anzahl").value = n;
     SIM.pause();
     const p = Object.assign({}, SIM.param);
-    suche = { anzahl: n, t0: performance.now(), S: Modell.sucheNeu(p, Zufall.zufall, { anzahl: n, saat: SIM.saat, ziel: Math.max(n + 2, Math.ceil(n * 1.5)), laeufe: 400, generationen: mitVorbild(z) ? 400 : 200 }) };
+    suche = { anzahl: n, haus: haus(z), t0: performance.now(), S: Modell.sucheNeu(p, Zufall.zufall, { anzahl: n, saat: SIM.saat, ziel: Math.max(n + 2, Math.ceil(n * 1.5)), laeufe: 400, generationen: mitVorbild(z) ? 400 : 200 }) };
     schluessel = schluesselVon(p); karten = []; gewaehlt = -1; zeichneKarten();
     $("l-suche").disabled = true; $("l-stopp").disabled = false;
     takt();

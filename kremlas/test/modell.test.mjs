@@ -520,14 +520,44 @@ M.registriere(VS);
 const haus = (v, q) => Object.assign({}, M.STANDARD, ...M.REGLER.map(k => ({ [k]: M.FASSUNGEN["sz_" + v][k] })), { fassung: "sz_" + v }, q);
 
 test("Vorbilder Siza: sechs Häuser je Erd- und Obergeschoss, Räume füllen das Grundstück 8 × 12 m, Treppe und Luftraum im OG fest", () => {
-  assert.equal(VS.liste.length, 12);
-  for (const pid of VS.liste) {
+  assert.equal(VS.liste.length, 6);
+  assert.equal(Object.keys(VS.programme).length, 12);
+  for (const pid of Object.keys(VS.programme)) {
     const P = M.PROGRAMME[pid], A = P.raeume.reduce((s, r) => s + r[2], 0);
     assert.ok(nah(A, 96, 0.01), `${pid}: ${A} m²`);
     assert.deepEqual([P.feld.b, P.feld.h], [8, 12]);
     if (pid.endsWith("_og")) assert.ok(P.raeume.some(r => r[0] === "Treppe" && r[4] && r[4].fest) && P.raeume.some(r => r[0].startsWith("Luftraum") && r[4] && r[4].fest), pid);
   }
   assert.ok(M.PROGRAMME.sz_ab_eg.paare.some(([a, b]) => b === -1), "Eingang vom Hof zur Straße");
+});
+
+test("Haus Siza (25.11.2026): Treppe in beiden Geschossen an derselben Stelle, Luftraum im OG genau über dem Hof des EG", () => {
+  for (const h of VS.liste) {
+    const E = M.PROGRAMME[h + "_eg"], O = M.PROGRAMME[h + "_og"];
+    const stE = E.raeume.findIndex(r => r[4] && r[4].treppe), stO = O.raeume.findIndex(r => r[4] && r[4].treppe);
+    assert.ok(stE >= 0 && stO >= 0 && !E.raeume[stE][4].fest && O.raeume[stO][4].fest, h);
+    assert.deepEqual(E.vorbild[stE], O.vorbild[stO], h + ": Treppe");
+    assert.deepEqual(E.vorbild[E.raeume.findIndex(r => r[1] === "Court")], O.vorbild[O.raeume.findIndex(r => r[1] === "Open to sky")], h + ": Hof = Luftraum");
+    assert.ok(E.paare.some(q => q.includes(stE)), h + ": Treppe im EG erschlossen");
+  }
+  // Kopplung: das OG übernimmt Treppe und Hof aus dem EG-Plan
+  const p = haus("t4"), z = M.erzeuge(p, zufall(1));
+  for (let t = 0; t < 30; t++) M.schritt(z, p);
+  const R = M.grundriss(M.beste(z), 120, M.TEILE_PX), st = R.find(q => q.tr), fo = z.og.fest.find(f => z.og.eltern[0].g.find(g => g.id === f[0]).tr);
+  assert.ok(st && fo && nah(fo[1], st.x1 / M.PX_M, 1e-9) && nah(fo[4], st.y2 / M.PX_M, 1e-9), "Treppe im OG an der Stelle des EG");
+  const g = z.og.eltern[0].g.find(q => q.id === fo[0]);
+  assert.ok(nah(g.x, (fo[1] + fo[3]) / 2 * M.PX_M, 1e-6), "OG-Eltern tragen die feste Treppe");
+});
+
+test("Treppe (25.11.2026): Vorbilder erfüllen Antritt und Austritt; verstellt eine Wand das Podest, ist der Plan ungültig", () => {
+  const p = haus("t4"), z = M.erzeuge(p, zufall(1)), P = M.PROGRAMME[z.programm], k = M.PX_M;
+  const I = { g: z.eltern[0].g.map(g => { const ids = z.eltern[0].g.filter(q => q.r === g.r).map(q => q.id).sort((a, b) => a - b), t = P.vorbild[g.r][ids.indexOf(g.id)];
+    return Object.assign({}, g, { x: (t[0] + t[2]) / 2 * k, y: (t[1] + t[3]) / 2 * k, w: (t[2] - t[0]) * k, h: (t[3] - t[1]) * k, a: (t[2] - t[0]) * (t[3] - t[1]) * k * k }); }), fo: 0, fd: 0 };
+  const w = M.planPruefung(I, z.paare, z.programm, 300);
+  assert.ok(w.gueltig && w.treppe < 0.05, `Vorbild: Treppe ${w.treppe}`);
+  const S = I.g.find(g => g.tr); S.y += 1.2 * k;                        // Treppe um 1,2 m verschoben: Zugang verstellt
+  assert.ok(M.planPruefung(I, z.paare, z.programm, 300).treppe > 0.05);
+  assert.deepEqual(M.treppeVon("sz_t4_eg", P.raeume.findIndex(r => r[4] && r[4].treppe)).kante, "y1");
 });
 
 test("Feste Räume bleiben an der Stelle des Vorbilds, Teile in Ketten hängen an ihrem Anker", () => {
@@ -543,17 +573,19 @@ test("Feste Räume bleiben an der Stelle des Vorbilds, Teile in Ketten hängen a
   assert.ok(kette.every(g => g.an != null), "jeder Teil des Flurs hat einen Anker");
 });
 
-test("Rekonstruktion Siza: Typ Ab im Erdgeschoss mit Nähe 1 wiedergefunden (gültig, über 85 % ähnlich)", () => {
-  const p = haus("ab_eg", { naehe: 1 }), S = M.sucheNeu(p, zufall, { anzahl: 1, ziel: 1, saat: 1, laeufe: 6, generationen: 400 });   // abgestimmte Voreinstellung der Fassung
+test("Haus-Suche Siza: ein Treffer ist ein Haus mit gültigem EG und gültigem OG, Treppe und Hof übereinander", () => {
+  const p = haus("bb", { naehe: 1 }), S = M.sucheNeu(p, zufall, { anzahl: 1, ziel: 1, saat: 1, laeufe: 15, generationen: 400 });
   while (!S.fertig) M.sucheWeiter(S, 400);
-  assert.ok(S.treffer.length >= 1, `kein Treffer in ${S.laeufe} Läufen`);
-  const T = S.treffer[0];
-  assert.ok(T.wert.gueltig && M.aehnlichkeit(T.ind, T.programm).mittel > 0.85, `Ähnlichkeit ${M.aehnlichkeit(T.ind, T.programm).mittel}`);
+  assert.ok(S.treffer.length >= 1, `kein Haus in ${S.laeufe} Läufen`);
+  const T = S.treffer[0], st = T.plan.find(q => q.tr), so = T.og.plan.find(q => q.tr);
+  assert.ok(T.wert.gueltig && T.og.wert.gueltig);
+  assert.ok(nah(st.x1, so.x1, 0.5) && nah(st.y1, so.y1, 0.5) && nah(st.x2, so.x2, 0.5), "Treppe übereinander");
 });
 
 test("Abgestimmte Voreinstellungen: jede Vorbild-Fassung trägt starr, Federrunden und Belegung aus werkzeuge/abstimmung.json", () => {
   const A = require("../werkzeuge/abstimmung.json");
-  for (const [f, e] of Object.entries(A)) {
+  for (const [f0, e] of Object.entries(A)) {
+    const f = f0.endsWith("_eg") ? f0.slice(0, -3) : f0;                 // Siza: das EG trägt die Werte des Hauses, das OG seine eigenen
     assert.equal(M.FASSUNGEN[f].starr, e.starr, f); assert.equal(M.FASSUNGEN[f].federRunden, e.federRunden, f); assert.equal(M.FASSUNGEN[f].belegung, e.belegung, f);
   }
   assert.equal(Object.keys(A).length, 20);
@@ -564,4 +596,18 @@ test("Rekonstruktion Saraceno mit abgestimmter Voreinstellung: gültig und über
   while (!S.fertig) M.sucheWeiter(S, 400);
   assert.ok(S.treffer.length >= 1, `kein Treffer in ${S.laeufe} Läufen`);
   assert.ok(Math.max(...S.treffer.map(t => M.aehnlichkeit(t.ind, t.programm).mittel)) > 0.85);
+});
+
+test("Schalter Raumgruppe spiegeln und Wände verschieben: Regler vorhanden, Suche findet mit beiden einen gültigen Plan (25.11.2026)", () => {
+  assert.ok(M.REGLER.includes("cluster") && M.REGLER.includes("wand"));
+  assert.equal(M.STANDARD.cluster, 0); assert.equal(M.STANDARD.wand, false);
+  const S = M.sucheNeu(fassung("grundriss6", { cluster: 0.05, wand: true }), zufall, { anzahl: 1, ziel: 1, saat: 1, laeufe: 6, generationen: 400 });
+  while (!S.fertig) M.sucheWeiter(S, 400);
+  assert.ok(S.treffer.length >= 1 && S.treffer[0].wert.gueltig);
+});
+
+test("Voreinstellungen aus der Abstimmung über zwei Saatgruppen: Malcontenta frei mit Raumgruppe spiegeln (25.11.2026)", () => {
+  M.registriere(require("../vorbilder_palladio.js"));
+  assert.equal(M.FASSUNGEN.pal_malcontenta.starr, false);
+  assert.equal(M.FASSUNGEN.pal_malcontenta.cluster, 0.02);
 });

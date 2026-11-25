@@ -5,7 +5,9 @@
   "belegung": 0.94,
   "aehnlichkeit": 1,
   "treffer": 1,
-  "laeufe": 3
+  "laeufe": 3,
+  "cluster": 0,
+  "wand": false
  },
  "pal_badoer": {
   "starr": false,
@@ -13,7 +15,9 @@
   "belegung": 0.94,
   "aehnlichkeit": 0.999,
   "treffer": 1,
-  "laeufe": 3
+  "laeufe": 3,
+  "cluster": 0,
+  "wand": false
  },
  "pal_emo": {
   "starr": true,
@@ -21,15 +25,23 @@
   "belegung": 0.98,
   "aehnlichkeit": 0.998,
   "treffer": 1,
-  "laeufe": 5
+  "laeufe": 5,
+  "cluster": 0,
+  "wand": false
  },
  "pal_malcontenta": {
-  "starr": true,
+  "starr": false,
   "federRunden": 5,
   "belegung": 0.94,
   "aehnlichkeit": 0.99,
   "treffer": 1,
-  "laeufe": 8
+  "laeufe": 8,
+  "cluster": 0.02,
+  "wand": false,
+  "reihen": {
+   "saat_1_151": 0.742,
+   "saat_201_351": 0.739
+  }
  },
  "pal_pisani": {
   "starr": true,
@@ -37,7 +49,9 @@
   "belegung": 0.98,
   "aehnlichkeit": 0.88,
   "treffer": 3,
-  "laeufe": 4
+  "laeufe": 4,
+  "cluster": 0,
+  "wand": false
  },
  "pal_ragona": {
   "starr": true,
@@ -45,7 +59,9 @@
   "belegung": 0.98,
   "aehnlichkeit": 1,
   "treffer": 1,
-  "laeufe": 3
+  "laeufe": 3,
+  "cluster": 0,
+  "wand": false
  },
  "pal_saraceno": {
   "starr": false,
@@ -53,7 +69,9 @@
   "belegung": 0.96,
   "aehnlichkeit": 0.999,
   "treffer": 3,
-  "laeufe": 4
+  "laeufe": 4,
+  "cluster": 0,
+  "wand": false
  },
  "pal_zeno": {
   "starr": true,
@@ -61,15 +79,23 @@
   "belegung": 0.98,
   "aehnlichkeit": 0.999,
   "treffer": 1,
-  "laeufe": 3
+  "laeufe": 3,
+  "cluster": 0,
+  "wand": false
  },
  "sz_ab_eg": {
-  "starr": true,
+  "starr": false,
   "federRunden": 10,
   "belegung": 0.98,
   "aehnlichkeit": 0.956,
   "treffer": 2,
-  "laeufe": 7
+  "laeufe": 7,
+  "cluster": 0.02,
+  "wand": false,
+  "reihen": {
+   "saat_1_151": 0.942,
+   "saat_201_351": 0.923
+  }
  },
  "sz_ab_og": {
   "starr": true,
@@ -77,7 +103,13 @@
   "belegung": 0.98,
   "aehnlichkeit": 0.909,
   "treffer": 2,
-  "laeufe": 8
+  "laeufe": 8,
+  "cluster": 0.02,
+  "wand": false,
+  "reihen": {
+   "saat_1_151": 0.725,
+   "saat_201_351": 0.714
+  }
  },
  "sz_bb_eg": {
   "starr": true,
@@ -85,15 +117,23 @@
   "belegung": 0.98,
   "aehnlichkeit": 0.998,
   "treffer": 3,
-  "laeufe": 5
+  "laeufe": 5,
+  "cluster": 0,
+  "wand": false
  },
  "sz_bb_og": {
-  "starr": true,
+  "starr": false,
   "federRunden": 10,
   "belegung": 0.94,
   "aehnlichkeit": 0.954,
   "treffer": 1,
-  "laeufe": 8
+  "laeufe": 8,
+  "cluster": 0,
+  "wand": false,
+  "reihen": {
+   "saat_1_151": 0.63,
+   "saat_201_351": 0.679
+  }
  },
  "sz_dn_eg": {
   "starr": false,
@@ -101,15 +141,23 @@
   "belegung": 0.94,
   "aehnlichkeit": 1,
   "treffer": 3,
-  "laeufe": 3
+  "laeufe": 3,
+  "cluster": 0,
+  "wand": false
  },
  "sz_dn_og": {
-  "starr": true,
+  "starr": false,
   "federRunden": 2,
   "belegung": 0.94,
   "aehnlichkeit": 0,
   "treffer": 0,
-  "laeufe": 8
+  "laeufe": 8,
+  "cluster": 0,
+  "wand": false,
+  "reihen": {
+   "saat_1_151": 0.165,
+   "saat_201_351": 0.12
+  }
  },
  "sz_t2_eg": {
   "starr": true,
@@ -117,7 +165,9 @@
   "belegung": 0.96,
   "aehnlichkeit": 1,
   "treffer": 2,
-  "laeufe": 6
+  "laeufe": 6,
+  "cluster": 0,
+  "wand": false
  },
  "sz_t2_og": {
   "starr": true,
@@ -125,7 +175,9 @@
   "belegung": 0.98,
   "aehnlichkeit": 0.999,
   "treffer": 1,
-  "laeufe": 3
+  "laeufe": 3,
+  "cluster": 0,
+  "wand": false
  },
  "sz_t4_eg": {
   "starr": false,
@@ -133,15 +185,23 @@
   "belegung": 0.98,
   "aehnlichkeit": 0.997,
   "treffer": 3,
-  "laeufe": 3
+  "laeufe": 3,
+  "cluster": 0,
+  "wand": false
  },
  "sz_t4_og": {
-  "starr": true,
+  "starr": false,
   "federRunden": 5,
   "belegung": 0.96,
   "aehnlichkeit": 0.88,
   "treffer": 1,
-  "laeufe": 8
+  "laeufe": 8,
+  "cluster": 0,
+  "wand": false,
+  "reihen": {
+   "saat_1_151": 0.477,
+   "saat_201_351": 0.567
+  }
  },
  "sz_t5_eg": {
   "starr": true,
@@ -149,7 +209,9 @@
   "belegung": 0.96,
   "aehnlichkeit": 0.995,
   "treffer": 3,
-  "laeufe": 7
+  "laeufe": 7,
+  "cluster": 0,
+  "wand": false
  },
  "sz_t5_og": {
   "starr": false,
@@ -157,6 +219,8 @@
   "belegung": 0.96,
   "aehnlichkeit": 0.768,
   "treffer": 2,
-  "laeufe": 8
+  "laeufe": 8,
+  "cluster": 0,
+  "wand": false
  }
 }

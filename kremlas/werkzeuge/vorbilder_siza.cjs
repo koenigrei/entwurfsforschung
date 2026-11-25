@@ -7,7 +7,11 @@
    Übersetzung je Geschoss:
    - Feld = Grundstück 8 × 12 m; die Räume der Grammatik füllen es (Höfe als Räume „Hof“).
    - Räume gleicher Funktion, die sich berühren (z. B. die Teile des Flurs im OG), bilden einen Raum aus Teilen.
-   - Obergeschoss: Treppe und der Luftraum über den Höfen (Grundstück ohne OG-Räume) sind fest an der Stelle des Vorbilds.
+   - Haus (neu, 25.11.2026, Wunsch Reinhard): Erd- und Obergeschoss werden zusammen erzeugt. Die Treppe ist ein eigener Raum mit
+     festen Maßen in beiden Geschossen (gerade Treppe im Wohnraum: aus dem Wohnraum ausgeschnitten), der Luftraum im OG ist genau
+     der Hof des EG (gleiche Teile); OG-Räume über dem Hof (Terrasse bei Typ Ab) werden um den Hof gekürzt. Je Treppe: Typ (I gerade,
+     U zweiläufig), Kante des Antritts (EG) und des Austritts (OG), bei U die Hälfte des Antrittslaufs – für Prüfung und Zeichnung.
+   - Obergeschoss: Treppe und Luftraum sind fest; im Haus übernimmt das OG beide in jeder Generation aus dem besten EG-Plan.
    - Nachbarschaften = Türen der Grammatik im Geschoss; die Tür vom Hof zur Straße (Typ „aussen“) ist der Eingang (Nachbar −1);
      im OG die Treppe als Zugang (Treppe–Flur).
    - Mindestbreite je Raum = 0,8 · kürzeste Seite seines kleinsten Teils im Vorbild.
@@ -33,9 +37,10 @@ const beruehrt = (a, b) => {
   const ox = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0), oy = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
   return (Math.abs(ox) < 1e-6 && oy > 1e-6) || (Math.abs(oy) < 1e-6 && ox > 1e-6);
 };
-/** Restfläche des Grundstücks ohne die gegebenen Rechtecke, als Rechtecke (Raster aus allen Kanten, Zeilen zusammenlegen) */
-function rest(R) {
-  const xs = [...new Set([0, W, ...R.flatMap(r => [r.x0, r.x1])])].sort((a, b) => a - b), ys = [...new Set([0, L, ...R.flatMap(r => [r.y0, r.y1])])].sort((a, b) => a - b);
+/** Restfläche eines Rechtecks (ohne Angabe: Grundstück) ohne die gegebenen Rechtecke, als Rechtecke (Raster aus allen Kanten, Zeilen zusammenlegen) */
+function rest(R, box) {
+  const K = box || { x0: 0, y0: 0, x1: W, y1: L }, innen = v => v.filter(q => q >= K.x0 - 1e-9 && q <= K.x1 + 1e-9), innenY = v => v.filter(q => q >= K.y0 - 1e-9 && q <= K.y1 + 1e-9);
+  const xs = innen([...new Set([K.x0, K.x1, ...R.flatMap(r => [r.x0, r.x1])])].sort((a, b) => a - b)), ys = innenY([...new Set([K.y0, K.y1, ...R.flatMap(r => [r.y0, r.y1])])].sort((a, b) => a - b));
   const frei = (x, y) => !R.some(r => x > r.x0 && x < r.x1 && y > r.y0 && y < r.y1);
   const balken = [];
   for (let j = 0; j + 1 < ys.length; j++) {
@@ -68,16 +73,38 @@ function suche(v) {
   throw new Error(v.id + ": kein gültiges Haus");
 }
 
+const schneidet = (a, b) => Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0) > 1e-6 && Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > 1e-6;
+/** Treppe beschreiben: Typ, Kante des Antritts (EG), Kante des Austritts (OG), bei U die Hälfte (x0/x1 bzw. y0/y1) des Antrittslaufs */
+function treppeVon(st) {
+  const r = st.r, kante = p => { const d = { x0: Math.abs(p.x - r.x0), x1: Math.abs(p.x - r.x1), y0: Math.abs(p.y - r.y0), y1: Math.abs(p.y - r.y1) }; return Object.keys(d).sort((a, b) => d[a] - d[b])[0]; };
+  if (st.typ === "U") {
+    const a = st.pfad[0], e = st.pfad[st.pfad.length - 1], k = kante(a), quer = k[0] === "y";
+    const halb = quer ? (a.x < (r.x0 + r.x1) / 2 ? "x0" : "x1") : (a.y < (r.y0 + r.y1) / 2 ? "y0" : "y1");
+    return { typ: "U", antritt: k, austritt: kante(e), halb };
+  }
+  return { typ: "I", antritt: kante(st.von), austritt: kante(st.nach) };
+}
 const programme = {}, fassungen = {}, liste = [];
 for (const v of VORLAGEN) {
-  const H = suche(v);
+  const H = suche(v), TR = treppeVon(H.st);
+  let hofTeile = null, egStufe = null;
   for (const fl of [1, 2]) {
-    const F = (fl === 1 ? H.F1 : H.F2).filter(e => ar(e.r) > 0.05);
-    const R = raeumeAus(F);
-    const fest = [];
+    let F = (fl === 1 ? H.F1 : H.F2).filter(e => ar(e.r) > 0.05).map(e => ({ f: e.f, r: e.r, orig: e }));
+    if (fl === 1 && !F.some(e => e.f === "st")) {                       // gerade Treppe im Wohnraum: als eigener Raum ausschneiden
+      const wirt = F.find(e => schneidet(e.r, H.st.r)); if (!wirt) throw new Error(v.id + ": Treppe ohne Raum");
+      F = F.filter(e => e !== wirt).concat(rest([H.st.r], wirt.r).map(t => ({ f: wirt.f, r: t, orig: wirt.orig })), [{ f: "st", r: H.st.r, orig: null }]);
+      egStufe = wirt.f;
+    }
+    if (fl === 2) {                                                     // OG über dem Hof kürzen: der Hof bleibt offen
+      F = F.flatMap(e => hofTeile.some(h => schneidet(e.r, h)) ? rest(hofTeile, e.r).map(t => ({ f: e.f, r: t, orig: e.orig })) : [e]);
+    }
+    const R = raeumeAus(F.map(e => ({ f: e.f, r: e.r })));
+    R.forEach(r => { r.orig = r.idx.map(i => F[i].orig); });
+    if (fl === 1) hofTeile = (R.find(r => r.f === "y") || { teile: [] }).teile;
     if (fl === 2) {
-      for (const r of R) if (r.f === "st") fest.push(r);
-      for (const t of rest(F.map(e => e.r))) R.push({ f: "luft", idx: [], teile: [t], luft: true });
+      R.push({ f: "luft", idx: [], teile: hofTeile.slice(), luft: true, orig: [] });
+      const frei = rest([...F.map(e => e.r), ...hofTeile]);
+      if (frei.length) console.warn(v.id, "OG: Restfläche ohne Raum", JSON.stringify(frei));
     }
     // Namen: Funktion, gleiche Funktionen nummeriert
     const zahl = {}, je = {};
@@ -86,17 +113,17 @@ for (const v of VORLAGEN) {
       const n = zahl[r.f] > 1 ? " " + (je[r.f] = (je[r.f] || 0) + 1) : "";
       const de = (r.f === "luft" ? "Luftraum" : S.NAME[r.f] || r.f) + n, en = (EN[r.f] || r.f) + n;
       const A = r.teile.reduce((s, t) => s + ar(t), 0), kurz = Math.min(...r.teile.map(t => Math.min(rw(t), rh(t))));
-      const fix = r.f === "st" || r.luft;
+      const fix = (fl === 2 && r.f === "st") || r.luft;
       // Anker je Teil: Breitensuche über Berührung ab dem Hauptteil (Ketten wie der Flur im OG)
       const anker = r.teile.map(() => null); anker[0] = -1;
       for (let schritt = 0; schritt < r.teile.length; schritt++) r.teile.forEach((t, k) => { if (anker[k] !== null) return; const j = r.teile.findIndex((u, q) => anker[q] !== null && beruehrt(t, u)); if (j >= 0) anker[k] = j; });
       anker.forEach((v, k) => { if (v === null) anker[k] = 0; });
-      const opt = r.teile.length > 1 || fix ? Object.assign({}, r.teile.length > 1 ? { teile: r.teile.map(t => Math.round(ar(t) / A * 1000) / 1000), buendig: false, anker } : {}, fix ? { fest: true } : {}) : null;
+      const opt = r.teile.length > 1 || fix || r.f === "st" ? Object.assign({}, r.teile.length > 1 ? { teile: r.teile.map(t => Math.round(ar(t) / A * 1000) / 1000), buendig: false, anker } : {}, fix ? { fest: true } : {}, r.f === "st" ? { treppe: TR } : {}) : null;
       return { r, zeile: [de, en, Math.round(A * 1000) / 1000, Math.round(0.8 * kurz * 100) / 100, opt] };
     });
     // Nachbarschaften aus den Türen des Geschosses
     const gleich = (u, v) => Math.abs(u.x0 - v.x0) < 1e-6 && Math.abs(u.y0 - v.y0) < 1e-6 && Math.abs(u.x1 - v.x1) < 1e-6 && Math.abs(u.y1 - v.y1) < 1e-6;
-    const raumVon = e => R.findIndex(r => r.idx.some(i => F[i] === e || (F[i] && e && F[i].f === e.f && gleich(F[i].r, e.r))));   // Türen verweisen auf Kopien
+    const raumVon = e => R.findIndex(r => r.idx.some(i => F[i].orig === e || (F[i].orig && e && F[i].orig.f === e.f && gleich(F[i].orig.r, e.r))));   // Türen verweisen auf Kopien
     const nb = new Set();
     for (const d of H.doors) {
       if (d.fl !== fl) continue;
@@ -104,6 +131,10 @@ for (const v of VORLAGEN) {
       const a = raumVon(d.a), b = innen ? raumVon(d.b) : -1;
       if (a < 0 || (innen && b < 0) || a === b) continue;
       nb.add(b === -1 ? `${a},-1` : `${Math.min(a, b)},${Math.max(a, b)}`);
+    }
+    if (fl === 1 && egStufe) {                                           // gerade Treppe: Antritt aus dem Wohnraum
+      const st = R.findIndex(r => r.f === "st"), w = R.findIndex(r => r.f === egStufe);
+      if (st >= 0 && w >= 0) nb.add(`${Math.min(st, w)},${Math.max(st, w)}`);
     }
     if (fl === 2) {                                                      // Treppe erschließt den Flur (bzw. den angrenzenden Raum)
       const st = R.findIndex(r => r.f === "st");
@@ -118,9 +149,13 @@ for (const v of VORLAGEN) {
       vorbild: raeume.map(x => x.r.teile.map(t => [t.x0, t.y0, t.x1, t.y1].map(q => Math.round(q * 1000) / 1000))),
       saat: H.seed, zimmer: H.g.t, hof: H.g.fam
     };
-    fassungen[pid] = Object.assign({ programm: pid }, ABSTIMMUNG[pid] ? { starr: ABSTIMMUNG[pid].starr, federRunden: ABSTIMMUNG[pid].federRunden, belegung: ABSTIMMUNG[pid].belegung } : {});   // Voreinstellung aus werkzeuge/abstimmung.json
-    liste.push(pid);
   }
+  // Haus: EG und OG zusammen; Voreinstellung aus werkzeuge/abstimmung.json
+  const hid = `sz_${v.id}`, vor = A_ => A_ ? { starr: A_.starr, federRunden: A_.federRunden, belegung: A_.belegung, cluster: A_.cluster || 0, wand: !!A_.wand } : {};
+  // EG mit den Werten des Hauses (sonst des EG), das OG läuft versteckt mit seinen eigenen abgestimmten Werten
+  fassungen[hid] = Object.assign({ programm: hid + "_eg", og: hid + "_og" }, vor(ABSTIMMUNG[hid] || ABSTIMMUNG[hid + "_eg"]));
+  fassungen[hid + "_og"] = Object.assign({ programm: hid + "_og", versteckt: true }, vor(ABSTIMMUNG[hid + "_og"]));
+  liste.push(hid);
 }
 const kopf = `/* Vorbilder Siza/Duarte für KREMLAS – erzeugt mit werkzeuge/vorbilder_siza.cjs (nicht von Hand bearbeiten).
    Quelle: Konzeptstudie Duarte/Siza (entwurfsforschung.de/lab/duarte-siza/), eigene Rekonstruktion der Formgrammatik von
@@ -130,5 +165,5 @@ const kopf = `/* Vorbilder Siza/Duarte für KREMLAS – erzeugt mit werkzeuge/vo
 `;
 const js = kopf + `(function (w) { const D = ${JSON.stringify({ programme, fassungen, liste })};\n  if (typeof module === "object" && module.exports) module.exports = D; else w.KREMLAS_VORBILDER = Object.assign(w.KREMLAS_VORBILDER || {}, { siza: D });\n})(typeof globalThis !== "undefined" ? globalThis : this);\n`;
 fs.writeFileSync(path.join(__dirname, "..", "vorbilder_siza.js"), js);
-for (const pid of liste) { const p = programme[pid], A = p.raeume.reduce((s, r) => s + r[2], 0);
+for (const pid of Object.keys(programme)) { const p = programme[pid], A = p.raeume.reduce((s, r) => s + r[2], 0);
   console.log(pid, "Saat " + p.saat, p.raeume.length + " Räume", "Fläche " + A.toFixed(2) + "/" + (W * L), "Paare " + p.paare.length, "fest " + p.raeume.filter(r => r[4] && r[4].fest).length, p.raeume.map(r => r[0]).join(", ")); }
