@@ -540,13 +540,16 @@ test("Haus Siza (25.11.2026): Treppe in beiden Geschossen an derselben Stelle, L
     assert.deepEqual(E.vorbild[E.raeume.findIndex(r => r[1] === "Court")], O.vorbild[O.raeume.findIndex(r => r[1] === "Open to sky")], h + ": Hof = Luftraum");
     assert.ok(E.paare.some(q => q.includes(stE)), h + ": Treppe im EG erschlossen");
   }
-  // Kopplung: das OG übernimmt Treppe und Hof aus dem EG-Plan
+  // Haus als ein Individuum: jedes Individuum trägt sein OG, darin Treppe und Hof aus dem Plan seines EG fest
   const p = haus("t4"), z = M.erzeuge(p, zufall(1));
   for (let t = 0; t < 30; t++) M.schritt(z, p);
-  const R = M.grundriss(M.beste(z), 120, M.TEILE_PX), st = R.find(q => q.tr), fo = z.og.fest.find(f => z.og.eltern[0].g.find(g => g.id === f[0]).tr);
-  assert.ok(st && fo && nah(fo[1], st.x1 / M.PX_M, 1e-9) && nah(fo[4], st.y2 / M.PX_M, 1e-9), "Treppe im OG an der Stelle des EG");
-  const g = z.og.eltern[0].g.find(q => q.id === fo[0]);
-  assert.ok(nah(g.x, (fo[1] + fo[3]) / 2 * M.PX_M, 1e-6), "OG-Eltern tragen die feste Treppe");
+  for (const e of z.eltern) {
+    const R = M.grundriss(e, 300, M.TEILE_PX), st = R.find(q => q.tr), fo = e.og.fest.find(f => e.og.g.find(g => g.id === f[0]).tr);
+    assert.ok(st && fo && nah(fo[1], st.x1 / M.PX_M, 1e-9) && nah(fo[4], st.y2 / M.PX_M, 1e-9), "Treppe im OG an der Stelle des EG");
+    const g = e.og.g.find(q => q.id === fo[0]);
+    assert.ok(nah(g.x, (fo[1] + fo[3]) / 2 * M.PX_M, 1e-6), "das OG trägt die feste Treppe");
+    assert.ok(nah(e.f3, e.f3e + e.og.f3, 1e-9), "f3 des Hauses = EG + OG");
+  }
 });
 
 test("Treppe (25.11.2026): Vorbilder erfüllen Antritt und Austritt; verstellt eine Wand das Podest, ist der Plan ungültig", () => {

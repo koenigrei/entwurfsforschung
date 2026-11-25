@@ -114,7 +114,7 @@
       eines L-förmigen Raums dessen Raumnummer) */
   const gen = (id, x, y, w, h, a, ms, mb, r) => ({ id, x, y, w, h, a: a == null ? w * h : a, vx: 0, vy: 0, ms: ms || 0.75, mb: mb || 0, r: r == null ? id : r });
   const kopieGen = g => ({ id: g.id, x: g.x, y: g.y, w: g.w, h: g.h, a: g.a, vx: 0, vy: 0, ms: g.ms, mb: g.mb, r: g.r, bd: g.bd, an: g.an, tr: g.tr, zg: g.zg, zh: g.zh, fp: g.fp });
-  const kopie = ind => ({ g: ind.g.map(kopieGen), fo: ind.fo, fd: ind.fd, f3: ind.f3 });
+  const kopie = ind => { const k = { g: ind.g.map(kopieGen), fo: ind.fo, fd: ind.fd, f3: ind.f3 }; if (ind.og) { k.og = kopie(ind.og); k.og.fest = ind.og.fest; k.f3e = ind.f3e; } return k; };   // Haus: das OG reist mit
   const links = g => g.x - g.w / 2, oben = g => g.y - g.h / 2, rechts = g => g.x + g.w / 2, unten = g => g.y + g.h / 2;
 
   /** Kollision zweier achsparalleler Rechtecke nach dem Separating Axis Theorem (Collision.PolygonCollision, Verfahren nach Cozic).
@@ -632,7 +632,8 @@
     if (F.og && FASSUNGEN[F.og]) {                                        // Haus (neu): Obergeschoss als zweiter Lauf, an das EG gekoppelt
       z.og = erzeuge(ogParam(p), zufall);
       setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0]));
-      kopple(z, beste(z));
+      z.eltern.forEach((e, i) => { e.og = kopie(z.og.eltern[i % z.og.eltern.length]); e.og.fest = null; hausBewerten(z, e); });
+      z.og.eltern = z.eltern.map(e => e.og);
     }
     return z;
   }
@@ -729,34 +730,15 @@
     for (let i = 0; i < nrCopy; i++) {
       const paar = p.kreuzung && zuf() < p.kreuzRate ? kreuzung(E, zuf) : [kopie(E[zuf.ganz(E.length)]), kopie(E[zuf.ganz(E.length)])];
       for (const c of paar) {
-        verschiebe(c, n / 1000, moveDist * 3, zuf, ges);
-        variiereGroesse(c, 0.25, zuf, ges);
-        variiereGroesseVoll(c, n / 1000, moveDist, zuf, ges);
-        verschiebe(c, n / 1000, moveDist * 0.01, zuf, ges);
-        inversion(c, 0.05, zuf);
-        entwickle(c, zuf, ges, 0.7, 0.1, 0, 0);
-        // Federn und Kollisionserkennung im Wechsel (Original: Federn, Kollision, Federn; neu: jede Federrunde endet mit Kollision,
-        // sonst bleiben die Überlappungen der Federn stehen; mit federRunden = 2 genau der bisherige Ablauf)
-        const runden = Math.max(1, Math.round(p.federRunden == null ? 2 : p.federRunden));
-        const mitTeilen = z.n > (z.nRaeume || z.n);
-        if (z.mindest) tauscheRaeume(c, z.sym, 0.15, zuf, ges);
-        if (z.mindest && +p.cluster > 0) clusterSpiegeln(c, z, P, p.rlap, +p.cluster, zuf);
-        if (z.mindest && z.treppe) treppeZugang(c, P, 0.1, zuf);
-        if (mitTeilen && !z.sym) variiereAnteil(c, 0.2, zuf, ges);
-        formen(c, z.starr); symmetrisiere(c, z.sym, ges); formen(c, z.starr); fixiere(c, z.fest);
-        for (let r = 0; r < runden; r++) {
-          federn(c, P, p.daempfung, p.rlap, ges);
-          if (mitTeilen) for (const [a, b, rl] of innere(c)) federn(c, [[a, b]], p.daempfung, rl, ges);   // Teile eines Raums zusammenhalten
-          entwickle(c, zuf, ges, p.propForce, p.propRate, p.repForce, p.repRate);
-          formen(c, z.starr); symmetrisiere(c, z.sym, ges); formen(c, z.starr); fixiere(c, z.fest);
-        }
+        mutiere(c, z, P, p, zuf, ges);
+        if (z.og) hausKind(c, z, E, p, zuf);              // Haus (neu): Obergeschoss des Kindes passend zu seinem EG
         K.push(c);
       }
     }
     z.kinder = K.length;
     if (!K.length) { z.aufteilung = null; return; }
     // NextGenerationProportionate: 1 nach f1, μ − 1 nach f2; sobald die beste Lösung nach f1 auch f2 < 1,5 · Räume erreicht: 60 % / 40 %
-    for (const c of K) { bewerte(c); c.fd = distanzen(c, P, p.rlap); if (z.mindest) c.f3 = planPruefung(c, P, z.programm).f3; }
+    for (const c of K) { bewerte(c); c.fd = distanzen(c, P, p.rlap); if (z.mindest) c.f3 = planPruefung(c, P, z.programm).f3; if (z.og && c.og) hausBewerten(z, c); }
     const mu = z.mu;
     sortiere(K, "fo");
     let nachD = mu - 1;
@@ -769,6 +751,51 @@
     z.eltern = neu; z.aufteilung = [nachO, nachD];
   }
 
+  /** Mutation und Entwicklung eines Kindes (Federn, Kollision, Formen) – für das EG und, beim Haus, für das OG mit dessen eigenem Zustand */
+  function mutiere(c, z, P, p, zuf, ges) {
+    const n = z.n, moveDist = rundeBank((HOEHE + BREITE) / n);
+    verschiebe(c, n / 1000, moveDist * 3, zuf, ges);
+    variiereGroesse(c, 0.25, zuf, ges);
+    variiereGroesseVoll(c, n / 1000, moveDist, zuf, ges);
+    verschiebe(c, n / 1000, moveDist * 0.01, zuf, ges);
+    inversion(c, 0.05, zuf);
+    entwickle(c, zuf, ges, 0.7, 0.1, 0, 0);
+    // Federn und Kollisionserkennung im Wechsel (Original: Federn, Kollision, Federn; neu: jede Federrunde endet mit Kollision,
+    // sonst bleiben die Überlappungen der Federn stehen; mit federRunden = 2 genau der bisherige Ablauf)
+    const runden = Math.max(1, Math.round(p.federRunden == null ? 2 : p.federRunden));
+    const mitTeilen = z.n > (z.nRaeume || z.n);
+    if (z.mindest) tauscheRaeume(c, z.sym, 0.15, zuf, ges);
+    if (z.mindest && +p.cluster > 0) clusterSpiegeln(c, z, P, p.rlap, +p.cluster, zuf);
+    if (z.mindest && z.treppe) treppeZugang(c, P, 0.1, zuf);
+    if (mitTeilen && !z.sym) variiereAnteil(c, 0.2, zuf, ges);
+    formen(c, z.starr); symmetrisiere(c, z.sym, ges); formen(c, z.starr); fixiere(c, z.fest);
+    for (let r = 0; r < runden; r++) {
+      federn(c, P, p.daempfung, p.rlap, ges);
+      if (mitTeilen) for (const [a, b, rl] of innere(c)) federn(c, [[a, b]], p.daempfung, rl, ges);   // Teile eines Raums zusammenhalten
+      entwickle(c, zuf, ges, p.propForce, p.propRate, p.repForce, p.repRate);
+      formen(c, z.starr); symmetrisiere(c, z.sym, ges); formen(c, z.starr); fixiere(c, z.fest);
+    }
+  }
+  /** Haus als ein Individuum (neu, 25.11.2026, Wunsch Reinhard): das Kind trägt ein OG (vom selben bzw. einem zufälligen Elter). Treppe und
+      Hof aus dem Plan genau dieses EG werden im OG fest, dann wird das OG mit seinen eigenen Reglern verändert. Bewertet wird die Summe. */
+  function hausKind(c, z, E, p, zuf) {
+    const O = z.og;
+    if (!c.og) c.og = kopie(E[zuf.ganz(E.length)].og);
+    c.og.fest = ogFest(z, c, O);
+    setzeFeld(O.feld); FEST = new Set(c.og.fest.map(f => f[0]));
+    mutiere(c.og, Object.assign({}, O, { fest: c.og.fest }), O.paare, ogParam(p), zuf, -1);
+    fixiere(c.og, c.og.fest);
+    setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0]));
+  }
+  /** Haus bewerten: f3 = f3(EG) + f3(OG), Sg und f2 ebenso als Summe */
+  function hausBewerten(z, c) {
+    const O = z.og; if (!c.og.fest) c.og.fest = ogFest(z, c, O);
+    setzeFeld(O.feld); FEST = new Set(c.og.fest.map(f => f[0]));
+    fixiere(c.og, c.og.fest); bewerte(c.og); c.og.fd = distanzen(c.og, O.paare, O.rlap == null ? 50 : O.rlap); c.og.f3 = planPruefung(c.og, O.paare, O.programm).f3;
+    setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0]));
+    c.f3e = c.f3; c.f3 = c.f3e + c.og.f3; c.fo += c.og.fo; c.fd += c.og.fd;
+  }
+
   /** Ein Schritt = eine Generation (REvo.Run) */
   function schritt(z, param) {
     setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0]));
@@ -778,7 +805,7 @@
     if (z.ablauf === "topologie") generationTopologie(z, p); else generationEinpassung(z, p);
     z.t++;
     merke(z);
-    if (z.og && !z.ogAus) { kopple(z, beste(z)); schritt(z.og, ogParam(Object.assign({}, STANDARD, param))); setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0])); }
+    if (z.og) { z.og.eltern = z.eltern.map(e => e.og); z.og.t = z.t; }    // Haus: das OG entwickelt sich in den Individuen mit
     return z;
   }
 
@@ -1113,23 +1140,37 @@
     schritt(zz, S.param); S.generationen++;                              // schritt setzt das Feld des Laufs
     const rek = +S.param.naehe > 0 && zz.programm && PROGRAMME[zz.programm].vorbild;
     let treffer = null;
+    const haus = !!zz.og;
     if (zz.t % S.o.pruefen === 0) for (const e of zz.eltern) {
       const w = planPruefung(e, zz.paare, zz.programm);
       if (!w.gueltig) continue;
-      if (!rek) { treffer = { ind: kopie(e), wert: w, nachgebessert: false }; break; }
-      if (!P.bester || w.aehnlich > P.bester.wert.aehnlich) P.bester = { ind: kopie(e), wert: w, nachgebessert: false, t: zz.t };   // Rekonstruktion: bis zum Ende laufen, ähnlichsten gültigen merken
+      let og = null;
+      if (haus) { og = ogPassend(zz, e, { kandidaten: [e.og] }); if (!og) { if (!P.egGueltig) P.egGueltig = { ind: kopie(e), wert: w, nachgebessert: false }; continue; } }   // Haus: nur mit gültigem OG
+      if (!rek) { treffer = { ind: kopie(e), wert: w, og, nachgebessert: false }; break; }
+      if (!P.bester || hausAehnlich(w, og) > hausAehnlich(P.bester.wert, P.bester.og)) P.bester = { ind: kopie(e), wert: w, og, nachgebessert: false, t: zz.t };   // Rekonstruktion: bis zum Ende laufen, ähnlichsten gültigen merken
     }
     if (rek && zz.t >= S.o.generationen && P.bester) {                    // ähnlichsten gültigen Plan zum Schluss noch nachbessern
       const nb = nachbessern(P.bester.ind, zz.paare, zz.programm, zuf, S.o.versuche, zz.sym, zz.fest, zz.starr, true);
-      treffer = nb.wert.gueltig && nb.wert.f3 <= P.bester.wert.f3 ? { ind: nb.ind, wert: nb.wert, nachgebessert: true } : P.bester;
+      treffer = nb.wert.gueltig && nb.wert.f3 <= P.bester.wert.f3 ? { ind: nb.ind, wert: nb.wert, og: P.bester.og, nachgebessert: true } : P.bester;
+      if (haus) {                                                         // Haus: OG zum (nachgebesserten) EG einpassen und selbst nachbessern
+        const og = ogPassend(zz, treffer.ind, { kandidaten: [P.bester.og.ind], nachbessern: true, weiter: true, zuf, versuche: S.o.versuche });
+        treffer = og ? Object.assign({}, treffer, { og }) : P.bester;
+      }
       if (S.param.wand) { const w2 = wandSchieben(treffer.ind, zz.paare, zz.programm, zuf, S.o.versuche, true); if (w2.wert.gueltig && w2.wert.f3 <= treffer.wert.f3) treffer = { ind: w2.ind, wert: w2.wert, nachgebessert: true }; }
     }
     if (!treffer && zz.t >= S.o.generationen) {
       for (const e of zz.eltern.slice().sort((a, b) => a.f3 - b.f3).slice(0, 3)) {
         const r = nachbessern(e, zz.paare, zz.programm, zuf, S.o.versuche, zz.sym, zz.fest, zz.starr);
+        if (r.wert.gueltig && haus) {                                     // Haus: erst das eigene OG des Individuums nachbessern
+          const og = ogPassend(zz, r.ind, { kandidaten: [e.og], nachbessern: true, zuf, versuche: S.o.versuche });
+          if (og) { treffer = { ind: r.ind, wert: r.wert, og, nachgebessert: true }; break; }
+          if (!P.egGueltig) P.egGueltig = { ind: r.ind, wert: r.wert, nachgebessert: true };
+          continue;
+        }
         if (r.wert.gueltig) { treffer = { ind: r.ind, wert: r.wert, nachgebessert: true }; break; }
         if (S.param.wand) { const r2 = wandSchieben(r.ind, zz.paare, zz.programm, zuf, S.o.versuche); if (r2.wert.gueltig) { treffer = { ind: r2.ind, wert: r2.wert, nachgebessert: true }; break; } }
       }
+      if (!treffer && haus && P.egGueltig) treffer = P.egGueltig;          // Haus: gültiges EG ohne passendes OG → eigene OG-Läufe
       return { fertig: true, treffer };
     }
     return { fertig: !!treffer, treffer };
@@ -1151,7 +1192,6 @@
         if (S.laeufe >= S.o.laeufe) { S.fertig = true; break; }
         const zuf = S.neueZufall(S.saat);
         S.lauf = { saat: S.saat, zuf, z: erzeuge(S.param, zuf), eg: {}, og: null };
-        S.lauf.z.ogAus = true;                                             // in der Suche läuft das OG erst nach dem EG
         S.saat++; S.laeufe++;
         if (!S.lauf.z.mindest) { S.fertig = true; S.lauf = null; break; }   // nur mit Raumprogramm und Mindestmaßen
       }
@@ -1162,7 +1202,8 @@
         if (!r.fertig) continue;
         if (!r.treffer) { S.lauf = null; continue; }
         L.egTreffer = r.treffer;
-        if (z.og) { L.og = { P: {}, z: ogZustand(z, r.treffer.ind, S.param, L.zuf), versuch: 1 }; setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0])); continue; }
+        if (r.treffer.og) L.ogTreffer = r.treffer.og;                    // Haus als Individuum: OG schon gefunden
+        else if (z.og) { L.og = { P: {}, z: ogZustand(z, r.treffer.ind, S.param, L.zuf), versuch: 1 }; setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0])); continue; }
       } else {
         const r = etageSchritt(Object.assign({}, S, { param: ogParam(S.param) }), L.og.P, L.og.z, L.zuf); S.generationen++;
         setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0]));
@@ -1177,9 +1218,9 @@
       if (S.treffer.some(t => planAbstand(t.plan, plan) < 0.3)) S.doppelt++;   // fast gleiche (auch gespiegelte) Pläne nur einmal
       else {
         let og = null;
-        if (L.og) {
-          const O = L.og.z; setzeFeld(O.feld); FEST = new Set(O.fest.map(f => f[0]));
-          og = { ind: L.ogTreffer.ind, wert: L.ogTreffer.wert, fest: O.fest, eltern: O.eltern.map(kopie), plan: grundriss(L.ogTreffer.ind, 300, TEILE_PX), programm: O.programm, paare: O.paare.map(q => q.slice()), t: O.t };
+        if (L.ogTreffer) {
+          const O = L.og ? L.og.z : z.og, fest = L.ogTreffer.fest || O.fest; setzeFeld(O.feld); FEST = new Set(fest.map(f => f[0]));
+          og = { ind: L.ogTreffer.ind, wert: L.ogTreffer.wert, fest, eltern: (L.ogTreffer.eltern || O.eltern).map(kopie), plan: grundriss(L.ogTreffer.ind, 300, TEILE_PX), programm: O.programm, paare: O.paare.map(q => q.slice()), t: z.t };
           setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0]));
         }
         S.treffer.push({ saat: L.saat, t: z.t, ind: treffer.ind, eltern: z.eltern.map(kopie), wert: treffer.wert, plan, nachgebessert: treffer.nachgebessert,
@@ -1198,12 +1239,9 @@
     z.eltern = [kopie(T.ind), ...T.eltern.slice(0, z.mu - 1).map(kopie)];
     for (const e of z.eltern) { e.fo = ueberlappung(e); e.fd = distanzen(e, z.paare, z.rlap); if (z.mindest) e.f3 = planPruefung(e, z.paare, z.programm).f3; }
     z.t = T.t; z.verlauf = []; z.verlaufD = []; z.dichte = 1; merke(z);
-    if (z.og && T.og) {                                                   // Haus: Obergeschoss des Treffers dazu
-      const O = z.og; O.fest = T.og.fest; setzeFeld(O.feld); FEST = new Set(O.fest.map(f => f[0]));
-      O.eltern = [kopie(T.og.ind), ...T.og.eltern.slice(0, O.mu - 1).map(kopie)];
-      for (const e of O.eltern) { fixiere(e, O.fest); e.fo = ueberlappung(e); e.fd = distanzen(e, O.paare, O.rlap); if (O.mindest) e.f3 = planPruefung(e, O.paare, O.programm).f3; }
-      O.t = T.t; O.verlauf = []; O.verlaufD = []; O.dichte = 1; merke(O);
-      setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0]));
+    if (z.og && T.og) {                                                   // Haus: jedes Elter mit OG, der Treffer mit seinem OG und dessen fester Treppe/Hof
+      z.eltern.forEach((e, i) => { const q = i === 0 ? T.og.ind : (T.eltern[i - 1] && T.eltern[i - 1].og) || T.og.eltern[i % T.og.eltern.length]; e.og = kopie(q); e.og.fest = i === 0 ? T.og.fest : null; hausBewerten(z, e); });
+      z.og.eltern = z.eltern.map(e => e.og); z.og.t = T.t;
     }
     return z;
   }

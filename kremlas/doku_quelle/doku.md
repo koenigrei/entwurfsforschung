@@ -155,18 +155,19 @@ Einzeln erzeugte Geschosse passen nicht zusammen: Treppe und Hof können im Ober
 
 Gezeichnet wird die Treppe mit Stufen und Lauflinie, Punkt am Antritt, Pfeil am Austritt; die zweiläufige Treppe mit Wendepodest. Geprüft wird, ob Antritt und Austritt zugänglich sind: Vor dem Antritt im Erdgeschoss und vor dem Austritt im Obergeschoss muss ein Podest so breit wie der Lauf und so tief, wie der Lauf breit ist, mindestens 0,8 m (nach DIN 18065), ganz in einem Raum liegen, der die Treppe erschließt, und der Zugang muss dort offen sein. Bei der zweiläufigen Treppe zählt im Erdgeschoss der Antrittslauf, im Obergeschoss der Austrittslauf. Alle sechs Vorbilder erfüllen diese Regeln.
 
-Die Suche arbeitet in zwei Schritten: erst ein gültiges Erdgeschoss, dann bis zu drei Läufe für ein passendes Obergeschoss mit Treppe und Hof aus genau diesem Erdgeschoss. Eine eigene Mutation legt die Treppe an ihren Zugang (im Obergeschoss rückt der Flur vor die feste Treppe), auch beim Nachbessern. Das Obergeschoss läuft mit seinen eigenen abgestimmten Einstellungen.
+Zuerst arbeitete die Suche in zwei Schritten: erst ein gültiges Erdgeschoss, dann bis zu drei Läufe für ein passendes Obergeschoss mit Treppe und Hof aus genau diesem Erdgeschoss. Seit dem Abend des 25.11.2026 ist das Haus ein Individuum: Jedes Individuum trägt Erd- und Obergeschoss; bei jedem Kind übernimmt das Obergeschoss Treppe und Hof aus dem Plan genau seines Erdgeschosses, dann wird auch das Obergeschoss verändert. Bewertet und ausgewählt wird die Summe der Planbewertungen beider Geschosse, so setzen sich Erdgeschosse durch, zu denen ein Obergeschoss passt. Die getrennten Läufe für das Obergeschoss bleiben als Rückfall. Eine eigene Mutation legt die Treppe an ihren Zugang (im Obergeschoss rückt der Flur vor die feste Treppe), auch beim Nachbessern. Das Obergeschoss läuft mit seinen eigenen abgestimmten Einstellungen.
 
-| Haus | Häuser in 2 × 24 Läufen | Ähnlichkeit (Mittel EG und OG) |
-|---|---|---|
-| Typ Bb (Hof hinten) | 5 | 15–63 % |
-| Haus mit fünf Zimmern | 1 | 54 % |
-| Typ Ab (Hof vorn) | 0 (1, solange der Luftraum noch angeschnitten werden durfte) | – |
-| Haus mit vier Zimmern | 0 (1, solange der Luftraum noch angeschnitten werden durfte) | – |
-| Duartes neues Haus | 0 | – |
-| Haus mit zwei Zimmern | 0 | – |
+| Haus | Häuser in 2 × 24 Läufen: getrennt EG, dann OG | Haus als ein Individuum | Ähnlichkeit (Mittel EG und OG) |
+|---|---|---|---|
+| Typ Bb (Hof hinten) | 5 | 5 | 13–66 % |
+| Haus mit fünf Zimmern | 1 | 5 | 39–53 % |
+| Typ Ab (Hof vorn) | 0 | 3 | 13–36 % |
+| Haus mit vier Zimmern | 0 | 0 | – |
+| Duartes neues Haus | 0 | 0 | – |
+| Haus mit zwei Zimmern | 0 | 0 | – |
+| Summe | 6 | 13 | |
 
-Gültige Erdgeschosse findet die Suche für alle Häuser; es scheitert meist das Obergeschoss, weil es mit der Lage von Treppe und Hof leben muss, die das Erdgeschoss gewählt hat. Der nächste Schritt ist deshalb, das Haus als ein Individuum zu behandeln: Erd- und Obergeschoss werden gemeinsam bewertet und ausgewählt, so dass sich Erdgeschosse durchsetzen, zu denen ein Obergeschoss passt.
+Gültige Erdgeschosse findet die Suche für alle Häuser; es scheitert meist das Obergeschoss, weil es mit der Lage von Treppe und Hof leben muss, die das Erdgeschoss gewählt hat. Das Haus als ein Individuum verdoppelt die Zahl der Häuser. Dass den Obergeschossen am Ende meist Fläche fehlt, liegt nicht an einem zu großen Hof: Eine anteilige Flächenforderung (die Räume teilen sich, was Treppe und Luftraum übrig lassen) brachte weniger Häuser (8 statt 13) und wurde verworfen.
 
 ## 8 Fehler und Korrekturen
 
@@ -237,7 +238,7 @@ Wände verschieben ist nirgends voreingestellt.
 
 ### Packung und Unterteilung kombinieren
 
-Lässt sich die Unterteilung nach Knecht und König (2014) mit der dichten Packung verbinden, ohne das Verfahren auf einen Fall zuzuschneiden? Ja, am besten in Schritten statt in einem gemeinsamen Chromosom. Die Packung findet Nachbarschaften und grobe Lage. Der daraus abgeleitete Plan ist bereits eine Unterteilung, denn jede Wand trennt zwei Räume. Eine zweite Suche verschiebt dann nur noch Wände, so dass der Plan immer lückenlos bleibt; der Schalter „Wände verschieben“ ist genau dieser erste Baustein. Das bleibt generisch, weil der Übergang von der Packung zum Wandnetz für jedes Programm automatisch geht. Ein gemeinsames Chromosom aus Schnittbaum und Packung wäre möglich, verdoppelt aber den Suchraum, und Federn und Kollision greifen auf einem Schnittbaum nicht. Dieselbe Frage stellt sich beim Haus aus zwei Geschossen (Kapitel zu Siza): Die Kopplung in Schritten funktioniert, die gemeinsame Bewertung beider Geschosse in einem Individuum ist der nächste Versuch.
+Lässt sich die Unterteilung nach Knecht und König (2014) mit der dichten Packung verbinden, ohne das Verfahren auf einen Fall zuzuschneiden? Ja, am besten in Schritten statt in einem gemeinsamen Chromosom. Die Packung findet Nachbarschaften und grobe Lage. Der daraus abgeleitete Plan ist bereits eine Unterteilung, denn jede Wand trennt zwei Räume. Eine zweite Suche verschiebt dann nur noch Wände, so dass der Plan immer lückenlos bleibt; der Schalter „Wände verschieben“ ist genau dieser erste Baustein. Das bleibt generisch, weil der Übergang von der Packung zum Wandnetz für jedes Programm automatisch geht. Ein gemeinsames Chromosom aus Schnittbaum und Packung wäre möglich, verdoppelt aber den Suchraum, und Federn und Kollision greifen auf einem Schnittbaum nicht. Dieselbe Frage stellt sich beim Haus aus zwei Geschossen (Kapitel zu Siza): Die Kopplung in Schritten funktioniert, die gemeinsame Bewertung beider Geschosse in einem Individuum findet doppelt so viele Häuser.
 
 ### Was wir daraus schließen
 

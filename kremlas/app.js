@@ -240,7 +240,7 @@
     ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H);
     let am = A.mittel;
     if (haus(z)) {
-      const O = z.og, Io = vorbildInd(O.programm, sx, sy), Ao = Modell.aehnlichkeit(Modell.beste(O), O.programm);
+      const O = z.og, Io = vorbildInd(O.programm, sx, sy), Ao = Modell.aehnlichkeit(b.og || Modell.beste(O), O.programm);
       ctx.save(); ctx.translate(B + GESCHOSS, 0); zeichnePlan(ctx, Object.assign({}, O, { mindest: false }), p, Fv, Io); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H); ctx.restore();
       geschossNamen(ctx, Fv); am = (A.mittel + Ao.mittel) / 2;
     }
@@ -370,7 +370,7 @@
       if (p.plan) {
         zeichnePlan(ctx, z, p, F, b); if (p.vorbild && mitVorbild(z)) zeichneVorbild(ctx, z, F, b); if (p.topo) zeichneNachbarn(ctx, z, p, F, G); ctx.strokeStyle = F.tinte; ctx.lineWidth = 6; ctx.strokeRect(0, 0, B, H);
         if (haus(z)) {                                                   // Haus (neu): Obergeschoss rechts daneben, Treppe und Hof aus dem EG
-          const O = z.og, bo = Modell.beste(O);
+          const O = z.og, bo = b.og || Modell.beste(O);
           ctx.fillStyle = F.dunkel ? F.flaeche : F.papier; ctx.fillRect(B, 0, GESCHOSS + B, hoeheVon(z)); ctx.fillRect(0, H, B, UNTERSCHRIFT);
           ctx.save(); ctx.translate(B + GESCHOSS, 0);
           zeichnePlan(ctx, O, p, F, bo); if (p.vorbild) zeichneVorbild(ctx, O, F, bo); if (p.topo) zeichneNachbarn(ctx, O, p, F, bo.g);
@@ -442,14 +442,14 @@
         k.push([{ de: "Zu schmal · zu klein", en: "Too narrow · too small" }, `${n("zuSchmal")} · ${n("zuKlein")}`]);
         k.push([{ de: "Plan gültig", en: "Plan valid" }, W.gueltig ? { de: "ja", en: "yes" } : { de: "nein", en: "no" }]);
         if (haus(z)) {
-          const O = z.og, bo = Modell.beste(O), Wo = Modell.planPruefung(bo, O.paare, O.programm, 300);
+          const O = z.og, bo = b.og || Modell.beste(O), Wo = Modell.planPruefung(bo, O.paare, O.programm, 300);
           k.push([{ de: "Obergeschoss gültig", en: "Upper floor valid" }, Wo.gueltig ? { de: "ja", en: "yes" } : { de: "nein", en: "no" }]);
           k.push([{ de: "Treppe: Antritt · Austritt", en: "Stair: start · arrival" }, { de: `${W.treppe < 0.05 ? "frei" : "verstellt"} · ${Wo.treppe < 0.05 ? "frei" : "verstellt"}`, en: `${W.treppe < 0.05 ? "clear" : "blocked"} · ${Wo.treppe < 0.05 ? "clear" : "blocked"}` }]);
           feld(z);
         }
         if (mitVorbild(z)) {
           const A = Modell.aehnlichkeit(b, z.programm), sp = A.gespiegelt.x || A.gespiegelt.y;
-          if (haus(z)) { const Ao = Modell.aehnlichkeit(Modell.beste(z.og), z.og.programm); k.push([{ de: "Ähnlichkeit EG · OG", en: "Similarity GF · UF" }, `${proz(A.mittel)} · ${proz(Ao.mittel)}`]); }
+          if (haus(z)) { const Ao = Modell.aehnlichkeit(b.og || Modell.beste(z.og), z.og.programm); k.push([{ de: "Ähnlichkeit EG · OG", en: "Similarity GF · UF" }, `${proz(A.mittel)} · ${proz(Ao.mittel)}`]); }
           k.push([{ de: "Ähnlichkeit zum Vorbild", en: "Similarity to the model" }, { de: proz(A.mittel) + (sp ? " (gespiegelt)" : ""), en: proz(A.mittel) + (sp ? " (mirrored)" : "") }]);
         }
       }
