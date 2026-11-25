@@ -8,9 +8,9 @@ KREMLAS ist ein evolutionäres Verfahren, das Grundrisse aus einem Raumprogramm 
 2. **Treue Neuumsetzung.** Die Web-App folgt dem C#-Programm Regel für Regel. Zwei Programmfehler aus dem Original haben wir gefunden und behoben: Die Hälfte der Federn zog in die falsche Richtung, und Räume, die sich berührten, bekamen gar keinen Zug.
 3. **Grundrisse, die funktionieren.** Mindestbreiten je Raum, eine Bewertung des fertigen Plans (Türen, Breiten, Flächen) und eine Suche über viele kurze Läufe machen aus der Packung brauchbare Grundrisse. Vorher war bei unseren Prüfregeln kein einziger Lauf gültig.
 4. **Vorbilder nachgenerieren.** KREMLAS bekommt von einem Vorbild nur das Raumprogramm, die Türen und den Umriss und sucht die Anordnung selbst. Gemessen wird die Überdeckung jedes Raums mit dem Vorbild, gespiegelte Pläne gelten als gleich.
-5. **Palladio fast vollständig, Siza zum größten Teil.** Sieben der acht Villen werden mit 99–100 % Ähnlichkeit wiedergefunden, Pisani mit 88 %. Die Erdgeschosse der Siza-Häuser gelingen meist vollständig, die Obergeschosse mit langen, verketteten Fluren deutlich seltener.
+5. **Palladio fast vollständig, Siza zum größten Teil.** Sieben der acht Villen werden mit 99–100 % Ähnlichkeit wiedergefunden, Pisani mit 88 %. Die Erdgeschosse der Siza-Häuser gelingen einzeln meist vollständig, die Obergeschosse mit langen, verketteten Fluren deutlich seltener. Seit 25.11.2026 entstehen Erd- und Obergeschoss zusammen, mit Treppe und Hof übereinander; solche Häuser findet die Suche bisher selten.
 6. **Fehler finden lohnt mehr als Tricks.** Die größten Sprünge kamen aus behobenen Fehlern: falsche Federrichtung, eine zu strenge Türregel für Siza, ein falscher Feldrahmen in der Überlappungsbewertung. Von zwölf Vorschlägen aus der Literatur brachte keiner im Mittel über alle Vorbilder einen messbaren Gewinn.
-7. **Die Startsaat entscheidet viel.** Dieselbe Villa wird mit einer Suchreihe vollständig, mit einer anderen gar nicht gefunden. Verlässliche Aussagen brauchen deshalb Messungen über mehrere Suchreihen.
+7. **Die Startsaat entscheidet viel.** Dieselbe Villa wird mit einer Suchreihe vollständig, mit einer anderen gar nicht gefunden. Verlässliche Aussagen brauchen deshalb Messungen über mehrere Suchreihen; seit 25.11.2026 gelten Voreinstellungen nur, wenn sie an zwei getrennten Saatgruppen gewinnen.
 
 ## 1 Herkunft
 
@@ -111,6 +111,8 @@ Je Raum zählt die Überdeckung seiner Fläche im Plan mit der Fläche im Vorbil
 
 Welche Einstellungen am besten sind, hängt vom Vorbild ab. Für jedes Vorbild wurden 18 Einstellungen gemessen: starre Raumform an oder aus, zwei, fünf oder zehn Federrunden und eine Belegung von 94, 96 oder 98 %, je höchstens acht Läufe zu 400 Generationen. Die beste ist bei der Wahl des Vorbilds voreingestellt (`werkzeuge/abstimmen.cjs`, Ergebnis `werkzeuge/abstimmung.json`). Weil die Abstimmung auf einer Suchreihe beruht, sind die dort gemessenen Werte etwas optimistisch. Die Tabellen in den nächsten beiden Kapiteln mitteln deshalb über vier Suchreihen.
 
+Am 25.11.2026 haben wir die Voreinstellungen nachgeprüft: starre Raumform an oder aus, Raumgruppe spiegeln und Wände verschieben, je vier Suchreihen, und jede Änderung zusätzlich an vier frischen Saaten. Übernommen wurde nur, was an beiden Saatgruppen gewinnt. Dabei zeigte sich, dass die Wahl der starren Raumform je Vorbild vorher vom Zufall der einen Suchreihe abhing (Einzelheiten im Kapitel „Versuche zur Verbesserung“).
+
 ## 6 Ergebnisse: Palladios Villen
 
 ### Messwerte
@@ -133,7 +135,7 @@ Beide Vorbilder bestehen die eigenen Regeln. Schwer ist der Weg dorthin. Pisanis
 
 ### Messwerte
 
-Wie bei Palladio: vier Suchreihen je Geschoss, abgestimmte Voreinstellungen.
+Wie bei Palladio: vier Suchreihen je Geschoss, abgestimmte Voreinstellungen. Stand 24.11.2026, die Geschosse noch einzeln erzeugt; zum Haus aus zwei Geschossen siehe unten.
 
 {{TAB_SIZA}}
 
@@ -146,6 +148,25 @@ Wie bei Palladio: Vorbild, ähnlichste Rekonstruktion, ähnlichste Variante, gle
 ### Was die Obergeschosse schwer macht
 
 Die Erdgeschosse gelingen meist vollständig, die Obergeschosse deutlich seltener. Dort liegen viele kleine Räume an schmalen Gängen, und der Flur besteht aus drei bis vier verketteten Rechtecken, die sich um die feste Treppe und den Luftraum legen müssen. In den Fehlschlägen ist der Flur fast immer zu klein oder überlappt, und die Türen zum Abstellraum oder zum Bad fehlen. Für das Obergeschoss von Duartes neuem Haus fand die Suche in keiner Reihe einen gültigen Plan.
+
+### Haus aus zwei Geschossen (seit 25.11.2026)
+
+Einzeln erzeugte Geschosse passen nicht zusammen: Treppe und Hof können im Obergeschoss woanders liegen als im Erdgeschoss. Seit dem 25.11.2026 entstehen beide zusammen. Die Treppe ist ein eigener Raum mit festen Maßen aus dem Vorbild; die gerade Treppe der Typen Ab, zwei Zimmer und Duartes neues Haus steht im Wohnraum und wird dafür aus ihm ausgeschnitten. Das Obergeschoss übernimmt Treppe und Hof aus dem Erdgeschoss als feste Räume: die Treppe an derselben Stelle, den Luftraum genau über dem Hof, Teil für Teil. Beide wachsen im Plan nicht, andere Räume weichen ihnen aus.
+
+Gezeichnet wird die Treppe mit Stufen und Lauflinie, Punkt am Antritt, Pfeil am Austritt; die zweiläufige Treppe mit Wendepodest. Geprüft wird, ob Antritt und Austritt zugänglich sind: Vor dem Antritt im Erdgeschoss und vor dem Austritt im Obergeschoss muss ein Podest so breit wie der Lauf und so tief, wie der Lauf breit ist, mindestens 0,8 m (nach DIN 18065), ganz in einem Raum liegen, der die Treppe erschließt, und der Zugang muss dort offen sein. Bei der zweiläufigen Treppe zählt im Erdgeschoss der Antrittslauf, im Obergeschoss der Austrittslauf. Alle sechs Vorbilder erfüllen diese Regeln.
+
+Die Suche arbeitet in zwei Schritten: erst ein gültiges Erdgeschoss, dann bis zu drei Läufe für ein passendes Obergeschoss mit Treppe und Hof aus genau diesem Erdgeschoss. Eine eigene Mutation legt die Treppe an ihren Zugang (im Obergeschoss rückt der Flur vor die feste Treppe), auch beim Nachbessern. Das Obergeschoss läuft mit seinen eigenen abgestimmten Einstellungen.
+
+| Haus | Häuser in 2 × 24 Läufen | Ähnlichkeit (Mittel EG und OG) |
+|---|---|---|
+| Typ Bb (Hof hinten) | 5 | 15–63 % |
+| Haus mit fünf Zimmern | 1 | 54 % |
+| Typ Ab (Hof vorn) | 0 (1, solange der Luftraum noch angeschnitten werden durfte) | – |
+| Haus mit vier Zimmern | 0 (1, solange der Luftraum noch angeschnitten werden durfte) | – |
+| Duartes neues Haus | 0 | – |
+| Haus mit zwei Zimmern | 0 | – |
+
+Gültige Erdgeschosse findet die Suche für alle Häuser; es scheitert meist das Obergeschoss, weil es mit der Lage von Treppe und Hof leben muss, die das Erdgeschoss gewählt hat. Der nächste Schritt ist deshalb, das Haus als ein Individuum zu behandeln: Erd- und Obergeschoss werden gemeinsam bewertet und ausgewählt, so dass sich Erdgeschosse durchsetzen, zu denen ein Obergeschoss passt.
 
 ## 8 Fehler und Korrekturen
 
@@ -197,10 +218,30 @@ Sieben der Vorschläge haben wir eingebaut, schaltbar, und an den schweren Fäll
 | Raumgruppe spiegeln (2 %) | Malcontenta von 25 auf 63 % im Mittel, andere verlieren |
 | Wände am fertigen Plan verschieben | Siza Erdgeschoss Ab von 83 auf 90 %, sonst neutral |
 | beide letzten zusammen, alle 20 Vorbilder | Mittel 75,6 → 75,9 %, Reihen mit Treffer 69 → 71 von 80: im Rauschen |
+| schrittweise aufspalten (erst ein Rechteck je Raum, nach 100 bzw. 200 Generationen in Teile zerlegt), 10 Vorbilder | 58,0 bzw. 54,7 % gegen 62,5 % ohne: schadet, nur Pisani gewinnt |
+
+### Schalter in der App, abgestimmt über zwei Saatgruppen
+
+Raumgruppe spiegeln (als Rate) und Wände verschieben sind seit dem 25.11.2026 Regler der App, damit sich das Prinzip weiter nutzen lässt. Abgestimmt wurden sie je Vorbild über vier Suchreihen, zusammen mit der starren Raumform, und jede Wahl wurde an vier frischen Saaten gegengeprüft. Von sieben zunächst gewählten Schaltern hielten nur drei der Gegenprobe stand; viel stärker wirkte die Raumform:
+
+| Vorbild | neu voreingestellt | Saaten 1–151 | Saaten 201–351 |
+|---|---|---|---|
+| Malcontenta | frei + Raumgruppe spiegeln | 25 → 74 % | 25 → 74 % |
+| Siza Ab, EG | frei + Raumgruppe spiegeln | 83 → 94 % | 62 → 92 % |
+| Siza Ab, OG | starr + Raumgruppe spiegeln | 68 → 73 % | 69 → 71 % |
+| Siza vier Zimmer, OG | frei | 22 → 48 % | 23 → 57 % |
+| Siza Bb, OG | frei | 70 → 63 %, Reihen mit Treffer 3 → 4 | 46 → 68 %, 2 → 4 |
+| Siza Duartes Haus, OG | frei | 0 → 17 % | 0 → 12 % |
+
+Wände verschieben ist nirgends voreingestellt.
+
+### Packung und Unterteilung kombinieren
+
+Lässt sich die Unterteilung nach Knecht und König (2014) mit der dichten Packung verbinden, ohne das Verfahren auf einen Fall zuzuschneiden? Ja, am besten in Schritten statt in einem gemeinsamen Chromosom. Die Packung findet Nachbarschaften und grobe Lage. Der daraus abgeleitete Plan ist bereits eine Unterteilung, denn jede Wand trennt zwei Räume. Eine zweite Suche verschiebt dann nur noch Wände, so dass der Plan immer lückenlos bleibt; der Schalter „Wände verschieben“ ist genau dieser erste Baustein. Das bleibt generisch, weil der Übergang von der Packung zum Wandnetz für jedes Programm automatisch geht. Ein gemeinsames Chromosom aus Schnittbaum und Packung wäre möglich, verdoppelt aber den Suchraum, und Federn und Kollision greifen auf einem Schnittbaum nicht. Dieselbe Frage stellt sich beim Haus aus zwei Geschossen (Kapitel zu Siza): Die Kopplung in Schritten funktioniert, die gemeinsame Bewertung beider Geschosse in einem Individuum ist der nächste Versuch.
 
 ### Was wir daraus schließen
 
-Keiner der günstigen Vorschläge macht das Verfahren im Mittel besser, einzelne Vorbilder gewinnen, andere verlieren ebenso deutlich. Den größten Einfluss hat die Startsaat: Malcontenta erreicht mit der einen Suchreihe 99 %, mit der anderen keinen Treffer. Online bleibt deshalb der beste gemessene Stand mit übernommener Form und abgestimmten Voreinstellungen. Lohnende nächste Schritte sind die größeren Vorschläge: Räume schrittweise aufspalten als generischer Ersatz für die übernommene Form, Unterteilung als zweite Darstellung, die Graph-Vorprüfung, um geometrisch unmögliche Programme früh zu erkennen, und eine Abstimmung über mehrere Suchreihen, damit die Voreinstellungen robust werden.
+Keiner der günstigen Vorschläge macht das Verfahren im Mittel besser, einzelne Vorbilder gewinnen, andere verlieren ebenso deutlich. Den größten Einfluss hat die Startsaat: Malcontenta erreicht mit der einen Suchreihe 99 %, mit der anderen keinen Treffer. Online bleibt deshalb der beste gemessene Stand mit übernommener Form und abgestimmten Voreinstellungen. Lohnende nächste Schritte sind die größeren Vorschläge: Räume schrittweise aufspalten als generischer Ersatz für die übernommene Form, Unterteilung als zweite Darstellung, die Graph-Vorprüfung, um geometrisch unmögliche Programme früh zu erkennen, und eine Abstimmung über mehrere Suchreihen, damit die Voreinstellungen robust werden. Die Abstimmung über zwei Saatgruppen ist inzwischen umgesetzt (siehe oben), das schrittweise Aufspalten getestet und verworfen.
 
 ## 10 Quellen
 

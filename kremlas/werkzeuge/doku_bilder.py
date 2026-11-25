@@ -35,10 +35,12 @@ with sync_playwright() as p:
     pg.close()
 
     # ---------- Bildschirmfotos der App (helle Darstellung, 1440 px) ----------
-    def seite(pfad, hash_=""):
-        ctx = b.new_context(viewport={"width": 1440, "height": 1000}, device_scale_factor=1.5)
+    def seite(pfad, hash_="", hoehe=1000):
+        ctx = b.new_context(viewport={"width": 1440, "height": hoehe}, device_scale_factor=1.5)
         ctx.add_init_script('try { localStorage.setItem("entwurfsforschung-theme", "light"); localStorage.setItem("entwurfsforschung-sprache", "de"); } catch (e) {}')
         pg = ctx.new_page(); pg.goto(f"{BASIS}/{pfad}{hash_}", wait_until="load"); pg.wait_for_function("window.SIM && window.SIM.zustand", timeout=20000)
+        # feste Kopfzeilen fließen lassen, sonst verdecken sie hohe Bühnen (Haus) beim Ausschnitt
+        pg.evaluate("document.querySelectorAll('*').forEach(e => { const p = getComputedStyle(e).position; if (p === 'sticky' || p === 'fixed') e.style.position = 'static'; })")
         return ctx, pg
 
     # Dichte Packung: Grundriss mit sechs Räumen (Wohnung), Saat 2, 400 Generationen
@@ -66,10 +68,9 @@ with sync_playwright() as p:
     pg.locator("#loesungen").screenshot(path=os.path.join(OUT, "a_palladio_varianten.png"))
     ctx.close()
 
-    # Siza: Typ Ab Erdgeschoss, Suche, erster Treffer
-    ctx, pg = seite("lab/kremlas/siza/")
-    pg.click("#l-suche"); warte_suche(pg, 180)
-    pg.evaluate("const k = document.querySelectorAll('.l-karte'); if (k.length) k[0].click()"); time.sleep(0.8)
+    # Siza: Haus Typ Bb (EG und OG gekoppelt), 300 Generationen
+    ctx, pg = seite("lab/kremlas/siza/", "#saat=1&fassung=sz_bb", 2000)   # Haus: Bühne höher als 1000 px
+    pg.evaluate("for (let i = 0; i < 300; i++) SIM.schritt()"); time.sleep(0.8)
     pg.locator(".buehne").screenshot(path=os.path.join(OUT, "a_siza.png"))
     ctx.close()
     b.close()

@@ -174,13 +174,16 @@ RUNDGANG = [
                "Schalte **Starre Raumform** aus und suche erneut. Was passiert mit dem I-förmigen Saal?",
                "Stelle **Nähe zum Vorbild** auf 0 und suche Varianten."],
      "kontrolle": "Du kannst erklären, warum die Varianten bei Palladio dem Vorbild trotzdem stark ähneln: Das symmetrische Raster lässt nur wenige Anordnungen zu."},
-    {"short": "Siza/Duarte", "sub": "Erd- und Obergeschoss, feste Treppe",
-     "notes": "Im Tab **Siza/Duarte** wählst du eines von sechs Häusern als Erd- oder Obergeschoss. Im Obergeschoss stehen Treppe und Luftraum fest an der Stelle des Vorbilds. "
-              "Die Türen sind wie in der Grammatik 0,80 m breit.",
-     "img": [("a_siza", "Typ Ab, Erdgeschoss: gefundener Grundriss und darunter das Vorbild.")],
+    {"short": "Siza/Duarte", "sub": "Haus aus Erd- und Obergeschoss",
+     "notes": "Im Tab **Siza/Duarte** wählst du eines von sechs Häusern. Erd- und Obergeschoss entstehen zusammen und stehen nebeneinander: "
+              "Die Treppe liegt in beiden Geschossen an derselben Stelle, der Luftraum im Obergeschoss genau über dem Hof. "
+              "Die Treppe ist mit Stufen und Lauflinie gezeichnet, Punkt am Antritt, Pfeil am Austritt; davor muss ein Podest frei bleiben.",
+     "img": [("a_siza", "Typ Bb nach 300 Generationen: links das Erdgeschoss, rechts das Obergeschoss mit derselben Treppe und dem Luftraum über dem Hof.")],
      "act": [("Siza/Duarte öffnen", "../siza/")],
-     "steps": ["Suche einen Grundriss für **Typ Ab · Erdgeschoss** und lade ihn.", "Wechsle zum Obergeschoss desselben Hauses und vergleiche, wie oft die Suche einen gültigen Plan findet."],
-     "kontrolle": "Du kannst sagen, warum die Obergeschosse schwerer sind als die Erdgeschosse."},
+     "steps": ["Wähle **Typ Bb (Hof hinten)**, starte die Evolution und beobachte, wie das Obergeschoss Treppe und Hof aus dem Erdgeschoss übernimmt.",
+               "Suche Häuser. Die Statuszeile zeigt, ob gerade das Erdgeschoss oder ein Obergeschoss gesucht wird.",
+               "Schau dir in der Kennzahl **Treppe: Antritt · Austritt** an, ob die Podeste frei sind."],
+     "kontrolle": "Du kannst erklären, warum ein Haus aus zwei Geschossen schwerer zu finden ist als jedes Geschoss für sich."},
 ]
 rundgang = {"id": "rundgang", "title": "Rundgang durch die App", "goal": "Die drei Tabs der App bedienen: Dichte Packung, Palladio-Villen, Siza/Duarte.", "result": "",
             "commands": [], "cmdLabel": "Neu", "cover": webp("a_palladio")[0], "bericht": False, "units": []}
