@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>KREMLAS · Abbildungen der Dokumentation</title>
+<!-- Abbildungen der Dokumentation (fotografiert von werkzeuge/doku_bilder.py). Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · CC BY 4.0 -->
+<style>
+  body { margin: 0; padding: 24px; background: #fff; color: #171717; font: 14px/1.4 "Geist", system-ui, sans-serif; }
+  .fig { display: inline-block; padding: 18px 20px; background: #fff; margin: 0 0 30px; }
+  .reihe { display: flex; gap: 22px; align-items: flex-start; }
+  .plan { display: flex; flex-direction: column; gap: 6px; }
+  .plan .kopf { font: 500 12px/1.2 "Geist Mono", ui-monospace, monospace; letter-spacing: .04em; text-transform: uppercase; color: #555; }
+  .plan .kopf b { color: #171717; font-weight: 600; }
+  .titel { font: 600 15px/1.3 "Geist", system-ui, sans-serif; margin: 0 0 10px; }
+  svg text { font-family: "Geist", system-ui, sans-serif; }
+  /* Ablauf */
+  #fig_verfahren { width: 1040px; }
+  .fluss { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 18px; }
+  .k { border: 1.5px solid #171717; border-radius: 6px; padding: 10px 12px; background: #fafafa; }
+  .k h4 { margin: 0 0 4px; font: 600 13px/1.25 "Geist", system-ui, sans-serif; }
+  .k p { margin: 0; font-size: 12px; color: #444; }
+  .k.neu { border-color: #4649e1; background: #f3f3fe; }
+  .k.neu h4::after { content: " · neu"; color: #4649e1; font-weight: 500; }
+  .pfeil { align-self: center; justify-self: center; font-size: 22px; color: #777; }
+  .legende-f { margin-top: 12px; font-size: 12px; color: #555; }
+  /* Balken */
+  #fig_balken { width: 1040px; }
+  .bz { display: grid; grid-template-columns: 210px 1fr 54px 54px; gap: 4px 10px; align-items: center; font-size: 12px; }
+  .bz .n { text-align: right; color: #333; }
+  .bz .bar { position: relative; height: 16px; background: #f0f0f0; }
+  .bz .bar i { position: absolute; left: 0; top: 0; bottom: 0; }
+  .bz .bar i.r { background: #4649e1; } .bz .bar i.v { background: #c9c9f6; top: 10px; }
+  .bz .w { font: 12px "Geist Mono", ui-monospace, monospace; text-align: right; }
+  .gr { grid-column: 1 / -1; font: 600 12px/1 "Geist Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: #777; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div id="figuren"></div>
+<script src="../vorbilder_palladio.js"></script>
+<script src="../vorbilder_siza.js"></script>
+<script src="../modell.js"></script>
+<script src="figuren_daten.js"></script>
+<script>
+"use strict";
+const ERG = window.KREMLAS_ERGEBNISSE || [], wurzel = document.getElementById("figuren");
+const pct = v => Math.round(v * 100) + " %";
+
+/* ---------- Ablauf des Verfahrens ---------- */
+wurzel.insertAdjacentHTML("beforeend", `<div class="fig" id="fig_verfahren"><div class="titel">Ablauf von KREMLAS · Dichte Packung</div><div class="fluss">
+  <div class="k"><h4>Raumprogramm</h4><p>Räume mit Fläche, geforderte Nachbarschaften, Umriss; bei Vorbildern Spiegelachse und feste Räume</p></div>
+  <div class="k"><h4>Startpopulation</h4><p>μ Grundrisse aus Rechtecken an zufälligen Orten, Fläche fest, Proportion frei</p></div>
+  <div class="k"><h4>Kinder erzeugen</h4><p>Rekombination zweier Eltern, Verschiebung, Proportion, Inversion</p></div>
+  <div class="k neu"><h4>Raumtausch</h4><p>zwei Räume ähnlicher Fläche tauschen ihre Plätze</p></div>
+  <div class="k"><h4>Entwicklung</h4><p>Federn ziehen Nachbarn zusammen, Kollisionserkennung (SAT) stößt ab und ändert die Proportion</p></div>
+  <div class="k neu"><h4>Federrunden</h4><p>Federn und Kollision wechseln je Kind mehrmals ab; behobene Federrichtung, Federn auch bei Berührung</p></div>
+  <div class="k"><h4>Bewertung f1, f2</h4><p>f1 Überlappung Sg, f2 Abstände der geforderten Nachbarn</p></div>
+  <div class="k neu"><h4>Bewertung f3</h4><p>am abgeleiteten Plan: Türen (gleitend), Mindestbreiten, Flächen, Überlappung, bei Vorbildern die Nähe</p></div>
+  <div class="k"><h4>Selektion (μ+λ)</h4><p>ein Teil nach f1, der Rest nach f2 bzw. f3; Schleife zurück zu „Kinder erzeugen“</p></div>
+  <div class="k neu"><h4>Plan ableiten</h4><p>Räume wachsen in Restflächen, kleine Überlappungen werden geteilt, Türen mittig an gemeinsamen Wänden</p></div>
+  <div class="k neu"><h4>Suche</h4><p>viele kurze Läufe mit neuen Saaten, Nachbessern am Ende, möglichst verschiedene Treffer (Maximin)</p></div>
+  <div class="k neu"><h4>Vergleich</h4><p>Ähnlichkeit zum Vorbild: Überdeckung je Raum, gespiegelte Pläne gleich</p></div>
+</div><div class="legende-f">Schwarz umrandet: Original (Elezkurtaj und Franck 2002, KREMLAS 2009–2011). Blau: in der Neuumsetzung 2026 ergänzt.</div></div>`);
+
+/* ---------- Pläne zeichnen ---------- */
+function plan(prog, rects, je, spiegel, B, H, k, mitAehnl) {
+  // rects: [raum, x1, y1, x2, y2] in m; spiegel: {x, y} – in die Lage des Vorbilds bringen
+  const P = Modell.PROGRAMME[prog], W = B * k, Hh = H * k, R = rects.map(([r, x1, y1, x2, y2]) => {
+    if (spiegel && spiegel.x) [x1, x2] = [B - x2, B - x1];
+    if (spiegel && spiegel.y) [y1, y2] = [H - y2, H - y1];
+    return { r, id: r, x1: x1 * Modell.PX_M, y1: y1 * Modell.PX_M, x2: x2 * Modell.PX_M, y2: y2 * Modell.PX_M };
+  });
+  // Türen über das Modell (gleiche Regel wie in der App)
+  R.forEach((q, i) => { q.id = 1000 + i; });
+  const T = Modell.tueren(R, P.paare, Modell.TUER_PX), s = k / Modell.PX_M;
+  let svg = `<svg width="${W + 2}" height="${Hh + 2}" viewBox="-1 -1 ${W + 2} ${Hh + 2}">`;
+  for (const q of R) {
+    const gruen = mitAehnl && je && je[q.r] >= 0.9, hof = /Court|Open to sky|Loggia/.test(P.raeume[q.r][1]) || P.raeume[q.r][0].startsWith("Loggia");
+    svg += `<rect x="${q.x1 * s}" y="${q.y1 * s}" width="${(q.x2 - q.x1) * s}" height="${(q.y2 - q.y1) * s}" fill="${gruen ? "#cfe8d2" : hof ? "#e9f1e6" : "#f6f5f1"}" stroke="none"/>`;
+  }
+  for (const q of R) svg += `<rect x="${q.x1 * s}" y="${q.y1 * s}" width="${(q.x2 - q.x1) * s}" height="${(q.y2 - q.y1) * s}" fill="none" stroke="#171717" stroke-width="2"/>`;
+  // Wände zwischen Teilen desselben Raums weiß übermalen
+  for (let i = 0; i < R.length; i++) for (let j = i + 1; j < R.length; j++) {
+    const a = R[i], b = R[j]; if (a.r !== b.r) continue;
+    const oy = Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1), ox = Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1);
+    if (Math.abs(a.x2 - b.x1) < 2 || Math.abs(b.x2 - a.x1) < 2) { const x = (Math.abs(a.x2 - b.x1) < 2 ? a.x2 : a.x1) * s; if (oy > 4) svg += `<line x1="${x}" x2="${x}" y1="${(Math.max(a.y1, b.y1) + 2) * s}" y2="${(Math.min(a.y2, b.y2) - 2) * s}" stroke="${mitAehnl && je && je[a.r] >= 0.9 ? "#cfe8d2" : "#f6f5f1"}" stroke-width="3"/>`; }
+    else if (Math.abs(a.y2 - b.y1) < 2 || Math.abs(b.y2 - a.y1) < 2) { const y = (Math.abs(a.y2 - b.y1) < 2 ? a.y2 : a.y1) * s; if (ox > 4) svg += `<line y1="${y}" y2="${y}" x1="${(Math.max(a.x1, b.x1) + 2) * s}" x2="${(Math.min(a.x2, b.x2) - 2) * s}" stroke="${mitAehnl && je && je[a.r] >= 0.9 ? "#cfe8d2" : "#f6f5f1"}" stroke-width="3"/>`; }
+  }
+  for (const t of T) {
+    const h = t.l / 2 * s;
+    svg += t.senkrecht ? `<line x1="${t.x * s}" x2="${t.x * s}" y1="${t.y * s - h}" y2="${t.y * s + h}" stroke="#fff" stroke-width="4"/>`
+                       : `<line y1="${t.y * s}" y2="${t.y * s}" x1="${t.x * s - h}" x2="${t.x * s + h}" stroke="#fff" stroke-width="4"/>`;
+  }
+  // Namen im größten Teil jedes Raums
+  const gross = {};
+  for (const q of R) { const a = (q.x2 - q.x1) * (q.y2 - q.y1); if (!gross[q.r] || a > gross[q.r].a) gross[q.r] = { q, a }; }
+  for (const { q } of Object.values(gross)) {
+    const w = (q.x2 - q.x1) * s, hh = (q.y2 - q.y1) * s; if (w < 26 || hh < 14) continue;
+    const name = P.raeume[q.r][0].replace("Abstellraum", "Abst.").replace("Camerino", "Cam.");
+    const fs = Math.max(8, Math.min(11, w / Math.max(4, name.length) * 1.6));
+    svg += `<text x="${(q.x1 + q.x2) / 2 * s}" y="${(q.y1 + q.y2) / 2 * s + 3}" text-anchor="middle" font-size="${fs}" fill="#333">${name}</text>`;
+  }
+  return svg + `</svg>`;
+}
+
+function vergleich(e) {
+  const f = Modell.FASSUNGEN[e.f], prog = f.programm, P = Modell.PROGRAMME[prog];
+  Modell.setzeFeld(P.feld);
+  const B = P.feld.b, H = P.feld.h, k = Math.min(300 / B, 300 / H);
+  const vorbild = P.vorbild.flatMap((teile, raum) => teile.map(t => [raum, ...t]));
+  const r = e.modi["1"].bester, v = e.modi["0"].bester;
+  const spalte = (kopf, inhalt) => `<div class="plan"><div class="kopf">${kopf}</div>${inhalt}</div>`;
+  const leer = `<svg width="${B * k}" height="${H * k}"><rect x="1" y="1" width="${B * k - 2}" height="${H * k - 2}" fill="#fafafa" stroke="#bbb" stroke-dasharray="4 3"/><text x="${B * k / 2}" y="${H * k / 2}" text-anchor="middle" font-size="12" fill="#888">kein gültiger Plan gefunden</text></svg>`;
+  const html = `<div class="fig" id="fig_${e.f}"><div class="titel">${P.titel}</div><div class="reihe">
+    ${spalte("Vorbild", plan(prog, vorbild, null, null, B, H, k, false))}
+    ${spalte(`Rekonstruktion (Nähe 1) · <b>${r ? pct(r.aehnlichkeit) : "–"}</b>`, r ? plan(prog, r.plan, r.je, r.gespiegelt, B, H, k, true) : leer)}
+    ${spalte(`Variante (Nähe 0) · <b>${v ? pct(v.aehnlichkeit) : "–"}</b>`, v ? plan(prog, v.plan, v.je, v.gespiegelt, B, H, k, true) : leer)}
+  </div></div>`;
+  wurzel.insertAdjacentHTML("beforeend", html);
+}
+
+/* ---------- Balken: mittlere beste Ähnlichkeit je Vorbild ---------- */
+function balken() {
+  const mittel = (e, m) => { const R = e.modi[m].reihen; return R.reduce((s, x) => s + x.best, 0) / R.length; };
+  let h = `<div class="fig" id="fig_balken"><div class="titel">Ähnlichkeit zum Vorbild, Mittel über vier Suchreihen</div><div class="bz">`;
+  for (const [gruppe, praefix] of [["Palladio", "pal_"], ["Siza/Duarte", "sz_"]]) {
+    h += `<div class="gr">${gruppe}</div>`;
+    for (const e of ERG.filter(x => x.f.startsWith(praefix))) {
+      const r = mittel(e, "1"), v = mittel(e, "0");
+      h += `<div class="n">${Modell.PROGRAMME[Modell.FASSUNGEN[e.f].programm].titel.replace(" · Erdgeschoss", " · EG").replace(" · Obergeschoss", " · OG")}</div>
+            <div class="bar"><i class="r" style="width:${r * 100}%"></i><i class="v" style="width:${v * 100}%"></i></div><div class="w">${pct(r)}</div><div class="w" style="color:#777">${pct(v)}</div>`;
+    }
+  }
+  h += `</div><div class="legende-f">Dunkel: Rekonstruktion (Nähe 1), hell: freie Variante (Nähe 0). Rechts die Werte in derselben Reihenfolge. Eine Suchreihe ohne gültigen Plan zählt 0.</div></div>`;
+  wurzel.insertAdjacentHTML("beforeend", h);
+}
+
+const reihenfolge = ["pal_malcontenta", "pal_saraceno", "pal_ragona", "pal_zeno", "pal_badoer", "pal_emo", "pal_pisani", "pal_angarano",
+                     "sz_ab_eg", "sz_ab_og", "sz_bb_eg", "sz_bb_og", "sz_dn_eg", "sz_dn_og", "sz_t2_eg", "sz_t2_og", "sz_t4_eg", "sz_t4_og", "sz_t5_eg", "sz_t5_og"];
+ERG.sort((a, b) => reihenfolge.indexOf(a.f) - reihenfolge.indexOf(b.f));
+ERG.forEach(vergleich);
+balken();
+window.FERTIG = true;
+</script>
+</body>
+</html>
