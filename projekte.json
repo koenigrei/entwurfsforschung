@@ -251,7 +251,7 @@
     "en": "A street network grows across terrain and population density, the blocks become lots – after Parish & Müller (2001), as a basis for recreating the mountain villages in their own style."
    },
    "ziel": "lab/procedural-cities/",
-   "start": "doku/index.html",
+   "start": "procedural_cities.html",
    "methode": "Apps/procedural_cities/METHODE.md",
    "dateien": {
     "procedural_cities.html": "Apps/procedural_cities/dist/procedural_cities.html",
