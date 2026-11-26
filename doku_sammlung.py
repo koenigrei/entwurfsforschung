@@ -51,7 +51,8 @@ def _umrechnen(wert, alt_ordner, pid):
 WEITER = ('<!doctype html>\n<html lang="de"><head><meta charset="utf-8"><title>{titel} · Dokumentation</title><meta name="robots" content="noindex">\n'
           '<link rel="canonical" href="{z}#{pid}"><meta http-equiv="refresh" content="0; url={z}#{pid}">\n'
           '<script>/* Seit 26.11.2026 liegen alle Dokumentationen unter lab/doku/ (Wunsch Reinhard); Sprungmarken gehen mit */\n'
-          'location.replace("{z}" + (location.hash.length > 1 ? location.hash : "#{pid}"));</script>\n'
+          '/* Anker ohne Kennung (z. B. #k11 aus der alten Einzelseite) bekommen sie vorn: #{pid}-k11 (Kapitel-IDs gibt es in der Sammlung mehrfach, Befund planungsgrundlagen-36) */\n'
+          'var h = location.hash.slice(1); location.replace("{z}#" + (!h ? "{pid}" : h.split("-")[0] === "{pid}" ? h : "{pid}-" + h));</script>\n'
           '</head><p>Die Dokumentation liegt jetzt unter <a href="{z}#{pid}">lab/doku/#{pid}</a> · The documentation has moved to '
           '<a href="{z}#{pid}">lab/doku/#{pid}</a>.</p></html>\n')
 
