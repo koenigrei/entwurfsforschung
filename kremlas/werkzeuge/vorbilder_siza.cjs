@@ -151,7 +151,7 @@ for (const v of VORLAGEN) {
     };
   }
   // Haus: EG und OG zusammen; Voreinstellung aus werkzeuge/abstimmung.json
-  const hid = `sz_${v.id}`, vor = A_ => A_ ? { starr: A_.starr, federRunden: A_.federRunden, belegung: A_.belegung, cluster: A_.cluster || 0, wand: !!A_.wand } : {};
+  const hid = `sz_${v.id}`, vor = A_ => A_ ? { starr: A_.starr, federRunden: A_.federRunden, belegung: A_.belegung, cluster: A_.cluster || 0, wand: !!A_.wand, taschen: !!A_.taschen } : {};
   // EG mit den Werten des Hauses (sonst des EG), das OG läuft versteckt mit seinen eigenen abgestimmten Werten
   fassungen[hid] = Object.assign({ programm: hid + "_eg", og: hid + "_og" }, vor(ABSTIMMUNG[hid] || ABSTIMMUNG[hid + "_eg"]));
   fassungen[hid + "_og"] = Object.assign({ programm: hid + "_og", versteckt: true }, vor(ABSTIMMUNG[hid + "_og"]));

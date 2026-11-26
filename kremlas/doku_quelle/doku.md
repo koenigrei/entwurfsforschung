@@ -185,6 +185,26 @@ Für das Haus mit vier Zimmern, Duartes neues Haus und das Haus mit zwei Zimmern
 
 Gemessen mit vier Saatgruppen zu je 24 Läufen; die neue Fassung ist in beiden Hälften besser (17 statt 13 und 16 statt 11 Häuser). Jedes der sechs Häuser wird jetzt gefunden. Nur das Haus mit fünf Zimmern verliert. Der erste Versuch schob die Treppe nur im Plan ins Feld; das kostete Häuser (18 statt 24), weil die Evolution die Treppe weiter an den Rand drückte. Dabei fiel ein Fehler beim Schalter „Wände verschieben“ auf: Wandelte er den Plan in Rechtecke, vergaß er, an welchem Teil ein Raumteil hängt und ob er bündig sein muss. Vorgegebene Teile wie der Luftraum galten dann als L-Schenkel. Das ist behoben.
 
+### Restflächen neben Treppe und Luftraum (25.11.2026)
+
+Für das Haus mit fünf Zimmern haben wir untersucht, woran seine Läufe scheitern. Die Erdgeschosse gelingen oft. Das Obergeschoss scheitert dagegen fast immer, und zwar auch dann, wenn es allein über dem Vorbild-Erdgeschoss gesucht wird, also mit Treppe und Luftraum genau an der Stelle des Vorbilds: in 48 Läufen kein einziges Mal, immer an der Fläche. Zusammen belegten die Räume nur etwa 92,8 der 96 m². Die Lücke lag in jedem Plan an derselben Stelle: ein Streifen von 1,1 × 2,85 m rechts neben der zweiläufigen Treppe, im Vorbild ein Teil des Flurs. Treppe und Luftraum wachsen nicht, und ein Rechteck kann nur als Ganzes wachsen, nicht halb an der Treppe vorbei. Der Flur darunter reicht über Treppe und Streifen und stößt deshalb an die Treppe. Weil das Programm das Grundstück genau füllt, fehlen diese 3 m² am Ende irgendeinem Raum.
+
+Die neue Regel schlägt bei der Ableitung des Plans einen solchen Streifen dem angrenzenden Raum zu. Voraussetzung ist, dass der Raum zwischen einer ganzen Seite eines festen Raums und dem nächsten Raum oder dem Grundstücksrand leer ist. Der Raum muss auf seiner Mindestbreite anliegen, und der Streifen muss mindestens so breit sein. Von mehreren solchen Räumen bekommt den Streifen der, dem am meisten Fläche fehlt. Die Gene bleiben, wie sie sind; der Streifen entsteht bei jeder Planableitung neu und zählt als Teil des Raums, wie ein L-Schenkel ohne bündigen Anschluss. Damit belegen die Räume 95,5 bis 96 m².
+
+Die Regel hilft nicht jedem Haus. Gemessen haben wir sie in mehreren Fassungen: nur ganze Seiten, auch Teilstücke einer Seite, Streifen höchstens 1,2 m tief, dazu ein Ausgleich, der zu großen Räumen erlaubt, Fläche an ihre Nachbarn abzugeben. Typ Ab und das Haus mit fünf Zimmern gewinnen in jeder Fassung. Typ Bb verliert in jeder Fassung (5 bis 8 statt 11 Häuser). Dort sind die leeren Bereiche oft groß, bis 8 m², und gehören eigentlich anders verteilt. Bei den übrigen drei Häusern lässt sich zwischen den Fassungen nichts Sicheres unterscheiden. Deshalb ist die Regel ein Schalter je Fassung, „Restflächen neben Treppe und Luftraum zuschlagen“, wie „Raumgruppe spiegeln“ und „Wände verschieben“. Eingeschaltet ist er für Typ Ab und das Haus mit fünf Zimmern, in der einfachsten Fassung (nur ganze Seiten). Der Ausgleich mit Abgabe brachte nichts (11 statt 12 Häuser) und wurde wieder entfernt. Geblieben ist eine kleine Korrektur am Flächenausgleich: Er bewertet seine Züge jetzt ohne den Anteil der Nähe zum Vorbild. Sonst verwarf er einen Zug, der die Fläche richtig verteilt, sobald die Ähnlichkeit dabei ein wenig sank.
+
+| Haus | Häuser in 4 × 24 Läufen: bisher | mit Restflächen-Schalter | Ähnlichkeit (Mittel EG und OG) |
+|---|---|---|---|
+| Typ Bb (Hof hinten) | 11 | 12 | 16–89 % |
+| Typ Ab (Hof vorn) | 8 | 11 | 20–71 % |
+| Haus mit fünf Zimmern | 4 | 8 | 17–61 % |
+| Haus mit zwei Zimmern | 4 | 5 | 53–78 % |
+| Haus mit vier Zimmern | 5 | 4 | 53–64 % |
+| Duartes neues Haus | 1 | 1 | 50 % |
+| Summe | 33 | 41 | |
+
+Je Saatgruppe endet eine Suche nach drei Häusern; Typ Bb und Typ Ab liegen damit an der Obergrenze von 12. Über acht Saatgruppen (8 × 24 Läufe) findet die Suche für das Haus mit fünf Zimmern 12 statt 5 Häuser, bei gleicher Rechenzeit. Für Typ Bb, das Haus mit vier Zimmern und Duartes neues Haus ist der Schalter aus; ihre Unterschiede zu vorher liegen im Rauschen der Zufallsfolgen.
+
 ## 8 Fehler und Korrekturen
 
 ### Was am meisten gebracht hat

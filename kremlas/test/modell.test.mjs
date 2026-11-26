@@ -576,6 +576,19 @@ test("Feste Räume bleiben an der Stelle des Vorbilds, Teile in Ketten hängen a
   assert.ok(kette.every(g => g.an != null), "jeder Teil des Flurs hat einen Anker");
 });
 
+test("Restflächen (25.11.2026): ein leerer Streifen neben der festen Treppe fällt dem angrenzenden Raum zu, die Gene bleiben gleich", () => {
+  M.erzeuge(haus("t5"), zufall(1));                                      // Feld 8 × 12 m
+  const k = M.PX_M, G = (id, x1, y1, x2, y2, o) => Object.assign(M.gen(id, (x1 + x2) / 2 * k, (y1 + y2) / 2 * k, (x2 - x1) * k, (y2 - y1) * k, null, 0.4, 0, id), o || {});
+  // Treppe 5…6,9 × 0…2,85 m fest; der Flur darunter reicht über die ganze Breite und kann nicht halb an der Treppe vorbei wachsen
+  const ind = { g: [G(0, 5, 0, 6.9, 2.85, { fp: true }), G(1, 3, 2.85, 8, 4, { mb: 0.8 * k }), G(2, 0, 0, 5, 2.85), G(3, 0, 4, 8, 12)], fo: 0, fd: 0 };
+  const R = M.grundriss(ind, 300, M.TEILE_PX), z = R.filter(q => q.zusatz);
+  assert.equal(z.length, 1);
+  assert.equal(z[0].r, 1, "dem Flur zugeschlagen"); assert.equal(z[0].an, 1);
+  assert.ok(nah(z[0].x1, 6.9 * k, 0.5) && nah(z[0].x2, 8 * k, 0.5) && nah(z[0].y1, 0, 0.5) && nah(z[0].y2, 2.85 * k, 0.5), JSON.stringify(z[0]));
+  M.setzeTaschen(false); assert.equal(M.grundriss(ind, 300, M.TEILE_PX).filter(q => q.zusatz).length, 0); M.setzeTaschen(true);
+  assert.equal(M.planAbstand(R, R), 0);
+});
+
 test("Haus-Suche Siza: ein Treffer ist ein Haus mit gültigem EG und gültigem OG, Treppe und Hof übereinander", () => {
   const p = haus("bb", { naehe: 1 }), S = M.sucheNeu(p, zufall, { anzahl: 1, ziel: 1, saat: 1, laeufe: 15, generationen: 400 });
   while (!S.fertig) M.sucheWeiter(S, 400);

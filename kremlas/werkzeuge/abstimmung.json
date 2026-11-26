@@ -95,7 +95,8 @@
   "reihen": {
    "saat_1_151": 0.942,
    "saat_201_351": 0.923
-  }
+  },
+  "taschen": true
  },
  "sz_ab_og": {
   "starr": true,
@@ -211,7 +212,8 @@
   "treffer": 3,
   "laeufe": 7,
   "cluster": 0,
-  "wand": false
+  "wand": false,
+  "taschen": true
  },
  "sz_t5_og": {
   "starr": false,

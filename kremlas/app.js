@@ -130,7 +130,7 @@
     ctx.strokeStyle = planFarbe(F); ctx.lineWidth = wand + 1.5 * F.px; ctx.lineCap = "butt";
     for (const S of R) {
       if (raumVon(S) === S.id) continue;
-      const Hp = R.find(q => q.id === raumVon(S)); if (!Hp) continue;
+      const Hp = R.find(q => q.id === (S.zusatz ? S.an : raumVon(S))); if (!Hp) continue;   // Restfläche (zusatz): offen zum Teil, an dem sie hängt
       const y1 = Math.max(Hp.y1, S.y1) + wand, y2 = Math.min(Hp.y2, S.y2) - wand, x1 = Math.max(Hp.x1, S.x1) + wand, x2 = Math.min(Hp.x2, S.x2) - wand;
       ctx.beginPath();
       if (Math.abs(Hp.x2 - S.x1) <= 2 || Math.abs(S.x2 - Hp.x1) <= 2) { const x = Math.abs(Hp.x2 - S.x1) <= 2 ? (Hp.x2 + S.x1) / 2 : (S.x2 + Hp.x1) / 2; if (y2 > y1) { ctx.moveTo(x, y1); ctx.lineTo(x, y2); } }
@@ -274,7 +274,7 @@
   /** Die Wahl der Nachbarschaften (Stern/Wohnung), die Mindestmaße und die Lösungssuche wirken nur mit Raumprogramm: sonst ausblenden */
   function auswahlGrundriss(z, p) {
     const d = z.programm ? "" : "none";                                 // style statt hidden: .zeile setzt display selbst
-    const sichtbar = { "p-grundrissTopo": !!z.programm && !mitVorbild(z), "p-mindest": !!z.programm, "p-naehe": mitVorbild(z), "p-vorbild": mitVorbild(z), "p-starr": mitVorbild(z), "p-cluster": !!z.programm, "p-wand": !!z.programm,
+    const sichtbar = { "p-grundrissTopo": !!z.programm && !mitVorbild(z), "p-mindest": !!z.programm, "p-naehe": mitVorbild(z), "p-vorbild": mitVorbild(z), "p-starr": mitVorbild(z), "p-cluster": !!z.programm, "p-wand": !!z.programm, "p-taschen": !!(z.og || (z.fest && z.fest.length)),
                        "p-raeume": !z.programm };
     for (const [id, an] of Object.entries(sichtbar)) {
       const e = document.getElementById(id), zeile = e && e.closest(".zeile"), dd = an ? "" : "none";
@@ -352,6 +352,7 @@
       { id: "naehe", gruppe: G_F, name: { de: "Nähe zum Vorbild (0 = freie Varianten, 1 = rekonstruieren; neu)", en: "Closeness to the model (0 = free variants, 1 = reconstruct; new)" }, min: 0, max: 1, schritt: 0.1, wert: S.naehe || 0, format: proz },
       { id: "starr", gruppe: G_F, name: { de: "Starre Raumform (zusammengesetzte Räume wie im Vorbild; neu)", en: "Rigid room shape (composite rooms as in the model; new)" }, art: "schalter", wert: !!S.starr, neustart: true },
       { id: "wand", gruppe: G_F, name: { de: "Wände am fertigen Plan verschieben (Nachbesserung; neu)", en: "Shift walls of the finished plan (local search; new)" }, art: "schalter", wert: !!S.wand },
+      { id: "taschen", gruppe: G_F, name: { de: "Restflächen neben Treppe und Luftraum zuschlagen (neu)", en: "Assign leftover strips next to stair and void (new)" }, art: "schalter", wert: !!S.taschen },
       { id: "mindest", gruppe: G_F, name: { de: "Mindestmaße (Breite, Fläche; neu)", en: "Minimum dimensions (width, area; new)" }, art: "schalter", wert: S.mindest, neustart: true },
       { id: "raeume", gruppe: G_ES, name: { de: "Räume (Rooms, nicht im Grundriss)", en: "Rooms (not in floor plan)" }, min: 2, max: 40, wert: S.raeume, neustart: true },
       { id: "mu", gruppe: G_ES, name: { de: "Eltern μ (Population)", en: "Parents μ (population)" }, min: 1, max: 30, wert: S.mu, neustart: true },
@@ -377,7 +378,7 @@
     groesse: (z, p) => (feld(z), !p.verlauf) ? { b: breiteVon(z), h: hoeheVon(z) } : quer() ? { b: breiteVon(z) + LUECKE + RECHTS, h: hoeheVon(z) } : { b: breiteVon(z), h: hoeheVon(z) + UNTEN },
     klick(z, p, x, y, taste, phase) { if (taste === "links" && (x <= B || phase !== "unten")) Modell.ziehe(z, Math.min(x, B), y, phase); },   // Haus: gezogen wird im EG
     zeichne(ctx, z, p, F) {
-      feld(z);
+      feld(z); Modell.setzeTaschen(!!p.taschen);                     // Restflächen auch beim Zeichnen nach dem Schalter (auch angehalten)
       const b = Modell.beste(z), G = b.g;
       ctx.fillStyle = F.dunkel ? F.flaeche : F.papier; ctx.fillRect(0, 0, B, H);
       auswahlGrundriss(z, p);
