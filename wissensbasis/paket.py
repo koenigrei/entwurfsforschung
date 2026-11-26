@@ -86,7 +86,7 @@ def anpassungen(cfg):
         ],
         "konzepte/KONZEPT_Coding_Agent_Kapitel.md": [
             (r"\(`Apps/malagueira/lernbereich\.py`[^)]*\)",
-             f"(Paket {WEB}lab/duarte-siza/Konzeptstudie_Duarte_Siza_Quellcode.zip mit README.md, AGENTS.md, Quellen, Tests)", "interner Pfad durch das öffentliche Paket ersetzt"),
+             f"(Paket {WEB}lab/formgrammatik/Studie_Formgrammatik_Quellcode.zip mit README.md, AGENTS.md, Quellen, Tests; Duarte/Siza unter konzepte/2026-11-20_Experiment_Siza_Malagueira/)", "interner Pfad durch das öffentliche Paket ersetzt"),
             (r"(?s)## Umfang\n.*?(?=\n## )", "", "Abschnitt „Umfang“ (Arbeitsliste des KI Lernlabors) entfernt"),
             (r"(?m)^- [^\n]*(?:en_apps\.py|GROSSE_DOWNLOADS)[^\n]*\n", "", "Hinweise auf interne Bauwerkzeuge des KI Lernlabors entfernt"),
         ],

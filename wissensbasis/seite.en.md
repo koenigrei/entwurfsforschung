@@ -36,7 +36,7 @@ The files in the package are in German; coding agents read them without trouble.
 
 ## Example: a new generative study
 
-Suppose a study is to generate terraced houses in the style of a 1920s housing estate. The closest projects in the Lab are the shape grammars [Duarte/Siza](../duarte-siza/) and [Palladio](../palladio/). The workflow can look like this; each prompt is a stage, after which the result is reviewed. The prompts can be written in English just as well.
+Suppose a study is to generate terraced houses in the style of a 1920s housing estate. The closest projects in the Lab are the shape grammars Duarte/Siza and Palladio in the [Shape Grammar Study](../formgrammatik/). The workflow can look like this; each prompt is a stage, after which the result is reviewed. The prompts can be written in English just as well.
 
 ### 1 · Get oriented, change nothing
 
@@ -53,7 +53,7 @@ Use the skill generative-studie. Write a plan in PLAN.md: question, precedents a
 ### 3 · Corpus and checks first
 
 ```
-Download the source package of the Duarte/Siza concept study (link in PROJEKTE.md) into vorbilder/duarte-siza/. Set up our corpus in the same format the generator will use (model: korpus/katalog.json and prototyp/korpus.js in the package). Write the checker with tests: key figures of the originals and hard rules. Show me the key figures of the originals as a table.
+Download the source package of the Shape Grammar Study (link in PROJEKTE.md) into vorbilder/formgrammatik/; Duarte/Siza is in it under konzepte/2026-11-20_Experiment_Siza_Malagueira/. Set up our corpus in the same format the generator will use (model: korpus/katalog.json and prototyp/korpus.js in the package). Write the checker with tests: key figures of the originals and hard rules. Show me the key figures of the originals as a table.
 ```
 
 ### 4 · Generator with a seed
@@ -78,7 +78,7 @@ After each stage: review the results yourself, run the tests, record decisions w
 
 ## Continuing an existing app
 
-For smaller plans the source package of a single app is enough, for instance to extend the generator of the [Palladio concept study](../palladio/) by a rule or to apply [Procedural Cities](../procedural-cities/) to different terrain. Unpack the package, put the skill `lab-projekt-weiterentwickeln` from the knowledge base into `.claude/skills/` and begin like this:
+For smaller plans the source package of a single app is enough, for instance to extend the generator of the Palladio tab of the [Shape Grammar Study](../formgrammatik/formgrammatik.html#tab:palladio) by a rule or to apply [Procedural Cities](../procedural-cities/) to different terrain. Unpack the package, put the skill `lab-projekt-weiterentwickeln` from the knowledge base into `.claude/skills/` and begin like this:
 
 ```
 Read README.md, AGENTS.md and METHODE.md. Explain the structure to me, run the tests and tell me which rules must not break. Do not change anything.

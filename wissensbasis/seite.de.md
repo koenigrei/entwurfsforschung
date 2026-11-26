@@ -34,7 +34,7 @@ Ein **Skill** ist eine kurze Anleitung in einer Datei `SKILL.md`: oben Name und 
 
 ## Beispiel: eine neue generative Studie
 
-Angenommen, eine Studie soll Reihenhäuser im Stil einer Siedlung der 1920er-Jahre erzeugen. Die nächsten Projekte im Lab sind die Formgrammatiken [Duarte/Siza](../duarte-siza/) und [Palladio](../palladio/). So kann der Ablauf aussehen; jeder Prompt ist eine Etappe, danach wird das Ergebnis angesehen.
+Angenommen, eine Studie soll Reihenhäuser im Stil einer Siedlung der 1920er-Jahre erzeugen. Die nächsten Projekte im Lab sind die Formgrammatiken Duarte/Siza und Palladio in der [Studie Formgrammatik](../formgrammatik/). So kann der Ablauf aussehen; jeder Prompt ist eine Etappe, danach wird das Ergebnis angesehen.
 
 ### 1 · Orientieren, nichts ändern
 
@@ -51,7 +51,7 @@ Nutze den Skill generative-studie. Schreib einen Plan in PLAN.md: Frage, Vorbild
 ### 3 · Korpus und Prüfer zuerst
 
 ```
-Lade das Quellcode-Paket der Konzeptstudie Duarte/Siza (Link in PROJEKTE.md) nach vorbilder/duarte-siza/. Leg unseren Korpus im selben Format an, das auch der Generator benutzen wird (Vorbild: korpus/katalog.json und prototyp/korpus.js im Paket). Schreib den Prüfer mit Tests: Kennzahlen der Originale und harte Regeln. Zeig mir die Kennzahlen der Originale als Tabelle.
+Lade das Quellcode-Paket der Studie Formgrammatik (Link in PROJEKTE.md) nach vorbilder/formgrammatik/; Duarte/Siza liegt darin unter konzepte/2026-11-20_Experiment_Siza_Malagueira/. Leg unseren Korpus im selben Format an, das auch der Generator benutzen wird (Vorbild: korpus/katalog.json und prototyp/korpus.js im Paket). Schreib den Prüfer mit Tests: Kennzahlen der Originale und harte Regeln. Zeig mir die Kennzahlen der Originale als Tabelle.
 ```
 
 ### 4 · Generator mit Saat
@@ -76,7 +76,7 @@ Nach jeder Etappe: Ergebnisse selbst ansehen, Tests laufen lassen, Entscheidunge
 
 ## An einer vorhandenen App weiterarbeiten
 
-Für kleinere Vorhaben genügt das Quellcode-Paket einer App, etwa um den Generator der [Konzeptstudie Palladio](../palladio/) um eine Regel zu erweitern oder [Procedural Cities](../procedural-cities/) auf ein anderes Gelände anzuwenden. Paket entpacken, den Skill `lab-projekt-weiterentwickeln` aus der Wissensbasis nach `.claude/skills/` legen und so beginnen:
+Für kleinere Vorhaben genügt das Quellcode-Paket einer App, etwa um den Generator der Palladio-Tabs der [Studie Formgrammatik](../formgrammatik/formgrammatik.html#tab:palladio) um eine Regel zu erweitern oder [Procedural Cities](../procedural-cities/) auf ein anderes Gelände anzuwenden. Paket entpacken, den Skill `lab-projekt-weiterentwickeln` aus der Wissensbasis nach `.claude/skills/` legen und so beginnen:
 
 ```
 Lies README.md, AGENTS.md und METHODE.md. Erkläre mir den Aufbau, lass die Tests laufen und sag mir, welche Regeln nicht brechen dürfen. Ändere nichts.

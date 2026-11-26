@@ -16,6 +16,14 @@ SCHNITT = {"campus": {"x": 340, "y": 200, "width": 1090, "height": 640}, "duarte
 from PIL import Image                                             # Gartenatelier aus dem vorhandenen Explorer-Bild (1500 × 1000)
 _ex = Image.open("C:/LocalOnlyData/GitHub/Planungsgrundlagen/Apps/konzeptstudie/bilder/ks_explorer.png").convert("RGB"); _f = _ex.width / 1500
 _ex.crop((int(330 * _f), int(430 * _f), int(1400 * _f), int(820 * _f))).save(os.path.join(OUT, "gartenatelier.png"))
+# Studie Formgrammatik (seit 26.11.2026): aus den Bildern duarte-siza.png (EG, OG) und palladio.png (Grundriss, Ansicht) vom 21./22.11.;
+# die Aufträge „duarte-siza“/„palladio“ unten zeigen noch auf die alten Adressen (jetzt Weiterleitungen) und brauchen neue Ausschnitte, bevor man sie wieder laufen lässt.
+def formgrammatik():
+    d, q = Image.open(os.path.join(OUT, "duarte-siza.png")).convert("RGB"), Image.open(os.path.join(OUT, "palladio.png")).convert("RGB")
+    a, s = d.crop((0, 0, 578, 430)), 430 / 470; b = q.crop((0, 0, 922, 470)).resize((round(922 * s), 430), Image.LANCZOS)
+    im = Image.new("RGB", (a.width + b.width + 6, 430), d.getpixel((570, 420))); im.paste(a, (0, 0)); im.paste(b, (a.width + 6, 0))
+    im.save(os.path.join(OUT, "formgrammatik.png"))
+formgrammatik()
 srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(http.server.SimpleHTTPRequestHandler, directory=SITE))
 srv.RequestHandlerClass.log_message = lambda *a: None
 threading.Thread(target=srv.serve_forever, daemon=True).start()

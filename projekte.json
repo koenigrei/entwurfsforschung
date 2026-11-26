@@ -143,6 +143,32 @@
    "methode": "kremlas/METHODE.md"
   },
   {
+   "id": "formgrammatik",
+   "titel": {
+    "de": "Studie Formgrammatik",
+    "en": "Shape Grammar Study"
+   },
+   "autoren": "R. König · Claude",
+   "kategorie": {
+    "de": "Formgrammatik",
+    "en": "Shape grammar"
+   },
+   "jahr": 2026,
+   "datum": "2026-11-26",
+   "vorschau": {
+    "de": "Häuser wie von Álvaro Siza in Malagueira (nach José P. Duarte) und Villen im Stil Palladios (nach Stiny & Mitchell 1978), dazu sechs weitere Formgrammatiken: jede Variante mit ihrer Ableitung Regel für Regel und einer Prüfung gegen die Originale.",
+    "en": "Houses like Álvaro Siza's at Malagueira (after José P. Duarte) and villas in the style of Palladio (after Stiny & Mitchell 1978), plus six further shape grammars: every variant with its derivation rule by rule and a check against the originals."
+   },
+   "ziel": "lab/formgrammatik/",
+   "start": "formgrammatik.html",
+   "methode": "Apps/formgrammatik/METHODE.md",
+   "dateien": {
+    "formgrammatik.html": "Apps/formgrammatik/dist/formgrammatik.html",
+    "Studie_Formgrammatik_Quellcode.zip": "Apps/formgrammatik/dist/Studie_Formgrammatik_Quellcode.zip"
+   },
+   "quellcode": "Studie_Formgrammatik_Quellcode.zip"
+  },
+  {
    "id": "duarte-siza",
    "titel": {
     "de": "Konzeptstudie Duarte/Siza",
@@ -155,7 +181,6 @@
    },
    "jahr": 2026,
    "datum": "2026-11-20",
-   "bild": "Apps/_werkzeuge/site/img/malagueira_md_start.webp",
    "vorschau": {
     "de": "Lässt sich ein Haus entwerfen, das man nicht von einem Haus Álvaro Sizas in der Malagueira unterscheiden kann? Eine Formgrammatik nach José P. Duarte als Generator.",
     "en": "Can a house be designed that cannot be told apart from Álvaro Siza's Malagueira houses? A shape grammar after José P. Duarte as a generator."
@@ -164,10 +189,10 @@
    "start": "malagueira.html",
    "methode": "Apps/malagueira/METHODE.md",
    "dateien": {
-    "malagueira.html": "Apps/malagueira/dist/malagueira.html",
-    "Konzeptstudie_Duarte_Siza_Quellcode.zip": "Apps/malagueira/dist/Konzeptstudie_Duarte_Siza_Quellcode.zip"
+    "malagueira.html": "Apps/formgrammatik/weiterleitung/malagueira.html"
    },
-   "quellcode": "Konzeptstudie_Duarte_Siza_Quellcode.zip"
+   "ohne_kachel": true,
+   "hinweis": "Seit 26.11.2026 Tab der Studie Formgrammatik (lab/formgrammatik/); hier nur Weiterleitung und Methodenseite (Wunsch Reinhard)"
   },
   {
    "id": "palladio",
@@ -190,10 +215,10 @@
    "start": "palladio.html",
    "methode": "Apps/palladio/METHODE.md",
    "dateien": {
-    "palladio.html": "Apps/palladio/dist/palladio.html",
-    "Konzeptstudie_Palladio_Quellcode.zip": "Apps/palladio/dist/Konzeptstudie_Palladio_Quellcode.zip"
+    "palladio.html": "Apps/formgrammatik/weiterleitung/palladio.html"
    },
-   "quellcode": "Konzeptstudie_Palladio_Quellcode.zip"
+   "ohne_kachel": true,
+   "hinweis": "Seit 26.11.2026 Tab der Studie Formgrammatik (lab/formgrammatik/); hier nur Weiterleitung und Methodenseite (Wunsch Reinhard)"
   },
   {
    "id": "bergdoerfer",
