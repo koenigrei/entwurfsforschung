@@ -48,9 +48,9 @@
 .k-tabs a { padding: 10px 12px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; }
 .k-tabs a:hover { color: var(--ink); }
 .k-tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent-text); }
-/* Dokumentation deutlich sichtbar (Nutzer 26.11.2026): rechts in der Tab-Leiste, gefüllt in der Akzentfarbe, mit Buch-Symbol */
-.k-tabs a.k-doku { margin: 6px 0 6px auto; align-self: center; display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 0; border-radius: 999px; background: var(--accent-text); color: var(--paper); font-weight: 600; }
-.k-tabs a.k-doku:hover { color: var(--paper); filter: brightness(1.12); }
+/* Dokumentation hervorgehoben (Regel des Nutzers 26.11.2026 für alle Apps): rechts in der Tab-Leiste, blau umrandet (nicht gefüllt), Buch-Symbol */
+.k-tabs a.k-doku { margin: 6px 0 6px auto; align-self: center; display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px; border: 1px solid var(--accent-text); border-radius: 999px; background: transparent; color: var(--accent-text); font: 500 14px/1.2 var(--sans); letter-spacing: 0; text-transform: none; }
+.k-tabs a.k-doku:hover { background: var(--accent-text); color: var(--paper); }
 .k-tabs a.k-doku svg { width: 15px; height: 15px; flex: none; }
 </style>
 </head>
