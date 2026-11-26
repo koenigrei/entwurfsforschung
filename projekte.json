@@ -255,8 +255,10 @@
    },
    "ordner": {
     "daten": "Apps/bergdoerfer/dist/daten",
-    "nachbau": "Apps/bergdoerfer/dist/nachbau"
-   }
+    "nachbau": "Apps/bergdoerfer/dist/nachbau",
+    "doku": "Apps/bergdoerfer/dist/doku"
+   },
+   "doku": "doku/"
   },
   {
    "id": "procedural-cities",
