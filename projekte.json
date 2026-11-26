@@ -148,6 +148,7 @@
    "ordner": {
     "doku": "Grundrisse/doku"
    },
+   "doku": "doku/#zweispaenner",
    "quellcode": "Konzeptstudie_Zweispaenner_Quellcode.zip"
   },
   {
@@ -170,7 +171,8 @@
    },
    "ziel": "lab/kremlas/",
    "start": "index.html",
-   "methode": "kremlas/METHODE.md"
+   "methode": "kremlas/METHODE.md",
+   "doku": "doku/#kremlas"
   },
   {
    "id": "formgrammatik",
@@ -196,6 +198,10 @@
     "formgrammatik.html": "Apps/formgrammatik/dist/formgrammatik.html",
     "Studie_Formgrammatik_Quellcode.zip": "Apps/formgrammatik/dist/Studie_Formgrammatik_Quellcode.zip"
    },
+   "ordner": {
+    "doku": "Apps/formgrammatik/dist/doku"
+   },
+   "doku": "doku/#formgrammatik",
    "quellcode": "Studie_Formgrammatik_Quellcode.zip"
   },
   {
@@ -288,7 +294,7 @@
     "nachbau": "Apps/bergdoerfer/dist/nachbau",
     "doku": "Apps/bergdoerfer/dist/doku"
    },
-   "doku": "doku/"
+   "doku": "doku/#bergdoerfer"
   },
   {
    "id": "procedural-cities",
@@ -317,6 +323,7 @@
    "ordner": {
     "doku": "Apps/procedural_cities/dist/doku"
    },
+   "doku": "doku/#proceduralcities",
    "quellcode": "Procedural_Cities_Quellcode.zip"
   },
   {

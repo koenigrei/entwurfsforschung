@@ -6,6 +6,7 @@ bis die Angaben aus dem Impressum-Generator vorliegen). Alle Seiten teilen vorla
 Schrift: Geist (SIL Open Font License) aus den lokal installierten Windows-Schriften, selbst ausgeliefert (keine Google Fonts).
 """
 import glob, html, json, os, re, shutil, sys
+import doku_sammlung
 from PIL import Image
 
 HIER = os.path.dirname(os.path.abspath(__file__))
@@ -410,7 +411,7 @@ def methode_in_zips(ordner, quelle, namen=None):
 
 def methode_seite(vorlage, alt, pid, titel, quelle, zurueck_href, autoren, jahr, doku=None):
     """lab/methode/<pid>/: METHODE.md als lesbare Seite (Gestaltung des Archivs) und als Rohdatei daneben (für Agenten).
-    doku: Pfad der Dokumentation im Projektordner (projekte.json „doku“, z. B. „doku/“), dann auch ein Link dorthin (26.11.2026)."""
+    doku: Adresse der Dokumentation in der Sammelseite lab/doku/ (z. B. „../../doku/#kremlas“), dann auch ein Link dorthin (26.11.2026)."""
     d = os.path.join(SITE, "lab", "methode", pid); os.makedirs(d, exist_ok=True)
     shutil.copy(quelle, os.path.join(d, "METHODE.md"))
     text = open(quelle, encoding="utf-8").read()
@@ -419,7 +420,7 @@ def methode_seite(vorlage, alt, pid, titel, quelle, zurueck_href, autoren, jahr,
               f'<p>{zwei("Wie das Projekt arbeitet: Frage, Vorbilder und Quellen, Darstellung, Korpus, Generator, Prüfer, Grenzen. Die Datei liegt auch im Quellcode-Paket.", "How the project works: question, precedents and sources, representation, corpus, generator, checks, limits (in German). The file is also part of the source package.")}</p>'
               f'<ul><li><a href="METHODE.md">METHODE.md</a> · {zwei("Rohtext für Agenten", "raw text for agents")}</li>'
               f'<li><a href="{zurueck_href}">→ {zwei(titel["de"], titel.get("en"))}</a></li>'
-              + (f'<li><a href="{zurueck_href}{doku}">→ {zwei("Dokumentation", "Documentation")}</a></li>' if doku else '') +
+              + (f'<li><a href="{doku}">→ {zwei("Dokumentation", "Documentation")}</a></li>' if doku else '') +
               f'<li><a href="../">→ {zwei("Alle Methoden", "All methods")}</a></li></ul></aside>')
     e = {"titel": {"de": "Methode: " + titel["de"], "en": "Method: " + titel.get("en", titel["de"])}, "kategorie": {"de": "Methode", "en": "Method"},
          "jahr": jahr, "autoren": autoren, "stand": stand_text([quelle])}
@@ -522,7 +523,7 @@ def bauen(alt="/"):
     seite(vorlage, os.path.join(SITE, "index.html"), FILTER.format(id="lab", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": lab}, ensure_ascii=False)) + "\n" + UEBER,
           "", "Entwurfsforschung · KI Lab", "lab", alt)
     for p, mq in methoden:                                             # lab/methode/<id>/ und die Übersicht lab/methode/
-        methode_seite(vorlage, alt, p["id"], p["titel"], mq, f"../../../{p['ziel']}", p["autoren"], p["jahr"], p.get("doku"))
+        methode_seite(vorlage, alt, p["id"], p["titel"], mq, f"../../../{p['ziel']}", p["autoren"], p["jahr"], doku_sammlung.adresse(p, "../../"))
     methoden_uebersicht(vorlage, alt, [(p["id"], p["titel"], f"../../{p['ziel']}") for p, _ in methoden])
     METHODEN.clear(); METHODEN.update({p["id"]: mq for p, mq in methoden})   # für Simulationen und Katalog
 
@@ -587,6 +588,8 @@ def bauen(alt="/"):
 
     # ---------------------------------------------------------------- KREMLAS als eigenes Projekt (kremlas/, 23.11.2026)
     kremlas()
+    # Sammelseite der Dokumentationen lab/doku/#<id> (Wunsch Reinhard 26.11.2026): lab/<app>/doku/ wird Weiterleitung, Links der Apps zeigen dorthin
+    doku_sammlung.sammle(SITE, cfg["projekte"], Q, {p["id"] for p in cfg["projekte"] if p.get("methode")})
 
     # ---------------------------------------------------------------- Wissensbasis (wissensbasis/, 25.11.2026): Anleitung und Paket für Coding-Agenten
     wissensbasis_seite(vorlage, alt, cfg)
