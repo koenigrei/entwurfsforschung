@@ -50,7 +50,7 @@ Muster zum Abschauen (die vier Piloten der ersten Runde, 21.11.2026):
 | Datei | Aufgabe |
 |---|---|
 | `_gemeinsam/sim.js` | Bedienfeld (Start, Pause, Schritt, Zurück, Saat, Schritte je Bild, Parameter, Kennzahlen), Ablaufschleife, Zeichenfläche mit Maßstab und hoher Auflösung, Maus/Finger in Modellkoordinaten, DE/EN, Hell/Dunkel (`entwurfsforschung-theme`), Saat und geänderte Parameter in der Adresse (`#saat=7&…`), `window.SIM` für Prüfungen |
-| `_gemeinsam/sim.css` | Gestaltung wie das Lab: Geist/Geist Mono, schwarz als Voreinstellung, feine Linien, Akzent #4649e1/#9ea0f3, Mono-Beschriftungen in Großbuchstaben |
+| `_gemeinsam/sim.css` | Gestaltung wie das Lab: Geist/Geist Mono, schwarz als Voreinstellung, feine Linien, Akzent #4649e1/#9ea0f3, Mono-Beschriftungen in Großbuchstaben; die Steuerung rechts (`.steuerung`) scrollt auf breiten Bildschirmen getrennt von der Bühne (sticky unter der Kopfzeile, `--kopf-h`) |
 | `_gemeinsam/zufall.js` | `Zufall.zufall(saat)` (mulberry32), Browser und Node |
 | `neue_app.py` | neuer App-Ordner aus `_vorlage/` |
 | `bestand_md.py` | `BESTAND.md` aus `bestand.json` |

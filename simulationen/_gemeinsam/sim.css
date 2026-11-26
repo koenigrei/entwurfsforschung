@@ -6,6 +6,7 @@
   --sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --g: max(16px, env(safe-area-inset-left, 0px));
+  --kopf-h: 57px;   /* Höhe der festen Kopfzeile (56 px + Linie): Maß für die Seitenleiste */
   color-scheme: dark;
 }
 :root[data-theme="light"] {
@@ -48,7 +49,11 @@ html[lang="en"] [lang="de"], html[lang="de"] [lang="en"] { display: none !import
 .legende span { display: inline-flex; align-items: center; gap: 6px; }
 .legende i { width: 10px; height: 10px; border: 1px solid var(--line); display: inline-block; }
 .hinweis { color: var(--muted); }
-.steuerung { border-left: 1px solid var(--line); min-width: 0; }
+/* Regel für alle Apps (Nutzer 26.11.2026): Seitenleisten mit Reglern scrollen auf breiten Bildschirmen getrennt vom Hauptteil,
+   damit die Bühne beim Einstellen weiter unten liegender Regler im Blick bleibt. Doppelte Linie (Bühne rechts, Leiste links, −1 px)
+   hält die Trennlinie durchgehend, gleich welche Spalte länger ist. */
+.buehne { border-right: 1px solid var(--line); }
+.steuerung { border-left: 1px solid var(--line); margin-left: -1px; min-width: 0; position: sticky; top: var(--kopf-h); align-self: start; max-height: calc(100vh - var(--kopf-h)); max-height: calc(100dvh - var(--kopf-h)); overflow-y: auto; scrollbar-width: thin; }
 .block { border-bottom: 1px solid var(--line); padding: 14px var(--g) 16px; display: flex; flex-direction: column; gap: 10px; }
 .block:last-child { border-bottom: 0; }
 .block h2 { margin: 0; color: var(--muted); font-weight: 400; }
@@ -85,7 +90,8 @@ html[lang="en"] [lang="de"], html[lang="de"] [lang="en"] { display: none !import
 
 @media (max-width: 900px) {
   .sim { grid-template-columns: 1fr; }
-  .steuerung { border-left: 0; border-top: 1px solid var(--line); }
+  .buehne { border-right: 0; }
+  .steuerung { border-left: 0; margin-left: 0; border-top: 1px solid var(--line); position: static; max-height: none; overflow: visible; }
   .text-teil { grid-template-columns: 1fr; }
   .text-teil > aside { border-right: 0; border-bottom: 1px solid var(--line); }
 }
