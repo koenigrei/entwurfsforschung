@@ -48,6 +48,10 @@
 .k-tabs a { padding: 10px 12px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; }
 .k-tabs a:hover { color: var(--ink); }
 .k-tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent-text); }
+/* Dokumentation deutlich sichtbar (Nutzer 26.11.2026): rechts in der Tab-Leiste, gefüllt in der Akzentfarbe, mit Buch-Symbol */
+.k-tabs a.k-doku { margin: 6px 0 6px auto; align-self: center; display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 0; border-radius: 999px; background: var(--accent-text); color: var(--paper); font-weight: 600; }
+.k-tabs a.k-doku:hover { color: var(--paper); filter: brightness(1.12); }
+.k-tabs a.k-doku svg { width: 15px; height: 15px; flex: none; }
 </style>
 </head>
 <body>
@@ -60,7 +64,7 @@
     <button class="theme-btn mono" type="button" id="theme" aria-label="Darstellung umschalten"></button>
   </div>
 </header>
-<nav class="k-tabs mono" aria-label="KREMLAS"><a href="../"><span lang="de">Dichte Packung</span><span lang="en">Dense packing</span></a><a href="../palladio/"><span lang="de">Palladio-Villen</span><span lang="en">Palladian villas</span></a><a href="../siza/" aria-current="page"><span lang="de">Siza/Duarte</span><span lang="en">Siza/Duarte</span></a><a href="../doku/#kremlas"><span lang="de">Dokumentation</span><span lang="en">Documentation</span></a></nav>
+<nav class="k-tabs mono" aria-label="KREMLAS"><a href="../"><span lang="de">Dichte Packung</span><span lang="en">Dense packing</span></a><a href="../palladio/"><span lang="de">Palladio-Villen</span><span lang="en">Palladian villas</span></a><a href="../siza/" aria-current="page"><span lang="de">Siza/Duarte</span><span lang="en">Siza/Duarte</span></a><a class="k-doku" href="../doku/#kremlas" title="Herkunft, Verfahren, Messwerte und Versuche · Origin, method, results and experiments"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4.5c2.6-1 5-1 7 .6 2-1.6 4.4-1.6 7-.6v11c-2.6-1-5-1-7 .6-2-1.6-4.4-1.6-7-.6z M10 5.1v11.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span lang="de">Dokumentation</span><span lang="en">Documentation</span></a></nav>
 
 <main class="sim">
   <div class="buehne">

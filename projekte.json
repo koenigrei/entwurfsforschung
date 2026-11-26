@@ -121,6 +121,36 @@
    }
   },
   {
+   "id": "zweispaenner",
+   "titel": {
+    "de": "Konzeptstudie Zweispänner",
+    "en": "Two-Flats-per-Landing Concept Study"
+   },
+   "autoren": "R. König · Claude",
+   "kategorie": {
+    "de": "Grundrissstudie",
+    "en": "Floor plan study"
+   },
+   "jahr": 2026,
+   "datum": "2026-11-26",
+   "vorschau": {
+    "de": "Eine 4-Zimmer-Familienwohnung im Zweispänner in sechs Varianten, vom Dielengrundriss bis zur Wohnung ohne Zimmer – gestapelt zum 3D-Gebäude, als Eingabeplan M 1:100 und mit einem Forschungsatlas zu Wohnungsgrundrissen seit dem 19. Jahrhundert.",
+    "en": "A four-room family flat in a building with two flats per landing, in six variants from the hall plan to the flat without rooms – stacked into a 3D building, as a submission drawing at 1:100 and with a research atlas on flat floor plans since the 19th century."
+   },
+   "ziel": "lab/zweispaenner/",
+   "start": "index.html",
+   "methode": "Grundrisse/METHODE.md",
+   "dateien": {
+    "index.html": "Grundrisse/grundriss-4zi.html",
+    "Eingabeplan_BA-01_M100.pdf": "Grundrisse/Eingabeplan_BA-01_M100.pdf",
+    "Konzeptstudie_Zweispaenner_Quellcode.zip": "Grundrisse/dist/Konzeptstudie_Zweispaenner_Quellcode.zip"
+   },
+   "ordner": {
+    "doku": "Grundrisse/doku"
+   },
+   "quellcode": "Konzeptstudie_Zweispaenner_Quellcode.zip"
+  },
+  {
    "id": "kremlas",
    "titel": {
     "de": "KREMLAS · Dichte Packung",
