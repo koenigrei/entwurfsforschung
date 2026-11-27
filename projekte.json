@@ -70,7 +70,8 @@
    "methode_von": "design-explorer",
    "zurueck": {"href": "lab/design-explorer/#/", "de": "Design Explorer", "en": "Design Explorer"},
    "ohne_kachel": true,
-   "app_woanders": true
+   "app_woanders": true,
+   "doku": "#designexplorations"
   },
   {
    "id": "gartenatelier",
@@ -91,9 +92,11 @@
     "en": "Thousands of variants of a garden studio from form principles, roofs, plans, facades and construction systems – checked, compared and bred on in generations."
    },
    "ziel": "lab/gartenatelier/",
-   "start": "index.html",
+   "start": "konzeptstudie.html",
    "methode": "Apps/gartenatelier/METHODE.md",
-   "lernbereich": "konzeptstudie"
+   "lernbereich": "konzeptstudie",
+   "doku": "#konzeptstudie",
+   "doku_knopf": {"in": "<p class=\"kz-kopfknoepfe\">", "ende": "</p>"}
   },
   {
    "id": "campus",

@@ -35,7 +35,8 @@ button, select, input { font: inherit; color: inherit; }
 .mono { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
 
 /* Kopfzeile */
-header { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: stretch; height: var(--row); }
+header { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: stretch; min-height: var(--row); }
+{{HERKUNFT_CSS}}
 .marke { display: flex; align-items: center; gap: 12px; padding: 0 var(--g); border-right: 1px solid var(--line); flex: 0 0 auto; }
 .marke .logo { width: 30px; height: 30px; display: block; }
 .marke b { font-weight: 300; font-size: 26px; letter-spacing: .01em; text-transform: uppercase; }
@@ -146,7 +147,7 @@ body.spalt-ziehen { cursor: col-resize; user-select: none; }
 }
 @media (max-width: 600px) {
   header { flex-wrap: wrap; height: auto; }
-  .marke { border-right: 0; height: 52px; flex: 1; }
+  .marke-box { border-right: 0; flex: 1; } .marke { height: auto; }
   .werkzeug { height: 52px; }
   nav { order: 3; flex: 1 0 100%; justify-content: flex-start; border-top: 1px solid var(--line); height: 44px; }
   nav a { font-size: 16px; padding: 0 var(--g); }
@@ -158,7 +159,11 @@ body.spalt-ziehen { cursor: col-resize; user-select: none; }
 </head>
 <body class="mit-vorschau" data-seite="{{SEITE}}">
 <header>
+  <!-- Marke mit Bauhaus-Universität und InfAU im selben Kasten (Wunsch Reinhard 27.11.2026, kopf.py) -->
+  <div class="marke-box">
   <a class="marke" href="{{BASE}}" aria-label="Entwurfsforschung – KI Lab, Startseite"><img class="logo" src="{{BASE}}favicon.svg" alt="" width="30" height="30"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>
+  {{HERKUNFT}}
+  </div>
   <nav aria-label="Hauptnavigation">
     <a href="{{BASE}}" data-nav="lab" data-t="nav_lab">Lab</a>
     <a href="{{BASE}}archiv/" data-nav="archiv" data-t="nav_archiv">Archiv</a>

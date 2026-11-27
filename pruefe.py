@@ -52,9 +52,17 @@ def pruefe(site=SITE, projekte=None):
             if not os.path.exists(os.path.join(z, f)):
                 b.append(f"{p['id']}: {p['ziel']}{f} fehlt")
         if p.get("lernbereich"):                                       # Lernbereich als eigene Seite: DE, EN, Bilder und mindestens eine App daneben
-            for f in ("en.html", "img"):
+            for f in ("en.html",) if p.get("doku") else ("en.html", "img"):   # mit „doku“ liegen Seiten und Bilder auf lab/doku/ (27.11.2026)
                 if not os.path.exists(os.path.join(z, f)):
                     b.append(f"{p['id']}: Lernbereich ohne {p['ziel']}{f}")
+            if p.get("doku"):
+                pid = p["doku"].split("#", 1)[1]
+                for f in ("index.html", "en.html"):
+                    d = os.path.join(site, "lab", "doku", f)
+                    if not os.path.exists(d) or f'"id": "{pid}"' not in open(d, encoding="utf-8").read():
+                        b.append(f"{p['id']}: lab/doku/{f} ohne Eintrag {pid}")
+                    if "lab/doku/" not in open(os.path.join(z, f), encoding="utf-8").read():
+                        b.append(f"{p['id']}: {p['ziel']}{f} leitet nicht nach lab/doku/ weiter")
             if not p.get("app_woanders") and not [f for f in os.listdir(z) if f.endswith(".html") and f not in ("index.html", "en.html")]:
                 b.append(f"{p['id']}: Lernbereich ohne App-Datei neben index.html")
         for o in p.get("ordner", {}):
@@ -89,7 +97,7 @@ def pruefe(site=SITE, projekte=None):
                 t = open(os.path.join(wurzel, f), encoding="utf-8", errors="replace").read()
                 # Lernbereich-Seiten (Vorlage des KI Lernlabors) enthalten Code für Videos und eingebettete Demo-Apps; er bleibt
                 # stumm, solange die Daten weder Video (provider) noch eingebettete App (app_of/"app": {) enthalten (23.11.2026)
-                lb = "LERNLABOR_EINZELN" in t or ('class="brand"' in t and "const DATA" in t)
+                lb = "LERNLABOR_EINZELN" in t or (('class="brand"' in t or 'class="top ef-kopf"' in t) and "const DATA" in t)   # ef-kopf: Kopf der Website (kopf.py, 27.11.2026)
                 stumm = lb and '"provider":' not in t and '"app": {"src"' not in t
                 for host in ("fonts.googleapis", "fonts.gstatic", "cdnjs.cloudflare", "cdn.jsdelivr", "<iframe"):
                     if host in t and not (host == "<iframe" and stumm):
@@ -210,7 +218,10 @@ def pruefe_methode(site, p, z):
     if p.get("nur_kachel") or not os.path.isdir(z):
         return b
     seiten = [f for f in os.listdir(z) if f.endswith(".html")]
-    if seiten and not any(f"lab/methode/{pid}/" in open(os.path.join(z, f), encoding="utf-8").read() for f in seiten):
+    if p.get("doku") and not p["doku"].split("#")[0].strip("/"):         # Dokumentation im Ordner der App auf lab/doku/ (27.11.2026): dort die Leiste
+        if f'"methode": "../methode/{pid}/"' not in open(os.path.join(site, "lab", "doku", "index.html"), encoding="utf-8").read():
+            b.append(f"{pid}: lab/doku/ verlinkt die Methode von {p['id']} nicht")
+    elif seiten and not any(f"lab/methode/{pid}/" in open(os.path.join(z, f), encoding="utf-8").read() for f in seiten):
         b.append(f"{pid}: keine Seite in {p['ziel']} verlinkt die Methode")
     for f in os.listdir(z):
         if f.lower().endswith(".zip") and "quellcode" in f.lower():

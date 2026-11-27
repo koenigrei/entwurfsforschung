@@ -7,6 +7,7 @@ Schrift: Geist (SIL Open Font License) aus den lokal installierten Windows-Schri
 """
 import glob, html, json, os, re, shutil, sys
 import doku_sammlung
+import kopf
 from PIL import Image
 
 HIER = os.path.dirname(os.path.abspath(__file__))
@@ -210,17 +211,58 @@ def lernbereich(p, z, Q, methode=None, methode_datei=None, stand=""):
             bki_aus_zip(os.path.join(z, f))
     if methode_datei:                                                  # vor dem Versionieren (?v= hängt am Inhalt der Pakete)
         methode_in_zips(z, methode_datei)
-    zur_beschreibung = (rueckweg("index.html", methode, stand).replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Beschreibung")
-                        .replace("Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab", "Zurück zur Beschreibung · Back to the description"))
+    doku = doku_sammlung.adresse(p, "../") if p.get("doku") else None   # Dokumentation auf lab/doku/ (Gartenatelier, Wunsch Reinhard 27.11.2026)
+    if doku:                                                           # Programmversionen: Rückweg zur Dokumentation; die App selbst: ins Lab + Knopf
+        zur_beschreibung = (rueckweg(doku, methode, stand).replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Dokumentation")
+                            .replace("Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab", "Zurück zur Dokumentation · Back to the documentation"))
+    else:
+        zur_beschreibung = (rueckweg("index.html", methode, stand).replace("← Entwurfsforschung · KI Lab", f"← {html.escape(p['titel']['de'])} · Beschreibung")
+                            .replace("Zurück zum KI Lab auf entwurfsforschung.de · Back to the AI Lab", "Zurück zur Beschreibung · Back to the description"))
     for f in sorted(os.listdir(z)):
         if not f.endswith(".html"):
             continue
         pfad = os.path.join(z, f)
-        if f not in ("index.html", "en.html"):                         # App und Programmversionen: Rückweg zur Beschreibung
+        if f in ("index.html", "en.html") and '<header class="top">' in open(pfad, encoding="utf-8").read():   # Kopf der Website (27.11.2026)
+            neu = kopf.ersetze_kopf(open(pfad, encoding="utf-8").read(), Q, zur_wurzel, f == "en.html")
+            open(pfad, "w", encoding="utf-8").write(neu)
+        if doku and f == p["start"] and f != "index.html":                  # App im selben Ordner (Gartenatelier); Design Explorations: App woanders
+            doku_knopf(pfad, p, doku)
+        elif f not in ("index.html", "en.html"):                       # App und Programmversionen: Rückweg zur Beschreibung
             t = open(pfad, encoding="utf-8").read()
             if "ef-zurueck" not in t:
                 open(pfad, "w", encoding="utf-8").write(re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + zur_beschreibung, t, count=1))
         lokal(pfad, zur_wurzel, methode, stand)
+
+
+BUCH = ('<svg viewBox="0 0 20 20" aria-hidden="true" style="width:15px;height:15px;flex:none"><path d="M3 4.5c2.6-1 5-1 7 .6 2-1.6 4.4-1.6 7-.6v11c-2.6-1-5-1-7 .6-2-1.6-4.4-1.6-7-.6z '
+        'M10 5.1v11.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>')
+
+
+def doku_knopf(pfad, p, doku):
+    """Knopf „Dokumentation“ in eine App setzen, die ihn nicht selbst hat (Regel Reinhard 26.11.2026: rechts, blau umrandet, Buch-Symbol;
+    gefüllt beim Überfahren). projekte.json „doku_knopf“: {"in": Anfang des Elements, in dessen Ende der Knopf kommt, "ende": dessen Endmarke}.
+    Englisch (entwurfsforschung-sprache = en): en.html der Sammelseite."""
+    k = p.get("doku_knopf")
+    if not k:
+        sys.exit(f"{p['id']}: „doku“ im Ordner der App braucht „doku_knopf“ (wo der Knopf in {p['start']} steht)")
+    t = open(pfad, encoding="utf-8").read()
+    i = t.find(k["in"])
+    j = t.find(k["ende"], i + len(k["in"])) if i >= 0 else -1
+    if j < 0:
+        sys.exit(f"{pfad}: Stelle für den Knopf Dokumentation nicht gefunden ({k['in']} … {k['ende']})")
+    knopf = (f'<a class="ef-doku" href="{doku}" title="Wie die App entstand und arbeitet · How the app was made and works">{BUCH}<span>Dokumentation</span></a>'
+             '<script>try { if (localStorage.getItem("entwurfsforschung-sprache") === "en") { const a = document.currentScript.previousElementSibling; '
+             'a.href = a.getAttribute("href").replace("doku/#", "doku/en.html#"); a.lastChild.textContent = "Documentation"; } } catch (e) {}</script>')
+    stil = ('<style>/* Knopf Dokumentation (bauen.py doku_knopf, 27.11.2026) */ .ef-doku-zeile{display:flex;flex-wrap:wrap;align-items:center;gap:10px}'
+            '.ef-doku{display:inline-flex;align-items:center;gap:7px;margin-left:auto;padding:6px 14px;font:500 14px/1.2 Geist,system-ui,sans-serif;letter-spacing:0;'
+            'text-transform:none;color:#9ea0f3;background:transparent;border:1px solid #9ea0f3;border-radius:999px;text-decoration:none;white-space:nowrap}'
+            '.ef-doku:hover,.ef-doku:focus-visible{color:#000;background:#9ea0f3}'
+            ':root[data-theme="light"] .ef-doku{color:#4649e1;border-color:#4649e1}:root[data-theme="light"] .ef-doku:hover{color:#fff;background:#4649e1}</style>')
+    kopf = t[i:i + len(k["in"])]
+    kopf_neu = re.sub(r'class="([^"]*)"', lambda m: f'class="{m.group(1)} ef-doku-zeile"', kopf, count=1) if 'class="' in kopf else kopf
+    t = t[:i] + kopf_neu + t[i + len(k["in"]):j] + knopf + t[j:]
+    t = t.replace("</head>", stil + "\n</head>", 1)
+    open(pfad, "w", encoding="utf-8").write(t)
 
 
 def zurueck_setzen(z, zur_wurzel, zurueck):
@@ -465,6 +507,7 @@ def bauen(alt="/"):
     cfg = json.load(open(os.path.join(HIER, "projekte.json"), encoding="utf-8"))
     Q = cfg["quelle_basis"]
     vorlage = open(os.path.join(HIER, "vorlage.html"), encoding="utf-8").read()
+    vorlage = vorlage.replace("{{HERKUNFT_CSS}}", kopf.HERKUNFT_CSS.strip()).replace("{{HERKUNFT}}", kopf.herkunft(Q))   # Uni und InfAU im Kopf (27.11.2026)
     if os.path.exists(SITE):
         shutil.rmtree(SITE)
     os.makedirs(os.path.join(SITE, "schrift")); os.makedirs(os.path.join(SITE, "bilder"))
@@ -515,7 +558,7 @@ def bauen(alt="/"):
         for ziel in p.get("dateien", {}):                              # erst alles kopieren, dann versionieren (?v= braucht die Zieldateien)
             if ziel.endswith(".html"):
                 lokal(os.path.join(z, ziel), zur_wurzel, mhref, stand_leiste(stand_text([mq]), stand_text([os.path.join(Q, q) for q in p["dateien"].values()])))
-        if p["start"] != "index.html":
+        if p["start"] != "index.html" and not (p.get("lernbereich") and p.get("doku")):   # sonst schreibt doku_sammlung die Weiterleitung (App bzw. Doku)
             open(os.path.join(z, "index.html"), "w", encoding="utf-8").write(WEITER.format(t=p["titel"]["de"], z=p["start"], q=(f'<link rel="code-repository" href="{p["quellcode"]}"><link rel="license" href="https://creativecommons.org/licenses/by/4.0/">' if p.get("quellcode") else "")))
         if p.get("ohne_kachel"):                                       # Seite ohne Kachel im Lab, verlinkt von anderswo (Design Explorations: Kachel im Design Explorer, 25.11.2026)
             continue
@@ -523,7 +566,9 @@ def bauen(alt="/"):
     seite(vorlage, os.path.join(SITE, "index.html"), FILTER.format(id="lab", folge='<option value="folge" data-t="reihenfolge">Reihenfolge</option>', daten=json.dumps({"projekte": lab}, ensure_ascii=False)) + "\n" + UEBER,
           "", "Entwurfsforschung · KI Lab", "lab", alt)
     for p, mq in methoden:                                             # lab/methode/<id>/ und die Übersicht lab/methode/
-        methode_seite(vorlage, alt, p["id"], p["titel"], mq, f"../../../{p['ziel']}", p["autoren"], p["jahr"], doku_sammlung.adresse(p, "../../"))
+        doku = doku_sammlung.adresse(p, "../../") or next((doku_sammlung.adresse(q, "../../") for q in cfg["projekte"]   # auch die Doku eines Projekts mit
+                                                          if q.get("methode_von") == p["id"] and q.get("doku")), None)        # methode_von (Design Explorations, 27.11.2026)
+        methode_seite(vorlage, alt, p["id"], p["titel"], mq, f"../../../{p['ziel']}", p["autoren"], p["jahr"], doku)
     methoden_uebersicht(vorlage, alt, [(p["id"], p["titel"], f"../../{p['ziel']}") for p, _ in methoden])
     METHODEN.clear(); METHODEN.update({p["id"]: mq for p, mq in methoden})   # für Simulationen und Katalog
 
