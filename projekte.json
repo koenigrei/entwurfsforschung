@@ -259,8 +259,8 @@
   {
    "id": "bergdoerfer",
    "titel": {
-    "de": "Bergdörfer",
-    "en": "Mountain Villages"
+    "de": "Siedlungsanalyse",
+    "en": "Settlement Analysis"
    },
    "autoren": "R. König · Claude",
    "kategorie": {
@@ -271,8 +271,8 @@
    "datum": "2026-11-21",
    "bild": "Apps/_werkzeuge/site/img/bergdoerfer_wand.webp",
    "vorschau": {
-    "de": "332 Bergdörfer aus 13 Ländern Südeuropas als einheitliche Schwarzpläne mit Höhenlinien, Straßen und Gebäuden, geordnet nach Land, Region und Dichte – Material für einen Generator aus Gelände und Dorf.",
-    "en": "332 mountain villages from 13 countries of southern Europe as uniform figure-ground plans with contours, streets and buildings, ordered by country, region and density – material for a generator of terrain and village."
+    "de": "332 Bergdörfer aus 13 Ländern Südeuropas und 57 Thüringer Kleinstädte als einheitliche Schwarzpläne mit Höhenlinien, Wegen und Gebäuden; dazu Nutzung, Zentralität, Nachbau der Dörfer aus dem Gelände und für die Kleinstädte Wahlen je Bezirk, Zensus, Walkability, Nahverkehr und Erreichbarkeit.",
+    "en": "332 mountain villages from 13 countries of southern Europe and 57 small towns of Thuringia as uniform figure-ground plans with contours, paths and buildings; with land use, centrality, rebuilding the villages from their terrain and, for the towns, election results per polling district, census, walkability, public transport and accessibility."
    },
    "ziel": "lab/bergdoerfer/",
    "start": "index.html",
@@ -287,12 +287,14 @@
     "einzel.js": "Apps/bergdoerfer/dist/einzel.js",
     "nachbau.html": "Apps/bergdoerfer/dist/nachbau.html",
     "nachbau.js": "Apps/bergdoerfer/dist/nachbau.js",
-    "zentralitaet.js": "Apps/bergdoerfer/dist/zentralitaet.js"
+    "zentralitaet.js": "Apps/bergdoerfer/dist/zentralitaet.js",
+    "kleinstaedte.html": "Apps/kleinstaedte/dist/kleinstaedte.html"
    },
    "ordner": {
     "daten": "Apps/bergdoerfer/dist/daten",
     "nachbau": "Apps/bergdoerfer/dist/nachbau",
-    "doku": "Apps/bergdoerfer/dist/doku"
+    "doku": "Apps/bergdoerfer/dist/doku",
+    "kleinstaedte": "Apps/kleinstaedte/dist/kleinstaedte"
    },
    "doku": "doku/#bergdoerfer"
   },
