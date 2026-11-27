@@ -287,16 +287,39 @@
     "einzel.js": "Apps/bergdoerfer/dist/einzel.js",
     "nachbau.html": "Apps/bergdoerfer/dist/nachbau.html",
     "nachbau.js": "Apps/bergdoerfer/dist/nachbau.js",
-    "zentralitaet.js": "Apps/bergdoerfer/dist/zentralitaet.js",
-    "kleinstaedte.html": "Apps/kleinstaedte/dist/kleinstaedte.html"
+    "zentralitaet.js": "Apps/bergdoerfer/dist/zentralitaet.js"
    },
    "ordner": {
     "daten": "Apps/bergdoerfer/dist/daten",
     "nachbau": "Apps/bergdoerfer/dist/nachbau",
-    "doku": "Apps/bergdoerfer/dist/doku",
-    "kleinstaedte": "Apps/kleinstaedte/dist/kleinstaedte"
+    "doku": "Apps/bergdoerfer/dist/doku"
    },
    "doku": "doku/#bergdoerfer"
+  },
+  {
+   "id": "kleinstaedte",
+   "titel": {
+    "de": "Thüringer Kleinstädte",
+    "en": "Small Towns of Thuringia"
+   },
+   "autoren": "R. König · Claude",
+   "kategorie": {
+    "de": "Sammlung",
+    "en": "Collection"
+   },
+   "jahr": 2026,
+   "datum": "2026-11-27",
+   "ohne_kachel": true,
+   "hinweis": "Zweiter Tab der Kachel Siedlungsanalyse (lab/bergdoerfer/), eigene Methodenseite; Anweisung Reinhard 27.11.2026",
+   "ziel": "lab/bergdoerfer/",
+   "start": "index.html",
+   "methode": "Apps/kleinstaedte/METHODE.md",
+   "dateien": {
+    "kleinstaedte.html": "Apps/kleinstaedte/dist/kleinstaedte.html"
+   },
+   "ordner": {
+    "kleinstaedte": "Apps/kleinstaedte/dist/kleinstaedte"
+   }
   },
   {
    "id": "procedural-cities",
