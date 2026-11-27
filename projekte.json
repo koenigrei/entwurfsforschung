@@ -321,8 +321,10 @@
     "kleinstaedte.html": "Apps/kleinstaedte/dist/kleinstaedte.html"
    },
    "ordner": {
-    "kleinstaedte": "Apps/kleinstaedte/dist/kleinstaedte"
-   }
+    "kleinstaedte": "Apps/kleinstaedte/dist/kleinstaedte",
+    "doku_ks": "Apps/kleinstaedte/dist/doku"
+   },
+   "doku": "doku_ks/#kleinstaedte"
   },
   {
    "id": "procedural-cities",
