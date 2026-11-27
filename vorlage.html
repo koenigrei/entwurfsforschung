@@ -167,6 +167,7 @@ body.spalt-ziehen { cursor: col-resize; user-select: none; }
   <nav aria-label="Hauptnavigation">
     <a href="{{BASE}}" data-nav="lab" data-t="nav_lab">Lab</a>
     <a href="{{BASE}}archiv/" data-nav="archiv" data-t="nav_archiv">Archiv</a>
+    <a href="{{BASE}}lab/doku/" data-nav="doku" data-t="nav_doku" data-href-en="{{BASE}}lab/doku/en.html">Doku</a>   <!-- Sammelseite der Dokumentationen (Wunsch Reinhard König 27.11.2026) -->
     <a href="{{BASE}}#ueber" data-nav="ueber" data-t="nav_ueber">Über</a>
   </nav>
   <div class="werkzeug">
@@ -184,12 +185,12 @@ body.spalt-ziehen { cursor: col-resize; user-select: none; }
 
 <script>
 const T = {
-  de: { nav_lab: "Lab", nav_archiv: "Archiv", nav_ueber: "Über", suche: "Suche", kategorie: "Kategorie", sortierung: "Sortierung", neueste: "Neueste", aelteste: "Älteste",
+  de: { nav_lab: "Lab", nav_archiv: "Archiv", nav_doku: "Doku", nav_ueber: "Über", suche: "Suche", kategorie: "Kategorie", sortierung: "Sortierung", neueste: "Neueste", aelteste: "Älteste",
         titel: "Titel", vorschautext: "Vorschautext", alle: "Alle", leer: "Nichts gefunden.", hell: "Hell", dunkel: "Dunkel", alte_seite: "Alte Website", impressum: "Impressum", zurueck: "Zurück zum Archiv", reihenfolge: "Reihenfolge", unterseiten: "Seiten", quelle: "Ursprünglich veröffentlicht auf der alten Website",
         lernlabor: "KI Lernlabor der Bauhaus-Universität Weimar", professur: "Professur InfAU",
         ueber_1: "Das KI Lab sammelt Experimente mit künstlicher Intelligenz in Architektur und Städtebau: Generatoren, Formgrammatiken und Sammlungen, die zeigen, wie Entwurfswissen in Regeln übersetzt und gemeinsam mit KI weiterentwickelt werden kann.",
         ueber_2: "Alle Projekte entstehen in Zusammenarbeit von Prof. Dr. Reinhard König und Claude von Anthropic." },
-  en: { nav_lab: "Lab", nav_archiv: "Archive", nav_ueber: "About", suche: "Search", kategorie: "Category", sortierung: "Sort", neueste: "Newest", aelteste: "Oldest",
+  en: { nav_lab: "Lab", nav_archiv: "Archive", nav_doku: "Docs", nav_ueber: "About", suche: "Search", kategorie: "Category", sortierung: "Sort", neueste: "Newest", aelteste: "Oldest",
         titel: "Title", vorschautext: "Preview text", alle: "All", leer: "Nothing found.", hell: "Light", dunkel: "Dark", alte_seite: "Old website", impressum: "Legal notice", zurueck: "Back to the archive", reihenfolge: "Order", unterseiten: "Pages", quelle: "Originally published on the old website",
         lernlabor: "AI Learning Lab of the Bauhaus-Universität Weimar", professur: "Chair InfAU",
         ueber_1: "The AI Lab collects experiments with artificial intelligence in architecture and urban design: generators, shape grammars and collections that show how design knowledge can be translated into rules and developed further together with AI.",
@@ -224,6 +225,7 @@ function kategorien() {
 function sprache(l) {
   LANG = l; merke("entwurfsforschung-sprache", l); document.documentElement.lang = l;
   document.querySelectorAll("[data-t]").forEach(e => { e.textContent = T[l][e.dataset.t]; });
+  document.querySelectorAll("[data-href-en]").forEach(a => { if (!a.dataset.hrefDe) a.dataset.hrefDe = a.getAttribute('href'); a.setAttribute('href', l === "en" ? a.dataset.hrefEn : a.dataset.hrefDe); });
   document.querySelectorAll("[data-tp]").forEach(e => { e.placeholder = T[l][e.dataset.tp]; });
   document.querySelectorAll(".sprache").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
   if (RASTER) { kategorien(); karten(); } paintTheme();

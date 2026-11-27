@@ -30,15 +30,18 @@ def herkunft(Q):
 
 # CSS der Logos, gleich für vorlage.html und die Seiten aus page.html (Variablen --ink, --paper, --line gibt es in beiden)
 HERKUNFT_CSS = """
-.marke-box { display: flex; flex-direction: column; justify-content: center; gap: 7px; padding: 9px var(--g, 16px) 10px; border-right: 1px solid var(--line); flex: 0 0 auto; }
-.marke-box .marke { padding: 0; border-right: 0; height: auto; }
-.herkunft { display: flex; align-items: center; gap: 14px; padding-left: 42px; }
+/* Raster: Zeile 1 Icon · ENTWURFSFORSCHUNG · KI LAB, Zeile 2 die Logos unter Icon und Titel: Bauhaus-Universität bündig mit dem Icon,
+   InfAU endet bündig mit dem Titel (Wunsch Reinhard König 27.11.2026). Die Marke ist ein Subgrid, damit Zeile 2 die Spalten kennt. */
+.marke-box { display: grid; grid-template-columns: auto auto auto; column-gap: 12px; row-gap: 7px; align-content: center; justify-content: start;
+  padding: 9px var(--g, 16px) 10px; border-right: 1px solid var(--line); flex: 0 0 auto; }
+.marke-box a.marke { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; padding: 0; border-right: 0; height: auto; }
+.herkunft { grid-column: 1 / 3; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .herkunft a { display: block; line-height: 0; color: var(--ink); }
 .uni-wort { background: var(--paper); }   /* weiße Schrift auf Schwarz, bei Hell schwarze Schrift auf Weiß */
 .uni-wort .uni-logo { height: 24px; width: auto; display: block; }
 .infau-wort .infau-logo { height: 17px; width: auto; display: block; }
 .herkunft a:hover { opacity: .75; }
-@media (max-width: 900px) { .herkunft { padding-left: 0; gap: 10px; } .uni-wort .uni-logo { height: 20px; } .infau-wort .infau-logo { height: 14px; } }
+@media (max-width: 900px) { .herkunft { gap: 10px; } .uni-wort .uni-logo { height: 20px; } .infau-wort .infau-logo { height: 14px; } }
 """
 
 KOPF_CSS = """
@@ -75,7 +78,9 @@ KOPF_CSS = """
 }
 """
 
-NAV = {"de": (("", "Lab"), ("archiv/", "Archiv"), ("#ueber", "Über")), "en": (("", "Lab"), ("archiv/", "Archive"), ("#ueber", "About"))}
+# Doku = Sammelseite der Dokumentationen lab/doku/ zwischen Archiv und Über (Wunsch Reinhard König 27.11.2026)
+NAV = {"de": (("", "Lab"), ("archiv/", "Archiv"), ("lab/doku/", "Doku"), ("#ueber", "Über")),
+       "en": (("", "Lab"), ("archiv/", "Archive"), ("lab/doku/en.html", "Docs"), ("#ueber", "About"))}
 
 
 def ersetze_kopf(html, Q, zur_wurzel, en=False):

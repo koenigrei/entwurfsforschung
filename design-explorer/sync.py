@@ -65,6 +65,24 @@ RUECKWEG = ('<nav class="ef-zurueck" aria-label="Entwurfsforschung" style="displ
             'title="Wie das Projekt arbeitet · How the project works">Methode · Method</a></nav>')
 RAUSCHEN = ("post-quantum", "store now", "upgraded", "pq.html", "tput")
 
+# Kopf wie auf allen Seiten von entwurfsforschung.de (kopf.py): Icon · ENTWURFSFORSCHUNG · KI LAB, darunter die Wortmarke der
+# Bauhaus-Universität (bündig mit dem Icon) und InfAU (endet bündig mit dem Titel) statt der blauen Uni-Wortmarke des Viewers;
+# die Marke „Design Explorations“ bleibt daneben (Wunsch Reinhard König 27.11.2026). Nur auf dem Webspace, der Viewer im
+# Repository AutoPublish bleibt unverändert.
+EF_KOPF_CSS = """
+.ef-mb { --ink: var(--tinte); --paper: var(--grund); --line: var(--linie); border-right: 0; padding: 8px 0; flex: none; }
+.ef-mb .ef-marke { color: var(--tinte); text-decoration: none; }
+.ef-mb .ef-marke .logo { width: 30px; height: 30px; display: block; }
+.ef-mb .ef-marke b { font: 300 26px/1.2 var(--schrift); letter-spacing: .01em; text-transform: uppercase; }
+.ef-mb .ef-marke .pill { border: 1px solid var(--akzent-farbe); color: var(--akzent-farbe); border-radius: 999px; padding: 2px 12px;
+  font: 300 18px/1.25 var(--schrift); text-transform: uppercase; justify-self: start; }
+.top-in { height: auto; min-height: var(--kopf); }
+@media (max-width: 900px) { .ef-mb .ef-marke b { font-size: 18px; } .ef-mb .ef-marke .pill { font-size: 13px; } }
+@media (max-width: 560px) { .ef-mb .ef-marke .pill { display: none; } }
+@media (max-width: 420px) { .ef-mb .ef-marke b { font-size: 15px; } .ef-mb .ef-marke .logo { width: 24px; height: 24px; } .top-in { gap: 8px; }
+  .ef-mb .uni-wort .uni-logo { height: 15px; } .ef-mb .infau-wort .infau-logo { height: 11px; } .ef-mb .herkunft { gap: 8px; } }
+"""
+
 
 # ── SSH ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -319,6 +337,21 @@ def _stand(pfad: Path) -> str | None:
     return f"{d.day}.{d.month}.{d.year}"
 
 
+def ef_kopf(html: str) -> str:
+    """Blaue Uni-Wortmarke und InfAU des Viewers durch den Kopf von entwurfsforschung.de ersetzen (EF_KOPF_CSS oben)."""
+    sys.path.insert(0, str(REPO))
+    import kopf                                                        # entwurfsforschung/kopf.py, Logos aus Planungsgrundlagen
+    q = AUTOPUBLISH.parent                                            # Planungsgrundlagen (AutoPublish liegt darin)
+    box = ('<div class="marke-box ef-mb"><a class="ef-marke" href="../../" aria-label="Entwurfsforschung – KI Lab, Startseite">'
+           '<img class="logo" src="../../favicon.svg" alt="" width="30" height="30"><b>Entwurfsforschung</b><span class="pill">KI Lab</span></a>'
+           + kopf.herkunft(q) + '</div>' + chr(10) + '    ')
+    html, n = re.subn(r'<a class="uni" .*?(?=<a class="marke")', lambda m: box, html, count=1, flags=re.S)
+    if n != 1:
+        sys.exit("index.html: Uni-Wortmarke des Viewers nicht gefunden (Viewer geändert?)")
+    css = (kopf.HERKUNFT_CSS.replace(".marke-box a.marke", ".marke-box a.ef-marke") + EF_KOPF_CSS).strip()
+    return html.replace("</head>", "<style>/* Kopf von entwurfsforschung.de (sync.py, 27.11.2026) */" + chr(10) + css + chr(10) + "</style>" + chr(10) + "</head>", 1)
+
+
 def bearbeite_viewer(build: Path) -> None:
     """Wie die anderen Lab-Apps (bauen.py, lokal()): Schrift vom eigenen Server, dunkel als Voreinstellung mit demselben
     Speicher wie das Lab, Rückweg ins Lab, Cache-Kennungen."""
@@ -349,6 +382,7 @@ def bearbeite_viewer(build: Path) -> None:
         leiste = leiste.replace('<a href="../../lab/methode/', f'<span class="ef-stand" style="margin-left:auto;color:#8a8a8f" title="Stand der Dokumentation und der App · Documentation and app as of">{st}</span>'
                                 '<a href="../../lab/methode/', 1).replace("margin-left:auto;color:#9ea0f3", "margin-left:1.5em;color:#9ea0f3", 1) if st else leiste
         html = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + leiste, html, count=1)   # sichtbare Leiste oben (22.11.2026)
+    html = ef_kopf(html)
     html = _version(build, html)
     (build / "index.html").write_text(html, encoding="utf-8")
     app = (build / "app.js").read_text(encoding="utf-8")
