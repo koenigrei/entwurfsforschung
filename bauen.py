@@ -517,6 +517,8 @@ def bauen(alt="/"):
     for f in ("favicon.svg", "favicon.ico", "apple-touch-icon.png"):   # Logo/Favicon (marke/, 21.11.2026)
         shutil.copy(os.path.join(HIER, "marke", f), os.path.join(SITE, f))
     os.makedirs(os.path.join(SITE, "vendor")); shutil.copy(os.path.join(HIER, "vendor", "three.r128.min.js"), os.path.join(SITE, "vendor", "three.r128.min.js"))
+    # Notizen-Speicher (Kommentare und Achsen, nur mit Schlüssel; Daten in ~/ki_notizen, nicht im Docroot), Wunsch Reinhard 27.11.2026
+    os.makedirs(os.path.join(SITE, "lab", "notizen")); shutil.copy(os.path.join(HIER, "notizen", "api.php"), os.path.join(SITE, "lab", "notizen", "api.php"))
     open(os.path.join(SITE, "schrift", "LIZENZ.txt"), "w", encoding="utf-8").write(
         "Geist und Geist Mono: Copyright Vercel, SIL Open Font License 1.1 – https://openfontlicense.org\n")
 
