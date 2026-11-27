@@ -146,10 +146,13 @@
    "dateien": {
     "index.html": "Grundrisse/grundriss-4zi.html",
     "Eingabeplan_BA-01_M100.pdf": "Grundrisse/Eingabeplan_BA-01_M100.pdf",
-    "Konzeptstudie_Zweispaenner_Quellcode.zip": "Grundrisse/dist/Konzeptstudie_Zweispaenner_Quellcode.zip"
+    "Konzeptstudie_Zweispaenner_Quellcode.zip": "Grundrisse/dist/Konzeptstudie_Zweispaenner_Quellcode.zip",
+    "sammlung.html": "Grundrisse/sammlung/seiten/sammlung.html",
+    "sammlung_einzel.html": "Grundrisse/sammlung/seiten/sammlung_einzel.html"
    },
    "ordner": {
-    "doku": "Grundrisse/doku"
+    "doku": "Grundrisse/doku",
+    "sammlung": "Grundrisse/sammlung/site"
    },
    "doku": "doku/#zweispaenner",
    "quellcode": "Konzeptstudie_Zweispaenner_Quellcode.zip"
