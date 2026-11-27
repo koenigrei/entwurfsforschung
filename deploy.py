@@ -17,7 +17,7 @@ SCHLUESSEL = os.path.expanduser(_C.get("schluessel", "~/.ssh/entwurfsforschung_e
 DOCROOT = _C.get("docroot", "public_html")
 ZIELE = {"neu": "neu", "start": "."}
 VERWALTET = ["index.html", "favicon.svg", "favicon.ico", "apple-touch-icon.png", "lab", "archiv", "impressum", "bilder", "schrift", "vendor"]
-BEHALTEN = ["lab/design-explorer"]
+BEHALTEN = ["lab/design-explorer", "lab/zweispaenner/sammlung/daten"]   # Daten der Grundrisssammlung (≈ 73.000 Dateien) lädt planungsgrundlagen-bd gezielt hoch, nicht über bauen.py (27.11.2026)
 
 
 def deploy(ziel):
