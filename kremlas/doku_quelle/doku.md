@@ -11,6 +11,7 @@ KREMLAS ist ein evolutionäres Verfahren, das Grundrisse aus einem Raumprogramm 
 5. **Palladio fast vollständig, Siza zum größten Teil.** Sieben der acht Villen werden mit 99–100 % Ähnlichkeit wiedergefunden, Pisani mit 88 %. Die Erdgeschosse der Siza-Häuser gelingen einzeln meist vollständig, die Obergeschosse mit langen, verketteten Fluren deutlich seltener. Seit 25.11.2026 entstehen Erd- und Obergeschoss zusammen, mit Treppe und Hof übereinander; solche Häuser findet die Suche bisher selten.
 6. **Fehler finden lohnt mehr als Tricks.** Die größten Sprünge kamen aus behobenen Fehlern: falsche Federrichtung, eine zu strenge Türregel für Siza, ein falscher Feldrahmen in der Überlappungsbewertung. Von zwölf Vorschlägen aus der Literatur brachte keiner im Mittel über alle Vorbilder einen messbaren Gewinn.
 7. **Die Startsaat entscheidet viel.** Dieselbe Villa wird mit einer Suchreihe vollständig, mit einer anderen gar nicht gefunden. Verlässliche Aussagen brauchen deshalb Messungen über mehrere Suchreihen; seit 25.11.2026 gelten Voreinstellungen nur, wenn sie an zwei getrennten Saatgruppen gewinnen.
+8. **Reale Grundrisse und weitere Ideen.** Von 100 realen Wohnungen findet KREMLAS für rund 60 einen gültigen Plan, jetzt auch mit beliebigem Umriss, schrägen Außenwänden und einem Maß dafür, ob die Wohnräume an der Fassade liegen. Ein Genpool aus der Sammlung, drei Kombinationen mit einer Formgrammatik und eine verschachtelte Packung (erst Raumgruppen, dann Räume) machen das Verfahren im Mittel nicht besser. Eine Zonierung mit der Erschließung zuerst löst aber Büro- und Schulprogramme in unter einer Sekunde, die verschachtelte Packung die kleinteiligen Siza-Erdgeschosse (26 statt 6 von 30 Läufen gültig).
 
 ## 1 Herkunft
 
@@ -293,7 +294,106 @@ Lässt sich die Unterteilung nach Knecht und König (2014) mit der dichten Packu
 
 Keiner der günstigen Vorschläge macht das Verfahren im Mittel besser, einzelne Vorbilder gewinnen, andere verlieren ebenso deutlich. Den größten Einfluss hat die Startsaat: Malcontenta erreicht mit der einen Suchreihe 99 %, mit der anderen keinen Treffer. Online bleibt deshalb der beste gemessene Stand mit übernommener Form und abgestimmten Voreinstellungen. Lohnende nächste Schritte sind die größeren Vorschläge: Räume schrittweise aufspalten als generischer Ersatz für die übernommene Form, Unterteilung als zweite Darstellung, die Graph-Vorprüfung, um geometrisch unmögliche Programme früh zu erkennen, und eine Abstimmung über mehrere Suchreihen, damit die Voreinstellungen robust werden. Die Abstimmung über zwei Saatgruppen ist inzwischen umgesetzt (siehe oben), das schrittweise Aufspalten getestet und verworfen.
 
-## 10 Quellen
+## 10 Reale Grundrisse und weitere Ideen
+
+### Die Frage
+
+Palladio und Siza sind Vorbilder aus Formgrammatiken mit wenigen, regelmäßigen Räumen. Wie schlägt sich KREMLAS bei realen Wohnungen, und welche Ideen machen das Verfahren besser? Als Ausgangslage haben wir 100 möglichst verschiedene Wohnungen aus der [Grundrisssammlung](../../zweispaenner/sammlung.html) untersucht (Swiss Dwellings, [Standfest et al. 2022](https://doi.org/10.5281/zenodo.7788422), CC BY 4.0). Die Wohnungen sind gerade gedreht und werden wie die Vorbilder als Raumprogramm übergeben: Räume mit Flächen und Mindestbreiten, Türen als geforderte Nachbarschaften, Umriss. Daran haben wir in sechs Versuchen Erweiterungen gemessen, je 150 s pro Wohnung. Eine Vorgabe galt für alle: Das Verfahren soll allgemein bleiben und später auch Büros, Schulen, Werkstätten oder Kliniken planen können. Das Modell kennt deshalb keine Raumnamen wie „Bad“ oder „Wohnen“, nur Eigenschaften im Programm, etwa „braucht Fassade“, „Außenraum“, „Erschließung“ oder „fest“. Alle neuen Optionen sind standardmäßig aus, die Fassungen der App rechnen bei gleicher Saat genau wie vorher. Den vollständigen Bericht mit allen Tabellen enthält `Grundrisse/sammlung/kremlas_test/BERICHT.md` im Repo Planungsgrundlagen.
+
+### Erster Lauf: unverändertes KREMLAS
+
+KREMLAS fand ohne jede Änderung für 60 der 100 Wohnungen einen gültigen Plan und erfüllte über alle Wohnungen 93 % der geforderten Türen. 18 Nachbauten kamen dem Original sehr nah (mittlere Überdeckung der Räume ab 0,7), fast alle mit höchstens neun Räumen. Ab etwa zehn Räumen wird es schwer: Gültig sind noch 45 % (10–12 Räume) bzw. 29 % (ab 13 Räumen), und die gültigen Pläne sind eher andere Lösungen desselben Programms als Nachbauten. Die Fehlschläge hingen oft am Flur, der alle Räume erschließt, an Umrissen, die kein Rechteck sind, und an knappen Fehlbeträgen bei Fläche oder Breite.
+
+### Zweiter Lauf: Umriss als Vieleck und Funktionsmaß
+
+Daraus sind sechs Erweiterungen entstanden: ein Feld als beliebiges Vieleck mit Fassaden- und Innenkanten, auch mit schrägen Außenwänden (Räume werden an der schrägen Kante beschnitten); ein Vorraum vor der Wohnungstür als Eingang; eine Wandstärke im Modell; Flure als Ketten aus bis zu acht Teilen; ein Flächenausgleich bei knappen Fehlern; die Ähnlichkeit auch um 90° gedreht. Dazu kommt ein **Funktionsmaß**: Jeder Raum mit der Eigenschaft „braucht Fassade“ muss mindestens 1,1 m an einer Fassade oder an einem Außenraum liegen. Welche Räume das sind, bestimmt das Programm. Bei Wohnungen sind es die Wohn- und Schlafräume; Bad, WC, Küche, Abstellraum und Flur dürfen innen liegen. Das Maß wird immer gemessen und kann zusätzlich Kriterium der Suche sein.
+
+| | erster Lauf | zweiter Lauf | zweiter Lauf mit Funktionskriterium |
+|---|---|---|---|
+| gültig (von 100) | 60 | 58 | 51 |
+| Ähnlichkeit der gültigen Pläne | 0,54 | 0,58 | 0,59 |
+| Pläne mit allen Wohnräumen an der Fassade | – | 62 % | 81 % |
+| schräge Außenwände, gültig (von 17) | nicht möglich | 10 | 9 |
+
+Die Wohnungen sind mit Umriss und Wänden nicht schwerer zu lösen als vorher, aber ähnlicher. Wohnungen mit schrägen Außenwänden, die der erste Lauf gar nicht aufnehmen konnte, sind jetzt nachbaubar. Mit Funktionskriterium hat jeder gültige Plan alle Wohnräume an der Fassade; das kostet sieben gültige Pläne. Zum Vergleich: Auch die Originale erfüllen das Maß nur zu 75 %, etwa wenn ein Zimmer über einen Wintergarten belichtet ist.
+
+### Genpool: die Sammlung als Startpopulation
+
+Die naheliegende Idee: Alle Grundrisse der Sammlung als Gene speichern und für eine neue Aufgabe die ähnlichsten als Startpopulation nehmen, gemischt mit zufälligen (Fallinjektion nach [Louis und McDonnell 2004](https://doi.org/10.1109/TEVC.2004.823466)). Wir haben 7.890 Wohnungen in KREMLAS-Programme samt Lagen übersetzt, zu jedem Testprogramm die ähnlichsten Fälle gesucht (über Raumzahl, Flächen, Eigenschaften, Graph und Feld, ohne Raumnamen und ohne die Wohnung selbst und ihre Doppel), sie auf das neue Feld eingepasst und 30 % der Startpopulation damit geimpft.
+
+| | gültig (von 100) | erster Treffer (Median) | Ähnlichkeit |
+|---|---|---|---|
+| zufällig | 59 | 12 s | 0,48 |
+| geimpft mit 1 / 3 / 5 Fällen | 62 / 54 / 63 | 15 / 8 / 12 s | 0,48 / 0,47 / 0,46 |
+| obere Schranke: das Original selbst als Fall | 65 | 6 s | 0,50 |
+
+Die Impfung hat keinen messbaren Effekt, alle Unterschiede liegen im Rauschen. Der Grund: Ähnliche Programme haben kaum ähnliche Anordnungen (die Lagen des ähnlichsten Falls decken sich mit dem Original nur zu 0,08), und selbst das Original als Startlage hebt die Trefferzahl nur von 60 auf 65. Die Startlage ist bei KREMLAS nicht der Engpass, Treffer kommen ohnehin früh. Übertragbar aus einer Sammlung wäre eher Struktur als Lage: welche Räume an der Fassade liegen, welche um einen Flur kreisen, welche Zonen sich bilden.
+
+### Formgrammatik und dichte Packung
+
+Lässt sich eine Formgrammatik so mit der Packung verbinden, dass mehr Fälle gelingen, etwa große Wohnungen mit Fluren? Vorbild ist die diskursive Grammatik von [Duarte (2005)](https://doi.org/10.1068/b31124). Wir haben drei Arten verglichen, alle mit Regeln nur über Raumeigenschaften (Modul `grammatik.js`): (1) **hierarchisch**: Die Grammatik legt das Rückgrat der Erschließung als Band, teilt das Feld in Zonen und ordnet die Räume zu (Fassadenbedarf in Zonen mit Fassade, Nachbarn des Flurs ans Band), KREMLAS packt jede Zone, dann wird zusammengesetzt; (2) **erst Packung, dann Regeln** am fertigen Plan (Tür herstellen, Wände fluchten, Flurstück einziehen); (3) **Regeln als Mutation** (an die Fassade tauschen, zum Nachbarn legen, an der Erschließung spiegeln).
+
+| | gültig (von 100) | große Wohnungen ab 10 Räumen (von 48) | ohne Vorbild |
+|---|---|---|---|
+| KREMLAS allein (zwei Saaten) | 60 / 57 | 16 / 15 | 64 |
+| (1) hierarchisch | 57 | 14 | 59 |
+| (2) Regeln am Plan, 20 s | 61 | 17 | – |
+| Kontrolle zu (2): zufällige örtliche Suche, 20 s | 67 | 23 | – |
+| (3) Regeln als Mutation (zwei Saaten) | 56 / 57 | 13 / 12 | 56 |
+
+Bei Wohnungen bringt keine der drei Arten mehr gültige Pläne. Wohnungen füllen ihr Feld fast ganz, eine feste Teilung in Zonen nimmt der Packung den Spielraum an den Zonengrenzen. Regeln am fertigen Plan bleiben sofort in örtlichen Minima stecken; eine zufällige örtliche Suche ist in derselben Zeit besser.
+
+### Andere Bauaufgaben
+
+Anders bei Programmen, in denen viele Räume an einem Flur oder einer Halle hängen. Wir haben Prüfprogramme mit Mindestmaßen nach Arbeitsstättenregeln und Schulbaurichtlinie angelegt, ohne Vorbild, je drei Saaten zu 150 s. Gültig von 3, in Klammern die Zeit bis zum ersten gültigen Plan:
+
+| Programm | KREMLAS allein | hierarchisch | verschachtelt (unten) |
+|---|---|---|---|
+| Zweibund-Büro, 12 Räume | 0 | **3 (unter 1 s)** | 0 |
+| Klassentrakt mit Halle, 12 Räume | 2 | **3 (unter 1 s)** | 1 |
+| Arztpraxis, 11 Räume | 3 | 3 | 1 |
+| Werkstatt mit Halle, 9 Räume | 0 | 0 | 0 |
+| Kita (nicht zur Entwicklung benutzt) | **3** | 2 | 2 |
+| Zweispänner-Geschoss (nicht zur Entwicklung benutzt) | **3 (7–19 s)** | 3 (30–37 s) | 3 (28–39 s) |
+
+Für Büro und Schule findet die hierarchische Art in unter einer Sekunde gültige Pläne, wo KREMLAS allein keinen oder selten einen findet. Das gilt mit Vorsicht: Die Grammatik wurde an diesen Programmen entwickelt. An den beiden Programmen, die dabei nicht benutzt wurden, ist KREMLAS allein am besten. Die Werkstatt mit großer Halle und eigenem Tor bleibt in allen Fassungen ungelöst.
+
+### Zonierung bei Palladio und Siza
+
+Hilft die hierarchische Art bei den Vorbildern der App, etwa bei den Villen mit zusammengesetzten Sälen? Dafür kennt die Grammatik nun auch eine symmetrische Zonierung (Band auf der Spiegelachse, Paare auf beide Seiten, eine Seite gespiegelt) und ein Band, das an der Treppe beginnt und feste Räume meidet. Ergebnis über alle 20 Vorbilder, je fünf Saaten zu 60 s: Palladio bleibt bei 40 von 40 gültig, die Ähnlichkeit sinkt leicht (0,94 → 0,92), die Suche dauert drei- bis sechsmal so lange. Bei Siza werden einige schwierige Erdgeschosse öfter gültig, aber als andere Lösungen ohne Ähnlichkeit zum Vorbild (0,17–0,21), die Obergeschosse werden schlechter. Die Zonierung denkt in einem Rückgrat mit Seitenzonen; Palladios Villen sind dagegen Raster, Sizas Obergeschosse haben Flure aus mehreren Teilen um Treppe und Luftraum. Die hierarchische Art kommt deshalb nicht in die App.
+
+### Erst Raumgruppen, dann Räume
+
+Die letzte Idee verschachtelt KREMLAS mit sich selbst: Erst werden größere Raumgruppen in der umgebenden Form gepackt, dann in jeder Gruppenfläche die Räume der Gruppe. Anders als bei der Grammatik findet hier die dichte Packung auch die Lage der Gruppen. Die Gruppen bildet das Verfahren selbst, aus dem Nachbarschaftsgraphen (stark verbundene Räume zusammen, ähnlich [Newman 2004](https://doi.org/10.1103/PhysRevE.69.066133)), aus Eigenschaften (bediente, dienende, Erschließung) oder bei einer Spiegelachse paarweise. Nachbarschaften über eine Gruppengrenze werden zu Anschlüssen an der gemeinsamen Kante. Scheitert eine Gruppe, sucht die obere Ebene die nächste Lage; am Ende verfeinert eine kurze dichte Packung des ganzen Programms (Modul `verschachtelt.js`).
+
+| | KREMLAS allein | hierarchisch | verschachtelt |
+|---|---|---|---|
+| Palladio, gültig (von 40) | 40 | 40 | 40 |
+| Palladio, Ähnlichkeit · erster Treffer | **0,94 · 3 s** | 0,93 · 10 s | 0,91 · 14 s |
+| Siza, gültig (von 60) | 27 | 31 | **40** |
+| Siza, Ähnlichkeit · erster Treffer | **0,76 · 13 s** | 0,51 · 37 s | 0,69 · 42 s |
+| Wohnungen, gültig (von 100) | **60** | 57 | 52 |
+| große Wohnungen ab 10 Räumen (von 48) | **16** | 14 | 11 |
+| schräge Außenwände (von 17) | **10** | 9 | 7 |
+
+Die Verschachtelung hilft dort, wo KREMLAS allein kaum etwas findet: Bei den kleinteiligen Erdgeschossen der Siza-Häuser sind 26 von 30 Läufen gültig, mit KREMLAS allein 6; einige werden exakt rekonstruiert, Duartes Haus zum ersten Mal überhaupt. Dafür sinken die Obergeschosse von 21 auf 14 von 30, weil die Anschlüsse an die feste Treppe an der ganzen gemeinsamen Kante sitzen statt an ihrer Zugangskante. Bei Palladio, den Wohnungen und den anderen Bauaufgaben bringt sie nichts. Der Engpass ist die Gruppenebene selbst: Bei den Wohnungen wurden in nur 35 von 1.405 Versuchen alle Gruppen auf Anhieb gültig gepackt; die meisten gültigen Pläne entstehen erst in der Verfeinerung des ganzen Programms. Eine feste Gruppengrenze legt zu früh fest, wo die Räume einer Gruppe enden, und genau dort braucht die Packung Spielraum. Zur Kontrolle: Ohne die Verfeinerung am Ende sind von den Wohnungen nur 35 gültig (ab 10 Räumen 6, schräge 4), ohne Zug zum Vorbild 50 statt 64 bei KREMLAS allein. Den ersten gültigen Plan findet die Verschachtelung bei den Wohnungen im Median nach 18 s, KREMLAS allein nach 9–16 s. Die Verschachtelung bleibt deshalb eine abschaltbare Option für Programme, deren Gruppen eine echte Ordnung haben, wie ein schmaler Gang am Rand und zwei Blöcke bei Siza.
+
+### Was wir daraus schließen
+
+| Idee | Ergebnis | Status |
+|---|---|---|
+| Umriss als Vieleck, schräge Außenwände | gleich viele gültige Pläne, ähnlicher; schräge Wohnungen erstmals nachbaubar | Option im Modell |
+| Funktionsmaß „braucht Fassade“ als Kriterium | 81 statt 62 % funktionierende Pläne, etwa 7 gültige weniger | Option im Modell |
+| Genpool aus der Sammlung (Fallinjektion) | kein messbarer Effekt; Startlage ist nicht der Engpass | Option im Modell, aus |
+| Formgrammatik hierarchisch (Erschließung zuerst) | stark bei Büro und Schule, kein Gewinn bei Wohnungen, Palladio, Siza | Modul, aus |
+| Regeln am fertigen Plan | schlechter als eine zufällige örtliche Suche | Modul, aus |
+| Regeln als Mutation | kein Effekt | Modul, aus |
+| Zonierung symmetrisch bzw. von der Treppe aus | keine bessere Rekonstruktion, langsamer | Modul, aus |
+| verschachtelte Packung (erst Gruppen, dann Räume) | hilft bei kleinteiligen Siza-Erdgeschossen, sonst schlechter | Modul, aus |
+
+Die dichte Packung allein ist für Wohnungen und Vorbilder schwer zu schlagen. Jede Vorentscheidung, die die Lage von Räumen festlegt, bevor die Packung sie aushandelt (Startlage, Zone, Gruppe), hilft nur, wenn sie die Ordnung des Programms trifft: ein Flur, an dem alles hängt, oder ein kleinteiliges Haus in festen Bereichen. Sonst kostet sie Spielraum. Lohnend erscheinen eine Zonierung „Raster“ für Palladio und Bürobauten, Bänder aus mehreren Teilen für Flurketten, Hallen mit eigenem Zugang, eine Regel, die automatisch wählt, wann eine Zonierung greift, und vor allem Prüfprogramme und echte Grundrisse anderer Bauaufgaben, die nicht zur Entwicklung benutzt wurden.
+
+## 11 Quellen
 
 ### Literatur
 
@@ -312,6 +412,9 @@ Keiner der günstigen Vorschläge macht das Verfahren im Mittel besser, einzelne
 - Pinki, K. Shekhawat, A. Lal (2025): Automated generation of floor plans with minimum bends. *AI EDAM* 39, e3, [doi:10.1017/S0890060424000179](https://doi.org/10.1017/S0890060424000179).
 - D. Benrós, J. P. Duarte, S. Hanna (2012): A new Palladian shape grammar: a subdivision grammar as alternative to the Palladian grammar. *IJAC* 10(4), 521–540, [doi:10.1260/1478-0771.10.4.521](https://doi.org/10.1260/1478-0771.10.4.521).
 - R. E. Weber, C. Mueller, C. Reinhart (2022): Automated floorplan generation in architectural design: A review of methods and applications. *Automation in Construction* 140, 104385, [doi:10.1016/j.autcon.2022.104385](https://doi.org/10.1016/j.autcon.2022.104385).
+- M. Standfest, M. Franzen, Y. Schröder, L. Gonzalez Medina, Y. Villanueva Hernandez, J. H. Buck, Y.-L. Tan, M. Niedzwiecka, R. Colmegna (2022): Swiss Dwellings: A large dataset of apartment models including aggregated geolocation-based simulation results covering viewshed, natural light, traffic noise, centrality and geometric analysis. Version 3.0.0. Zenodo, [doi:10.5281/zenodo.7788422](https://doi.org/10.5281/zenodo.7788422), CC BY 4.0.
+- S. J. Louis, J. McDonnell (2004): Learning with case-injected genetic algorithms. *IEEE Transactions on Evolutionary Computation* 8(4), 316–328, [doi:10.1109/TEVC.2004.823466](https://doi.org/10.1109/TEVC.2004.823466).
+- M. E. J. Newman (2004): Fast algorithm for detecting community structure in networks. *Physical Review E* 69, 066133, [doi:10.1103/PhysRevE.69.066133](https://doi.org/10.1103/PhysRevE.69.066133).
 - DIN 18040-2:2011-09: Barrierefreies Bauen – Planungsgrundlagen – Teil 2: Wohnungen.
 
 ### Code und Daten
@@ -320,3 +423,4 @@ Keiner der günstigen Vorschläge macht das Verfahren im Mittel besser, einzelne
 - Web-App mit Quellcode: [lab/kremlas/](../), Quellcode als `quellcode.zip`, Abweichungen vom Original in `QUELLE.md`, Methode in `METHODE.md`.
 - Vorbilder: Konzeptstudien [Palladio](../../palladio/) und [Duarte/Siza](../../duarte-siza/), übersetzt mit `werkzeuge/vorbilder_palladio.cjs` und `werkzeuge/vorbilder_siza.cjs`.
 - Messungen dieser Dokumentation: `werkzeuge/doku_ergebnisse.cjs`, Rohdaten in `doku_quelle/ergebnisse.jsonl`.
+- Erweiterungen aus Kapitel 10: Optionen in `modell.js`, Formgrammatik in `grammatik.js`, verschachtelte Packung in `verschachtelt.js` (Tests in `test/`), Messskripte an den Vorbildern `werkzeuge/hierarchisch_vorbilder.cjs` und `werkzeuge/verschachtelt_vorbilder.cjs`; Umwandlung der Wohnungen, Genpool, Läufe und Bericht im Ordner `Grundrisse/sammlung/kremlas_test/` des Repos Planungsgrundlagen (die Daten der Sammlung liegen dort nicht).

@@ -102,12 +102,13 @@ for t in teile[1:]:
     kapitel.append((f"k{nr}", titel.strip(), absch))
 
 COVER = {"ueberblick": "fig_pal_malcontenta", "k1": "fig_verfahren", "k2": "fig_verfahren", "k3": "a_packung", "k4": "a_loesungen", "k5": "a_palladio",
-         "k6": "fig_pal_pisani", "k7": "fig_sz_ab_eg", "k8": "fig_sz_ab_og", "k9": "fig_balken", "k10": "fig_verfahren"}
+         "k6": "fig_pal_pisani", "k7": "fig_sz_ab_eg", "k8": "fig_sz_ab_og", "k9": "fig_balken", "k10": "a_loesungen", "k11": "fig_verfahren"}
 ZIEL = {"ueberblick": "Kernaussagen der Dokumentation.", "k1": "Elezkurtaj und Franck, das DFG-Projekt KREMLAS und das Originalprogramm.",
         "k2": "Räume als Rechtecke, hybride Evolutionsstrategie, Federn.", "k3": "Treue Neuumsetzung, zwei Programmfehler, Grundriss-Generator.",
         "k4": "Mindestmaße, Bewertung des Plans, Suche, L-Räume.", "k5": "Vom Vorbild zum Raumprogramm, neue Bausteine, Ähnlichkeit, Abstimmung.",
         "k6": "Acht Villen mit Messwerten und Vergleichsbildern.", "k7": "Sechs Häuser, Erd- und Obergeschoss, mit Messwerten und Vergleichsbildern.",
-        "k8": "Was am meisten gebracht hat: gefundene Fehler.", "k9": "Formgene, Inseln, Recherche und getestete Vorschläge.", "k10": "Literatur, Code und Daten."}
+        "k8": "Was am meisten gebracht hat: gefundene Fehler.", "k9": "Formgene, Inseln, Recherche und getestete Vorschläge.",
+        "k10": "100 reale Wohnungen, Umriss und Funktionsmaß, Genpool, Formgrammatik, andere Bauaufgaben, verschachtelte Packung.", "k11": "Literatur, Code und Daten."}
 
 
 def bericht_kapitel(kid, titel, absch):

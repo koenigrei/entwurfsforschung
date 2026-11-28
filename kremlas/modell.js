@@ -35,8 +35,10 @@
      WAND     Wandstärke in px (feld.wand): Raum im Modell = Fläche + halbe Wand ringsum
      FUNKTION Parameter „funktion“: Räume mit opt.fassade an der Fassade als Kriterium in f3 und in der Gültigkeit (gemessen wird immer)
      DREH90   Parameter „dreh90“: Ähnlichkeit auch in 90° gedrehter Lage, wenn das Feld annähernd quadratisch ist
-     KNAPP    Parameter „knapp“: Flächenausgleich auch für Wohnungen (nicht nur Häuser), wenn nur Fläche oder Breite fehlen */
-  let UMRISS = null, HINDERNIS = [], HINDERNIS_R = [], KANTEN_U = [], SCHRAEG_U = [], FASSADE = [], EINGANG = null, WAND = 0, FUNKTION = false, DREH90 = false, KNAPP = false;
+     KNAPP    Parameter „knapp“: Flächenausgleich auch für Wohnungen (nicht nur Häuser), wenn nur Fläche oder Breite fehlen
+     ANSCHLUSS (28.11.2026, Versuch 6 verschachtelte Packung) weitere Vorräume außerhalb des Umrisses (feld.anschluesse, Rechtecke in m)
+              = Nachbarn −2, −3, … (Anschluss j ist Nachbar −2 − j); wie der Eingang, für Teilfelder einer verschachtelten Packung */
+  let UMRISS = null, HINDERNIS = [], HINDERNIS_R = [], KANTEN_U = [], SCHRAEG_U = [], FASSADE = [], EINGANG = null, ANSCHLUSS = [], WAND = 0, FUNKTION = false, DREH90 = false, KNAPP = false;
   const FASSADE_M = 1.1;                                               // gemeinsame Kante mit der Fassade für ein Fenster (wie die Tür: 0,9 + 0,2 m)
 
   /** Fassungen: Ablauf (RunAdjust oder RunTopo) und Voreinstellungen der Regler.
@@ -423,7 +425,7 @@
     return k === 0 ? gen(-1, -T / 2, HOEHE / 2, T, 3 * HOEHE) : k === 1 ? gen(-1, BREITE + T / 2, HOEHE / 2, T, 3 * HOEHE)
          : k === 2 ? gen(-1, BREITE / 2, -T / 2, 3 * BREITE, T) : gen(-1, BREITE / 2, HOEHE + T / 2, 3 * BREITE, T);
   }
-  const finde = (ind, id, A) => id === -1 ? (A ? aussen(A) : null) : ind.g.find(g => g.id === id);
+  const finde = (ind, id, A) => id === -1 ? (A ? aussen(A) : null) : id <= -2 ? ANSCHLUSS[-2 - id] || null : ind.g.find(g => g.id === id);
 
   /** Fitness f2 (RChromosome.Distances): Summe der Distanzterme aller geforderten Nachbarschaften, gerundet */
   function distanzen(ind, paare, rlap) {
@@ -1092,6 +1094,7 @@
   function zugSpanne(S) { const senk = S.zg[0] === "x", lo = senk ? S.y1 : S.x1, hi = senk ? S.y2 : S.x2, m = (lo + hi) / 2;
     return !S.zh ? [lo, hi] : S.zh[1] === "0" ? [lo, m] : [m, hi]; }
   const eingangR = () => ({ x1: links(EINGANG), y1: oben(EINGANG), x2: rechts(EINGANG), y2: unten(EINGANG) });
+  const anschlussR = N => ({ x1: links(N), y1: oben(N), x2: rechts(N), y2: unten(N) });
   function tueren(R, paare, breite) {
     const T = [], teile = id => R.filter(q => (q.r == null ? q.id : q.r) === id), tol = 2, min = breite + RAND_PX;
     // je Paar von Rechtecken die Tür an der gemeinsamen Kante; bei L-Räumen (mehrere Rechtecke) die längste Kante
@@ -1125,6 +1128,7 @@
       const AA = teile(a); if (!AA.length) continue;
       let best = null;
       if (b === -1) for (const A of AA) { const t = EINGANG ? zwischen(A, eingangR(), a, b) : eingang(A, a, b); if (t && (!best || t[0] > best[0])) best = t; }   // neu: Vorraum vor der Wohnungstür
+      else if (b <= -2) { const N = ANSCHLUSS[-2 - b]; if (N) for (const A of AA) { const t = zwischen(A, anschlussR(N), a, b); if (t && (!best || t[0] > best[0])) best = t; } }   // neu: Anschluss (Versuch 6)
       else for (const A of AA) for (const B of teile(b)) { const t = zwischen(A, B, a, b); if (t && (!best || t[0] > best[0])) best = t; }
       if (best) T.push(best[1]);
     }
@@ -1149,6 +1153,8 @@
     EINGANG = f && f.eingang ? gen(-1, (f.eingang[0] + f.eingang[2]) / 2 * PX_M, (f.eingang[1] + f.eingang[3]) / 2 * PX_M, (f.eingang[2] - f.eingang[0]) * PX_M, (f.eingang[3] - f.eingang[1]) * PX_M) : null;
     WAND = (f && f.wand || 0) * PX_M;
     if (UMRISS && EINGANG) HINDERNIS = HINDERNIS.concat([EINGANG]);       // der Vorraum begrenzt das Wachsen genau an seiner Kante (nicht im Zellraster)
+    ANSCHLUSS = f && f.anschluesse ? f.anschluesse.map((q, j) => gen(-2 - j, (q[0] + q[2]) / 2 * PX_M, (q[1] + q[3]) / 2 * PX_M, (q[2] - q[0]) * PX_M, (q[3] - q[1]) * PX_M)) : [];
+    if (UMRISS && ANSCHLUSS.length) HINDERNIS = HINDERNIS.concat(ANSCHLUSS);
     HINDERNIS_R = HINDERNIS.map(g => ({ x1: links(g), y1: oben(g), x2: rechts(g), y2: unten(g) }));
   }
   const feldVon = programm => programm && PROGRAMME[programm] && PROGRAMME[programm].feld || null;
@@ -1197,6 +1203,7 @@
       const AA = teile(a); if (!AA.length) continue;
       let d = Infinity;
       if (b === -1 && EINGANG) { const E = eingangR(); for (const A of AA) d = Math.min(d, kontakt(A, E, noetig)); }   // neu: an den Vorraum vor der Wohnungstür
+      else if (b <= -2) { const N = ANSCHLUSS[-2 - b]; if (N) { const E = anschlussR(N); for (const A of AA) d = Math.min(d, kontakt(A, E, noetig)); } }   // neu: Anschluss (Versuch 6)
       else if (b === -1) for (const A of AA) {                            // Eingang: Abstand zur Außenwand + fehlende Wandlänge
         const ab = Math.min(A.x1, BREITE - A.x2, A.y1, HOEHE - A.y2), l = Math.max(A.x2 - A.x1, A.y2 - A.y1);
         d = Math.min(d, Math.max(0, ab) + Math.max(0, noetig - l));
@@ -1602,7 +1609,7 @@
   function loslassen(z) { z.gesperrt = -1; }
 
   const M = { get BREITE() { return BREITE; }, get HOEHE() { return HOEHE; }, get PX_M() { return PX_M; }, get TUER_PX() { return TUER_PX; }, get TEILE_PX() { return TEILE_PX; },
-           setzeFeld, registriere, aehnlichkeit, impfe, klippe, vielFlaeche, streckeIn, funktionsmass, get UMRISS() { return UMRISS; }, get HINDERNIS() { return HINDERNIS; }, get FASSADE() { return FASSADE; }, get EINGANG() { return EINGANG; }, get WAND() { return WAND; }, symmetrisiere, fixiere, PROGRAMME, flaechen, FASSUNGEN, REGLER, STANDARD, rundeBank, normal, gen, kopie, kollision, schnittRechteck, ueberlappung,
+           setzeFeld, registriere, aehnlichkeit, impfe, klippe, vielFlaeche, streckeIn, funktionsmass, get UMRISS() { return UMRISS; }, get HINDERNIS() { return HINDERNIS; }, get FASSADE() { return FASSADE; }, get EINGANG() { return EINGANG; }, get ANSCHLUSS() { return ANSCHLUSS; }, get WAND() { return WAND; }, symmetrisiere, fixiere, PROGRAMME, flaechen, FASSUNGEN, REGLER, STANDARD, rundeBank, normal, gen, kopie, kollision, schnittRechteck, ueberlappung,
            setzeBreite, setzeBreite50, pruefeRand, proportion, abstossen, entwickle, verschiebe, variiereGroesse, variiereGroesseVoll,
            inversion, kreuzung, nachbarn, ringAbstand, zusatzAbstand, zusatzUeberlappung, paarDistanz, distanzen, erfuellt,
            federVektor, federn, aussen, grundriss, tueren, planPruefung, nachbessern, planAbstand, waehleVerschiedene,
