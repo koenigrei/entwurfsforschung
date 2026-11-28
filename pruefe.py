@@ -106,6 +106,7 @@ def pruefe(site=SITE, projekte=None):
     b += pruefe_simulationen(site)
     b += pruefe_katalog(site)
     b += pruefe_wissensbasis(site, P)
+    b += pruefe_doku_links(site)
     imp = os.path.join(site, "impressum", "index.html")
     if os.path.exists(imp):
         t = open(imp, encoding="utf-8").read()
@@ -114,6 +115,28 @@ def pruefe(site=SITE, projekte=None):
         for muss in ("Windischenstr. 20", "99423 Weimar", "§ 18 Abs. 2 MStV", "Datenschutz"):
             if muss not in t:
                 b.append(f"impressum: „{muss}“ fehlt")
+    return b
+
+
+def pruefe_doku_links(site=SITE):
+    """lab/doku/: Markdown-Links nur mit voller Adresse (page.html setzt relative nicht, 28.11.2026); eigene Ziele müssen im Bau liegen."""
+    b = []
+    for f in ("index.html", "en.html"):
+        p = os.path.join(site, "lab", "doku", f)
+        if not os.path.isfile(p):
+            continue
+        t = open(p, encoding="utf-8").read()
+        i = t.find("const DATA = ")                                      # nur die Daten, nicht das Skript der Seite (enthält selbst „](“)
+        if i < 0:
+            continue
+        t = json.dumps(json.JSONDecoder().raw_decode(t, i + len("const DATA = "))[0], ensure_ascii=False)
+        for ziel in sorted(set(re.findall(r"\]\(([^)\s]+)\)", t))):
+            if not re.match(r"^(?:[a-z][a-z0-9+.-]*:|#)", ziel, re.I):
+                b.append(f"lab/doku/{f}: relativer Markdown-Link {ziel} (erscheint als Text)")
+            elif ziel.startswith("https://entwurfsforschung.de/lab/") and not ziel.startswith("https://entwurfsforschung.de/lab/design-explorer"):
+                z = os.path.join(site, re.split(r"[?#]", ziel[len("https://entwurfsforschung.de/"):])[0])
+                if not (os.path.isfile(z) or os.path.isfile(os.path.join(z, "index.html"))):
+                    b.append(f"lab/doku/{f}: Link {ziel} führt ins Leere")
     return b
 
 

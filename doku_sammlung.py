@@ -19,6 +19,7 @@ Prof. Dr. Reinhard König in Zusammenarbeit mit Claude von Anthropic · 26.11.20
 import json, os, posixpath, re, shutil, sys
 
 ZIEL = "lab/doku/"
+SEITE = "https://entwurfsforschung.de/"   # page.html setzt in Markdown nur Links mit Schema (https:…); relative bleiben sonst als Text stehen
 
 
 def adresse(p, zur_lab):
@@ -30,6 +31,17 @@ def _lies_data(html):
     i = html.index("const DATA = ") + len("const DATA = ")
     data, ende = json.JSONDecoder().raw_decode(html, i)
     return data
+
+
+def voll(u):
+    """Relative Adresse eines Markdown-Links (relativ zu lab/doku/) als volle Adresse; Schema, Anker, mailto: bleiben.
+    Wunsch Reinhard 28.11.2026: in Formgrammatik, Procedural Cities (vorher KREMLAS) standen relative Links als Markdown-Text,
+    weil page.html nur Links mit Schema setzt (Befund planungsgrundlagen-bd)."""
+    if re.match(r"^(?:[a-z][a-z0-9+.-]*:|#|/)", u, re.I):
+        return u
+    pfad_teil, rest = re.match(r"^([^?#]*)(.*)$", u).groups()
+    ziel = posixpath.normpath(posixpath.join(ZIEL.rstrip("/"), pfad_teil))
+    return SEITE + ziel + ("/" if pfad_teil.endswith("/") and not ziel.endswith("/") else "") + rest
 
 
 def _umrechnen(wert, alt_ordner, pid, geschwister=False, schluessel=None):
@@ -46,7 +58,8 @@ def _umrechnen(wert, alt_ordner, pid, geschwister=False, schluessel=None):
         return u
     def text(s):
         s = pfad(s)
-        return re.sub(r'((?:src|href)=["\']|\]\()((?:\.\./)+[^"\')\s]*|img/[^"\')\s]*)', lambda m: m.group(1) + pfad(m.group(2)), s)
+        s = re.sub(r'((?:src|href)=["\']|\]\()((?:\.\./)+[^"\')\s]*|img/[^"\')\s]*)', lambda m: m.group(1) + pfad(m.group(2)), s)
+        return re.sub(r"\]\(([^)\s]+)\)", lambda m: "](" + voll(m.group(1)) + ")", s)
     if isinstance(wert, dict):
         return {k: _umrechnen(v, alt_ordner, pid, geschwister, k) for k, v in wert.items()}
     if isinstance(wert, list):
