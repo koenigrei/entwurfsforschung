@@ -646,3 +646,115 @@ test("Flächenausgleich: verschlechtert den Plan nie, behält Anker und Bündigk
     for (const g of r.ind.g) { const g0 = b.g.find(q => q.id === g.id); assert.equal(g.bd, g0.bd); assert.equal(g.an, g0.an); }
   }
 });
+
+/* ---------------------------------------------------------------- 27.11.2026: Verbesserungen aus dem KREMLAS-Test der Grundrisssammlung */
+// Wohnung in L-Form: Fassade oben und links, Vorraum der Wohnungstür rechts außen, Wand 0,2 m (Feld 8 × 6 m → 62,5 px = 1 m)
+const L_FELD = { b: 8, h: 6, tuer: 0.8, tuerRand: 0, umriss: [[0, 0], [8, 0], [8, 3], [4, 3], [4, 6], [0, 6]], kanten: ["fassade", "innen", "innen", "innen", "innen", "fassade"], eingang: [8, 0.5, 8.6, 1.7], wand: 0.2 };
+M.registriere({ programme: {
+  t_l: { titel: "L", feld: L_FELD, raeume: [["Wohnen", "Living", 12, 2.4, { fassade: true }], ["Flur", "Hall", 4.5, 1.0, null], ["Bad", "Bath", 4.5, 1.2, null], ["Zimmer", "Room", 8, 2.0, { fassade: true }]],
+         paare: [[1, -1], [0, 1], [1, 2], [0, 3]], vorbild: [[[0, 0, 4, 3.5]], [[4, 0, 8, 1.5]], [[4, 1.5, 8, 3]], [[0, 3.5, 4, 6]]] },
+  t_q: { titel: "Quadrat", feld: { b: 6, h: 6 }, raeume: [["A", "A", 12, 1.5, null], ["B", "B", 24, 1.5, null]], paare: [[0, 1]], vorbild: [[[0, 0, 2, 6]], [[2, 0, 6, 6]]] },
+  t_k: { titel: "Kette", feld: { b: 6, h: 4 }, raeume: [["Flur", "Hall", 6, 0.9, { teile: [0.25, 0.25, 0.25, 0.25], buendig: false, anker: [-1, 0, 1, 2] }], ["Wohnen", "Living", 12, 2.4, null]], paare: [[0, 1]],
+         vorbild: [[[0, 0, 1, 1.5], [0, 1.5, 1, 3], [1, 2, 2.5, 3], [2.5, 2, 4, 3]], [[1, 0, 6, 2]]] } },
+  fassungen: { t_l: { programm: "t_l" }, t_q: { programm: "t_q" }, t_k: { programm: "t_k" } } });
+const planL = (rs, k) => rs.map(([id, x1, y1, x2, y2]) => [id, (x1 + x2) / 2 * k, (y1 + y2) / 2 * k, (x2 - x1) * k, (y2 - y1) * k]);
+
+test("Alle neuen Schalter aus: Fassungen der App rechnen wie vor dem 27.11.2026 (gleiche Saat, gleiche Werte)", () => {
+  const w = (f, t) => { const { z } = lauf(f, {}, t, 7); return M.beste(z); };
+  assert.equal(w("einpassung", 30).fo, 714.8993024829327);
+  const g6 = w("grundriss6", 30); assert.equal(g6.fo, 0.08834391710967532); assert.equal(g6.f3, 3.589320840546861e-11);
+  assert.equal(w("grundriss8", 30).f3, 13.104291824213444);
+  M.setzeFeld(null);
+});
+
+test("Feld als Vieleck: Flächen außerhalb des Umrisses zählen in Sg, der Rand schiebt Räume aus ihnen heraus", () => {
+  M.setzeFeld(L_FELD); const k = M.PX_M;
+  const hz = M.HINDERNIS.filter(g => g.id !== -1).reduce((s, g) => s + g.w * g.h, 0) / (k * k);   // ohne den Vorraum (id −1, ebenfalls Hindernis)
+  assert.ok(Math.abs(hz - 12) < 0.01, `Hindernisse ${hz} m²`);              // Ausschnitt 4 × 3 m
+  const I = ind(planL([[0, 5.5, 3, 7.5, 5]], k));                            // 2 × 2 m ganz im Ausschnitt
+  assert.ok(Math.abs(M.ueberlappung(I) / (k * k) - 4) < 1e-6);
+  M.pruefeRand(I, -1);
+  assert.ok(M.ueberlappung(I) / (k * k) < 0.01, "nach dem Rand im Umriss");
+  M.setzeFeld(null); assert.equal(M.UMRISS, null); assert.equal(M.HINDERNIS.length, 0);
+});
+
+test("Schräge Außenwand: der Plan wird am Umriss beschnitten, die Fläche zählt als Vieleck", () => {
+  const f = { b: 6, h: 5, umriss: [[0, 0], [6, 0], [6, 4], [0, 5]], kanten: ["fassade", "innen", "fassade", "innen"] };
+  M.setzeFeld(f); const k = M.PX_M;
+  const R = M.grundriss(ind(planL([[0, 0, 0, 3, 3]], k)), 300, M.TEILE_PX);   // wächst bis an die schräge Kante und wird beschnitten
+  assert.ok(R[0].poly, "Vieleck");
+  assert.ok(Math.abs(M.vielFlaeche(R[0].poly) / (k * k) - 27) < 0.05, `${M.vielFlaeche(R[0].poly) / (k * k)} m²`);
+  M.setzeFeld(null);
+});
+
+test("Wohnungstür am Vorraum, Wandstärke und Funktionsmaß: Plan von Hand gültig, Wohnräume an der Fassade", () => {
+  const z = M.erzeuge(fassung("t_l", {}), zufall(1)), k = M.PX_M;
+  const I = ind(planL([[0, 0, 0, 4, 3.5], [1, 4, 0, 8, 1.5], [2, 4, 1.5, 8, 3], [3, 0, 3.5, 4, 6]], k));
+  I.g.forEach(g => { g.r = g.id; });
+  const w = M.planPruefung(I, z.paare, "t_l", 300);
+  assert.equal(w.fehlt, 0, "alle Türen samt Wohnungstür");
+  assert.ok(Math.abs(w.raeume.find(q => q.raum === 0).flaeche - 3.8 * 3.3) < 0.01, "Innenfläche ohne halbe Wand ringsum");
+  assert.deepEqual([w.funktion.n, w.funktion.ok], [2, 2]);
+  assert.ok(w.gueltig);
+  M.setzeFeld(null);
+});
+
+test("Funktionsmaß: Zimmer ohne Fassade fehlt; nur mit Schalter funktion zählt es in f3 und in der Gültigkeit", () => {
+  const plan = [[0, 0, 0, 4, 6], [1, 4, 0, 8, 1.5], [3, 4, 1.5, 8, 3], [2, 0, 0, 0.01, 0.01]];
+  const pr = funktion => { const z = M.erzeuge(fassung("t_l", { funktion }), zufall(1)); const I = ind(planL(plan, M.PX_M)); I.g.forEach(g => { g.r = g.id; }); return M.planPruefung(I, z.paare, "t_l", 300); };
+  const ohne = pr(false), mit = pr(true);
+  assert.deepEqual(ohne.funktion.fehlt, [3]);
+  assert.ok(ohne.funk > 1);
+  assert.ok(Math.abs(mit.f3 - ohne.f3 - 3 * ohne.funk) < 1e-9);
+  assert.equal(mit.gueltig, false);
+  M.erzeuge(fassung("grundriss6", {}), zufall(1));                          // Schalter wieder aus
+  M.setzeFeld(null);
+});
+
+test("Ähnlichkeit: mit dreh90 gilt ein um 90° gedrehter Plan bei quadratischem Feld als deckungsgleich, ohne nicht", () => {
+  const ae = dreh90 => { M.erzeuge(fassung("t_q", { dreh90 }), zufall(1)); const k = M.PX_M;
+    const R = [{ r: 0, x1: 0, y1: 0, x2: 6 * k, y2: 2 * k }, { r: 1, x1: 0, y1: 2 * k, x2: 6 * k, y2: 6 * k }];
+    return M.aehnlichkeit(null, "t_q", R); };
+  const a = ae(false), b = ae(true);
+  assert.ok(a.mittel < 0.6, `ohne ${a.mittel}`);
+  assert.ok(b.mittel > 0.999 && b.gedreht, `mit ${b.mittel}`);
+  M.erzeuge(fassung("grundriss6", {}), zufall(1)); M.setzeFeld(null);
+});
+
+test("Flur als Kette: jeder Teil hängt am vorigen (Anker), die starre Form bleibt über Generationen erhalten", () => {
+  const { z } = lauf("t_k", {}, 20, 3), e = z.eltern[0], g = id => e.g.find(q => q.id === id);
+  const teile = e.g.filter(q => q.r === 0).map(q => q.id).sort((a, b) => a - b);
+  assert.equal(teile.length, 4);
+  assert.deepEqual(teile.slice(1).map(id => g(id).an), teile.slice(0, 3));
+  const k = M.PX_M, H = g(teile[0]);
+  assert.ok(Math.abs((g(teile[3]).x - H.x) / k - (3.25 - 0.5)) < 1e-6 && Math.abs((g(teile[3]).y - H.y) / k - (2.5 - 0.75)) < 1e-6, "Lage relativ zum Hauptteil wie im Vorbild");
+  M.setzeFeld(null);
+});
+
+test("Suche mit Umriss, Funktionskriterium und knapp: gültiger Plan, alle Wohnräume an der Fassade", () => {
+  const p = fassung("t_l", { funktion: true, knapp: true, naehe: 0 });
+  const S = M.sucheNeu(p, zufall, { anzahl: 1, ziel: 1, laeufe: 30, generationen: 200 });
+  while (!S.fertig) M.sucheWeiter(S, 50);
+  assert.ok(S.treffer.length >= 1, "Treffer");
+  const w = S.treffer[0].wert;
+  assert.ok(w.gueltig && w.funktion.ok === w.funktion.n);
+  M.erzeuge(fassung("grundriss6", {}), zufall(1)); M.setzeFeld(null);
+});
+
+test("Impfung (Versuch 3): Fälle setzen Mittelpunkt und Seitenverhältnis der ersten Eltern, gleiche Saat gleich, ohne Impfung unverändert", () => {
+  const k = M.PX_M, fall = [[[1, 1, 4, 3]], null, [[5, 4, 7, 8]]];       // Raum 1 ohne Partner: bleibt zufällig
+  const lage = z => z.eltern.map(e => e.g.map(g => [g.x, g.y, g.w]));
+  assert.deepEqual(lage(M.erzeuge(fassung("grundriss6", { impfung: null }), zufall(5))), lage(M.erzeuge(fassung("grundriss6", {}), zufall(5))), "ohne Impfung wie bisher");
+  const p = fassung("grundriss6", { mu: 4, impfung: { faelle: [fall], anteil: 0.5, streuung: 0.3 } });
+  const a = M.erzeuge(p, zufall(5));
+  assert.deepEqual(lage(a), lage(M.erzeuge(p, zufall(5))), "gleiche Saat gleich");
+  const g = (i, id) => a.eltern[i].g.find(q => q.id === id);
+  assert.ok(Math.abs(g(0, 0).x / k - 2.5) < 1e-9 && Math.abs(g(0, 0).y / k - 2) < 1e-9, "erster Elter: Mittelpunkt des Falls");
+  assert.ok(Math.abs(g(0, 2).x / k - 6) < 1e-9 && Math.abs(g(0, 2).y / k - 6) < 1e-9);
+  assert.ok(g(0, 2).h > g(0, 2).w, "Seitenverhältnis wie im Fall (hoch)");
+  const d = Math.hypot(g(1, 0).x / k - 2.5, g(1, 0).y / k - 2);
+  assert.ok(d > 0 && d < 1.5, `zweiter Elter: gestreute Kopie (${d.toFixed(2)} m)`);
+  const d3 = Math.hypot(g(2, 0).x / k - 2.5, g(2, 0).y / k - 2);
+  assert.ok(d3 > 0, "dritter Elter zufällig");
+  M.setzeFeld(null);
+});

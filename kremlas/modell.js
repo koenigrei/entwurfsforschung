@@ -28,6 +28,16 @@
 
   /** Zeichenfläche pictureBox1 (Form1.Designer.cs: 500 × 430) = Umgebungsrechteck REvo.Canvas */
   let BREITE = 500, HOEHE = 430;                                       // neu (23.11.2026): je Programm einstellbar (setzeFeld), Voreinstellung wie im Original
+  /* Neu (27.11.2026, KREMLAS-Test der Grundrisssammlung), alles nur wirksam, wenn das Programm es angibt bzw. der Parameter gesetzt ist:
+     UMRISS   Feld als Vieleck (feld.umriss, px; rechtwinklig oder mit schrägen Kanten), HINDERNIS: Rechtecke der Zellen ganz außerhalb
+     FASSADE  Kanten des Umrisses mit der Art "fassade" (feld.kanten) als Strecken [ax, ay, bx, by] in px
+     EINGANG  Vorraum vor der Wohnungstür (feld.eingang, Rechteck außerhalb des Umrisses) = Nachbar −1
+     WAND     Wandstärke in px (feld.wand): Raum im Modell = Fläche + halbe Wand ringsum
+     FUNKTION Parameter „funktion“: Räume mit opt.fassade an der Fassade als Kriterium in f3 und in der Gültigkeit (gemessen wird immer)
+     DREH90   Parameter „dreh90“: Ähnlichkeit auch in 90° gedrehter Lage, wenn das Feld annähernd quadratisch ist
+     KNAPP    Parameter „knapp“: Flächenausgleich auch für Wohnungen (nicht nur Häuser), wenn nur Fläche oder Breite fehlen */
+  let UMRISS = null, HINDERNIS = [], HINDERNIS_R = [], KANTEN_U = [], SCHRAEG_U = [], FASSADE = [], EINGANG = null, WAND = 0, FUNKTION = false, DREH90 = false, KNAPP = false;
+  const FASSADE_M = 1.1;                                               // gemeinsame Kante mit der Fassade für ein Fenster (wie die Tür: 0,9 + 0,2 m)
 
   /** Fassungen: Ablauf (RunAdjust oder RunTopo) und Voreinstellungen der Regler.
       einpassung: Stand des Programms (REvo.Run → RunAdjust; Form1.Designer.cs: Rooms 25, Population 1, Pressure 2,
@@ -144,12 +154,76 @@
   const schnitt = (A, B) => { const r = schnittRechteck(A, B); return r ? r.w * r.h : 0; };
   const FELD = { x: BREITE / 2, y: HOEHE / 2, w: BREITE, h: HOEHE };   // folgt setzeFeld (behoben 24.11.2026: vorher fest 500 × 430)
 
-  /** Fitness f1 = Sg (RChromosome.Overlap): Summe der paarweisen Schnittflächen plus die Flächenanteile außerhalb des Umgebungsrechtecks */
+  /* ---------------------------------------------------------------- Feld als Vieleck (neu, 27.11.2026) */
+  /** Vieleck P ([[x, y]]) auf das Rechteck [x1, x2] × [y1, y2] beschneiden (Sutherland–Hodgman; P darf nicht konvex sein,
+      die Fläche des Ergebnisses stimmt dann trotzdem) */
+  function klippe(P, x1, y1, x2, y2) {
+    let out = P;
+    for (let s = 0; s < 4 && out.length; s++) {
+      const ax = s < 2 ? 0 : 1, g = s === 0 ? x1 : s === 1 ? x2 : s === 2 ? y1 : y2, unten = s === 0 || s === 2;   // Halbebene p[ax] ≥ g bzw. ≤ g
+      const inp = out, n = inp.length; out = [];
+      for (let i = 0; i < n; i++) {
+        const a = inp[(i + n - 1) % n], b = inp[i], ia = unten ? a[ax] >= g : a[ax] <= g, ib = unten ? b[ax] >= g : b[ax] <= g;
+        if (ia !== ib) { const t = (g - a[ax]) / (b[ax] - a[ax]), q = [0, 0]; q[ax] = g; q[1 - ax] = a[1 - ax] + t * (b[1 - ax] - a[1 - ax]); out.push(q); }
+        if (ib) out.push(b);
+      }
+    }
+    return out;
+  }
+  /** Fläche eines Vielecks (Gaußsche Trapezformel) */
+  function vielFlaeche(P) { let s = 0; for (let i = 0; i < P.length; i++) { const a = P[i], b = P[(i + 1) % P.length]; s += a[0] * b[1] - b[0] * a[1]; } return Math.abs(s) / 2; }
+  /** Fläche eines Rechtecks innerhalb des Felds (Umriss bzw. Umgebungsrechteck) */
+  const imFeld = (x1, y1, x2, y2) => UMRISS ? vielFlaeche(klippe(UMRISS, x1, y1, x2, y2)) : Math.max(0, Math.min(x2, BREITE) - Math.max(x1, 0)) * Math.max(0, Math.min(y2, HOEHE) - Math.max(y1, 0));
+  /** Länge der Strecke s = [ax, ay, bx, by] innerhalb des Rechtecks (Liang–Barsky) */
+  function streckeIn(s, x1, y1, x2, y2) {
+    const dx = s[2] - s[0], dy = s[3] - s[1]; let t0 = 0, t1 = 1;
+    for (const [p, q] of [[-dx, s[0] - x1], [dx, x2 - s[0]], [-dy, s[1] - y1], [dy, y2 - s[1]]]) {
+      if (Math.abs(p) < 1e-12) { if (q < 0) return 0; continue; }
+      const t = q / p; if (p < 0) { if (t > t1) return 0; if (t > t0) t0 = t; } else { if (t < t0) return 0; if (t < t1) t1 = t; }
+    }
+    return (t1 - t0) * Math.hypot(dx, dy);
+  }
+  /** Abstand der Strecke s zum Rechteck A (0, wenn sie es schneidet) */
+  function streckeAbstand(s, A) {
+    if (streckeIn(s, A.x1, A.y1, A.x2, A.y2) > 0) return 0;
+    const pr = (px, py) => Math.hypot(Math.max(A.x1 - px, 0, px - A.x2), Math.max(A.y1 - py, 0, py - A.y2));
+    const ps = (px, py) => { const dx = s[2] - s[0], dy = s[3] - s[1], l = dx * dx + dy * dy, t = l ? Math.max(0, Math.min(1, ((px - s[0]) * dx + (py - s[1]) * dy) / l)) : 0; return Math.hypot(px - s[0] - t * dx, py - s[1] - t * dy); };
+    return Math.min(pr(s[0], s[1]), pr(s[2], s[3]), ps(A.x1, A.y1), ps(A.x2, A.y1), ps(A.x1, A.y2), ps(A.x2, A.y2));
+  }
+  /** Umriss, Hindernisse und Fassade eines Felds in px (je Feld einmal berechnet). Hindernisse: Zellen von 0,1 m, die ganz außerhalb
+      des Umrisses liegen, zeilenweise zu Streifen und gleiche Streifen untereinander zu Rechtecken zusammengefasst – an schrägen Kanten
+      bleibt so ein Rest innerhalb der Zellen frei, die Räume wachsen bis über die Kante und werden im Plan an ihr beschnitten. */
+  const FELD_CACHE = new WeakMap();
+  function feldVieleck(f) {
+    const c0 = FELD_CACHE.get(f); if (c0 && c0.k === PX_M) return c0;
+    const k = PX_M, U = f.umriss.map(([x, y]) => [x * k, y * k]), z = 0.1 * k, nx = Math.ceil(BREITE / z - 1e-9), ny = Math.ceil(HOEHE / z - 1e-9);
+    const H = [], offen = new Map();
+    for (let j = 0; j < ny; j++) {
+      const y1 = j * z, y2 = Math.min(HOEHE, y1 + z), laeufe = [];
+      const aus = i => vielFlaeche(klippe(U, i * z, y1, Math.min(BREITE, (i + 1) * z), y2)) < 1e-6 * z * z;
+      for (let i = 0; i < nx; i++) { if (!aus(i)) continue; let i2 = i; while (i2 + 1 < nx && aus(i2 + 1)) i2++; laeufe.push(i + "-" + i2); i = i2; }
+      const neu = new Map();
+      for (const l of laeufe) { const r = offen.get(l); if (r) { r[3] = y2; neu.set(l, r); } else { const [a, b] = l.split("-").map(Number); neu.set(l, [a * z, y1, Math.min(BREITE, (b + 1) * z), y2]); } }
+      for (const [l, r] of offen) if (!neu.has(l)) H.push(r);
+      offen.clear(); for (const [l, r] of neu) offen.set(l, r);
+    }
+    for (const r of offen.values()) H.push(r);
+    const F = [];
+    (f.kanten || []).forEach((art, i) => { if (art !== "fassade") return; const a = U[i], b = U[(i + 1) % U.length]; F.push([a[0], a[1], b[0], b[1]]); });
+    const kanten = U.map((a, i) => [a[0], a[1], U[(i + 1) % U.length][0], U[(i + 1) % U.length][1]]);
+    const schraeg = kanten.filter(e => { const w = Math.atan2(Math.abs(e[3] - e[1]), Math.abs(e[2] - e[0])) * 180 / Math.PI; return w > 2 && w < 88; });
+    const c = { k, U, H: H.map(([x1, y1, x2, y2]) => gen(-2, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1)), F, kanten, schraeg };
+    FELD_CACHE.set(f, c);
+    return c;
+  }
+
+  /** Fitness f1 = Sg (RChromosome.Overlap): Summe der paarweisen Schnittflächen plus die Flächenanteile außerhalb des Umgebungsrechtecks
+      (neu: mit Umriss außerhalb des Umrisses) */
   function ueberlappung(ind) {
     const G = ind.g, n = G.length; let s = 0;
     for (let i = 0; i < n; i++) {
       for (let k = i + 1; k < n; k++) s += schnitt(G[i], G[k]);
-      s += G[i].w * G[i].h - schnitt(G[i], FELD);
+      s += G[i].w * G[i].h - (UMRISS ? imFeld(links(G[i]), oben(G[i]), rechts(G[i]), unten(G[i])) : schnitt(G[i], FELD));
     }
     return s;
   }
@@ -178,13 +252,23 @@
   /** Rand (RChromosome.CheckBorder): Eckpunkte in der Reihenfolge links oben, rechts oben, rechts unten, links unten;
       ragt einer hinaus, wird der Raum um genau diesen Betrag zurückgeschoben. Gesperrte (gezogene) Räume bleiben. */
   function pruefeRand(ind, gesperrt) {
-    for (const g of ind.g) {
-      if (g.id === gesperrt) continue;
-      g.vx = 0; g.vy = 0;
+    const rand = g => {
       for (let j = 0; j < 4; j++) {
         const px = j === 0 || j === 3 ? links(g) : rechts(g), py = j < 2 ? oben(g) : unten(g);
         if (px < 0) g.x += -px; else if (px > BREITE) g.x += BREITE - px;
         if (py < 0) g.y += -py; else if (py > HOEHE) g.y += HOEHE - py;
+      }
+    };
+    for (const g of ind.g) {
+      if (g.id === gesperrt) continue;
+      g.vx = 0; g.vy = 0;
+      rand(g);
+      if (HINDERNIS.length) {                                             // neu (Umriss): aus den Flächen außerhalb des Umrisses schieben
+        for (let runde = 0; runde < 2; runde++) for (let j = 0; j < HINDERNIS.length; j++) {
+          const o = HINDERNIS_R[j]; if (rechts(g) <= o.x1 || links(g) >= o.x2 || unten(g) <= o.y1 || oben(g) >= o.y2) continue;   // berührt oder getrennt: kein Schub
+          const r = kollision(g, HINDERNIS[j]); if (r) { g.x += r.x; g.y += r.y; }
+        }
+        rand(g);
       }
     }
   }
@@ -334,6 +418,7 @@
 
   /** Außenraum als Nachbar (Raumnummer −1, Eingang des Flurs): ein Streifen vor der Feldkante, die dem Raum A am nächsten liegt */
   function aussen(A) {
+    if (EINGANG) return EINGANG;                                         // neu (Umriss): Vorraum vor der Wohnungstür
     const d = [links(A), BREITE - rechts(A), oben(A), HOEHE - unten(A)], k = d.indexOf(Math.min(...d)), T = 1000;
     return k === 0 ? gen(-1, -T / 2, HOEHE / 2, T, 3 * HOEHE) : k === 1 ? gen(-1, BREITE + T / 2, HOEHE / 2, T, 3 * HOEHE)
          : k === 2 ? gen(-1, BREITE / 2, -T / 2, 3 * BREITE, T) : gen(-1, BREITE / 2, HOEHE + T / 2, 3 * BREITE, T);
@@ -400,6 +485,7 @@
   /** Flächen der Räume: ohne Raumprogramm alle gleich, Belegung · (499 · 429) / n (GrowPolys, im Original fest 0,75);
       mit Raumprogramm m² · 2500 px² · Belegung (bei 100 % füllen die Räume das Feld genau) */
   function flaechen(n, belegung, programm) {
+    if (programm && WAND) return PROGRAMME[programm].raeume.map(r => (Math.sqrt(r[2]) * PX_M + WAND) ** 2 * belegung);   // neu: Fläche + halbe Wand ringsum (als Quadrat gerechnet)
     if (programm) return PROGRAMME[programm].raeume.map(r => r[2] * PX_M * PX_M * belegung);
     return new Array(n).fill(((BREITE - 1) * (HOEHE - 1) / n) * belegung);
   }
@@ -587,7 +673,24 @@
     P.raeume.forEach((q, raum) => { if (!(q[4] && q[4].treppe)) return; const v = P.vorbild[raum][0], id = T.find(t => t[1] === raum)[0]; F.push([id, id, 0, 0, v[2] - v[0], v[3] - v[1]]); });
     return F;
   }
-  function startPopulation(mu, n, zufall, belegung, programm, minSeite, mindest, L, sym, fest, starr) {
+  /** Impfung (neu, 27.11.2026, Versuch 3 der Grundrisssammlung; Fallinjektion nach Louis & McDonnell 2004, IEEE TEC 8(4)):
+      Lagen eines ähnlichen Falls als Startlage eines Individuums. fall[raum] = [[x0, y0, x1, y1] …] in m (Feld des Programms,
+      Ursprung links oben) oder null (Raum ohne Partner: bleibt zufällig). Je Teil Mittelpunkt und Seitenverhältnis, die Fläche
+      bleibt die des Programms; streuung (m): Verschiebung N(0, streuung) für alle Kopien außer der ersten eines Falls. */
+  function impfe(G, fall, zufall, streuung) {
+    for (let raum = 0; raum < fall.length; raum++) {
+      const R = fall[raum]; if (!R || !R.length) continue;
+      const gs = G.filter(g => g.r === raum);
+      for (let j = 0; j < Math.min(gs.length, R.length); j++) {
+        const [x0, y0, x1, y1] = R[j], g = gs[j];
+        if (!(x1 > x0 && y1 > y0)) continue;
+        const dx = streuung ? normal(zufall, streuung) : 0, dy = streuung ? normal(zufall, streuung) : 0;
+        g.x = Math.min(BREITE, Math.max(0, ((x0 + x1) / 2 + dx) * PX_M)); g.y = Math.min(HOEHE, Math.max(0, ((y0 + y1) / 2 + dy) * PX_M));
+        setzeBreite(g, Math.sqrt(g.a * (x1 - x0) / (y1 - y0)));
+      }
+    }
+  }
+  function startPopulation(mu, n, zufall, belegung, programm, minSeite, mindest, L, sym, fest, starr, impf) {
     const A = flaechen(n, belegung == null ? 0.75 : belegung, programm), P = [];
     const T = geneListe(n, A, programm, L);
     for (let k = 0; k < mu; k++) {
@@ -596,7 +699,7 @@
         const x = zufall.ganz(BREITE), y = zufall.ganz(HOEHE);
         let w = Math.sqrt(a) + zufall.ganz(20) - 10;
         if (w > Math.trunc(BREITE / 2)) w = Math.trunc(BREITE / 2);
-        const mb = programm && mindest ? (PROGRAMME[programm].raeume[raum][3] || 0) * PX_M : 0;
+        const mb = programm && mindest ? (PROGRAMME[programm].raeume[raum][3] || 0) * PX_M + (WAND && !(PROGRAMME[programm].raeume[raum][4] || {}).fest ? WAND : 0) : 0;
         const g = gen(id, x, y, w, a / w, a, minSeite, mb, raum);
         g.bd = !!bd; if (an != null) g.an = an;
         const tp = programm && treppeVon(programm, raum); if (tp) { g.tr = true; g.zg = tp.kante; if (tp.lauf) g.zh = tp.lauf; }
@@ -604,6 +707,8 @@
         if (mb) setzeBreite(g, g.w);                                     // Mindestbreite gleich am Start
         G.push(g);
       }
+      const nImpf = impf && impf.faelle && impf.faelle.length ? Math.min(mu, Math.max(1, Math.round((impf.anteil == null ? 0.3 : impf.anteil) * mu))) : 0;
+      if (k < nImpf) impfe(G, impf.faelle[k % impf.faelle.length], zufall, k < impf.faelle.length ? 0 : (impf.streuung == null ? 0.3 : impf.streuung));
       const I = { g: G, fo: 0, fd: 0 };
       formen(I, starr); symmetrisiere(I, sym, -1); formen(I, starr); fixiere(I, fest);
       P.push(bewerte(I));
@@ -615,7 +720,7 @@
     const p = Object.assign({}, STANDARD, param), F = FASSUNGEN[p.fassung] || FASSUNGEN.einpassung;
     const prog = F.programm || null, nR = prog ? PROGRAMME[prog].raeume.length : Math.max(2, Math.round(p.raeume)), mu = Math.max(1, Math.round(p.mu));
     setzeFeld(feldVon(prog));                                            // neu: Feld je Programm (Vorbilder), sonst 500 × 430
-    NAEHE = +p.naehe || 0; TASCHEN = !!p.taschen;
+    NAEHE = +p.naehe || 0; TASCHEN = !!p.taschen; FUNKTION = !!p.funktion; DREH90 = !!p.dreh90; KNAPP = !!p.knapp;
     const L = prog && p.mindest ? lRaeume(prog, p.lform) : [];
     const Tg = prog ? geneListe(nR, new Array(nR).fill(0), prog, L) : [], n = prog ? Tg.length : nR;   // n = Gene (Räume + Teile)
     const sym = prog ? symmetrieGene(prog, Tg) : null, fest = prog ? festGene(prog, Tg) : null;
@@ -624,7 +729,7 @@
     const bel = Math.min(1, Math.max(0.05, p.belegung == null ? 0.75 : p.belegung));
     const z = { t: 0, zufall, n, nRaeume: nR, lraeume: L, mu, ablauf: F.ablauf, topologie: F.topologie, programm: prog, belegung: bel,
                 paare: prog ? (p.grundrissTopo === "wohnung" ? PROGRAMME[prog].paare.map(q => q.slice()) : nachbarn(nR, "stern")) : nachbarn(n, F.topologie),
-                eltern: startPopulation(mu, nR, zufall, bel, prog, p.minSeite, p.mindest, L, sym, fest, starr), kinder: 0, aufteilung: null, gesperrt: -1, verlauf: [], verlaufD: [], dichte: 1, rlap: p.rlap,
+                eltern: startPopulation(mu, nR, zufall, bel, prog, p.minSeite, p.mindest, L, sym, fest, starr, prog ? p.impfung : null), kinder: 0, aufteilung: null, gesperrt: -1, verlauf: [], verlaufD: [], dichte: 1, rlap: p.rlap,
                 mindest: !!(prog && p.mindest), feld: feldVon(prog), sym, fest, starr };
     const stR = prog ? PROGRAMME[prog].raeume.findIndex(q => q[4] && q[4].treppe) : -1;   // Treppe (Haus): Gen, Raum, Zugangskante
     z.treppe = stR >= 0 ? { id: Tg.find(t => t[1] === stR)[0], raum: stR, kante: treppeVon(prog, stR).kante } : null;
@@ -767,6 +872,7 @@
     const mitTeilen = z.n > (z.nRaeume || z.n);
     if (z.mindest) tauscheRaeume(c, z.sym, 0.15, zuf, ges);
     if (z.mindest && +p.cluster > 0) clusterSpiegeln(c, z, P, p.rlap, +p.cluster, zuf);
+    if (z.mindest && GRAMMATIK && +p.grammatik > 0) GRAMMATIK.mutiere(c, z, P, +p.grammatik, zuf, M);   // neu (Versuch 4): Regeln als Mutation
     if (z.mindest && z.treppe) treppeZugang(c, P, 0.1, zuf);
     if (mitTeilen && !z.sym) variiereAnteil(c, 0.2, zuf, ges);
     formen(c, z.starr); symmetrisiere(c, z.sym, ges); formen(c, z.starr); fixiere(c, z.fest);
@@ -801,7 +907,7 @@
   function schritt(z, param) {
     setzeFeld(z.feld); FEST = new Set((z.fest || []).map(f => f[0]));
     const p = Object.assign({}, STANDARD, param);
-    NAEHE = +p.naehe || 0; TASCHEN = !!p.taschen;
+    NAEHE = +p.naehe || 0; TASCHEN = !!p.taschen; FUNKTION = !!p.funktion; DREH90 = !!p.dreh90; KNAPP = !!p.knapp;
     z.rlap = p.rlap;
     if (z.ablauf === "topologie") generationTopologie(z, p); else generationEinpassung(z, p);
     z.t++;
@@ -827,6 +933,13 @@
         r.x1 += dx; r.x2 += dx; r.y1 += dy; r.y2 += dy;
       }
       r.x1 = Math.max(0, r.x1); r.y1 = Math.max(0, r.y1); r.x2 = Math.min(BREITE, r.x2); r.y2 = Math.min(HOEHE, r.y2);
+    }
+    // neu (Umriss): flache Überlappungen mit den Flächen außerhalb des Umrisses abschneiden (wie beim festen Raum: der Raum weicht aus)
+    if (HINDERNIS.length) for (const r of R) for (const o of HINDERNIS_R) {
+      const ox = Math.min(r.x2, o.x2) - Math.max(r.x1, o.x1), oy = Math.min(r.y2, o.y2) - Math.max(r.y1, o.y1);
+      if (ox <= 0 || oy <= 0 || Math.min(ox, oy) > (teile || TEILE_PX)) continue;
+      if (ox <= oy) { if (r.x1 + r.x2 < o.x1 + o.x2) r.x2 = Math.min(r.x2, o.x1); else r.x1 = Math.max(r.x1, o.x2); }
+      else { if (r.y1 + r.y2 < o.y1 + o.y2) r.y2 = Math.min(r.y2, o.y1); else r.y1 = Math.max(r.y1, o.y2); }
     }
     const quer = (a1, a2, b1, b2) => Math.min(a2, b2) - Math.max(a1, b1) > 0.5;   // Projektionen überdecken sich echt
     // neu (Mindestmaße): Überlappungen bis „teile“ px Tiefe werden geteilt – die Wand rückt in die Mitte der Überlappung
@@ -864,6 +977,16 @@
             if (q.y2 > r.y2 + 0.01) { const a = Math.max(0, q.y1 - r.y2); if (a < U[0]) U = [a, true]; }
           }
         }
+        for (const q of HINDERNIS_R) {                                     // neu (Umriss): Flächen außerhalb wirken wie die Feldkante
+          if (quer(r.y1, r.y2, q.y1, q.y2)) {
+            if (q.x1 < r.x1 - 0.01) { const a = Math.max(0, r.x1 - q.x2); if (a < L[0]) L = [a, false]; }
+            if (q.x2 > r.x2 + 0.01) { const a = Math.max(0, q.x1 - r.x2); if (a < Rt[0]) Rt = [a, false]; }
+          }
+          if (quer(r.x1, r.x2, q.x1, q.x2)) {
+            if (q.y1 < r.y1 - 0.01) { const a = Math.max(0, r.y1 - q.y2); if (a < O[0]) O = [a, false]; }
+            if (q.y2 > r.y2 + 0.01) { const a = Math.max(0, q.y1 - r.y2); if (a < U[0]) U = [a, false]; }
+          }
+        }
         const s = ([a, raum]) => Math.max(0, raum ? Math.min(a / 2, 4) : a);   // zur Wand ganz, zum Nachbarn in kleinen Schritten (beide gleich schnell)
         const dl = s(L), dr = s(Rt), dob = s(O), du = s(U);
         if (dl > 0.01 || dr > 0.01 || dob > 0.01 || du > 0.01) bewegt = true;
@@ -872,7 +995,41 @@
       if (!bewegt) break;
     }
     if (TASCHEN && R.some(r => r.fp)) taschenFuellen(R, ind);
+    if (UMRISS) schraegWachsen(R);
+    if (UMRISS) for (const r of R) {                                      // neu (Umriss): an schrägen Kanten beschneiden → Vieleck poly
+      const P = klippe(UMRISS, r.x1, r.y1, r.x2, r.y2), a = vielFlaeche(P);
+      if (Math.abs(a - (r.x2 - r.x1) * (r.y2 - r.y1)) > 1) r.poly = P;
+    }
     return R;
+  }
+  /** An schräge Kanten heranwachsen (neu, 27.11.2026, Umriss): Die Hindernisse sind nur Zellen ganz außerhalb, vor einer schrägen Kante
+      bleibt deshalb ein Keil frei. Liegt jenseits einer Seite eines Raums (über seine Breite, bis zum Feldrand) nur Umriss mit schrägen
+      Kanten, wächst die Seite bis an deren äußersten Punkt – höchstens bis zum nächsten Raum; der Plan schneidet den Raum dann an der
+      Kante ab (poly). An rechtwinkligen Kanten ändert sich nichts. */
+  function schraegWachsen(R) {
+    if (!SCHRAEG_U.length) return;                                       // Umriss ohne schräge Kanten: nichts zu tun
+    const kanten = KANTEN_U, schraeg = e => SCHRAEG_U.includes(e);
+    for (const r of R) {
+      if (r.fp) continue;
+      for (let seite = 0; seite < 4; seite++) {
+        const st = [{ x1: r.x1, x2: r.x2, y1: 0, y2: r.y1 }, { x1: r.x2, x2: BREITE, y1: r.y1, y2: r.y2 }, { x1: r.x1, x2: r.x2, y1: r.y2, y2: HOEHE }, { x1: 0, x2: r.x1, y1: r.y1, y2: r.y2 }][seite];
+        if (st.x2 - st.x1 < 1 || st.y2 - st.y1 < 1) continue;
+        if (!SCHRAEG_U.some(e => streckeIn(e, st.x1 + 0.5, st.y1 + 0.5, st.x2 - 0.5, st.y2 - 0.5) > 1)) continue;   // keine schräge Kante jenseits dieser Seite
+        const innen = kanten.filter(e => streckeIn(e, st.x1 + 0.5, st.y1 + 0.5, st.x2 - 0.5, st.y2 - 0.5) > 1);
+        if (!innen.every(schraeg)) continue;
+        const P = klippe(UMRISS, st.x1, st.y1, st.x2, st.y2); if (vielFlaeche(P) < 1) continue;
+        const xs = P.map(q => q[0]), ys = P.map(q => q[1]);
+        let ziel = [Math.min(...ys), Math.max(...xs), Math.max(...ys), Math.min(...xs)][seite];
+        for (const q of R) {                                              // nicht in einen anderen Raum hinein
+          if (q === r) continue;
+          const quer = seite % 2 === 0 ? Math.min(q.x2, r.x2) - Math.max(q.x1, r.x1) : Math.min(q.y2, r.y2) - Math.max(q.y1, r.y1);
+          if (quer <= 0.5) continue;
+          if (seite === 0 && q.y2 <= r.y1 + 0.5) ziel = Math.max(ziel, q.y2); else if (seite === 1 && q.x1 >= r.x2 - 0.5) ziel = Math.min(ziel, q.x1);
+          else if (seite === 2 && q.y1 >= r.y2 - 0.5) ziel = Math.min(ziel, q.y1); else if (seite === 3 && q.x2 <= r.x1 + 0.5) ziel = Math.max(ziel, q.x2);
+        }
+        if (seite === 0) r.y1 = Math.min(r.y1, ziel); else if (seite === 1) r.x2 = Math.max(r.x2, ziel); else if (seite === 2) r.y2 = Math.max(r.y2, ziel); else r.x1 = Math.min(r.x1, ziel);
+      }
+    }
   }
   /** Restflächen neben festen Räumen (neu, 25.11.2026, Häuser Siza): Treppe und Luftraum wachsen nicht, und ein Rechteck kann nicht
       halb an ihnen vorbei wachsen – so blieb z. B. rechts neben der zweiläufigen Treppe ein Streifen von 1,1 × 2,85 m leer, den im Vorbild
@@ -880,6 +1037,9 @@
       als zusätzliches Rechteck (zusatz) dem angrenzenden Raum zugeschlagen, dem am meisten Fläche fehlt (er muss auf seiner Mindestbreite
       anliegen, und der Streifen muss so breit sein). Die Gene bleiben unverändert; der Streifen entsteht bei jeder Planableitung neu.
       Schalter „taschen“ je Fassung: gemessen hilft er Typ Ab und dem Haus mit fünf Zimmern, Typ Bb schadet er (Doku Kap. 7). */
+  /** Grammatik (neu, 27.11.2026, Versuch 4): optionales Modul mit Regeln über Raumeigenschaften (grammatik.js); modell.js bleibt ohne
+      Abhängigkeit – das Modul wird über setzeGrammatik eingehängt und wirkt nur mit dem Parameter grammatik > 0 (Wahrscheinlichkeit je Kind). */
+  let GRAMMATIK = null;
   let TASCHEN = false;                                                   // Schalter „taschen“ der Fassung, je Lauf gesetzt
   function taschenFuellen(R, ind) {
     const raum = q => q.r == null ? q.id : q.r, mindest = 0.3 * PX_M;
@@ -931,6 +1091,7 @@
   /** Treppe: Spanne des Zugangs entlang der Zugangskante – ganze Treppenbreite, bei der U-Treppe nur der Lauf (Hälfte zh) */
   function zugSpanne(S) { const senk = S.zg[0] === "x", lo = senk ? S.y1 : S.x1, hi = senk ? S.y2 : S.x2, m = (lo + hi) / 2;
     return !S.zh ? [lo, hi] : S.zh[1] === "0" ? [lo, m] : [m, hi]; }
+  const eingangR = () => ({ x1: links(EINGANG), y1: oben(EINGANG), x2: rechts(EINGANG), y2: unten(EINGANG) });
   function tueren(R, paare, breite) {
     const T = [], teile = id => R.filter(q => (q.r == null ? q.id : q.r) === id), tol = 2, min = breite + RAND_PX;
     // je Paar von Rechtecken die Tür an der gemeinsamen Kante; bei L-Räumen (mehrere Rechtecke) die längste Kante
@@ -963,7 +1124,7 @@
     for (const [a, b] of paare) {
       const AA = teile(a); if (!AA.length) continue;
       let best = null;
-      if (b === -1) for (const A of AA) { const t = eingang(A, a, b); if (t && (!best || t[0] > best[0])) best = t; }
+      if (b === -1) for (const A of AA) { const t = EINGANG ? zwischen(A, eingangR(), a, b) : eingang(A, a, b); if (t && (!best || t[0] > best[0])) best = t; }   // neu: Vorraum vor der Wohnungstür
       else for (const A of AA) for (const B of teile(b)) { const t = zwischen(A, B, a, b); if (t && (!best || t[0] > best[0])) best = t; }
       if (best) T.push(best[1]);
     }
@@ -983,6 +1144,12 @@
     TUER_PX = (f && f.tuer || 0.9) * PX_M; TEILE_PX = 0.5 * PX_M;          // Türbreite je Programm (Siza 0,8 m), sonst 0,9 m
     RAND_PX = (f && f.tuerRand != null ? f.tuerRand : 0.2) * PX_M;
     if (typeof FELD !== "undefined") { FELD.x = BREITE / 2; FELD.y = HOEHE / 2; FELD.w = BREITE; FELD.h = HOEHE; }
+    if (f && f.umriss) { const c = feldVieleck(f); UMRISS = c.U; HINDERNIS = c.H; FASSADE = c.F; KANTEN_U = c.kanten; SCHRAEG_U = c.schraeg; }
+    else { UMRISS = null; HINDERNIS = []; FASSADE = []; KANTEN_U = []; SCHRAEG_U = []; }
+    EINGANG = f && f.eingang ? gen(-1, (f.eingang[0] + f.eingang[2]) / 2 * PX_M, (f.eingang[1] + f.eingang[3]) / 2 * PX_M, (f.eingang[2] - f.eingang[0]) * PX_M, (f.eingang[3] - f.eingang[1]) * PX_M) : null;
+    WAND = (f && f.wand || 0) * PX_M;
+    if (UMRISS && EINGANG) HINDERNIS = HINDERNIS.concat([EINGANG]);       // der Vorraum begrenzt das Wachsen genau an seiner Kante (nicht im Zellraster)
+    HINDERNIS_R = HINDERNIS.map(g => ({ x1: links(g), y1: oben(g), x2: rechts(g), y2: unten(g) }));
   }
   const feldVon = programm => programm && PROGRAMME[programm] && PROGRAMME[programm].feld || null;
   const PLAN_DURCHGAENGE = 120;                                          // Wachsen in der Bewertung (Ansicht: 300)
@@ -997,14 +1164,25 @@
     let breite = 0, flaeche = 0, ue = 0, tuer = 0, lform = 0;
     const teile = id => R.filter(q => q.r === id), raumIds = [...new Set(R.map(q => q.r))];
     const istFlaeche = {};
+    // neu (Wand): Innenfläche = Rechteck ohne die halbe Wand an jeder Seite, die nicht an einen Teil desselben Raums grenzt;
+    // neu (Umriss): an schrägen Kanten beschnittene Teile im selben Verhältnis
+    const innen = (t, T2) => {
+      const fl = t.poly ? vielFlaeche(t.poly) : (t.x2 - t.x1) * (t.y2 - t.y1);
+      if (!WAND) return fl;
+      const h = WAND / 2, an = (k, u) => u !== t && (k === 0 ? Math.abs(u.y2 - t.y1) <= 1 && Math.min(u.x2, t.x2) - Math.max(u.x1, t.x1) > 1 : k === 1 ? Math.abs(u.x1 - t.x2) <= 1 && Math.min(u.y2, t.y2) - Math.max(u.y1, t.y1) > 1
+        : k === 2 ? Math.abs(u.y1 - t.y2) <= 1 && Math.min(u.x2, t.x2) - Math.max(u.x1, t.x1) > 1 : Math.abs(u.x2 - t.x1) <= 1 && Math.min(u.y2, t.y2) - Math.max(u.y1, t.y1) > 1);
+      const d = [0, 1, 2, 3].map(k => T2.some(u => an(k, u)) ? 0 : h);
+      const w = t.x2 - t.x1, hh = t.y2 - t.y1, wi = Math.max(0, w - d[1] - d[3]), hi = Math.max(0, hh - d[0] - d[2]);
+      return w * hh > 0 ? fl * wi * hi / (w * hh) : 0;
+    };
     for (const id of raumIds) {                                           // Fläche je Raum: alle Teile, ohne ihre gegenseitige Überlappung
-      const T2 = teile(id); let a = T2.reduce((q, t) => q + (t.x2 - t.x1) * (t.y2 - t.y1), 0);
+      const T2 = teile(id); let a = (WAND || UMRISS) ? T2.reduce((q, t) => q + innen(t, T2), 0) : T2.reduce((q, t) => q + (t.x2 - t.x1) * (t.y2 - t.y1), 0);
       for (let i = 0; i < T2.length; i++) for (let k = i + 1; k < T2.length; k++) a -= schnitt(T2[i], T2[k]);
       istFlaeche[id] = a / (PX_M * PX_M);
       flaeche += Math.max(0, P[id][2] * 0.95 - istFlaeche[id]);
     }
     for (const r of R) {
-      const w = Math.min(r.x2 - r.x1, r.y2 - r.y1) / PX_M, db = Math.max(0, (P[r.r][3] || 0) - w);
+      const w = (Math.min(r.x2 - r.x1, r.y2 - r.y1) - (WAND && !(P[r.r][4] || {}).fest ? WAND : 0)) / PX_M, db = Math.max(0, (P[r.r][3] || 0) - w);   // neu (Wand): lichte Breite
       breite += db;
       raeume.push({ id: r.id, raum: r.r, breite: w, flaeche: istFlaeche[r.r], zuSchmal: db > 0.01, zuKlein: P[r.r][2] * 0.95 - istFlaeche[r.r] > 0.01 });
     }
@@ -1018,7 +1196,8 @@
     for (const [a, b] of paare) {
       const AA = teile(a); if (!AA.length) continue;
       let d = Infinity;
-      if (b === -1) for (const A of AA) {                                 // Eingang: Abstand zur Außenwand + fehlende Wandlänge
+      if (b === -1 && EINGANG) { const E = eingangR(); for (const A of AA) d = Math.min(d, kontakt(A, E, noetig)); }   // neu: an den Vorraum vor der Wohnungstür
+      else if (b === -1) for (const A of AA) {                            // Eingang: Abstand zur Außenwand + fehlende Wandlänge
         const ab = Math.min(A.x1, BREITE - A.x2, A.y1, HOEHE - A.y2), l = Math.max(A.x2 - A.x1, A.y2 - A.y1);
         d = Math.min(d, Math.max(0, ab) + Math.max(0, noetig - l));
       }
@@ -1055,8 +1234,36 @@
     }
     const fehlt = paare.length - T.length;
     const nah = NAEHE > 0 && PROGRAMME[programm].vorbild ? aehnlichkeit(ind, programm, R).mittel : null;   // Rekonstruktion: Abweichung vom Vorbild zählt mit
-    return { f3: fehlt * 2 + tuer * 3 + breite * 10 + flaeche + ue * 5 + lform * 3 + treppe * 5 + (nah == null ? 0 : NAEHE * 20 * (1 - nah)), fehlt, tuer, breite, flaeche, ue, lform, treppe, raeume, aehnlich: nah,
-             gueltig: fehlt === 0 && breite < 0.01 && flaeche < 0.01 && ue < 0.05 && lform < 0.02 && treppe < 0.05 };
+    const fz = funktionsmass(R, P), funk = fz ? fz.fehl : 0, mitF = FUNKTION && !!fz;
+    return { f3: fehlt * 2 + tuer * 3 + breite * 10 + flaeche + ue * 5 + lform * 3 + treppe * 5 + (nah == null ? 0 : NAEHE * 20 * (1 - nah)) + (mitF ? funk * 3 : 0), fehlt, tuer, breite, flaeche, ue, lform, treppe, raeume, aehnlich: nah,
+             funktion: fz, funk,
+             gueltig: fehlt === 0 && breite < 0.01 && flaeche < 0.01 && ue < 0.05 && lform < 0.02 && treppe < 0.05 && (!mitF || funk < 0.01) };
+  }
+
+  /** Funktionsmaß (neu, 27.11.2026, Wunsch Reinhard): Jeder Raum mit der Eigenschaft opt.fassade (braucht Fassade bzw. Tageslicht) braucht
+      ein Stück Fassade von mindestens 1,1 m für ein Fenster – Kanten des Umrisses mit der Art "fassade" oder eine gemeinsame Wand mit einem
+      Raum mit opt.aussen (Außenraum). Allgemein für jede Bauaufgabe: welche Räume Fassade brauchen, legt das Programm fest, nicht das Modell
+      (bei Wohnungen z. B. Wohnen, Zimmer, Essen; Bad, Küche, Abstellraum, Flur ohne). null, wenn das Programm keine Fassade kennt.
+      fehl: gleitender Fehlbetrag in m (fehlende Länge; ohne Berührung Länge + Abstand zur nächsten Fassade). */
+  function funktionsmass(R, P) {
+    if (!FASSADE.length || !P.some(q => q[4] && q[4].fassade)) return null;
+    const soll = FASSADE_M * PX_M, aussenR = R.filter(q => (P[q.r][4] || {}).aussen);
+    const gemeinsam = (A, B) => (Math.abs(A.x2 - B.x1) <= 2 || Math.abs(B.x2 - A.x1) <= 2) ? Math.max(0, Math.min(A.y2, B.y2) - Math.max(A.y1, B.y1))
+      : (Math.abs(A.y2 - B.y1) <= 2 || Math.abs(B.y2 - A.y1) <= 2) ? Math.max(0, Math.min(A.x2, B.x2) - Math.max(A.x1, B.x1)) : 0;
+    const out = { n: 0, ok: 0, fehlt: [], je: {}, fehl: 0 };
+    for (const id of [...new Set(R.map(q => q.r))]) {
+      if (!((P[id][4] || {}).fassade)) continue;
+      out.n++;
+      let best = 0, ab = Infinity;
+      for (const A of R.filter(q => q.r === id)) {
+        for (const s of FASSADE) { const l = streckeIn(s, A.x1 - 2, A.y1 - 2, A.x2 + 2, A.y2 + 2); if (l > best) best = l; if (!l) ab = Math.min(ab, streckeAbstand(s, A)); }
+        for (const B of aussenR) { const l = gemeinsam(A, B); if (l > best) best = l; }
+      }
+      out.je[id] = +(best / PX_M).toFixed(2);
+      if (best >= soll - 0.5) out.ok++;
+      else { out.fehlt.push(id); out.fehl += (best > 0 ? soll - best : soll + (ab < Infinity ? ab : 0)) / PX_M; }
+    }
+    return out;
   }
 
   /** Wände verschieben (neu, Nachbesserung am fertigen Plan; Zug nach Merrell, Schkufza und Koltun 2010, hier vereinfacht nachgebaut):
@@ -1171,18 +1378,23 @@
     // links/rechts, vorn/hinten und beiden; es zählt die beste Lage
     const B = BREITE * m, H = HOEHE * m;
     const lagen = [[false, false], [true, false], [false, true], [true, true]];
+    // neu (27.11.2026, Schalter dreh90): bei annähernd quadratischem Feld (Seiten höchstens 15 % verschieden) auch um 90° gedreht
+    // (Plan an der Diagonale gespiegelt und auf das Feld gestreckt, dazu seine Spiegelungen) – es zählt die beste der acht Lagen
+    const quadrat = DREH90 && Math.abs(B - H) <= 0.15 * Math.max(B, H);
+    if (quadrat) lagen.push([false, false, true], [true, false, true], [false, true, true], [true, true, true]);
     let best = null;
-    for (const [sx, sy] of lagen) {
+    for (const [sx, sy, tr] of lagen) {
       const je = [];
       for (let raum = 0; raum < V.length; raum++) {
-        const P = R.filter(q => q.r === raum).map(q => { const x1 = q.x1 * m, x2 = q.x2 * m, y1 = q.y1 * m, y2 = q.y2 * m;   // Teile eines Raums überlappen sich nach dem Teilen nicht
+        const P = R.filter(q => q.r === raum).map(q => { let x1 = q.x1 * m, x2 = q.x2 * m, y1 = q.y1 * m, y2 = q.y2 * m;   // Teile eines Raums überlappen sich nach dem Teilen nicht
+          if (tr) [x1, y1, x2, y2] = [y1 * B / H, x1 * H / B, y2 * B / H, x2 * H / B];
           return [sx ? B - x2 : x1, sy ? H - y2 : y1, sx ? B - x1 : x2, sy ? H - y1 : y2]; });
         let s_ = 0; for (const a of P) for (const b of V[raum]) s_ += schnitt(a, b);
         const u = P.reduce((q, a) => q + fl(a), 0) + V[raum].reduce((q, b) => q + fl(b), 0) - s_;
         je.push(u > 0 ? s_ / u : 0);
       }
       const mittel = je.reduce((q, v) => q + v, 0) / je.length;
-      if (!best || mittel > best.mittel) best = { mittel, je, gespiegelt: { x: sx, y: sy } };
+      if (!best || mittel > best.mittel) best = { mittel, je, gespiegelt: { x: sx, y: sy }, gedreht: !!tr };
     }
     return best;
   }
@@ -1249,9 +1461,11 @@
     const rek = +S.param.naehe > 0 && zz.programm && PROGRAMME[zz.programm].vorbild;
     let treffer = null;
     const haus = !!zz.og;
+    // neu (Schalter knapp): auch bei Wohnungen den Flächenausgleich versuchen, je Prüfung nur beim Elter mit dem kleinsten f3, länger (25 Runden)
+    const eKnapp = KNAPP && !haus ? zz.eltern.reduce((a, b) => (b.f3 < a.f3 ? b : a), zz.eltern[0]) : null;
     if (zz.t % S.o.pruefen === 0) for (const e of zz.eltern) {
       let w = planPruefung(e, zz.paare, zz.programm), eg = e;
-      if (!w.gueltig && AUSGLEICH && haus && knapp(w)) { const r = flaecheAusgleichen(e, zz.paare, zz.programm); if (r.wert.gueltig) { eg = r.ind; w = r.wert; } }
+      if (!w.gueltig && AUSGLEICH && (haus || e === eKnapp) && knapp(w)) { const r = flaecheAusgleichen(e, zz.paare, zz.programm, haus ? undefined : 25); if (r.wert.gueltig) { eg = r.ind; w = r.wert; } }
       if (!w.gueltig) continue;
       let og = null;
       if (haus) { og = ogPassend(zz, eg, { kandidaten: [e.og] }); if (!og) { if (!P.egGueltig) P.egGueltig = { ind: kopie(eg), wert: w, nachgebessert: false }; continue; } }   // Haus: nur mit gültigem OG
@@ -1270,7 +1484,7 @@
     if (!treffer && zz.t >= S.o.generationen) {
       for (const e of zz.eltern.slice().sort((a, b) => a.f3 - b.f3).slice(0, 3)) {
         const r = nachbessern(e, zz.paare, zz.programm, zuf, S.o.versuche, zz.sym, zz.fest, zz.starr);
-        if (!r.wert.gueltig && AUSGLEICH && haus && knapp(r.wert)) { const a = flaecheAusgleichen(r.ind, zz.paare, zz.programm); if (a.wert.gueltig) { r.ind = a.ind; r.wert = a.wert; } }
+        if (!r.wert.gueltig && AUSGLEICH && (haus || KNAPP) && knapp(r.wert)) { const a = flaecheAusgleichen(r.ind, zz.paare, zz.programm, haus ? undefined : 25); if (a.wert.gueltig) { r.ind = a.ind; r.wert = a.wert; } }
         if (r.wert.gueltig && haus) {                                     // Haus: erst das eigene OG des Individuums nachbessern
           const og = ogPassend(zz, r.ind, { kandidaten: [e.og], nachbessern: true, zuf, versuche: S.o.versuche });
           if (og) { treffer = { ind: r.ind, wert: r.wert, og, nachgebessert: true }; break; }
@@ -1295,7 +1509,7 @@
   /** Suche (Haus, neu 25.11.2026): erst das EG (eigener Lauf ohne OG), dann zu jedem gültigen EG ein eigener OG-Lauf mit Treppe und Hof
       dieses EG; ein Treffer ist nur ein Haus mit beiden gültigen Geschossen */
   let AUSGLEICH = true;                                                  // Flächenausgleich in der Haussuche (neu, 25.11.2026; nur Häuser, Palladio und dichte Packung bleiben wie abgestimmt)
-  const knapp = w => w.fehlt === 0 && w.treppe < 0.05 && w.ue < 0.05 && w.lform < 0.02;   // nur Fläche oder Breite fehlen
+  const knapp = w => w.fehlt === 0 && w.treppe < 0.05 && w.ue < 0.05 && w.lform < 0.02 && (!FUNKTION || !(w.funk >= 0.01));   // nur Fläche oder Breite fehlen
   const OG_VERSUCHE = 3;                                                 // Läufe für das OG je gültigem EG
   function sucheWeiter(S, budget) {
     let rest = budget;
@@ -1388,11 +1602,11 @@
   function loslassen(z) { z.gesperrt = -1; }
 
   const M = { get BREITE() { return BREITE; }, get HOEHE() { return HOEHE; }, get PX_M() { return PX_M; }, get TUER_PX() { return TUER_PX; }, get TEILE_PX() { return TEILE_PX; },
-           setzeFeld, registriere, aehnlichkeit, symmetrisiere, fixiere, PROGRAMME, flaechen, FASSUNGEN, REGLER, STANDARD, rundeBank, normal, gen, kopie, kollision, schnittRechteck, ueberlappung,
+           setzeFeld, registriere, aehnlichkeit, impfe, klippe, vielFlaeche, streckeIn, funktionsmass, get UMRISS() { return UMRISS; }, get HINDERNIS() { return HINDERNIS; }, get FASSADE() { return FASSADE; }, get EINGANG() { return EINGANG; }, get WAND() { return WAND; }, symmetrisiere, fixiere, PROGRAMME, flaechen, FASSUNGEN, REGLER, STANDARD, rundeBank, normal, gen, kopie, kollision, schnittRechteck, ueberlappung,
            setzeBreite, setzeBreite50, pruefeRand, proportion, abstossen, entwickle, verschiebe, variiereGroesse, variiereGroesseVoll,
            inversion, kreuzung, nachbarn, ringAbstand, zusatzAbstand, zusatzUeberlappung, paarDistanz, distanzen, erfuellt,
            federVektor, federn, aussen, grundriss, tueren, planPruefung, nachbessern, planAbstand, waehleVerschiedene,
-           sucheNeu, sucheWeiter, zustandAusTreffer, ogPassend, kopple, treppeVon, flaecheAusgleichen, setzeAusgleich: v => { AUSGLEICH = !!v; }, setzeTaschen: v => { TASCHEN = !!v; }, setzeFest: f => { FEST = new Set((f || []).map(q => q[0])); }, lMoeglich, lRaeume, variiereAnteil, startPopulation, erzeuge, schritt, aendere, beste, ziehe, loslassen };
+           sucheNeu, sucheWeiter, zustandAusTreffer, ogPassend, setzeGrammatik: g => { GRAMMATIK = g || null; }, kanteSchieben, planAlsInd, wandSchieben, rechteck: g => ({ x1: links(g), y1: oben(g), x2: rechts(g), y2: unten(g) }), get FEST() { return FEST; }, kopple, treppeVon, flaecheAusgleichen, setzeAusgleich: v => { AUSGLEICH = !!v; }, setzeTaschen: v => { TASCHEN = !!v; }, setzeFest: f => { FEST = new Set((f || []).map(q => q[0])); }, lMoeglich, lRaeume, variiereAnteil, startPopulation, erzeuge, schritt, aendere, beste, ziehe, loslassen };
   if (typeof globalThis !== "undefined" && globalThis.KREMLAS_VORBILDER) for (const D of Object.values(globalThis.KREMLAS_VORBILDER)) registriere(D);
   return M;
 });

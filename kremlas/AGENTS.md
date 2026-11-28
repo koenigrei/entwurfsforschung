@@ -16,6 +16,7 @@ simulationen/_gemeinsam/  gemeinsamer Rahmen der Frühen Simulationen (nicht kop
 kremlas/                eigenes Lab-Projekt (seit 23.11.2026; bis dahin simulationen/kremlas-dichte-packung/), nutzt ../simulationen/_gemeinsam/
   index.html         statische Seite (Kopf, Bühne, Text, Fuß); lädt zufall.js, sim.js, modell.js, app.js
   modell.js          reine Logik, kein DOM: erzeuge(param, zufall), schritt(z, param), aendere(z, param, id)
+  grammatik.js       Regeln über Raumeigenschaften (Versuch 4): Zonierung, Regeln am Plan, Regeln als Mutation; über setzeGrammatik eingehängt
   app.js             Sim.starte({...}): Parameter (Fassung mit „folgen“), zeichne, Verlauf, legende, kennzahlen, Ziehen (klick + pointerup)
   test/*.test.mjs    node --test
 ```
@@ -49,6 +50,13 @@ kremlas/                eigenes Lab-Projekt (seit 23.11.2026; bis dahin simulati
 | `planPruefung(ind, paare, programm)` | Plan prüfen: `{f3, fehlt, tuer, breite, flaeche, ue, raeume, gueltig}` (Türen, Mindestbreite, Fläche ≥ 95 %, Überlappung < 0,05 m²) |
 | `sucheNeu(param, neueZufall, o)`, `sucheWeiter(S, budget)` | Suche gültiger Grundrisse in Zeitscheiben: `o.anzahl`, `o.saat` (erste Saat), `o.ziel`, `o.generationen` (200 je Lauf), `o.laeufe`; Treffer `{saat, t, ind, eltern, wert, plan, nachgebessert}` |
 | `nachbessern`, `planAbstand`, `waehleVerschiedene`, `zustandAusTreffer` | örtliche Suche auf f3, Abstand zweier Pläne (m), Maximin-Auswahl, Zustand aus einem Treffer |
+| `feld.umriss`, `feld.kanten`, `feld.eingang`, `feld.wand` (Programm) | neu 27.11.2026: Feld als Vieleck (m, auch schräge Kanten) mit Kantenart "fassade"/"innen", Vorraum vor der Wohnungstür (Nachbar −1), Wandstärke; Getter `UMRISS`, `HINDERNIS`, `FASSADE`, `EINGANG`, `WAND` (px) |
+| `klippe(P, x1, y1, x2, y2)`, `vielFlaeche(P)`, `streckeIn(s, …)` | Vieleck auf Rechteck beschneiden, Fläche, Länge einer Strecke im Rechteck |
+| `funktionsmass(R, P)` | Räume mit `opt.fassade` an der Fassade (≥ 1,1 m) oder an einem Außenraum (`opt.aussen`): `{n, ok, fehlt, je, fehl}`; in `planPruefung` als `funktion`, `funk` |
+| Parameter `funktion`, `dreh90`, `knapp` | nicht in `REGLER` (keine Bedienelemente): Funktionsmaß in f3 und Gültigkeit; Ähnlichkeit auch um 90° gedreht; Flächenausgleich bei knappen Fehlern auch für Wohnungen |
+| `grammatik.js` (eigenes Modul, `Grammatik`) | neu 27.11.2026 (Versuch 4): `eigenschaften(prog)`, `zonierungen(prog, {anzahl, saaten, saat})`, `teilprogramm(prog, zon, i)` → `{prog, abbild, ursprung}`, `zusammensetzen(M, prog, zon, teile)`, `aufraeumen(M, ind, paare, programm, zufall, ms)` → `{ind, wert, angewandt}`, `mutiere(c, z, P, rate, zufall, M)`; nur Raumeigenschaften (`opt.fassade`, `opt.aussen`, `opt.fest`, `opt.erschliessung`), keine Namen; Tests `test/grammatik.test.mjs` (Prüfprogramm Büro) |
+| `setzeGrammatik(G)`, Parameter `grammatik` | Modul einhängen; mit `grammatik` > 0 wendet `mutiere` je Kind mit dieser Wahrscheinlichkeit eine Regel an; nicht in `REGLER`, ohne Parameter unverändert. Dazu `kanteSchieben`, `planAlsInd`, `rechteck(g)`, Getter `FEST` für das Modul |
+| Parameter `impfung` | neu 27.11.2026 (Versuch 3, Fallinjektion): `{faelle: [[[x0, y0, x1, y1] …] je Raum oder null], anteil: 0.3, streuung: 0.3}`; `impfe(G, fall, zufall, streuung)` setzt Mittelpunkt und Seitenverhältnis der ersten round(anteil · μ) Eltern; nicht in `REGLER`, ohne den Parameter unverändert |
 
 Im Browser steht zum Ausprobieren `window.SIM` bereit: `SIM.schritt(100)`, `SIM.zuruecksetzen(7)`, `SIM.lade(z, saat)`, `SIM.setze("fassung", "topologie")`, `SIM.zustand`, dazu `Modell.beste(SIM.zustand)`.
 Die Adresse merkt sich Saat und geänderte Parameter (`#saat=7&fassung=gang&mu=12`).
