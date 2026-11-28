@@ -30,12 +30,12 @@ def herkunft(Q):
 
 # CSS der Logos, gleich für vorlage.html und die Seiten aus page.html (Variablen --ink, --paper, --line gibt es in beiden)
 HERKUNFT_CSS = """
-/* Raster: Zeile 1 Icon · ENTWURFSFORSCHUNG · KI LAB, Zeile 2 die Logos unter Icon und Titel: Bauhaus-Universität bündig mit dem Icon,
-   InfAU endet bündig mit dem Titel (Wunsch Reinhard König 27.11.2026). Die Marke ist ein Subgrid, damit Zeile 2 die Spalten kennt. */
+/* Raster: Zeile 1 Icon · ENTWURFSFORSCHUNG · KI LAB, Zeile 2 die Logos: Bauhaus-Universität und InfAU direkt nebeneinander,
+   zusammen mittig unter der ganzen Marke (Wunsch Reinhard König 28.11.2026; 27.11. noch bündig mit Icon und Titel). */
 .marke-box { display: grid; grid-template-columns: auto auto auto; column-gap: 12px; row-gap: 7px; align-content: center; justify-content: start;
   padding: 9px var(--g, 16px) 10px; border-right: 1px solid var(--line); flex: 0 0 auto; }
 .marke-box a.marke { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; padding: 0; border-right: 0; height: auto; }
-.herkunft { grid-column: 1 / 3; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.herkunft { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 14px; }
 .herkunft a { display: block; line-height: 0; color: var(--ink); }
 .uni-wort { background: var(--paper); }   /* weiße Schrift auf Schwarz, bei Hell schwarze Schrift auf Weiß */
 .uni-wort .uni-logo { height: 24px; width: auto; display: block; }
@@ -79,8 +79,8 @@ KOPF_CSS = """
 """
 
 # Doku = Sammelseite der Dokumentationen lab/doku/ zwischen Archiv und Über (Wunsch Reinhard König 27.11.2026)
-NAV = {"de": (("", "Lab"), ("archiv/", "Archiv"), ("lab/doku/", "Doku"), ("#ueber", "Über")),
-       "en": (("", "Lab"), ("archiv/", "Archive"), ("lab/doku/en.html", "Docs"), ("#ueber", "About"))}
+NAV = {"de": (("", "Lab"), ("archiv/", "Archiv"), ("lab/doku/", "Doku")),   # ohne „Über“ (Wunsch Reinhard 28.11.2026)
+       "en": (("", "Lab"), ("archiv/", "Archive"), ("lab/doku/en.html", "Docs"))}
 
 
 def ersetze_kopf(html, Q, zur_wurzel, en=False):
