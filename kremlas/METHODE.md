@@ -43,7 +43,7 @@ Kein Tab, ein Test von außen (`Grundrisse/sammlung/kremlas_test/` im Repo Planu
 
 ## Prüfer
 
-- `node --test` im Ordner `kremlas/` (71 Tests, 27.11.2026; davon 5 für `grammatik.js` an einem Büro als Prüfprogramm): Regeln des Originals nachgerechnet (Rundung wie C#, Kollision, Federn, Selektion), Verhalten über mehrere Saaten (Stern gelöst, Grundriss mit Türen), Plan-Prüfung an Hand-Beispielen, Suche wiederholbar.
+- `node --test` im Ordner `kremlas/` (73 Tests, 28.11.2026; davon 7 für `grammatik.js` an allgemeinen Prüfprogrammen: Büro, symmetrisches Programm, Geschoss mit Treppe): Regeln des Originals nachgerechnet (Rundung wie C#, Kollision, Federn, Selektion), Verhalten über mehrere Saaten (Stern gelöst, Grundriss mit Türen), Plan-Prüfung an Hand-Beispielen, Suche wiederholbar.
 - `py -3.14 simulationen/pruefe_apps.py kremlas`: Browser, hell/dunkel, 1440/390 px, `pruef_ausdruck` (gültiger Plan nach 400 Generationen).
 - Plan gültig, wenn jede geforderte Nachbarschaft eine Tür hat (gemeinsame Wand ≥ 1,1 m), Überlappung < 0,05 m², jeder Raum seine Mindestbreite und ≥ 95 % seiner Fläche hat, L-Teile sich auf der Mindestbreite berühren und bündig liegen.
 
@@ -58,6 +58,7 @@ Das Modell erfasst Anordnung und Topologie, nicht Stil. Gleiche Regeln ergeben j
 - Gleitende statt stufige Fehlermaße (Türen als Abstand + fehlende Wandlänge), damit Selektion und Nachbesserung kleine Fortschritte sehen.
 - Viele kurze Läufe statt eines langen: Treffer kommen fast immer früh oder gar nicht.
 - Erschließung zuerst (Versuch 4): Wo viele Räume an einem Flur hängen (Büro, Schule), legt die Grammatik das Band mit genug Anschlusslänge fest und KREMLAS packt nur noch die Zonen – gültig in unter 1 s statt nie. Bei Wohnungen mit wenigen, verschränkten Räumen bringt die Zonierung nichts.
+- Zonierung passt nur, wenn sie die Ordnung des Vorbilds trifft (Versuch 5, 28.11.2026): Bei Palladio (Raster mit zusammengesetzten Sälen auf der Achse) und den Siza-Obergeschossen (Flurketten um Treppe und Luftraum) verbessert die hierarchische Art die Rekonstruktion nicht; KREMLAS allein rekonstruiert sechs Villen in rund 3 s fast vollständig. Für Raster wäre eine eigene, allgemeine Zonierungsregel nötig.
 
 ## Stolperfallen
 

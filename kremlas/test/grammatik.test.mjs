@@ -83,3 +83,46 @@ test("Grammatik als Mutation: ohne Parameter rechnet das Modell exakt wie ohne M
   assert.notEqual(a, ohneModul, "Regeln wirken");
   M.setzeGrammatik(null);
 });
+
+// Versuch 5 (28.11.2026): Spiegelachse und feste Räume – allgemeine Prüfprogramme ohne Raumnamen-Regeln
+const SYM = {
+  titel: "Symmetrisches Prüfprogramm", feld: { b: 20, h: 12 },
+  raeume: [["A", "A", 30, 3, null], ["A'", "A'", 30, 3, null], ["B", "B", 24, 3, null], ["B'", "B'", 24, 3, null], ["Halle", "Hall", 70, 4, null]],
+  paare: [[0, 4], [1, 4], [2, 4], [3, 4], [0, 2], [1, 3], [4, -1]],
+  symmetrie: { achse: [4], paare: [[0, 1], [3, 2]] }
+};
+test("Grammatik (o.sym): Band auf der Achse, Paare auf beide Seiten, rechte Zone gespiegelt; ohne o.sym unverändert", () => {
+  const Z = G.zonierungen(SYM, { sym: true, saat: 1 });
+  assert.ok(Z.length > 0);
+  for (const zon of Z) {
+    const r = zon.band.rect; assert.ok(Math.abs((r[0] + r[2]) / 2 - 10) < 0.06, "Band mittig auf der Achse");
+    const li = zon.zonen.find(z => z.spiegelVon == null && z.rect[2] <= r[0] + 1e-6), re = zon.zonen.find(z => z.spiegelVon != null);
+    assert.ok(li && re); assert.deepEqual(li.raeume.slice().sort(), [0, 2], "Nachbarn 0–2 auf einer Seite (Paar 3/2 umgedreht)");
+    assert.deepEqual(re.raeume.slice().sort(), [1, 3]);
+  }
+  const ohne = G.zonierungen(SYM, { saat: 1 });
+  assert.ok(ohne.every(z => !z.sym));
+  // spiegleTeile: Rechteck der linken Zone erscheint gespiegelt beim Partner
+  const zon = Z[0], li = zon.zonen.findIndex(z => z.spiegelVon == null && z.raeume.includes(0)), re = zon.zonen.findIndex(z => z.spiegelVon === li);
+  const teile = zon.zonen.map(() => null);
+  teile[li] = { abbild: zon.zonen[li].raeume.slice(), ursprung: [0, 0], rechtecke: zon.zonen[li].raeume.map((k, i) => ({ r: i, id: i, x1: 1, y1: 2 + 4 * i, x2: 4, y2: 5 + 4 * i })) };
+  G.spiegleTeile(SYM, zon, teile);
+  const T = teile[re], i0 = T.abbild.indexOf(1);
+  assert.ok(i0 >= 0); const q = T.rechtecke.find(x => x.r === i0);
+  assert.deepEqual([q.x1, q.x2], [16, 19]);
+});
+test("Grammatik (o.festEingang, o.festMeiden): ohne Eingang beginnt das Band am festen Raum an der Erschließung und überdeckt keinen festen Raum", () => {
+  const P = {
+    titel: "Geschoss mit Treppe", feld: { b: 8, h: 12 },
+    raeume: [["T", "T", 5, 0, { fest: true }], ["F", "F", 10, 1, { erschliessung: true }], ["R1", "R1", 14, 2.4, null], ["R2", "R2", 14, 2.4, null], ["R3", "R3", 14, 2.4, null], ["L", "L", 12, 0, { fest: true }]],
+    paare: [[0, 1], [1, 2], [1, 3], [1, 4]],
+    vorbild: [[[5, 0, 7, 3]], [[0, 3, 8, 4.2]], [[0, 0, 5, 3]], [[0, 4.2, 4, 8]], [[4, 4.2, 8, 8]], [[0, 9, 8, 12]]]
+  };
+  const ein = G.festEingang(P, G.eigenschaften(P));
+  assert.deepEqual([ein.innen, ein.rand], ["unten", 3]);
+  const Z = G.zonierungen(P, { festEingang: true, festMeiden: true, saat: 1 });
+  assert.ok(Z.length > 0);
+  const ueber = (a, b) => Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])) * Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1]));
+  for (const zon of Z) for (const k of [0, 5]) assert.ok(ueber(zon.band.rect, P.vorbild[k][0]) <= 0.05, "Band meidet feste Räume");
+  assert.deepEqual(JSON.stringify(G.zonierungen(P, { saat: 1 })), JSON.stringify(G.zonierungen(P, { saat: 1 })), "ohne Schalter saatgetreu");
+});

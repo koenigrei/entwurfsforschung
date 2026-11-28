@@ -118,7 +118,10 @@
     const E = eigenschaften(prog), F = prog.feld, U = feldUmriss(F), FS = fassadenStrecken(F), wand = F.wand || 0;
     const ersch = E.filter(e => e.erschliessung), AE = ersch.reduce((s, e) => s + e.flaeche, 0);
     const brutto = e => (Math.sqrt(e.flaeche) + wand) ** 2;                // Fläche mit halber Wand ringsum (wie die Gene im Modell)
-    const ein = eingangsSeite(F);
+    const ohneEingang = !F.eingang && !prog.paare.some(q => q[0] < 0 || q[1] < 0);
+    const ein = o.festEingang && ohneEingang ? (festEingang(prog, E) || eingangsSeite(F)) : eingangsSeite(F);
+    const festR = o.festMeiden ? E.filter(e => e.fest && prog.vorbild && prog.vorbild[e.k]).flatMap(e => prog.vorbild[e.k]) : [];
+    const ueber = (a, b) => Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])) * Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1]));
     const ergebnis = [], gesehen = new Set();
     const baender = [];
     if (!ersch.length) for (const t of [0.5, 0.35, 0.65]) for (const ax of ["x", "y"]) baender.push({ ohne: [ax, t] });   // ohne Erschließung: eine Teilung
@@ -144,6 +147,16 @@
         }
         baender.push({ rect: [x0, y0, x1, y1], senkrecht, art, versatz });
       }
+      // Versuch 5 (o.sym): Achsenspalte – das Band nimmt nur so viel Länge, dass die übrigen Räume auf der Achse in derselben Spalte Platz
+      // finden (Band am Eingang, Achsenräume dahinter)
+      if (o.sym && prog.symmetrie && prog.symmetrie.paare) {
+        const gepaart = new Set(prog.symmetrie.paare.flat()), achseA = E.filter(e => !e.erschliessung && !gepaart.has(e.k)).reduce((s, e) => s + brutto(e), 0);
+        if (achseA > 0 && (ein.innen === "oben" || ein.innen === "unten")) {
+          const wB = Math.max(wB0, (AE + achseA) / Math.max(0.5, F.h - wand) + wand), L = Math.min(F.h, AE / (wB - wand) + wand);
+          const x0 = Math.min(Math.max(0, F.b / 2 - wB / 2), F.b - wB), y0 = ein.innen === "unten" ? Math.min(Math.max(0, ein.rand), F.h - L) : Math.max(0, ein.rand - L);
+          baender.push({ rect: [x0, y0, x0 + wB, y0 + L], senkrecht: true, art: "achse", versatz: 0 });
+        }
+      }
       // Z1b Mittelflur mit Stich (T): Hauptband mittig parallel zur Eingangsseite, Stich vom Vorraum bis zum Hauptband
       for (const lage of [0.5, 0.4, 0.6]) {
         const vert = ein.innen === "links" || ein.innen === "rechts";      // Eingang an einer Seitenkante → Hauptband senkrecht
@@ -163,6 +176,11 @@
     }
     for (const band0 of baender) {
       const band = band0.ohne ? null : band0, [B, H] = [F.b, F.h];
+      // Versuch 5 (o.festMeiden): das Band der Erschließung darf feste Räume (Treppe, Luftraum) nicht überdecken
+      if (band && festR.length && festR.some(q => ueber(q, band.rect) > 0.05 || (band.stich && ueber(q, band.stich) > 0.05))) continue;
+      // Versuch 5 (o.sym): mit Spiegelachse nur Bänder auf der Achse (x = Feldmitte, wie symmetrisiere im Modell)
+      const symProg = o.sym && prog.symmetrie && prog.symmetrie.paare && prog.symmetrie.paare.length ? prog.symmetrie : null;
+      if (symProg && (!band || !band.senkrecht || band.stich || Math.abs((band.rect[0] + band.rect[2]) / 2 - B / 2) > 0.05)) continue;
       let zonen;
       if (!band) { const [ax, t] = band0.ohne; zonen = ax === "x" ? [[0, 0, B * t, H], [B * t, 0, B, H]] : [[0, 0, B, H * t], [0, H * t, B, H]]; }
       else {
@@ -186,6 +204,7 @@
       }).filter(z => z.A >= 1.0 && Math.min(z.rect[2] - z.rect[0], z.rect[3] - z.rect[1]) >= 0.9);
       if (!zonen.length) continue;
       const nachbarZ = (i, j) => i === j || gemeinsam(zonen[i].rect, zonen[j].rect) >= 0.9;
+      if (symProg) { const z = symZonierung(prog, E, zonen, band, symProg, brutto, nachbarZ); if (z) { if (o.festEingang) z.ein = ein; ergebnis.push(z); } continue; }
       const raeume = E.filter(e => !e.erschliessung);
       for (let s = 0; s < o.saaten; s++) {
         const zuf = zuf0(o.saat * 7919 + s * 104729 + baender.indexOf(band0) * 31);
@@ -230,6 +249,7 @@
         if (gesehen.has(sig)) continue; gesehen.add(sig);
         const zon = { band, zonen: zonen.map((z, i) => ({ rect: z.rect, poly: z.poly, A: z.A, fassade: z.fassade, amBand: z.amBand,
                       raeume: raeume.filter(e => zu[e.k] === i).map(e => e.k) })).filter(z => z.raeume.length), wert };
+        if (o.festEingang) zon.ein = ein;
         ergebnis.push(zon);
         // Z2: innere Zone für dienende Räume am Band (zwei Lagen), wenn die Zone auch bediente Räume hat
         if (band && !band.stich) for (const lage of ["anfang", "ende"]) { const inn = innereZone(zon, band, E, wand, lage, U, FS); if (inn) ergebnis.push(inn); }
@@ -261,6 +281,68 @@
     zonen.push({ rect: inner, poly: P, A: flaeche(P), fassade: fl, amBand: true, raeume: dien, innen: true });
     const fuell = Ad / (flaeche(P) * 0.97);
     return { band, zonen, wert: zon.wert + 0.2 + 2 * Math.max(0, fuell - 1) + 0.5 * Math.max(0, 0.7 - fuell), innen: lage };
+  }
+
+  /** Versuch 5 (o.festEingang): Programm ohne Eingang (kein Nachbar −1, kein feld.eingang), z. B. ein Obergeschoss – der Zugang ist der
+      feste Raum, der an die Erschließung grenzt (Treppe); das Band beginnt an seiner Seite mit dem meisten freien Feld. */
+  function festEingang(prog, E) {
+    const F = prog.feld, ersch = new Set(E.filter(e => e.erschliessung).map(e => e.k));
+    const e = E.find(q => q.fest && prog.vorbild && prog.vorbild[q.k] && [...q.nachbarn].some(b => ersch.has(b)));
+    if (!e) return null;
+    const R = prog.vorbild[e.k], r = [Math.min(...R.map(q => q[0])), Math.min(...R.map(q => q[1])), Math.max(...R.map(q => q[2])), Math.max(...R.map(q => q[3]))];
+    const mx = (r[0] + r[2]) / 2, my = (r[1] + r[3]) / 2;
+    const seiten = [["unten", F.h - r[3], { x: mx, y: r[3], rand: r[3] }], ["oben", r[1], { x: mx, y: r[1], rand: r[1] }],
+                    ["rechts", F.b - r[2], { x: r[2], y: my, rand: r[2] }], ["links", r[0], { x: r[0], y: my, rand: r[0] }]];
+    const s = seiten.reduce((a, b) => (b[1] > a[1] ? b : a));
+    return Object.assign({ innen: s[0] }, s[2]);
+  }
+  /** Versuch 5 (o.sym): symmetrische Zonierung an einer senkrechten Spiegelachse (Feldmitte). Die Paare der Symmetrie werden auf die
+      beiden Seiten verteilt (das erste Paar wie angegeben, jedes weitere so, dass die meisten Nachbarschaften auf einer Seite bleiben),
+      Räume auf der Achse (außer der Erschließung im Band) und ungepaarte Räume in die Zonen auf der Achse. Die rechte Zone wird nicht
+      gepackt, sondern aus der Lösung der linken gespiegelt (spiegleTeile). */
+  function symZonierung(prog, E, zonen, band, S, brutto, nachbarZ) {
+    const [bx0, , bx1] = band.rect, li = zonen.findIndex(z => z.rect[2] <= bx0 + 1e-6), re = zonen.findIndex(z => z.rect[0] >= bx1 - 1e-6);
+    if (li < 0 || re < 0) return null;
+    const links = new Set(), partner = new Map();
+    S.paare.forEach(([a, b], i) => {
+      partner.set(a, b); partner.set(b, a);
+      const na = [...E[a].nachbarn].filter(x => links.has(x)).length, nb = [...E[b].nachbarn].filter(x => links.has(x)).length;
+      links.add(i === 0 || na >= nb ? a : b);
+    });
+    const mitte = zonen.map((z, i) => i).filter(i => i !== li && i !== re);
+    const rest = E.filter(e => !e.erschliessung && !partner.has(e.k)).map(e => e.k);
+    if (rest.length && !mitte.length) return null;
+    const zu = {}, used = zonen.map(() => 0);
+    for (const k of links) { zu[k] = li; used[li] += brutto(E[k]); }
+    for (const k of rest) {                                                  // in die Mittelzone mit den meisten Nachbarn, sonst die leerste
+      let bi = mitte[0], bw = -Infinity;
+      for (const i of mitte) { const w = 2 * [...E[k].nachbarn].filter(b => zu[b] === i).length - used[i] / zonen[i].A; if (w > bw) { bw = w; bi = i; } }
+      zu[k] = bi; used[bi] += brutto(E[k]);
+    }
+    let wert = 0;
+    zonen.forEach((z, i) => { if (i === re || !used[i]) return; const v = used[i] / (z.A * 0.97); wert += 3 * Math.max(0, v - 1) + 0.5 * Math.max(0, 0.7 - v); });
+    const seite = k => (zu[k] != null ? zu[k] : partner.has(k) ? re : null);
+    for (const [a, b] of prog.paare) {
+      if (a < 0 || b < 0 || E[a].erschliessung || E[b].erschliessung) continue;
+      const za = seite(a), zb = seite(b); if (za != null && zb != null && !nachbarZ(za, zb)) wert += 1;
+    }
+    const raus = zonen.map((z, i) => ({ rect: z.rect, poly: z.poly, A: z.A, fassade: z.fassade, amBand: z.amBand,
+      raeume: i === re ? [...links].map(k => partner.get(k)) : E.filter(e => zu[e.k] === i).map(e => e.k), spiegelVon: i === re ? li : undefined }));
+    const keep = raus.map((z, i) => z.raeume.length > 0), idx = []; let n = 0; keep.forEach((k, i) => { idx[i] = k ? n++ : -1; });
+    const out = raus.filter((z, i) => keep[i]); for (const z of out) if (z.spiegelVon != null) z.spiegelVon = idx[z.spiegelVon];
+    return { band, zonen: out, wert, sym: true };
+  }
+  /** Versuch 5: Lösung der linken Zone an der Feldmitte auf die gespiegelte rechte Zone übertragen (Räume über die Paare der Symmetrie). */
+  function spiegleTeile(prog, zon, teile) {
+    const S = prog.symmetrie, B = prog.feld.b; if (!S) return teile;
+    const partner = new Map(); for (const [a, b] of S.paare) { partner.set(a, b); partner.set(b, a); }
+    zon.zonen.forEach((Z, j) => {
+      if (Z.spiegelVon == null || !teile[Z.spiegelVon]) return;
+      const T = teile[Z.spiegelVon], [u0, u1] = T.ursprung;
+      teile[j] = { abbild: T.abbild.map(k => (partner.has(k) ? partner.get(k) : k)), ursprung: [0, 0],
+        rechtecke: T.rechtecke.map(q => Object.assign({}, q, { x1: B - (q.x2 + u0), x2: B - (q.x1 + u0), y1: q.y1 + u1, y2: q.y2 + u1 })) };
+    });
+    return teile;
   }
 
   /** KREMLAS-Programm einer Zone: Feld = Umgebungsrechteck der Zone, Umriss = Feld-Umriss ∩ Zone mit Fassadenkanten, Räume der Zone (feste
@@ -320,7 +402,7 @@
     for (const g of G) delete g._an;
     if (zon.band) {                                                         // Band: erschließende Räume nacheinander, der am Eingang zuerst
       const ersch = E.filter(e => e.erschliessung).sort((a, b) => b.amEingang - a.amEingang), A = ersch.reduce((s, e) => s + e.flaeche, 0);
-      const [x0, y0, x1, y1] = zon.band.rect, ein = eingangsSeite(prog.feld);
+      const [x0, y0, x1, y1] = zon.band.rect, ein = zon.ein || eingangsSeite(prog.feld);
       const umgekehrt = zon.band.senkrecht ? ein.y > (y0 + y1) / 2 : ein.x > (x0 + x1) / 2;
       let t = 0;
       if (zon.band.stich) {                                                  // T: der Raum am Eingang bekommt den Stich (als Teil, bei einem Raum mit dem Hauptband)
@@ -483,5 +565,5 @@
     }
   }
 
-  return { eigenschaften, zonierungen, teilprogramm, zusammensetzen, aufraeumen, mutiere, klippe, flaeche, eingangsSeite };
+  return { eigenschaften, zonierungen, teilprogramm, zusammensetzen, aufraeumen, mutiere, klippe, flaeche, eingangsSeite, festEingang, spiegleTeile };
 });
