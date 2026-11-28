@@ -645,6 +645,13 @@ def bauen(alt="/"):
     seite(vorlage, os.path.join(SITE, "impressum", "index.html"),
           open(os.path.join(HIER, "impressum.html"), encoding="utf-8").read(),
           "../", "Impressum · Entwurfsforschung", "", alt)
+    # ---------------------------------------------------------------- Quellcode in lab/ lesbar statt ausgeführt (28.11.2026, Wunsch Reinhard über bergdoerfer-a2):
+    # der Webspace führte .py als CGI aus (HTTP 500); Unterordner mit eigener .htaccess (kremlas, simulationen …) erben das.
+    open(os.path.join(SITE, "lab", ".htaccess"), "w", encoding="utf-8", newline="\n").write(
+        "# Quellcode im Browser lesbar statt als Programm ausgeführt (.py antwortete mit 500) – Wunsch Reinhard 28.11.2026\n"
+        "RemoveHandler .py .pl .cgi .sh .rb\n"
+        'AddType "text/plain; charset=utf-8" .py .md .cjs .sh .txt\n'
+        'AddType "text/javascript; charset=utf-8" .mjs\n')
     n = sum(len(f) for _, _, f in os.walk(SITE))
     print(f"site/ gebaut: {len(lab)} Projekte, {len(karten)} Archiveinträge, {nsim} Simulationen, {nkat} Katalog-Apps, {n} Dateien")
 
